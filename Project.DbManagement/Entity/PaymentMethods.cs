@@ -5,10 +5,11 @@ using System.Text;
 using System.Threading.Tasks;
 using System.ComponentModel.DataAnnotations;
 using System.Collections;
+using Project.DbManagement.Entity;
 
 namespace Project.DbManagement
 {
-    public class phuong_thuc_thanh_toan
+    public class PaymentMethods: BaseEntity
     {
         [Key]
         public Guid id_phuong_thuc_thanh_toan { get; set; }
@@ -20,7 +21,7 @@ namespace Project.DbManagement
         public DateTime last_modifi_on_date { get; set; }
         public string update_by { get; set; }
 
-        public virtual ICollection<hoa_don> Hoa_Dons { get; set; }
+        public virtual ICollection<Bill> Hoa_Dons { get; set; }
         public virtual ICollection<don_hang> Don_Hangs { get; set; }
     }
 }

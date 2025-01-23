@@ -1,4 +1,5 @@
-﻿using System;
+﻿using Project.DbManagement.Entity;
+using System;
 using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
 using System.ComponentModel.DataAnnotations.Schema;
@@ -8,7 +9,7 @@ using System.Threading.Tasks;
 
 namespace Project.DbManagement
 {
-    public class hoa_don
+    public class Bill: BaseEntity
     {
         [Key]
         public Guid id_hoa_don { get; set; }
@@ -32,19 +33,19 @@ namespace Project.DbManagement
         public string update_by { get; set; }
         public string? ghi_chu { get; set; }
 
-        public virtual ICollection<chi_tiet_giam_gia> Chi_Tiet_Giam_Gias { get; set; }
-        public virtual ICollection<hoa_don_chi_tiet> Hoa_Don_Chi_Tiets { get; set; }
+        public virtual ICollection<VoucherDetails> Chi_Tiet_Giam_Gias { get; set; }
+        public virtual ICollection<BillDetails> Hoa_Don_Chi_Tiets { get; set; }
 
         [ForeignKey("id_nhan_vien")]
         public virtual nhan_vien Nhan_Vien { get; set; }
 
         [ForeignKey("id_khach_hang")]
-        public virtual khach_hang Khach_Hang { get; set; }
+        public virtual Customers Khach_Hang { get; set; }
 
         [ForeignKey("id_don_hang")]
         public virtual don_hang Don_Hang { get; set; }
 
         [ForeignKey("id_phuong_thuc_thanh_toan")]
-        public virtual phuong_thuc_thanh_toan Phuong_Thuc_Thanh_Toan { get; set; }
+        public virtual PaymentMethods Phuong_Thuc_Thanh_Toan { get; set; }
     }
 }

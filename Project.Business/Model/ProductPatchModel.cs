@@ -4,9 +4,9 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace Project.DbManagement
+namespace Project.Business.Model
 {
-    public class nhan_vien
+    public class ProductPatchModel
     {
     }
 }

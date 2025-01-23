@@ -1,4 +1,5 @@
-﻿using System;
+﻿using Project.DbManagement.Entity;
+using System;
 using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
 using System.ComponentModel.DataAnnotations.Schema;
@@ -8,7 +9,7 @@ using System.Threading.Tasks;
 
 namespace Project.DbManagement
 {
-    public class hoa_don_chi_tiet
+    public class BillDetails: BaseEntity
     {
         [Key]
         public Guid id_hoa_don_chi_tiet { get; set; }
@@ -25,6 +26,6 @@ namespace Project.DbManagement
         public string? ghi_chu { get; set; }
 
         [ForeignKey("id_hoa_don")]
-        public virtual hoa_don Hoa_Don { get; set; }
+        public virtual Bill Hoa_Don { get; set; }
     }
 }
