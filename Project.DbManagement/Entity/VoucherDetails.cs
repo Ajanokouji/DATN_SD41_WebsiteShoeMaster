@@ -1,4 +1,5 @@
-﻿using System;
+﻿using Project.DbManagement.Entity;
+using System;
 using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
 using System.ComponentModel.DataAnnotations.Schema;
@@ -8,7 +9,7 @@ using System.Threading.Tasks;
 
 namespace Project.DbManagement
 {
-    public class chi_tiet_giam_gia
+    public class VoucherDetails: BaseEntity
     {
         public Guid id_giam_gia { get; set; }
         public Guid id_hoa_don { get; set; }
@@ -16,9 +17,9 @@ namespace Project.DbManagement
         public DateTime last_modifi_on_date { get; set; }
 
         [ForeignKey("id_giam_gia")]
-        public virtual giam_gia Giam_Gia { get; set; }
+        public virtual Voucher Giam_Gia { get; set; }
 
         [ForeignKey("id_hoa_don")]
-        public virtual hoa_don Hoa_Don { get; set; }
+        public virtual Bill Hoa_Don { get; set; }
     }
 }

@@ -4,10 +4,11 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 using System.ComponentModel.DataAnnotations;
+using Project.DbManagement.Entity;
 
 namespace Project.DbManagement
 {
-    public class giam_gia
+    public class Voucher: BaseEntity
     {
         [Key]
         public Guid id_giam_gia { get; set; }
@@ -19,6 +20,6 @@ namespace Project.DbManagement
         public DateTime create_on_date { get; set; }
         public DateTime last_modifi_on_date { get; set; }
 
-        public virtual ICollection<chi_tiet_giam_gia> Chi_Tiet_Giam_Gias { get; set; }
+        public virtual ICollection<VoucherDetails> Chi_Tiet_Giam_Gias { get; set; }
     }
 }

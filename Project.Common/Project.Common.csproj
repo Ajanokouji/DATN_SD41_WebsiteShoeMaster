@@ -1,0 +1,22 @@
+﻿<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <TargetFramework>net8.0</TargetFramework>
+    <ImplicitUsings>enable</ImplicitUsings>
+    <Nullable>enable</Nullable>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <PackageReference Include="S-ERP.FileManagementService.Business" Version="16.1.0" />
+    <PackageReference Include="S-ERP.FileManagementService.Models" Version="16.1.0" />
+    <PackageReference Include="SERP.Framework.Business" Version="15.7.6" />
+    <PackageReference Include="SERP.Framework.Common" Version="15.7.6" />
+    <PackageReference Include="SERP.Framework.DB" Version="15.7.6" />
+    <PackageReference Include="SERP.Framework.Models" Version="15.7.6" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <Folder Include="Pagination\" />
+  </ItemGroup>
+
+</Project>

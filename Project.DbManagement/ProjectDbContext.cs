@@ -1,4 +1,5 @@
 ﻿using Microsoft.EntityFrameworkCore;
+using Project.DbManagement.Entity;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -9,12 +10,20 @@ namespace Project.DbManagement
 {
     public class ProjectDbContext : DbContext
     {
-        public DbSet<giam_gia> giam_gias { get; set; }
-        public DbSet<chi_tiet_giam_gia> chi_tiet_giam_gias { get; set; }
-        public DbSet<hoa_don> hoa_dons { get; set; }
-        public DbSet<phuong_thuc_thanh_toan> phuong_thuc_thanh_toans { get; set; }
-        public DbSet<hoa_don_chi_tiet> hoa_don_chi_tiets { get; set; }
-        public DbSet<thong_tin_lien_he> thong_tin_lien_hes { get; set; }
+        public DbSet<Voucher> Vouchers { get; set; }
+        public DbSet<VoucherDetails> VoucherDetails { get; set; }
+        public DbSet<Bill> Bills { get; set; }
+        public DbSet<BillDetails> BillDetails { get; set; }
+        public DbSet<PaymentMethods> PaymentMethods { get; set; }
+        public DbSet<Contacts> Contacts{ get; set; }
+        public DbSet<Cart> Carts { get; set; }
+        public DbSet<CartDetails> CartDetails { get; set; }
+        public DbSet<ProductEntity> Products { get; set; }
+        public DbSet<Categories> Categories { get; set; }
+        public DbSet<User> Users{ get; set; }
+        public DbSet<Customers> Customers { get; set; }
+
+
 
         public ProjectDbContext(DbContextOptions options) : base(options)
         {
