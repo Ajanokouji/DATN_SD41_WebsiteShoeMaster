@@ -14,8 +14,8 @@ namespace Project.DbManagement
         [Key]
         public Guid id_hoa_don_chi_tiet { get; set; }
         public string ma_hoa_don_chi_tiet { get; set; }
-        public Guid id_hoa_don { get; set; }
-        public Guid id_san_pham_chi_tiet { get; set; }
+        public Guid? id_hoa_don { get; set; }
+        public Guid? id_san_pham_chi_tiet { get; set; }
         public int trang_thai { get; set; }
         public int so_luong { get; set; }
         public double don_gia { get; set; }

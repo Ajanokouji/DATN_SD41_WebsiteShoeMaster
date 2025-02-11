@@ -13,10 +13,10 @@ namespace Project.DbManagement
     {
         [Key]
         public Guid id_hoa_don { get; set; }
-        public Guid id_nhan_vien { get; set; }
-        public Guid id_khach_hang { get; set; }
-        public Guid id_don_hang { get; set; }
-        public Guid id_phuong_thuc_thanh_toan { get; set; }
+        public Guid? id_nhan_vien { get; set; }
+        public Guid? id_khach_hang { get; set; }
+        public Guid? id_don_hang { get; set; }
+        public Guid? id_phuong_thuc_thanh_toan { get; set; }
         public string ma_hoa_don { get; set; }
         public string ten_khach_nhan { get; set; }
         public string email_khach_nhan { get; set; }
