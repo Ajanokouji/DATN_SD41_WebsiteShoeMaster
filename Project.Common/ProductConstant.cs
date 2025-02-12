@@ -4,9 +4,10 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace Project.Business.Model
+namespace Project.Common
 {
-    public class ProductPatchModel : ProductEntity
+    public static class ProductConstant
     {
+        public const string ProductNotFound = "ProductNotFound";
     }
 }
