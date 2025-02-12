@@ -9,7 +9,7 @@ using System.Threading.Tasks;
 
 namespace Project.DbManagement
 {
-    public class Bill: BaseEntity
+    public class BillEntity: BaseEntity
     {
         [Key]
         public Guid id_hoa_don { get; set; }
@@ -36,16 +36,16 @@ namespace Project.DbManagement
         public virtual ICollection<VoucherDetails> Chi_Tiet_Giam_Gias { get; set; }
         public virtual ICollection<BillDetails> Hoa_Don_Chi_Tiets { get; set; }
 
-        [ForeignKey("id_nhan_vien")]
-        public virtual nhan_vien Nhan_Vien { get; set; }
+        //[ForeignKey("id_nhan_vien")]
+        //public virtual nhan_vien Nhan_Vien { get; set; }
 
-        [ForeignKey("id_khach_hang")]
-        public virtual Customers Khach_Hang { get; set; }
+        //[ForeignKey("id_khach_hang")]
+        //public virtual Customers Khach_Hang { get; set; }
 
-        [ForeignKey("id_don_hang")]
-        public virtual don_hang Don_Hang { get; set; }
+        //[ForeignKey("id_don_hang")]
+        //public virtual don_hang Don_Hang { get; set; }
 
-        [ForeignKey("id_phuong_thuc_thanh_toan")]
-        public virtual PaymentMethods Phuong_Thuc_Thanh_Toan { get; set; }
+        //[ForeignKey("id_phuong_thuc_thanh_toan")]
+        //public virtual PaymentMethods Phuong_Thuc_Thanh_Toan { get; set; }
     }
 }

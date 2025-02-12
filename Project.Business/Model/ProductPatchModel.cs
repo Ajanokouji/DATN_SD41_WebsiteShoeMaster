@@ -6,7 +6,7 @@ using System.Threading.Tasks;
 
 namespace Project.Business.Model
 {
-    public class ProductPatchModel
+    public class ProductPatchModel : ProductEntity
     {
     }
 }

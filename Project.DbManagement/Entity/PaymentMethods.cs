@@ -21,7 +21,7 @@ namespace Project.DbManagement
         public DateTime last_modifi_on_date { get; set; }
         public string update_by { get; set; }
 
-        public virtual ICollection<Bill> Hoa_Dons { get; set; }
-        public virtual ICollection<don_hang> Don_Hangs { get; set; }
+        public virtual ICollection<BillEntity> Hoa_Dons { get; set; }
+        //public virtual ICollection<don_hang> Don_Hangs { get; set; }
     }
 }

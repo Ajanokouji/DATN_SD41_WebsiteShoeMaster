@@ -1,6 +1,7 @@
 ﻿using Project.Business.Model;
 using Project.DbManagement;
 using Microsoft.EntityFrameworkCore;
+using Project.Business.Interface;
 
 namespace Project.Business.Implement;
 
