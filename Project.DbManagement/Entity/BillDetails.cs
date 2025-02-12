@@ -26,6 +26,6 @@ namespace Project.DbManagement
         public string? ghi_chu { get; set; }
 
         [ForeignKey("id_hoa_don")]
-        public virtual Bill Hoa_Don { get; set; }
+        public virtual BillEntity Hoa_Don { get; set; }
     }
 }

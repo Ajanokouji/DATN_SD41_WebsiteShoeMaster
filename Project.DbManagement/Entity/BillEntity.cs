@@ -9,7 +9,7 @@ using System.Threading.Tasks;
 
 namespace Project.DbManagement
 {
-    public class Bill: BaseEntity
+    public class BillEntity: BaseEntity
     {
         [Key]
         public Guid id_hoa_don { get; set; }

@@ -1,6 +1,11 @@
-﻿using Microsoft.EntityFrameworkCore;
+﻿using LinqKit;
+using Microsoft.EntityFrameworkCore;
+using Project.Business.Interface;
 using Project.Business.Model;
 using Project.DbManagement;
+using SERP.Framework.Business;
+using SERP.Framework.Common;
+using SERP.Framework.DB.Extensions;
 
 namespace Project.Business.Implement;
 
@@ -12,12 +17,12 @@ public class BillRepository : IBillRepository
     {
         _context = context;
     }
-    public async Task<Bill> FindAsync(Guid id)
+    public async Task<BillEntity> FindAsync(Guid id)
         {
             var res = await _context.Bills.FindAsync(id);
             return res;
         }
-        public async Task<IEnumerable<Bill>> ListAllAsync(BillQueryModel queryModel)
+        public async Task<IEnumerable<BillEntity>> ListAllAsync(BillQueryModel queryModel)
         {
             var query = BuildQuery( queryModel);
             var resId = await query.Select(x => x.id_hoa_don).ToListAsync();
@@ -26,23 +31,24 @@ public class BillRepository : IBillRepository
 
         }
 
-        public async Task<IEnumerable<Bill>> ListByIdsAsync(IEnumerable<Guid> ids)
+        public async Task<IEnumerable<BillEntity>> ListByIdsAsync(IEnumerable<Guid> ids)
         {
             var res = await _context.Bills.Where(x => ids.Contains(x.id_hoa_don)).ToListAsync();
             return res;
         }
 
-        public async Task<Pagination<Bill>> GetAllAsync(BillQueryModel queryModel)
+
+    public async Task<Pagination<BillEntity>> GetAllAsync(BillQueryModel queryModel)
         {
             BillQueryModel billQueryModel = queryModel;
 
 
             queryModel.Sort = QueryUtils.FormatSortInput(queryModel.Sort);
-            IQueryable<Bill> queryable = BuildQuery( queryModel);
+            IQueryable<BillEntity> queryable = BuildQuery( queryModel);
             string sortExpression = string.Empty;
             if (string.IsNullOrWhiteSpace(queryModel.Sort) || queryModel.Sort.Equals("-LastModifiedOnDate"))
             {
-                queryable = queryable.OrderByDescending((Bill x) => x.LastModifiedOnDate);
+                queryable = queryable.OrderByDescending((BillEntity x) => x.LastModifiedOnDate);
             }
             else
             {
@@ -52,26 +58,26 @@ public class BillRepository : IBillRepository
             return await queryable.GetPagedOrderAsync(queryModel.CurrentPage.Value, queryModel.PageSize.Value, sortExpression);
         }
 
-        private IQueryable<Bill> BuildQuery( BillQueryModel queryModel)
+        private IQueryable<BillEntity> BuildQuery( BillQueryModel queryModel)
         {
-            IQueryable<Bill> query = _context.Bills.AsNoTracking().Where(x => x.Isdeleted!=true);
+            IQueryable<BillEntity> query = _context.Bills.AsNoTracking().Where(x => x.Isdeleted!=true);
 
             if (queryModel.Id.HasValue)
             {
-                query = query.Where((Bill x) => x.Id == queryModel.Id.Value);
+                query = query.Where((BillEntity x) => x.id_hoa_don == queryModel.Id.Value);
             }
 
             if (queryModel.ListId != null && queryModel.ListId.Any())
             {
-                query = query.Where((Bill x) => queryModel.ListId.Contains(x.Id));
+                query = query.Where((BillEntity x) => queryModel.ListId.Contains(x.id_hoa_don));
             }
 
             if (queryModel.ListTextSearch != null && queryModel.ListTextSearch.Any())
             {
-                ExpressionStarter<Bill> expressionStarter = LinqKit.PredicateBuilder.New<Bill>();
+                ExpressionStarter<BillEntity> expressionStarter = LinqKit.PredicateBuilder.New<BillEntity>();
                 foreach (string ts in queryModel.ListTextSearch)
                 {
-                    expressionStarter = expressionStarter.Or((Bill p) => 
+                    expressionStarter = expressionStarter.Or((BillEntity p) => 
                                                                 p.ma_hoa_don.Contains(ts.ToLower()) ||
                                                                 p.ten_khach_nhan.Contains(ts.ToLower()));
                 }
@@ -82,7 +88,7 @@ public class BillRepository : IBillRepository
             if (!string.IsNullOrWhiteSpace(queryModel.FullTextSearch))
             {
                 string fullTextSearch = queryModel.FullTextSearch.ToLower();
-                query = query.Where((Bill x) => x.ten_khach_nhan.Contains(fullTextSearch));
+                query = query.Where((BillEntity x) => x.ten_khach_nhan.Contains(fullTextSearch));
             }
             
             if (queryModel.id_hoa_don.HasValue)
@@ -197,16 +203,16 @@ public class BillRepository : IBillRepository
             return res;
         }
 
-        public async Task<Bill> saveAsync(Bill bills)
+        public async Task<BillEntity> saveAsync(BillEntity bills)
         {
             var res = await saveAsync(new [] { bills });
             return res.FirstOrDefault();
 
         }
 
-        public virtual async Task<IEnumerable<Bill>> saveAsync( IEnumerable<Bill>  bills)
+        public virtual async Task<IEnumerable<BillEntity>> saveAsync( IEnumerable<BillEntity>  bills)
         {
-            var updated = new List<Bill>();
+            var updated = new List<BillEntity>();
 
             foreach (var bill in bills)
             {
@@ -260,8 +266,7 @@ public class BillRepository : IBillRepository
         }
 
 
-
-        public async Task<Bill> DeleteAsync(Guid Id)
+        public async Task<BillEntity> DeleteAsync(Guid Id)
         {
             var exist = await FindAsync(Id);
             if (exist==null) throw new Exception(IBillRepository.MessageNotFound);
@@ -271,8 +276,10 @@ public class BillRepository : IBillRepository
             return exist;
         }
 
-        public Task<IEnumerable<Bill>> DeleteAsync(Guid[] deleteIds)
+        public Task<IEnumerable<BillEntity>> DeleteAsync(Guid[] deleteIds)
         {
             throw new NotImplementedException();
         }
+
+   
 }
