@@ -167,7 +167,7 @@ namespace Project.Business.Implement
 
         public async Task<ProductEntity> SaveAsync(ProductEntity productEntity)
         {
-            return  await SaveAsync(new[] {productEntity} )
+            return await SaveAsync(new[] { productEntity });
         }
 
         public Task<ProductEntity> SaveAsync(IEnumerable<ProductEntity> productEntities)

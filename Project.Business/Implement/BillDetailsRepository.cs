@@ -2,6 +2,10 @@
 using Project.DbManagement;
 using Microsoft.EntityFrameworkCore;
 using Project.Business.Interface;
+using SERP.Framework.Common;
+using SERP.Framework.Business;
+using SERP.Framework.DB.Extensions;
+using LinqKit;
 
 namespace Project.Business.Implement;
 
@@ -59,12 +63,12 @@ public class BillDetailsRepository : IBillDetailsRepository
 
             if (queryModel.Id.HasValue)
             {
-                query = query.Where((BillDetails x) => x.Id == queryModel.Id.Value);
+                query = query.Where((BillDetails x) => x.id_hoa_don_chi_tiet == queryModel.Id.Value);
             }
 
             if (queryModel.ListId != null && queryModel.ListId.Any())
             {
-                query = query.Where((BillDetails x) => queryModel.ListId.Contains(x.Id));
+                query = query.Where((BillDetails x) => queryModel.ListId.Contains(x.id_hoa_don_chi_tiet));
             }
 
             if (queryModel.ListTextSearch != null && queryModel.ListTextSearch.Any())

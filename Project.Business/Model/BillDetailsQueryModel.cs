@@ -1,4 +1,5 @@
 ﻿using Project.Common;
+using SERP.Metadata.Models.Query;
 
 namespace Project.Business.Model;
 

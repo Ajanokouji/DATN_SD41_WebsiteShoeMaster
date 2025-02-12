@@ -1,5 +1,6 @@
 ﻿using Project.Common;
 using Project.DbManagement.Entity;
+using SERP.Metadata.Models.Query;
 
 namespace Project.Business.Model;
 
