@@ -220,26 +220,12 @@ namespace Project.Business.Implement
             throw new NotImplementedException();
         }
 
-        public Task<Pagination<Voucher>> GetAllAsync(VoucherDetailsQueryModel queryModel)
-        {
-            throw new NotImplementedException();
-        }
-
-        public Task<IEnumerable<Voucher>> ListAllAsync(VoucherDetailsQueryModel queryModel)
-        {
-            throw new NotImplementedException();
-        }
 
         public async Task<int> GetCountAsync(VoucherQueryModel queryModel)
         {
             var query = BuildQuery(queryModel);
             var res = await query.CountAsync();
             return res;
-        }
-
-        public Task<int> GetCountAsync(VoucherDetailsQueryModel queryModel)
-        {
-            throw new NotImplementedException();
         }
     }
 }
