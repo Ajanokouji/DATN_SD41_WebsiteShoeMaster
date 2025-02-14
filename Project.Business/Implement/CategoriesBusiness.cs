@@ -21,7 +21,7 @@ namespace Project.Business.Implement
             return await _categoriesRepository.GetAllAsync(queryModel);
         }
 
-        public async Task<IEnumerable<CategoriesQueryModel>> ListAllAsync(CategoriesQueryModel queryModel)
+        public async Task<IEnumerable<CategoriesEntity>> ListAllAsync(CategoriesQueryModel queryModel)
         {
             return await _categoriesRepository.ListAllAsync(queryModel);
         }
@@ -31,44 +31,46 @@ namespace Project.Business.Implement
             return await _categoriesRepository.GetCountAsync(queryModel);
         }
 
-        public async Task<IEnumerable<CategoriesQueryModel>> ListByIdsAsync(IEnumerable<Guid> ids)
+
+        public async Task<IEnumerable<CategoriesEntity>> ListByIdsAsync(IEnumerable<Guid> ids)
         {
-            return await _categoriesRepository.ListByIdsAsync(ids);
+            var res = await _categoriesRepository.ListByIdsAsync(ids);
+            return res;
         }
 
-        public async Task<CategoriesQueryModel> FindAsync(Guid categoryId)
+        public async Task<CategoriesEntity> FindAsync(Guid categoryId)
         {
             return await _categoriesRepository.FindAsync(categoryId);
         }
 
-        public async Task<CategoriesQueryModel> DeleteAsync(Guid categoryId)
+        public async Task<CategoriesEntity> DeleteAsync(Guid categoryId)
         {
             return await _categoriesRepository.DeleteAsync(categoryId);
         }
 
-        public async Task<IEnumerable<CategoriesQueryModel>> DeleteAsync(Guid[] deleteIds)
+        public async Task<IEnumerable<CategoriesEntity>> DeleteAsync(Guid[] deleteIds)
         {
             return await _categoriesRepository.DeleteAsync(deleteIds);
         }
 
-        public async Task<CategoriesQueryModel> SaveAsync(CategoriesQueryModel categoryEntity)
+        public async Task<CategoriesEntity> SaveAsync(CategoriesEntity categoryEntity)
         {
             var res = await SaveAsync(new[] { categoryEntity });
             return res.FirstOrDefault();
         }
 
-        public async Task<IEnumerable<CategoriesQueryModel>> SaveAsync(IEnumerable<CategoriesQueryModel> categoryEntities)
+        public async Task<IEnumerable<CategoriesEntity>> SaveAsync(IEnumerable<CategoriesEntity> categoryEntities)
         {
             return await _categoriesRepository.SaveAsync(categoryEntities);
         }
 
-        public async Task<CategoriesQueryModel> PatchAsync(CategoriesQueryModel model)
+        public async Task<CategoriesEntity> PatchAsync(CategoriesEntity model)
         {
             var exist = await _categoriesRepository.FindAsync(model.Id);
 
             if (exist == null)
             {
-                throw new ArgumentException(CategoriesConstant.CategoryNotFound);
+                throw new ArgumentException(ICategoriesRepository.MessageNoTFound);
             }
 
             var update = new CategoriesEntity
@@ -143,6 +145,13 @@ namespace Project.Business.Implement
             }
 
             return await SaveAsync(update);
+        }
+
+   
+
+        public Task<IEnumerable<CategoriesEntity>> SaveAsync(IEnumerable<CategoriesQueryModel> categoryEntities)
+        {
+            throw new NotImplementedException();
         }
     }
 }
