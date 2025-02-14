@@ -10,7 +10,7 @@ using System.Threading.Tasks;
 
 namespace Project.Business.Interface
 {
-    public interface IVoucherRepository : IRepository<Voucher, VoucherDetailsQueryModel>
+    public interface IVoucherRepository : IRepository<Voucher, VoucherQueryModel>
     {
         protected const string MessageNotFound = "Voucher not found";
         Task<Voucher> SaveAsync(Voucher article);
