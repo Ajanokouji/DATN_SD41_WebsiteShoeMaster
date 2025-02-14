@@ -23,6 +23,7 @@ namespace Project.DbManagement
         public DbSet<User> Users{ get; set; }
         public DbSet<Customers> Customers { get; set; }
 
+        public DbSet<ProductCategoriesRelation> ProductCategoriesRelations { get; set; }
 
 
         public ProjectDbContext(DbContextOptions options) : base(options)
