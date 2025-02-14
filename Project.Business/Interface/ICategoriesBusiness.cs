@@ -18,7 +18,7 @@ namespace Project.Business.Interface
         /// </summary>
         /// <param name="queryModel">The query model.</param>
         /// <returns>The list of categories.</returns>
-        Task<IEnumerable<CategoriesQueryModel>> ListAllAsync(CategoriesQueryModel queryModel);
+        Task<IEnumerable<CategoriesEntity>> ListAllAsync(CategoriesQueryModel queryModel);
 
         /// <summary>
         /// Count the number of categories by query model.
@@ -32,48 +32,48 @@ namespace Project.Business.Interface
         /// </summary>
         /// <param name="ids">The list of ids.</param>
         /// <returns>The list of categories.</returns>
-        Task<IEnumerable<CategoriesQueryModel>> ListByIdsAsync(IEnumerable<Guid> ids);
+        Task<IEnumerable<CategoriesEntity>> ListByIdsAsync(IEnumerable<Guid> ids);
 
         /// <summary>
         /// Gets a category.
         /// </summary>
         /// <param name="categoryId">The category id.</param>
         /// <returns>The category.</returns>
-        Task<CategoriesQueryModel> FindAsync(Guid categoryId);
+        Task<CategoriesEntity> FindAsync(Guid categoryId);
 
         /// <summary>
         /// Deletes a category.
         /// </summary>
         /// <param name="categoryId">The category id.</param>
         /// <returns>The deleted category.</returns>
-        Task<CategoriesQueryModel> DeleteAsync(Guid categoryId);
+        Task<CategoriesEntity> DeleteAsync(Guid categoryId);
 
         /// <summary>
         /// Deletes a list of categories.
         /// </summary>
         /// <param name="deleteIds">The list of category ids.</param>
         /// <returns>The deleted categories.</returns>
-        Task<IEnumerable<CategoriesQueryModel>> DeleteAsync(Guid[] deleteIds);
+        Task<IEnumerable<CategoriesEntity>> DeleteAsync(Guid[] deleteIds);
 
         /// <summary>
         /// Saves a category.
         /// </summary>
         /// <param name="categoryEntity">The category entity.</param>
         /// <returns>The saved category.</returns>
-        Task<CategoriesQueryModel> SaveAsync(CategoriesQueryModel categoryEntity);
+        Task<CategoriesEntity> SaveAsync(CategoriesEntity categoryEntity);
 
         /// <summary>
         /// Saves categories.
         /// </summary>
         /// <param name="categoryEntities">The list of category entities.</param>
         /// <returns>The saved categories.</returns>
-        Task<IEnumerable<CategoriesQueryModel>> SaveAsync(IEnumerable<CategoriesQueryModel> categoryEntities);
+        Task<IEnumerable<CategoriesEntity>> SaveAsync(IEnumerable<CategoriesQueryModel> categoryEntities);
 
         /// <summary>
         /// Updates a category.
         /// </summary>
         /// <param name="categoryEntity">The category entity.</param>
         /// <returns>The updated category.</returns>
-        Task<CategoriesQueryModel> PatchAsync(CategoriesQueryModel categoryEntity);
+        Task<CategoriesEntity> PatchAsync(CategoriesEntity categoryEntity);
     }
 }

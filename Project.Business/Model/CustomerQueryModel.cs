@@ -1,4 +1,5 @@
 ﻿using Project.Common;
+using SERP.Metadata.Models.Query;
 using System;
 using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations.Schema;
@@ -10,7 +11,7 @@ namespace Project.Business.Model
 {
     public class CustomerQueryModel : BaseRequestModel, IListMetadataFilterQuery
     {
-        public Guid Id { get; set; }
+        public Guid? Id { get; set; }
         public string? Code { get; set; }
         public Guid? TTTHIDMain { get; set; }
         public List<Guid> TTLHRelatedIds { get; set; }
