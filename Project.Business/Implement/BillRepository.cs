@@ -1,6 +1,6 @@
 ﻿using LinqKit;
 using Microsoft.EntityFrameworkCore;
-using Project.Business.Interface;
+using Project.Business.Interface.Repositories;
 using Project.Business.Model;
 using Project.DbManagement;
 using SERP.Framework.Business;

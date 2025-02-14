@@ -1,7 +1,7 @@
 ﻿using Project.Business.Model;
 using Project.DbManagement;
 
-namespace Project.Business.Interface;
+namespace Project.Business.Interface.Repositories;
 
 public interface IBillRepository : IRepository<BillEntity, BillQueryModel>
 {

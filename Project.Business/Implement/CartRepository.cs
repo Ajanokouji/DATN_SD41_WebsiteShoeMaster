@@ -1,21 +1,13 @@
-﻿using AutoMapper.Configuration;
-using LinqKit;
+﻿using LinqKit;
 using Microsoft.EntityFrameworkCore;
-using Project.Business.Interface;
+using Project.Business.Interface.Repositories;
 using Project.Business.Model;
 using Project.DbManagement;
 using Project.DbManagement.Entity;
-using SERP.FileManagementService.Business;
-using SERP.FileManagementService.Entities;
 using SERP.Framework.Business;
 using SERP.Framework.Common;
 using SERP.Framework.Common.Extensions;
 using SERP.Framework.DB.Extensions;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Xml;
-using static System.Net.Mime.MediaTypeNames;
 
 namespace Project.Business.Implement
 {
