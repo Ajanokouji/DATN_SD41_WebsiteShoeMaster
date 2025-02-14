@@ -1,13 +1,9 @@
 ﻿using Project.Business.Interface;
+using Project.Business.Interface.Repositories;
 using Project.Business.Model;
 using Project.Common;
 using Project.DbManagement.Entity;
 using SERP.Framework.Common;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 
 namespace Project.Business.Implement
 {
@@ -17,12 +13,12 @@ namespace Project.Business.Implement
 
         public ProductBusiness(IProductRepository productRepository)
         {
-            _productRepository=productRepository;
+            _productRepository = productRepository;
         }
 
         public async Task<ProductEntity> DeleteAsync(Guid contentId)
         {
-            return  await _productRepository.DeleteAsync(contentId);
+            return await _productRepository.DeleteAsync(contentId);
         }
 
         public async Task<IEnumerable<ProductEntity>> DeleteAsync(Guid[] deleteIds)
@@ -42,20 +38,20 @@ namespace Project.Business.Implement
 
         public async Task<int> GetCountAsync(ProductQueryModel queryModel)
         {
-           return await _productRepository.GetCountAsync(queryModel);
+            return await _productRepository.GetCountAsync(queryModel);
         }
 
         public async Task<IEnumerable<ProductEntity>> ListAllAsync(ProductQueryModel queryModel)
         {
-         return await _productRepository.ListAllAsync(queryModel);
+            return await _productRepository.ListAllAsync(queryModel);
         }
 
         public async Task<IEnumerable<ProductEntity>> ListByIdsAsync(IEnumerable<Guid> ids)
         {
-           return await _productRepository.ListByIdsAsync(ids);
+            return await _productRepository.ListByIdsAsync(ids);
         }
 
-        public async Task<ProductEntity> PatchAsync(ProductEntity  model)
+        public async Task<ProductEntity> PatchAsync(ProductEntity model)
         {
             var exist = await _productRepository.FindAsync(model.Id);
 
@@ -167,12 +163,13 @@ namespace Project.Business.Implement
 
         public async Task<ProductEntity> SaveAsync(ProductEntity productEntity)
         {
-            return await SaveAsync(new[] { productEntity });
+            var res = await SaveAsync(new[] { productEntity });
+            return res.FirstOrDefault();
         }
 
-        public Task<ProductEntity> SaveAsync(IEnumerable<ProductEntity> productEntities)
+        public async Task<IEnumerable<ProductEntity>> SaveAsync(IEnumerable<ProductEntity> productEntities)
         {
-            throw new NotImplementedException();
+            return await _productRepository.SaveAsync(productEntities);
         }
     }
 }

@@ -8,7 +8,7 @@ using System.Threading.Tasks;
 
 namespace Project.DbManagement.Entity
 {
-    public class Categories:BaseEntity
+    public class CategoriesEntity:BaseEntity
     {
         public Guid Id { get; set; }
         public string Name { get; set; }
