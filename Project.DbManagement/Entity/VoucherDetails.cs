@@ -11,6 +11,7 @@ namespace Project.DbManagement
 {
     public class VoucherDetails: BaseEntity
     {
+        public Guid Id { get; set; }
         public Guid id_giam_gia { get; set; }
         public Guid id_hoa_don { get; set; }
         public DateTime create_on_date { get; set; }
