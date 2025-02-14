@@ -7,7 +7,7 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace Project.Business.Interface
+namespace Project.Business.Interface.Repositories
 {
     public interface ICartRepository : IRepository<Cart, CartQueryModel>
     {

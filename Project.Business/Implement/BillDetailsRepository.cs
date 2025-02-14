@@ -1,11 +1,11 @@
 ﻿using Project.Business.Model;
 using Project.DbManagement;
 using Microsoft.EntityFrameworkCore;
-using Project.Business.Interface;
 using SERP.Framework.Common;
 using SERP.Framework.Business;
 using SERP.Framework.DB.Extensions;
 using LinqKit;
+using Project.Business.Interface.Repositories;
 
 namespace Project.Business.Implement;
 
@@ -28,7 +28,6 @@ public class BillDetailsRepository : IBillDetailsRepository
             var resId = await query.Select(x => x.id_hoa_don_chi_tiet).ToListAsync();
             var res = await ListByIdsAsync(resId);
             return res;
-
         }
 
         public async Task<IEnumerable<BillDetails>> ListByIdsAsync(IEnumerable<Guid> ids)
@@ -83,12 +82,6 @@ public class BillDetailsRepository : IBillDetailsRepository
 
                 query = query.Where(expressionStarter);
             }
-
-            if (!string.IsNullOrWhiteSpace(queryModel.FullTextSearch))
-            {
-                string fullTextSearch = queryModel.FullTextSearch.ToLower();
-                query = query.Where((BillDetails x) => x.update_by.Contains(fullTextSearch));
-            }
             
             if (queryModel.id_hoa_don_chi_tiet.HasValue)
             {
@@ -108,16 +101,6 @@ public class BillDetailsRepository : IBillDetailsRepository
             if (!string.IsNullOrEmpty(queryModel.ma_hoa_don_chi_tiet))
             {
                 query = query.Where(x => x.ma_hoa_don_chi_tiet==queryModel.ma_hoa_don_chi_tiet);
-            }
-            
-            if (!string.IsNullOrEmpty(queryModel.create_by))
-            {
-                query = query.Where(x => x.create_by==queryModel.create_by);
-            }
-            
-            if (!string.IsNullOrEmpty(queryModel.update_by))
-            {
-                query = query.Where(x => x.update_by==queryModel.update_by);
             }
             
             if (!string.IsNullOrEmpty(queryModel.ghi_chu))
@@ -140,16 +123,6 @@ public class BillDetailsRepository : IBillDetailsRepository
                 query = query.Where(x => x.so_luong==queryModel.so_luong);
             }
             
-            if (queryModel.create_on_date != null)
-            {
-                query = query.Where(x => x.create_on_date==queryModel.create_on_date);
-            }
-            
-            
-            if (queryModel.last_modifi_on_date != null)
-            {
-                query = query.Where(x => x.last_modifi_on_date==queryModel.last_modifi_on_date);
-            }
             
             return query;
         }
@@ -197,10 +170,6 @@ public class BillDetailsRepository : IBillDetailsRepository
                     exist.trang_thai = billDetail.trang_thai;
                     exist.so_luong = billDetail.so_luong;
                     exist.don_gia = billDetail.don_gia;
-                    exist.create_by = billDetail.create_by;
-                    exist.update_by = billDetail.update_by;
-                    exist.create_on_date = billDetail.create_on_date;
-                    exist.last_modifi_on_date = billDetail.last_modifi_on_date;
                     exist.ghi_chu = billDetail.ghi_chu;
 
                     billDetail.UpdateTracking(billDetail.id_hoa_don_chi_tiet);
