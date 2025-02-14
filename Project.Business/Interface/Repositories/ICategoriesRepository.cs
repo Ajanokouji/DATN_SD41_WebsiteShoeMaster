@@ -10,7 +10,7 @@ namespace Project.Business.Interface.Repositories
 {
     public interface ICategoriesRepository : IRepository<CategoriesEntity, CategoriesQueryModel>
     {
-        protected const string MessageNoTFound = "Cart not found";
+        public const string MessageNoTFound = "Cart not found";
         Task<CategoriesEntity> SaveAsync(CategoriesEntity categories);
         Task<IEnumerable<CategoriesEntity>> SaveAsync(IEnumerable<CategoriesEntity> categories);
     }

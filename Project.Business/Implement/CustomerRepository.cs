@@ -87,9 +87,9 @@ namespace Project.Business.Implement
                 query = query.Where(x => x.Email.Contains(queryModel.Email));
             }
 
-            if (!string.IsNullOrEmpty(queryModel.SoDienThoai))
+            if (!string.IsNullOrEmpty(queryModel.PhoneNumber))
             {
-                query = query.Where(x => x.PhoneNumber == queryModel.SoDienThoai);
+                query = query.Where(x => x.PhoneNumber == queryModel.PhoneNumber);
             }
             //if (queryModel.MetaDataQueries != null && queryModel.MetaDataQueries.Any())
             //{

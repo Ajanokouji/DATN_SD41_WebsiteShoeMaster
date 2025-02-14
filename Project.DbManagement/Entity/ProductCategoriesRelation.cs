@@ -10,7 +10,7 @@ using System.Threading.Tasks;
 
 namespace Project.DbManagement.Entity
 {
-    public class SanPhamDanhMucRelation : BaseEntity
+    public class ProductCategoriesRelation : BaseEntity
     {
         [Key]
         public Guid Id { get; set; }

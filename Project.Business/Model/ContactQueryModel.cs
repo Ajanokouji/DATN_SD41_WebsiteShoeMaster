@@ -11,7 +11,7 @@ namespace Project.Business.Model
 {
     public class ContactQueryModel : BaseRequestModel, IListMetadataFilterQuery
     {
-        public Guid Id { get; set; }
+        public Guid? Id { get; set; }
         public string Ten { get; set; }
         public string? TenDayDu { get; set; }
         public string? DiaChi { get; set; }
