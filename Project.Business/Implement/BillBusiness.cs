@@ -53,7 +53,7 @@ public class BillBusiness : IBillBusiness
 
     public async Task<BillEntity> PatchAsync(BillEntity model)
     {
-        var exist = await _billRepository.FindAsync(model.id_hoa_don);
+        var exist = await _billRepository.FindAsync(model.Id);
 
         if (exist == null)
         {
@@ -62,127 +62,127 @@ public class BillBusiness : IBillBusiness
 
         var update = new BillEntity()
         {
-            id_hoa_don = exist.id_hoa_don,
-            id_nhan_vien = exist.id_nhan_vien,
-            id_khach_hang = exist.id_khach_hang,
-            id_don_hang = exist.id_don_hang,
-            id_phuong_thuc_thanh_toan = exist.id_phuong_thuc_thanh_toan,
-            ma_hoa_don = exist.ma_hoa_don,
-            ten_khach_nhan = exist.ten_khach_nhan,
-            so_dien_thoai_khach_nhan = exist.so_dien_thoai_khach_nhan,
-            dia_chi_nhan = exist.dia_chi_nhan,
-            tong_tien = exist.tong_tien,
-            tong_tien_khuyen_mai = exist.tong_tien_khuyen_mai,
-            tong_tien_sau_khuyen_mai = exist.tong_tien_sau_khuyen_mai,
-            tong_tien_phai_thanh_toan = exist.tong_tien_phai_thanh_toan,
-            trang_thai = exist.trang_thai,
-            trang_thai_thanh_toan = exist.trang_thai_thanh_toan,
-            create_on_date = exist.create_on_date,
-            email_khach_nhan = exist.email_khach_nhan,
-            last_modifi_on_date = exist.last_modifi_on_date,
-            update_by = exist.update_by,
-            ghi_chu = exist.ghi_chu,
+            Id = exist.Id,
+            EmployeeId = exist.EmployeeId,
+            CustomerId = exist.CustomerId,
+            OrderId = exist.OrderId,
+            PaymentMethodId = exist.PaymentMethodId,
+            BillCode = exist.BillCode,
+            RecipientName = exist.RecipientName,
+            RecipientPhone = exist.RecipientPhone,
+            RecipientAddress = exist.RecipientAddress,
+            TotalAmount = exist.TotalAmount,
+            DiscountAmount = exist.DiscountAmount,
+            AmountAfterDiscount = exist.AmountAfterDiscount,
+            AmountToPay = exist.AmountToPay,
+            Status = exist.Status,
+            PaymentStatus = exist.PaymentStatus,
+            CreatedOnDate = exist.CreatedOnDate,
+            RecipientEmail = exist.RecipientEmail,
+            LastModifiedOnDate = exist.LastModifiedOnDate,
+            UpdateBy = exist.UpdateBy,
+            Notes = exist.Notes,
             LastModifiedByUserId = exist.LastModifiedByUserId
         };
 
-        if (!string.IsNullOrWhiteSpace(model.ma_hoa_don))
+        if (!string.IsNullOrWhiteSpace(model.BillCode))
         {
-            update.ma_hoa_don = model.ma_hoa_don;
+            update.BillCode = model.BillCode;
         }
 
-        if (model.id_nhan_vien != null)
+        if (model.EmployeeId != null)
         {
-            update.id_nhan_vien = model.id_nhan_vien;
+            update.EmployeeId = model.EmployeeId;
         }
         
-        if (model.id_khach_hang != null)
+        if (model.CustomerId != null)
         {
-            update.id_nhan_vien = model.id_nhan_vien;
+            update.CustomerId = model.CustomerId;
         }
         
-        if (model.id_don_hang != null)
+        if (model.OrderId != null)
         {
-            update.id_nhan_vien = model.id_nhan_vien;
+            update.OrderId = model.OrderId;
         }
         
-        if (model.id_phuong_thuc_thanh_toan != null)
+        if (model.PaymentMethodId != null)
         {
-            update.id_nhan_vien = model.id_nhan_vien;
+            update.PaymentMethodId = model.PaymentMethodId;
         }
 
-        if (!string.IsNullOrWhiteSpace(model.ten_khach_nhan))
+        if (!string.IsNullOrWhiteSpace(model.RecipientName))
         {
-            update.ten_khach_nhan = model.ten_khach_nhan;
+            update.RecipientName = model.RecipientName;
         }
 
-        if (!string.IsNullOrWhiteSpace(model.so_dien_thoai_khach_nhan))
+        if (!string.IsNullOrWhiteSpace(model.RecipientPhone))
         {
-            update.so_dien_thoai_khach_nhan = model.so_dien_thoai_khach_nhan;
+            update.RecipientPhone = model.RecipientPhone;
         }
 
-        if (!string.IsNullOrWhiteSpace(model.email_khach_nhan))
+        if (!string.IsNullOrWhiteSpace(model.RecipientEmail))
         {
-            update.email_khach_nhan = model.email_khach_nhan;
+            update.RecipientEmail = model.RecipientEmail;
         }
 
-        if (!string.IsNullOrWhiteSpace(model.dia_chi_nhan))
+        if (!string.IsNullOrWhiteSpace(model.RecipientAddress))
         {
-            update.dia_chi_nhan = model.dia_chi_nhan;
+            update.RecipientAddress = model.RecipientAddress;
         }
 
-        if (model.tong_tien > 0)
+        if (model.TotalAmount > 0)
         {
-            update.tong_tien = model.tong_tien;
+            update.TotalAmount = model.TotalAmount;
         }
 
-        if (model.tong_tien_khuyen_mai > 0)
+        if (model.DiscountAmount > 0)
         {
-            update.tong_tien_khuyen_mai = model.tong_tien_khuyen_mai;
+            update.DiscountAmount = model.DiscountAmount;
         }  
 
-        if (model.tong_tien_sau_khuyen_mai > 0)
+        if (model.AmountAfterDiscount > 0)
         {
-            update.tong_tien_sau_khuyen_mai = model.tong_tien_sau_khuyen_mai;
+            update.AmountAfterDiscount = model.AmountAfterDiscount;
         }
 
-        if (model.tong_tien_sau_khuyen_mai > 0)
+        if (model.AmountAfterDiscount > 0)
         {
-            update.tong_tien_sau_khuyen_mai = model.tong_tien_sau_khuyen_mai;
+            update.AmountAfterDiscount = model.AmountAfterDiscount;
         }
         
-        if (model.tong_tien_phai_thanh_toan > 0)
+        if (model.AmountToPay > 0)
         {
-            update.tong_tien_phai_thanh_toan = model.tong_tien_phai_thanh_toan;
+            update.AmountToPay = model.AmountToPay;
         }
 
-        if (model.trang_thai > 0)
+        if (model.Status > 0)
         {
-            update.trang_thai = model.trang_thai;
+            update.Status = model.Status;
         }
 
-        if (model.trang_thai_thanh_toan > 0)
+        if (model.PaymentStatus > 0)
         {
-            update.trang_thai_thanh_toan = model.trang_thai_thanh_toan;
+            update.PaymentStatus = model.PaymentStatus;
         }
 
-        if (model.create_on_date != null)
+        if (model.CreatedOnDate != null)
         {
-            update.create_on_date = model.create_on_date;
+            update.CreatedOnDate = model.CreatedOnDate;
         }
 
-        if (model.last_modifi_on_date != null)
+        if (model.LastModifiedOnDate != null)
         {
-            update.last_modifi_on_date = model.last_modifi_on_date;
+            update.LastModifiedOnDate = model.LastModifiedOnDate;
         }
 
-        if (!string.IsNullOrWhiteSpace(model.update_by))
+        if (!string.IsNullOrWhiteSpace(model.UpdateBy))
         {
-            update.update_by = model.update_by;
+            update.UpdateBy = model.UpdateBy;
         }
 
-        if (!string.IsNullOrWhiteSpace(model.ghi_chu))
+        if (!string.IsNullOrWhiteSpace(model.Notes))
         {
-            update.ghi_chu = model.ghi_chu;
+            update.Notes = model.Notes;
         }
         
         return await SaveAsync(update);
