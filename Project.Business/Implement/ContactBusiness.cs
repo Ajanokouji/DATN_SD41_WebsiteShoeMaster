@@ -67,31 +67,31 @@ namespace Project.Business.Implement
             var update = new Contacts
             {
                 Id = exist.Id,
-                Ten = exist.Ten,
-                TenDayDu = exist.TenDayDu,
-                DiaChi = exist.DiaChi,
-                NgaySinh = exist.NgaySinh,
+                Name = exist.Name,
+                FullName = exist.FullName,
+                Address = exist.Address,
+                DateOfBirth = exist.DateOfBirth,
                 ImageUrl = exist.ImageUrl,
                 Email = exist.Email,
-                SoDienThoai = exist.SoDienThoai,
-                NoiDung = exist.NoiDung
+                PhoneNumber = exist.PhoneNumber,
+                Content = exist.Content
             };
 
-            if (!string.IsNullOrWhiteSpace(model.Ten))
+            if (!string.IsNullOrWhiteSpace(model.Name))
             {
-                update.Ten = model.Ten;
+                update.Name = model.Name;
             }
-            if (!string.IsNullOrWhiteSpace(model.TenDayDu))
+            if (!string.IsNullOrWhiteSpace(model.FullName))
             {
-                update.TenDayDu = model.TenDayDu;
+                update.FullName = model.FullName;
             }
-            if (!string.IsNullOrWhiteSpace(model.DiaChi))
+            if (!string.IsNullOrWhiteSpace(model.Address))
             {
-                update.DiaChi = model.DiaChi;
+                update.Address = model.Address;
             }
-            if (!string.IsNullOrWhiteSpace(model.NgaySinh))
+            if (model.DateOfBirth != null)
             {
-                update.NgaySinh = model.NgaySinh;
+                update.DateOfBirth = model.DateOfBirth;
             }
             if (!string.IsNullOrWhiteSpace(model.ImageUrl))
             {
@@ -101,13 +101,13 @@ namespace Project.Business.Implement
             {
                 update.Email = model.Email;
             }
-            if (!string.IsNullOrWhiteSpace(model.SoDienThoai))
+            if (!string.IsNullOrWhiteSpace(model.PhoneNumber))
             {
-                update.SoDienThoai = model.SoDienThoai;
+                update.PhoneNumber = model.PhoneNumber;
             }
-            if (!string.IsNullOrWhiteSpace(model.NoiDung))
+            if (!string.IsNullOrWhiteSpace(model.Content))
             {
-                update.NoiDung = model.NoiDung;
+                update.Content = model.Content;
             }
 
             return await SaveAsync(update);

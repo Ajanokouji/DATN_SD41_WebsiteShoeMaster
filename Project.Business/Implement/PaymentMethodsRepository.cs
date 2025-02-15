@@ -33,13 +33,13 @@ namespace Project.Business.Implement
         public async Task<IEnumerable<PaymentMethods>> ListAllAsync(PaymentMethodsQueryModel queryModel)
         {
             var query = BuildQuery(queryModel);
-            var resId = await query.Select(x => x.id_phuong_thuc_thanh_toan).ToListAsync();
+            var resId = await query.Select(x => x.Id).ToListAsync();
             var res = await ListByIdsAsync(resId);
             return res;
         }
         public async Task<IEnumerable<PaymentMethods>> ListByIdsAsync(IEnumerable<Guid> ids)
         {
-            var res = await _context.PaymentMethods.Where(x => ids.Contains(x.id_phuong_thuc_thanh_toan)).ToListAsync();
+            var res = await _context.PaymentMethods.Where(x => ids.Contains(x.Id)).ToListAsync();
             return res;
         }
 
@@ -69,12 +69,12 @@ namespace Project.Business.Implement
 
             if (queryModel.Id.HasValue)
             {
-                query = query.Where((PaymentMethods x) => x.id_phuong_thuc_thanh_toan == queryModel.Id.Value);
+                query = query.Where((PaymentMethods x) => x.Id == queryModel.Id.Value);
             }
 
             if (queryModel.ListId != null && queryModel.ListId.Any())
             {
-                query = query.Where((PaymentMethods x) => queryModel.ListId.Contains(x.id_phuong_thuc_thanh_toan));
+                query = query.Where((PaymentMethods x) => queryModel.ListId.Contains(x.Id));
             }
 
             if (queryModel.ListTextSearch != null && queryModel.ListTextSearch.Any())
@@ -83,8 +83,8 @@ namespace Project.Business.Implement
                 foreach (string ts in queryModel.ListTextSearch)
                 {
                     expressionStarter = expressionStarter.Or((PaymentMethods p) =>
-                                                                p.ma_phuong_thuc_thanh_toan.Contains(ts.ToLower()) ||
-                                                                p.ten_phuong_thuc_thanh_toan.Contains(ts.ToLower()));
+                                                                p.PaymentMethodCode.Contains(ts.ToLower()) ||
+                                                                p.PaymentMethodName.Contains(ts.ToLower()));
                 }
 
                 query = query.Where(expressionStarter);
@@ -93,43 +93,43 @@ namespace Project.Business.Implement
             if (!string.IsNullOrWhiteSpace(queryModel.FullTextSearch))
             {
                 string fullTextSearch = queryModel.FullTextSearch.ToLower();
-                query = query.Where((PaymentMethods x) => x.ma_phuong_thuc_thanh_toan.Contains(fullTextSearch));
+                query = query.Where((PaymentMethods x) => x.PaymentMethodCode.Contains(fullTextSearch));
             }
 
             if (!string.IsNullOrEmpty(queryModel.ma_phuong_thuc_thanh_toan))
             {
-                query = query.Where(x => x.ma_phuong_thuc_thanh_toan == queryModel.ma_phuong_thuc_thanh_toan);
+                query = query.Where(x => x.PaymentMethodCode == queryModel.ma_phuong_thuc_thanh_toan);
             }
 
             if (!string.IsNullOrEmpty(queryModel.ten_phuong_thuc_thanh_toan))
             {
-                query = query.Where(x => x.ten_phuong_thuc_thanh_toan == queryModel.ten_phuong_thuc_thanh_toan);
+                query = query.Where(x => x.PaymentMethodName == queryModel.ten_phuong_thuc_thanh_toan);
             }
 
             if (queryModel.trang_thai >= 0)
             {
-                query = query.Where(x => x.trang_thai == queryModel.trang_thai);
+                query = query.Where(x => x.Status == queryModel.trang_thai);
             }
 
             if (!string.IsNullOrEmpty(queryModel.create_by))
             {
-                query = query.Where(x => x.create_by == queryModel.create_by);
+                query = query.Where(x => x.CreatedBy == queryModel.create_by);
             }
 
             if (!string.IsNullOrEmpty(queryModel.update_by))
             {
-                query = query.Where(x => x.update_by.Contains(queryModel.update_by));
+                query = query.Where(x => x.UpdatedBy.Contains(queryModel.update_by));
             }
 
             if (queryModel.create_on_date != null)
             {
-                query = query.Where(x => x.create_on_date == queryModel.create_on_date);
+                query = query.Where(x => x.CreatedOnDate == queryModel.create_on_date);
             }
 
 
             if (queryModel.last_modifi_on_date != null)
             {
-                query = query.Where(x => x.last_modifi_on_date == queryModel.last_modifi_on_date);
+                query = query.Where(x => x.LastModifiedOnDate == queryModel.last_modifi_on_date);
             }
             return query;
         }
@@ -157,28 +157,28 @@ namespace Project.Business.Implement
                 var exist = await _context.PaymentMethods
                     .AsNoTracking()
                     .FirstOrDefaultAsync(x =>
-                            x.id_phuong_thuc_thanh_toan == p.id_phuong_thuc_thanh_toan
+                            x.Id == p.Id
                     );
 
                 if (exist == null)
                 {
-                    p.CreateTracking(p.id_phuong_thuc_thanh_toan);
-                    p.UpdateTracking(p.id_phuong_thuc_thanh_toan);
+                    p.CreateTracking(p.Id);
+                    p.UpdateTracking(p.Id);
                     _context.PaymentMethods.Add(p);
                     updated.Add(p);
                 }
                 else
                 {
                     _context.Entry(exist).State = EntityState.Detached;
-                    exist.ma_phuong_thuc_thanh_toan = p.ma_phuong_thuc_thanh_toan;
-                    exist.ten_phuong_thuc_thanh_toan = p.ten_phuong_thuc_thanh_toan;
-                    exist.trang_thai = p.trang_thai;
-                    exist.create_by = p.create_by;
-                    exist.update_by = p.update_by;
-                    exist.create_on_date = p.create_on_date;
-                    exist.last_modifi_on_date = p.last_modifi_on_date;
+                    exist.PaymentMethodCode = p.PaymentMethodCode;
+                    exist.PaymentMethodName = p.PaymentMethodName;
+                    exist.Status = p.Status;
+                    exist.CreatedBy = p.CreatedBy;
+                    exist.UpdatedBy = p.UpdatedBy;
+                    exist.CreatedOnDate = p.CreatedOnDate;
+                    exist.LastModifiedOnDate = p.LastModifiedOnDate;
 
-                    p.UpdateTracking(p.id_phuong_thuc_thanh_toan);
+                    p.UpdateTracking(p.Id);
                     _context.PaymentMethods.Update(exist);
                     updated.Add(exist);
                 }

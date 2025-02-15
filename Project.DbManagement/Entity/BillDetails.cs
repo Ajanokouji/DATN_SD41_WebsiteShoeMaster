@@ -12,16 +12,13 @@ namespace Project.DbManagement
     public class BillDetails: BaseEntity
     {
         [Key]
-        public Guid id_hoa_don_chi_tiet { get; set; }
-        public string ma_hoa_don_chi_tiet { get; set; }
-        public Guid? id_hoa_don { get; set; }
-        public Guid? id_san_pham_chi_tiet { get; set; }
-        public int trang_thai { get; set; }
-        public int so_luong { get; set; }
-        public double don_gia { get; set; }
-        public string? ghi_chu { get; set; }
-
-        [ForeignKey("id_hoa_don")]
-        public virtual BillEntity Hoa_Don { get; set; }
+        public Guid Id { get; set; }
+        public string BillDetailCode { get; set; }
+        public Guid? BillId { get; set; }
+        public Guid? ProductDetailId { get; set; }
+        public int Status { get; set; }
+        public int Quantity { get; set; }
+        public double Price { get; set; }
+        public string? Notes { get; set; }
     }
 }

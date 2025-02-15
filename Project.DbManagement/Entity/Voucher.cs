@@ -11,15 +11,11 @@ namespace Project.DbManagement
     public class Voucher: BaseEntity
     {
         [Key]
-        public Guid id_giam_gia { get; set; }
-        public string ten_giam_gia { get; set; }
-        public int loai_giam_gia { get; set; }
-        public DateTime thoi_gian_bat_dau { get; set; }
-        public DateTime thoi_gian_ket_thuc { get; set; }
-        public int trang_thai { get; set; }
-        public DateTime create_on_date { get; set; }
-        public DateTime last_modifi_on_date { get; set; }
-
-        public virtual ICollection<VoucherDetails> Chi_Tiet_Giam_Gias { get; set; }
+        public Guid Id { get; set; }
+        public string VoucherName { get; set; }
+        public int VoucherType { get; set; }
+        public DateTime StartDate { get; set; }
+        public DateTime EndDate { get; set; }
+        public int Status { get; set; }
     }
 }

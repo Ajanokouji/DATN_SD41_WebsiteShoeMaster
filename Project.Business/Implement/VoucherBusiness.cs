@@ -54,7 +54,7 @@ namespace Project.Business.Implement
 
         public async Task<Voucher> PatchAsync(Voucher model)
         {
-            var exist = await _voucherRepository.FindAsync(model.id_giam_gia);
+            var exist = await _voucherRepository.FindAsync(model.Id);
 
             if (exist == null)
             {
@@ -62,35 +62,35 @@ namespace Project.Business.Implement
             }
             var update = new Voucher
             {
-                id_giam_gia = exist.id_giam_gia,
-                ten_giam_gia = exist.ten_giam_gia,
-                loai_giam_gia = exist.loai_giam_gia,
-                thoi_gian_bat_dau = exist.thoi_gian_bat_dau,
-                thoi_gian_ket_thuc = exist.thoi_gian_ket_thuc,
-                trang_thai = exist.trang_thai,
-                create_on_date = exist.create_on_date,
-                last_modifi_on_date = exist.last_modifi_on_date
+                Id = exist.Id,
+                VoucherName = exist.VoucherName,
+                VoucherType = exist.VoucherType,
+                StartDate = exist.StartDate,
+                EndDate = exist.EndDate,
+                Status = exist.Status,
+                CreatedOnDate = exist.CreatedOnDate,
+                LastModifiedOnDate = exist.LastModifiedOnDate
             };
 
-            if (!string.IsNullOrWhiteSpace(model.ten_giam_gia))
+            if (!string.IsNullOrWhiteSpace(model.VoucherName))
             {
-                update.ten_giam_gia = model.ten_giam_gia;
+                update.VoucherName = model.VoucherName;
             }
-            if (model.loai_giam_gia >= 0)
+            if (model.VoucherType >= 0)
             {
-                update.loai_giam_gia = model.loai_giam_gia;
+                update.VoucherType = model.VoucherType;
             }
-            if (model.thoi_gian_bat_dau != null)
+            if (model.StartDate != null)
             {
-                update.thoi_gian_bat_dau = model.thoi_gian_bat_dau;
+                update.StartDate = model.StartDate;
             }
-            if (model.thoi_gian_ket_thuc != null)
+            if (model.EndDate != null)
             {
-                update.thoi_gian_ket_thuc = model.thoi_gian_ket_thuc;
+                update.EndDate = model.EndDate;
             }
-            if (model.trang_thai >= 0)
+            if (model.Status >= 0)
             {
-                update.trang_thai = model.trang_thai;
+                update.Status = model.Status;
             }
             return await SaveAsync(update);
         }

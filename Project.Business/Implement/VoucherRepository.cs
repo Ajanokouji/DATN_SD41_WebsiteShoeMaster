@@ -34,7 +34,7 @@ namespace Project.Business.Implement
         public async Task<IEnumerable<Voucher>> ListAllAsync(VoucherQueryModel queryModel)
         {
             var query = BuildQuery(queryModel);
-            var resId = await query.Select(x => x.id_giam_gia).ToListAsync();
+            var resId = await query.Select(x => x.Id).ToListAsync();
             var res = await ListByIdsAsync(resId);
             return res;
 
@@ -42,7 +42,7 @@ namespace Project.Business.Implement
 
         public async Task<IEnumerable<Voucher>> ListByIdsAsync(IEnumerable<Guid> ids)
         {
-            var res = await _context.Vouchers.Where(x => ids.Contains(x.id_giam_gia)).ToListAsync();
+            var res = await _context.Vouchers.Where(x => ids.Contains(x.Id)).ToListAsync();
             return res;
         }
 
@@ -72,12 +72,12 @@ namespace Project.Business.Implement
 
             if (queryModel.Id.HasValue)
             {
-                query = query.Where((Voucher x) => x.id_giam_gia == queryModel.Id.Value);
+                query = query.Where((Voucher x) => x.Id == queryModel.Id.Value);
             }
 
             if (queryModel.ListId != null && queryModel.ListId.Any())
             {
-                query = query.Where((Voucher x) => queryModel.ListId.Contains(x.id_giam_gia));
+                query = query.Where((Voucher x) => queryModel.ListId.Contains(x.Id));
             }
 
             if (queryModel.ListTextSearch != null && queryModel.ListTextSearch.Any())
@@ -85,7 +85,7 @@ namespace Project.Business.Implement
                 ExpressionStarter<Voucher> expressionStarter = LinqKit.PredicateBuilder.New<Voucher>();
                 foreach (string ts in queryModel.ListTextSearch)
                 {
-                    expressionStarter = expressionStarter.Or((Voucher p) => p.ten_giam_gia.Contains(ts.ToLower()));
+                    expressionStarter = expressionStarter.Or((Voucher p) => p.VoucherName.Contains(ts.ToLower()));
                 }
 
                 query = query.Where(expressionStarter);
@@ -93,42 +93,42 @@ namespace Project.Business.Implement
 
             if (queryModel.id_giam_gia.HasValue)
             {
-                query = query.Where(x => x.id_giam_gia == queryModel.id_giam_gia.Value);
+                query = query.Where(x => x.Id == queryModel.id_giam_gia.Value);
             }
 
             if (!string.IsNullOrEmpty(queryModel.ten_giam_gia))
             {
-                query = query.Where(x => x.ten_giam_gia.Contains(queryModel.ten_giam_gia));
+                query = query.Where(x => x.VoucherName.Contains(queryModel.ten_giam_gia));
             }
 
             if (queryModel.loai_giam_gia >= 0)
             {
-                query = query.Where(x => x.loai_giam_gia == queryModel.loai_giam_gia);
+                query = query.Where(x => x.VoucherType == queryModel.loai_giam_gia);
             }
 
             if (queryModel.thoi_gian_bat_dau != null)
             {
-                query = query.Where(x => x.thoi_gian_bat_dau == queryModel.thoi_gian_bat_dau);
+                query = query.Where(x => x.StartDate == queryModel.thoi_gian_bat_dau);
             }
 
             if (queryModel.thoi_gian_ket_thuc != null)
             {
-                query = query.Where(x => x.thoi_gian_ket_thuc == queryModel.thoi_gian_ket_thuc);
+                query = query.Where(x => x.StartDate == queryModel.thoi_gian_ket_thuc);
             }
 
             if (queryModel.trang_thai >= 0)
             {
-                query = query.Where(x => x.trang_thai == queryModel.trang_thai);
+                query = query.Where(x => x.Status == queryModel.trang_thai);
             }
 
             if (queryModel.create_on_date != null)
             {
-                query = query.Where(x => x.create_on_date == queryModel.create_on_date);
+                query = query.Where(x => x.CreatedOnDate == queryModel.create_on_date);
             }
 
             if (queryModel.last_modifi_on_date != null)
             {
-                query = query.Where(x => x.last_modifi_on_date == queryModel.last_modifi_on_date);
+                query = query.Where(x => x.LastModifiedOnDate == queryModel.last_modifi_on_date);
             }
 
 
@@ -172,29 +172,29 @@ namespace Project.Business.Implement
                 var exist = await _context.Vouchers
                     .AsNoTracking()
                     .FirstOrDefaultAsync(x =>
-                            x.id_giam_gia == voucher.id_giam_gia
+                            x.Id == voucher.Id
                     );
 
                 if (exist == null)
                 {
-                    voucher.CreateTracking(voucher.id_giam_gia);
-                    voucher.UpdateTracking(voucher.id_giam_gia);
+                    voucher.CreateTracking(voucher.Id);
+                    voucher.UpdateTracking(voucher.Id);
                     _context.Vouchers.Add(voucher);
                     updated.Add(voucher);
                 }
                 else
                 {
                     _context.Entry(exist).State = EntityState.Detached;
-                    exist.id_giam_gia = voucher.id_giam_gia;
-                    exist.ten_giam_gia = voucher.ten_giam_gia;
-                    exist.loai_giam_gia = voucher.loai_giam_gia;
-                    exist.thoi_gian_bat_dau = voucher.thoi_gian_bat_dau;
-                    exist.thoi_gian_ket_thuc = voucher.thoi_gian_ket_thuc;
-                    exist.trang_thai = voucher.trang_thai;
-                    exist.create_on_date = voucher.create_on_date;
-                    exist.last_modifi_on_date = voucher.last_modifi_on_date;
+                    exist.Id = voucher.Id;
+                    exist.VoucherName = voucher.VoucherName;
+                    exist.VoucherType = voucher.VoucherType;
+                    exist.StartDate = voucher.StartDate;
+                    exist.EndDate = voucher.EndDate;
+                    exist.Status = voucher.Status;
+                    exist.CreatedOnDate = voucher.CreatedOnDate;
+                    exist.LastModifiedOnDate = voucher.LastModifiedOnDate;
 
-                    voucher.UpdateTracking(voucher.id_giam_gia);
+                    voucher.UpdateTracking(voucher.Id);
                     _context.Vouchers.Update(exist);
                     updated.Add(exist);
                 }

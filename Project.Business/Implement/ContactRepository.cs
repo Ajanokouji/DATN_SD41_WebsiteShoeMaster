@@ -74,12 +74,12 @@ namespace Project.Business.Implement
 
             if (!string.IsNullOrEmpty(queryModel.Ten))
             {
-                query = query.Where(x => x.Ten.Contains(queryModel.Ten));
+                query = query.Where(x => x.Name.Contains(queryModel.Ten));
             }
 
             if (!string.IsNullOrEmpty(queryModel.DiaChi))
             {
-                query = query.Where(x => x.DiaChi.Contains(queryModel.DiaChi));
+                query = query.Where(x => x.Address.Contains(queryModel.DiaChi));
             }
 
             if (!string.IsNullOrEmpty(queryModel.Email))
@@ -89,7 +89,7 @@ namespace Project.Business.Implement
 
             if (!string.IsNullOrEmpty(queryModel.SoDienThoai))
             {
-                query = query.Where(x => x.SoDienThoai == queryModel.SoDienThoai);
+                query = query.Where(x => x.PhoneNumber == queryModel.SoDienThoai);
             }
 
             return query;
@@ -128,13 +128,13 @@ namespace Project.Business.Implement
                 else
                 {
                     _context.Entry(exist).State = EntityState.Detached;
-                    exist.Ten = contact.Ten;
-                    exist.TenDayDu = contact.TenDayDu;
-                    exist.DiaChi = contact.DiaChi;
-                    exist.NgaySinh = contact.NgaySinh;
+                    exist.Name = contact.Name;
+                    exist.FullName = contact.FullName;
+                    exist.Address = contact.Address;
+                    exist.DateOfBirth = contact.DateOfBirth;
                     exist.Email = contact.Email;
-                    exist.SoDienThoai = contact.SoDienThoai;
-                    exist.NoiDung = contact.NoiDung;
+                    exist.PhoneNumber = contact.PhoneNumber;
+                    exist.Content = contact.Content;
                     exist.ImageUrl = contact.ImageUrl;
                     contact.UpdateTracking(contact.Id);
                     _context.Contacts.Update(exist);
