@@ -53,7 +53,7 @@ public class BillDetailsBusiness : IBillDetailsBusiness
 
     public async Task<BillDetails> PatchAsync(BillDetails model)
     {
-        var exist = await _iBillDetailsRepository.FindAsync(model.id_hoa_don_chi_tiet);
+        var exist = await _iBillDetailsRepository.FindAsync(model.Id);
 
         if (exist == null)
         {
@@ -62,49 +62,49 @@ public class BillDetailsBusiness : IBillDetailsBusiness
 
         var update = new BillDetails()
         {
-            id_hoa_don_chi_tiet = exist.id_hoa_don_chi_tiet,
-            id_hoa_don = exist.id_hoa_don,
-            id_san_pham_chi_tiet = exist.id_san_pham_chi_tiet,
-            ma_hoa_don_chi_tiet = exist.ma_hoa_don_chi_tiet,
-            trang_thai = exist.trang_thai,
-            so_luong = exist.so_luong,
-            don_gia = exist.don_gia,
-            ghi_chu = exist.ghi_chu
+            Id = exist.Id,
+            BillId = exist.BillId,
+            ProductDetailId = exist.ProductDetailId,
+            BillDetailCode = exist.BillDetailCode,
+            Status = exist.Status,
+            Quantity = exist.Quantity,
+            Price = exist.Price,
+            Notes = exist.Notes
         };
 
-        if (!string.IsNullOrWhiteSpace(model.ma_hoa_don_chi_tiet))
+        if (!string.IsNullOrWhiteSpace(model.BillDetailCode))
         {
-            update.ma_hoa_don_chi_tiet = model.ma_hoa_don_chi_tiet;
+            update.BillDetailCode = model.BillDetailCode;
         }
 
-        if (model.id_hoa_don != null)
+        if (model.BillId != null)
         {
-            update.id_hoa_don = model.id_hoa_don;
+            update.BillId = model.BillId;
         }
         
-        if (model.id_san_pham_chi_tiet != null)
+        if (model.ProductDetailId != null)
         {
-            update.id_san_pham_chi_tiet = model.id_san_pham_chi_tiet;
+            update.ProductDetailId = model.ProductDetailId;
         }
         
-        if (model.trang_thai > 0)
+        if (model.Status > 0)
         {
-            update.trang_thai = model.trang_thai;
+            update.Status = model.Status;
         }
 
-        if (model.so_luong > 0)
+        if (model.Quantity > 0)
         {
-            update.so_luong = model.so_luong;
+            update.Quantity = model.Quantity;
         }
         
-        if (model.don_gia > 0)
+        if (model.Price > 0)
         {
-            update.don_gia = model.don_gia;
+            update.Price = model.Price;
         }
 
-        if (!string.IsNullOrWhiteSpace(model.ghi_chu))
+        if (!string.IsNullOrWhiteSpace(model.Notes))
         {
-            update.ghi_chu = model.ghi_chu;
+            update.Notes = model.Notes;
         }
         
         return await SaveAsync(update);
