@@ -11,16 +11,9 @@ namespace Project.DbManagement
 {
     public class VoucherDetails: BaseEntity
     {
+        [Key]
         public Guid Id { get; set; }
-        public Guid id_giam_gia { get; set; }
-        public Guid id_hoa_don { get; set; }
-        public DateTime create_on_date { get; set; }
-        public DateTime last_modifi_on_date { get; set; }
-
-        [ForeignKey("id_giam_gia")]
-        public virtual Voucher Giam_Gia { get; set; }
-
-        [ForeignKey("id_hoa_don")]
-        public virtual BillEntity Hoa_Don { get; set; }
+        public Guid VoucherId { get; set; }
+        public Guid BillId { get; set; }
     }
 }

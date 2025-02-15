@@ -63,29 +63,27 @@ namespace Project.Business.Implement
             var update = new VoucherDetails
             {
                 Id = exist.Id,
-                id_giam_gia = exist.id_giam_gia,
-                id_hoa_don = exist.id_hoa_don,
-                create_on_date = exist.create_on_date,
-                last_modifi_on_date = exist.last_modifi_on_date,
-                Giam_Gia = exist.Giam_Gia,
-                Hoa_Don = exist.Hoa_Don
+                VoucherId = exist.VoucherId,
+                BillId = exist.BillId,
+                CreatedOnDate = exist.CreatedOnDate,
+                LastModifiedOnDate = exist.LastModifiedOnDate
             };
 
-            if (model.id_giam_gia != Guid.Empty)
+            if (model.VoucherId != Guid.Empty)
             {
-                update.id_giam_gia = model.id_giam_gia;
+                update.VoucherId = model.VoucherId;
             }
-            if (model.id_hoa_don != Guid.Empty)
+            if (model.BillId != Guid.Empty)
             {
-                update.id_hoa_don = model.id_hoa_don;
+                update.BillId = model.BillId;
             }
-            if (model.create_on_date != default)
+            if (model.CreatedOnDate != default)
             {
-                update.create_on_date = model.create_on_date;
+                update.CreatedOnDate = model.CreatedOnDate;
             }
-            if (model.last_modifi_on_date != default)
+            if (model.LastModifiedOnDate != default)
             {
-                update.last_modifi_on_date = model.last_modifi_on_date;
+                update.LastModifiedOnDate = model.LastModifiedOnDate;
             }
             return await SaveAsync(update);
         }

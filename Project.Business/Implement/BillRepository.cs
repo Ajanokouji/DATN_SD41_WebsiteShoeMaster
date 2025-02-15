@@ -25,7 +25,7 @@ public class BillRepository : IBillRepository
         public async Task<IEnumerable<BillEntity>> ListAllAsync(BillQueryModel queryModel)
         {
             var query = BuildQuery( queryModel);
-            var resId = await query.Select(x => x.id_hoa_don).ToListAsync();
+            var resId = await query.Select(x => x.Id).ToListAsync();
             var res = await ListByIdsAsync(resId);
             return res;
 
@@ -33,7 +33,7 @@ public class BillRepository : IBillRepository
 
         public async Task<IEnumerable<BillEntity>> ListByIdsAsync(IEnumerable<Guid> ids)
         {
-            var res = await _context.Bills.Where(x => ids.Contains(x.id_hoa_don)).ToListAsync();
+            var res = await _context.Bills.Where(x => ids.Contains(x.Id)).ToListAsync();
             return res;
         }
 
@@ -64,12 +64,12 @@ public class BillRepository : IBillRepository
 
             if (queryModel.Id.HasValue)
             {
-                query = query.Where((BillEntity x) => x.id_hoa_don == queryModel.Id.Value);
+                query = query.Where((BillEntity x) => x.Id == queryModel.Id.Value);
             }
 
             if (queryModel.ListId != null && queryModel.ListId.Any())
             {
-                query = query.Where((BillEntity x) => queryModel.ListId.Contains(x.id_hoa_don));
+                query = query.Where((BillEntity x) => queryModel.ListId.Contains(x.Id));
             }
 
             if (queryModel.ListTextSearch != null && queryModel.ListTextSearch.Any())
@@ -78,8 +78,8 @@ public class BillRepository : IBillRepository
                 foreach (string ts in queryModel.ListTextSearch)
                 {
                     expressionStarter = expressionStarter.Or((BillEntity p) => 
-                                                                p.ma_hoa_don.Contains(ts.ToLower()) ||
-                                                                p.ten_khach_nhan.Contains(ts.ToLower()));
+                                                                p.BillCode.Contains(ts.ToLower()) ||
+                                                                p.RecipientName.Contains(ts.ToLower()));
                 }
 
                 query = query.Where(expressionStarter);
@@ -88,109 +88,109 @@ public class BillRepository : IBillRepository
             if (!string.IsNullOrWhiteSpace(queryModel.FullTextSearch))
             {
                 string fullTextSearch = queryModel.FullTextSearch.ToLower();
-                query = query.Where((BillEntity x) => x.ten_khach_nhan.Contains(fullTextSearch));
+                query = query.Where((BillEntity x) => x.RecipientName.Contains(fullTextSearch));
             }
             
             if (queryModel.id_hoa_don.HasValue)
             {
-                query = query.Where(x => x.id_hoa_don == queryModel.id_hoa_don.Value);
+                query = query.Where(x => x.Id == queryModel.id_hoa_don.Value);
             }
             
             if (queryModel.id_nhan_vien.HasValue)
             {
-                query = query.Where(x => x.id_nhan_vien == queryModel.id_nhan_vien.Value);
+                query = query.Where(x => x.EmployeeId == queryModel.id_nhan_vien.Value);
             }
             
             if (queryModel.id_khach_hang.HasValue)
             {
-                query = query.Where(x => x.id_khach_hang == queryModel.id_khach_hang.Value);
+                query = query.Where(x => x.CustomerId == queryModel.id_khach_hang.Value);
             }
             
             if (queryModel.id_don_hang.HasValue)
             {
-                query = query.Where(x => x.id_don_hang == queryModel.id_don_hang.Value);
+                query = query.Where(x => x.OrderId == queryModel.id_don_hang.Value);
             }
             
             if (queryModel.id_phuong_thuc_thanh_toan.HasValue)
             {
-                query = query.Where(x => x.id_phuong_thuc_thanh_toan == queryModel.id_phuong_thuc_thanh_toan.Value);
+                query = query.Where(x => x.PaymentMethodId == queryModel.id_phuong_thuc_thanh_toan.Value);
             }
             
             if (!string.IsNullOrEmpty(queryModel.ma_hoa_don))
             {
-                query = query.Where(x => x.ma_hoa_don==queryModel.ma_hoa_don);
+                query = query.Where(x => x.BillCode==queryModel.ma_hoa_don);
             }
             
             if (!string.IsNullOrEmpty(queryModel.ten_khach_nhan))
             {
-                query = query.Where(x => x.ten_khach_nhan==queryModel.ten_khach_nhan);
+                query = query.Where(x => x.RecipientName == queryModel.ten_khach_nhan);
             }
             
             if (!string.IsNullOrEmpty(queryModel.email_khach_nhan))
             {
-                query = query.Where(x => x.email_khach_nhan==queryModel.email_khach_nhan);
+                query = query.Where(x => x.RecipientEmail == queryModel.email_khach_nhan);
             }
             
             if (!string.IsNullOrEmpty(queryModel.so_dien_thoai_khach_nhan))
             {
-                query = query.Where(x => x.so_dien_thoai_khach_nhan==queryModel.so_dien_thoai_khach_nhan);
+                query = query.Where(x => x.RecipientPhone == queryModel.so_dien_thoai_khach_nhan);
             }
             
             if (!string.IsNullOrEmpty(queryModel.dia_chi_nhan))
             {
-                query = query.Where(x => x.dia_chi_nhan==queryModel.dia_chi_nhan);
+                query = query.Where(x => x.RecipientAddress == queryModel.dia_chi_nhan);
             }
             
             if (queryModel.tong_tien > 0)
             {
-                query = query.Where(x => x.tong_tien==queryModel.tong_tien);
+                query = query.Where(x => x.TotalAmount == queryModel.tong_tien);
             }
             
             if (queryModel.tong_tien_khuyen_mai > 0)
             {
-                query = query.Where(x => x.tong_tien_khuyen_mai==queryModel.tong_tien_khuyen_mai);
+                query = query.Where(x => x.DiscountAmount == queryModel.tong_tien_khuyen_mai);
             }
             
             
             if (queryModel.tong_tien_sau_khuyen_mai > 0)
             {
-                query = query.Where(x => x.tong_tien_sau_khuyen_mai==queryModel.tong_tien_sau_khuyen_mai);
+                query = query.Where(x => x.AmountAfterDiscount == queryModel.tong_tien_sau_khuyen_mai);
             }
             
             if (queryModel.tong_tien_phai_thanh_toan > 0)
             {
-                query = query.Where(x => x.tong_tien_phai_thanh_toan==queryModel.tong_tien_phai_thanh_toan);
+                query = query.Where(x => x.AmountToPay == queryModel.tong_tien_phai_thanh_toan);
             }
             
             if (queryModel.trang_thai >= 0)
             {
-                query = query.Where(x => x.trang_thai==queryModel.trang_thai);
+                query = query.Where(x => x.Status == queryModel.trang_thai);
             }
             
             if (queryModel.trang_thai_thanh_toan >= 0)
             {
-                query = query.Where(x => x.trang_thai_thanh_toan==queryModel.trang_thai_thanh_toan);
+                query = query.Where(x => x.PaymentStatus == queryModel.trang_thai_thanh_toan);
             }
             
             if (queryModel.create_on_date != null)
             {
-                query = query.Where(x => x.create_on_date==queryModel.create_on_date);
+                query = query.Where(x => x.CreatedOnDate == queryModel.create_on_date);
             }
             
             
             if (queryModel.last_modifi_on_date != null)
             {
-                query = query.Where(x => x.last_modifi_on_date==queryModel.last_modifi_on_date);
+                query = query.Where(x => x.LastModifiedOnDate == queryModel.last_modifi_on_date);
             }
             
             if (!string.IsNullOrEmpty(queryModel.update_by))
             {
-                query = query.Where(x => x.update_by==queryModel.update_by);
+                query = query.Where(x => x.UpdateBy == queryModel.update_by);
             }
             
             if (!string.IsNullOrEmpty(queryModel.ghi_chu))
             {
-                query = query.Where(x => x.ghi_chu==queryModel.ghi_chu);
+                query = query.Where(x => x.Notes == queryModel.ghi_chu);
             }
             
             return query;
@@ -219,43 +219,43 @@ public class BillRepository : IBillRepository
                 var exist = await _context.Bills
                     .AsNoTracking()
                     .FirstOrDefaultAsync(x =>
-                            x.id_hoa_don==bill.id_hoa_don
+                            x.Id==bill.Id
                     );
 
                 if (exist == null)
                 {
-                    bill.CreateTracking(bill.id_hoa_don);
-                    bill.UpdateTracking(bill.id_hoa_don);
+                    bill.CreateTracking(bill.Id);
+                    bill.UpdateTracking(bill.Id);
                     _context.Bills.Add(bill);
                     updated.Add(bill);
                 }
                 else
                 {
                     _context.Entry(exist).State = EntityState.Detached;
-                    exist.id_hoa_don = bill.id_hoa_don;
-                    exist.id_nhan_vien = bill.id_nhan_vien;  
-                    exist.id_khach_hang = bill.id_khach_hang;
-                    exist.id_don_hang = bill.id_don_hang;
-                    exist.id_phuong_thuc_thanh_toan = bill.id_phuong_thuc_thanh_toan;
-                    exist.ma_hoa_don = bill.ma_hoa_don;
-                    exist.ten_khach_nhan = bill.ten_khach_nhan;
-                    exist.email_khach_nhan = bill.email_khach_nhan;
-                    exist.so_dien_thoai_khach_nhan = bill.so_dien_thoai_khach_nhan;
-                    exist.dia_chi_nhan = bill.dia_chi_nhan;
-                    exist.tong_tien = bill.tong_tien;
-                    exist.tong_tien_khuyen_mai = bill.tong_tien_khuyen_mai;
-                    exist.tong_tien_sau_khuyen_mai = bill.tong_tien_sau_khuyen_mai;
-                    exist.tong_tien_phai_thanh_toan = bill.tong_tien_phai_thanh_toan;
-                    exist.trang_thai = bill.trang_thai;
-                    exist.trang_thai_thanh_toan = bill.trang_thai_thanh_toan;
-                    exist.create_on_date = bill.create_on_date;
-                    exist.email_khach_nhan = bill.email_khach_nhan;
-                    exist.last_modifi_on_date = bill.last_modifi_on_date;
-                    exist.update_by = bill.update_by;
-                    exist.ghi_chu = bill.ghi_chu;
+                    exist.Id = bill.Id;
+                    exist.EmployeeId = bill.EmployeeId;  
+                    exist.CustomerId = bill.CustomerId;
+                    exist.OrderId = bill.OrderId;
+                    exist.PaymentMethodId = bill.PaymentMethodId;
+                    exist.BillCode = bill.BillCode;
+                    exist.RecipientName = bill.RecipientName;
+                    exist.RecipientEmail = bill.RecipientEmail;
+                    exist.RecipientPhone = bill.RecipientPhone;
+                    exist.RecipientAddress = bill.RecipientAddress;
+                    exist.TotalAmount = bill.TotalAmount;
+                    exist.DiscountAmount = bill.DiscountAmount;
+                    exist.AmountAfterDiscount = bill.AmountAfterDiscount;
+                    exist.AmountToPay = bill.AmountToPay;
+                    exist.Status = bill.Status;
+                    exist.PaymentStatus = bill.PaymentStatus;
+                    exist.CreatedOnDate = bill.CreatedOnDate;
+                    exist.RecipientEmail = bill.RecipientEmail;
+                    exist.LastModifiedOnDate = bill.LastModifiedOnDate;
+                    exist.UpdateBy = bill.UpdateBy;
+                    exist.Notes = bill.Notes;
                     exist.LastModifiedByUserId=bill.LastModifiedByUserId;
 
-                    bill.UpdateTracking(bill.id_hoa_don);
+                    bill.UpdateTracking(bill.Id);
                     _context.Bills.Update(exist);
                     updated.Add(exist);
                 }

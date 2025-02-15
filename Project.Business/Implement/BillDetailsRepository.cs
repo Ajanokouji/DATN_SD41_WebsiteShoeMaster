@@ -25,14 +25,14 @@ public class BillDetailsRepository : IBillDetailsRepository
         public async Task<IEnumerable<BillDetails>> ListAllAsync(BillDetailsQueryModel queryModel)
         {
             var query = BuildQuery( queryModel);
-            var resId = await query.Select(x => x.id_hoa_don_chi_tiet).ToListAsync();
+            var resId = await query.Select(x => x.Id).ToListAsync();
             var res = await ListByIdsAsync(resId);
             return res;
         }
 
         public async Task<IEnumerable<BillDetails>> ListByIdsAsync(IEnumerable<Guid> ids)
         {
-            var res = await _context.BillDetails.Where(x => ids.Contains(x.id_hoa_don_chi_tiet)).ToListAsync();
+            var res = await _context.BillDetails.Where(x => ids.Contains(x.Id)).ToListAsync();
             return res;
         }
 
@@ -62,12 +62,12 @@ public class BillDetailsRepository : IBillDetailsRepository
 
             if (queryModel.Id.HasValue)
             {
-                query = query.Where((BillDetails x) => x.id_hoa_don_chi_tiet == queryModel.Id.Value);
+                query = query.Where((BillDetails x) => x.Id == queryModel.Id.Value);
             }
 
             if (queryModel.ListId != null && queryModel.ListId.Any())
             {
-                query = query.Where((BillDetails x) => queryModel.ListId.Contains(x.id_hoa_don_chi_tiet));
+                query = query.Where((BillDetails x) => queryModel.ListId.Contains(x.Id));
             }
 
             if (queryModel.ListTextSearch != null && queryModel.ListTextSearch.Any())
@@ -76,8 +76,8 @@ public class BillDetailsRepository : IBillDetailsRepository
                 foreach (string ts in queryModel.ListTextSearch)
                 {
                     expressionStarter = expressionStarter.Or((BillDetails p) => 
-                                                                p.ma_hoa_don_chi_tiet.Contains(ts.ToLower()) ||
-                                                                p.ghi_chu.Contains(ts.ToLower()));
+                                                                p.BillDetailCode.Contains(ts.ToLower()) ||
+                                                                p.Notes.Contains(ts.ToLower()));
                 }
 
                 query = query.Where(expressionStarter);
@@ -85,42 +85,42 @@ public class BillDetailsRepository : IBillDetailsRepository
             
             if (queryModel.id_hoa_don_chi_tiet.HasValue)
             {
-                query = query.Where(x => x.id_hoa_don_chi_tiet == queryModel.id_hoa_don_chi_tiet.Value);
+                query = query.Where(x => x.Id == queryModel.id_hoa_don_chi_tiet.Value);
             }
             
             if (queryModel.id_hoa_don.HasValue)
             {
-                query = query.Where(x => x.id_hoa_don == queryModel.id_hoa_don.Value);
+                query = query.Where(x => x.BillId == queryModel.id_hoa_don.Value);
             }
             
             if (queryModel.id_san_pham_chi_tiet.HasValue)
             {
-                query = query.Where(x => x.id_san_pham_chi_tiet == queryModel.id_san_pham_chi_tiet.Value);
+                query = query.Where(x => x.ProductDetailId == queryModel.id_san_pham_chi_tiet.Value);
             }
             
             if (!string.IsNullOrEmpty(queryModel.ma_hoa_don_chi_tiet))
             {
-                query = query.Where(x => x.ma_hoa_don_chi_tiet==queryModel.ma_hoa_don_chi_tiet);
+                query = query.Where(x => x.BillDetailCode==queryModel.ma_hoa_don_chi_tiet);
             }
             
             if (!string.IsNullOrEmpty(queryModel.ghi_chu))
             {
-                query = query.Where(x => x.ghi_chu==queryModel.ghi_chu);
+                query = query.Where(x => x.Notes==queryModel.ghi_chu);
             }
             
             if (queryModel.don_gia > 0)
             {
-                query = query.Where(x => x.don_gia==queryModel.don_gia);
+                query = query.Where(x => x.Price==queryModel.don_gia);
             }
             
             if (queryModel.trang_thai >= 0)
             {
-                query = query.Where(x => x.trang_thai==queryModel.trang_thai);
+                query = query.Where(x => x.Status==queryModel.trang_thai);
             }
             
             if (queryModel.so_luong >= 0)
             {
-                query = query.Where(x => x.so_luong==queryModel.so_luong);
+                query = query.Where(x => x.Quantity==queryModel.so_luong);
             }
             
             
@@ -150,29 +150,29 @@ public class BillDetailsRepository : IBillDetailsRepository
                 var exist = await _context.BillDetails
                     .AsNoTracking()
                     .FirstOrDefaultAsync(x =>
-                            x.id_hoa_don_chi_tiet==billDetail.id_hoa_don
+                            x.Id==billDetail.Id
                     );
 
                 if (exist == null)
                 {
-                    billDetail.CreateTracking(billDetail.id_hoa_don_chi_tiet);
-                    billDetail.UpdateTracking(billDetail.id_hoa_don_chi_tiet);
+                    billDetail.CreateTracking(billDetail.Id);
+                    billDetail.UpdateTracking(billDetail.Id);
                     _context.BillDetails.Add(billDetail);
                     updated.Add(billDetail);
                 }
                 else
                 {
                     _context.Entry(exist).State = EntityState.Detached;
-                    exist.id_hoa_don_chi_tiet = billDetail.id_hoa_don_chi_tiet;
-                    exist.id_hoa_don = billDetail.id_hoa_don;  
-                    exist.id_san_pham_chi_tiet = billDetail.id_san_pham_chi_tiet;
-                    exist.ma_hoa_don_chi_tiet = billDetail.ma_hoa_don_chi_tiet;
-                    exist.trang_thai = billDetail.trang_thai;
-                    exist.so_luong = billDetail.so_luong;
-                    exist.don_gia = billDetail.don_gia;
-                    exist.ghi_chu = billDetail.ghi_chu;
+                    exist.Id = billDetail.Id;
+                    exist.BillId = billDetail.BillId;  
+                    exist.ProductDetailId = billDetail.ProductDetailId;
+                    exist.BillDetailCode = billDetail.BillDetailCode;
+                    exist.Status = billDetail.Status;
+                    exist.Quantity = billDetail.Quantity;
+                    exist.Price = billDetail.Price;
+                    exist.Notes = billDetail.Notes;
 
-                    billDetail.UpdateTracking(billDetail.id_hoa_don_chi_tiet);
+                    billDetail.UpdateTracking(billDetail.Id);
                     _context.BillDetails.Update(exist);
                     updated.Add(exist);
                 }

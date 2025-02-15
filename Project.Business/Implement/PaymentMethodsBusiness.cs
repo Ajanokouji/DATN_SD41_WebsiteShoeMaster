@@ -59,7 +59,7 @@ namespace Project.Business.Implement
 
         public async Task<PaymentMethods> PatchAsync(PaymentMethods model)
         {
-            var exist = await _paymentMethodsRepository.FindAsync(model.id_phuong_thuc_thanh_toan);
+            var exist = await _paymentMethodsRepository.FindAsync(model.Id);
 
             if (exist == null)
             {
@@ -68,35 +68,35 @@ namespace Project.Business.Implement
 
             var update = new PaymentMethods
             {
-                id_phuong_thuc_thanh_toan = exist.id_phuong_thuc_thanh_toan,
-                ma_phuong_thuc_thanh_toan = exist.ma_phuong_thuc_thanh_toan,
-                ten_phuong_thuc_thanh_toan = exist.ten_phuong_thuc_thanh_toan,
-                trang_thai = exist.trang_thai,
-                create_by = exist.create_by,
-                create_on_date = exist.create_on_date,
-                last_modifi_on_date = exist.last_modifi_on_date,
-                update_by = exist.update_by
+                Id = exist.Id,
+                PaymentMethodCode = exist.PaymentMethodCode,
+                PaymentMethodName = exist.PaymentMethodName,
+                Status = exist.Status,
+                CreatedBy = exist.CreatedBy,
+                CreatedOnDate = exist.CreatedOnDate,
+                LastModifiedOnDate = exist.LastModifiedOnDate,
+                UpdatedBy = exist.UpdatedBy
             };
 
-            if (!string.IsNullOrWhiteSpace(model.ma_phuong_thuc_thanh_toan))
+            if (!string.IsNullOrWhiteSpace(model.PaymentMethodCode))
             {
-                update.ma_phuong_thuc_thanh_toan = model.ma_phuong_thuc_thanh_toan;
+                update.PaymentMethodCode = model.PaymentMethodCode;
             }
-            if (!string.IsNullOrWhiteSpace(model.ten_phuong_thuc_thanh_toan))
+            if (!string.IsNullOrWhiteSpace(model.PaymentMethodName))
             {
-                update.ten_phuong_thuc_thanh_toan = model.ten_phuong_thuc_thanh_toan;
+                update.PaymentMethodName = model.PaymentMethodName;
             }
-            if (model.trang_thai >= 0)
+            if (model.Status >= 0)
             {
-                update.trang_thai = model.trang_thai;
+                update.Status = model.Status;
             }
-            if (!string.IsNullOrWhiteSpace(model.update_by))
+            if (!string.IsNullOrWhiteSpace(model.UpdatedBy))
             {
-                update.update_by = model.update_by;
+                update.UpdatedBy = model.UpdatedBy;
             }
-            if (model.last_modifi_on_date != null)
+            if (model.LastModifiedOnDate != null)
             {
-                update.last_modifi_on_date = model.last_modifi_on_date;
+                update.LastModifiedOnDate = model.LastModifiedOnDate;
             }
 
             return await SaveAsync(update);
