@@ -62,8 +62,8 @@ namespace Project.Business.Implement
             var update = new CartDetails
             {
                 Id = exist.Id,
-                IdGioHang = exist.IdGioHang,
-                IdSanPham = exist.IdSanPham,
+                IdCart = exist.IdCart,
+                IdProduct = exist.IdProduct,
                 Quantity = exist.Quantity,
                 IsOnSale = exist.IsOnSale,
                 Code = exist.Code

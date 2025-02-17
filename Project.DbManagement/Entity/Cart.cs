@@ -10,8 +10,8 @@ namespace Project.DbManagement.Entity
     {
         [Key]
         public Guid Id { get; set; }
-        public Guid IdTaiKhoan { get; set; }
-       public Guid IdThongTinLienHe { get; set; }
+        public Guid IdUser { get; set; }
+       public Guid IdContact { get; set; }
         public int Status { get; set; }
         public string Description { get; set; }
     }

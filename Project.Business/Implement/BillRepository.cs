@@ -203,14 +203,14 @@ public class BillRepository : IBillRepository
             return res;
         }
 
-        public async Task<BillEntity> saveAsync(BillEntity bills)
+        public async Task<BillEntity> SaveAsync(BillEntity bills)
         {
-            var res = await saveAsync(new [] { bills });
+            var res = await SaveAsync(new [] { bills });
             return res.FirstOrDefault();
 
         }
 
-        public virtual async Task<IEnumerable<BillEntity>> saveAsync( IEnumerable<BillEntity>  bills)
+        public virtual async Task<IEnumerable<BillEntity>> SaveAsync( IEnumerable<BillEntity>  bills)
         {
             var updated = new List<BillEntity>();
 

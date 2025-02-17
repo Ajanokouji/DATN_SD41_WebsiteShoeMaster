@@ -85,12 +85,12 @@ namespace Project.Business.Implement
 
             if (queryModel.IdTaiKhoan.HasValue)
             {
-                query = query.Where(x => x.IdTaiKhoan == queryModel.IdTaiKhoan.Value);
+                query = query.Where(x => x.IdUser == queryModel.IdTaiKhoan.Value);
             }
 
             if (queryModel.IdThongTinLienHe.HasValue)
             {
-                query = query.Where(x => x.IdThongTinLienHe == queryModel.IdThongTinLienHe.Value);
+                query = query.Where(x => x.IdContact == queryModel.IdThongTinLienHe.Value);
             }
 
             if (queryModel.Status.HasValue)
@@ -160,8 +160,8 @@ namespace Project.Business.Implement
                 else
                 {
                     _context.Entry(exist).State = EntityState.Detached;
-                    exist.IdTaiKhoan = cart.IdTaiKhoan;
-                    exist.IdThongTinLienHe = cart.IdThongTinLienHe;
+                    exist.IdUser = cart.IdUser;
+                    exist.IdContact = cart.IdContact;
                     exist.Status = cart.Status;
                     exist.Description = cart.Description;
 

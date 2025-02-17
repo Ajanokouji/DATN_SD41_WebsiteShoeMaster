@@ -71,20 +71,20 @@ namespace Project.Business.Implement
                 Code = exist.Code,
                 CreatedOnDate = exist.CreatedOnDate,
                 Description = exist.Description,
-                DiaChi = exist.DiaChi,
+                Address = exist.Address,
                 Email = exist.Email,
                 PhoneNumber = exist.PhoneNumber,
-                Ten = exist.Ten,
-                UserNameTaiKhoan = exist.UserNameTaiKhoan
+                Name = exist.Name,
+                UserName = exist.UserName
             };
 
             if (!string.IsNullOrWhiteSpace(model.Code))
             {
                 update.Code = model.Code;
             }
-            if (!string.IsNullOrWhiteSpace(model.Ten))
+            if (!string.IsNullOrWhiteSpace(model.Name))
             {
-                update.Ten = model.Ten;
+                update.Name = model.Name;
             }
             if (!string.IsNullOrWhiteSpace(model.PhoneNumber))
             {
@@ -94,17 +94,17 @@ namespace Project.Business.Implement
             {
                 update.Email = model.Email;
             }
-            if (!string.IsNullOrWhiteSpace(model.DiaChi))
+            if (!string.IsNullOrWhiteSpace(model.Address))
             {
-                update.DiaChi = model.DiaChi;
+                update.Address = model.Address;
             }
             if (!string.IsNullOrWhiteSpace(model.Description))
             {
                 update.Description = model.Description;
             }
-            if (!string.IsNullOrWhiteSpace(model.UserNameTaiKhoan))
+            if (!string.IsNullOrWhiteSpace(model.UserName))
             {
-                update.UserNameTaiKhoan = model.UserNameTaiKhoan;
+                update.UserName = model.UserName;
             }
             if (model.TTTHIDMain.HasValue)
             {

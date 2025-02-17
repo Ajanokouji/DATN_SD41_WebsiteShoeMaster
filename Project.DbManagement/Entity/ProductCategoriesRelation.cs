@@ -15,10 +15,10 @@ namespace Project.DbManagement.Entity
         [Key]
         public Guid Id { get; set; }
         
-        public Guid IdSanPham { get; set; }
-        public Guid IdDanhMuc { get; set; }
-        public string TenSanPham { get; set; }
-        public string TenDanhMuc { get; set; }
+        public Guid IdProduct { get; set; }
+        public Guid IdCategory { get; set; }
+        public string ProductName { get; set; }
+        public string CategoryName { get; set; }
         public string RelationType { get; set; }
         public int? Order { get; set; } = 9999;
 

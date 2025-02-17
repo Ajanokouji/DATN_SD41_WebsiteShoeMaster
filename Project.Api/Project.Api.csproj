@@ -1,0 +1,21 @@
+<Project Sdk="Microsoft.NET.Sdk.Web">
+
+  <PropertyGroup>
+    <TargetFramework>net8.0</TargetFramework>
+    <Nullable>enable</Nullable>
+    <ImplicitUsings>enable</ImplicitUsings>
+    <UserSecretsId>20bdeae6-0544-4a3f-a0ed-d6b5de180a28</UserSecretsId>
+    <DockerDefaultTargetOS>Linux</DockerDefaultTargetOS>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <PackageReference Include="Microsoft.VisualStudio.Azure.Containers.Tools.Targets" Version="1.21.0" />
+    <PackageReference Include="SERP.Framework.ApiUtils" Version="15.7.6" />
+    <PackageReference Include="Swashbuckle.AspNetCore" Version="6.5.0" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="..\Project.Business\Project.Business.csproj" />
+  </ItemGroup>
+
+</Project>

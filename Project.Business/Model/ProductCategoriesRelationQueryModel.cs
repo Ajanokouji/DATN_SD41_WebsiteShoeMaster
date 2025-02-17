@@ -1,6 +1,6 @@
 ﻿using SERP.Framework.Common;
 
-namespace Project.Business.Interface.Repositories
+namespace Project.Business.Model
 {
     public class ProductCategoriesRelationQueryModel : PaginationRequest
     {

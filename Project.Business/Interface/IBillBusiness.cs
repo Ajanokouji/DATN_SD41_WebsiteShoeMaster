@@ -22,7 +22,7 @@ public interface IBillBusiness
 
     Task<BillEntity> SaveAsync(BillEntity article);
 
-    Task<BillEntity> SaveAsync(IEnumerable<BillEntity> article);
+    Task<IEnumerable<BillEntity>> SaveAsync(IEnumerable<BillEntity> article);
 
     Task<BillEntity> PatchAsync(BillEntity article);
 }
