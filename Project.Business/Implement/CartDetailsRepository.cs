@@ -93,12 +93,12 @@ namespace Project.Business.Implement
 
             if (queryModel.IdGioHang.HasValue)
             {
-                query = query.Where(x => x.IdGioHang == queryModel.IdGioHang.Value);
+                query = query.Where(x => x.IdCart == queryModel.IdGioHang.Value);
             }
 
             if (queryModel.IdSanPham.HasValue)
             {
-                query = query.Where(x => x.IdSanPham == queryModel.IdSanPham.Value);
+                query = query.Where(x => x.IdProduct == queryModel.IdSanPham.Value);
             }
 
             if (queryModel.Quantity.HasValue)
@@ -174,8 +174,8 @@ namespace Project.Business.Implement
                 else
                 {
                     _context.Entry(exist).State = EntityState.Detached;
-                    exist.IdGioHang = cartDetails.IdGioHang;
-                    exist.IdSanPham = cartDetails.IdSanPham;
+                    exist.IdCart = cartDetails.IdCart;
+                    exist.IdProduct = cartDetails.IdProduct;
                     exist.Quantity = cartDetails.Quantity;
                     exist.IsOnSale = cartDetails.IsOnSale;
                     exist.Code = cartDetails.Code;

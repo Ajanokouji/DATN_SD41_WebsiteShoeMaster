@@ -86,7 +86,7 @@ namespace Project.Business.Implement
                 foreach (string ts in queryModel.ListTextSearch)
                 {
                     expressionStarter = expressionStarter.Or((ProductEntity p) => 
-                                                                p.TenSanPham.Contains(ts.ToLower()) ||
+                                                                p.Name.Contains(ts.ToLower()) ||
                                                                 p.Description.Contains(ts.ToLower()));
                 }
 
@@ -96,12 +96,12 @@ namespace Project.Business.Implement
             if (!string.IsNullOrWhiteSpace(queryModel.FullTextSearch))
             {
                 string fullTextSearch = queryModel.FullTextSearch.ToLower();
-                query = query.Where((ProductEntity x) => x.TenSanPham.Contains(fullTextSearch));
+                query = query.Where((ProductEntity x) => x.Name.Contains(fullTextSearch));
             }
 
             if (!string.IsNullOrEmpty(queryModel.MaSanPham))
             {
-                query = query.Where(x => x.MaSanPham==queryModel.MaSanPham);
+                query = query.Where(x => x.Code==queryModel.MaSanPham);
             }
 
             if (!string.IsNullOrEmpty(queryModel.WorkFlowStates))
@@ -111,7 +111,7 @@ namespace Project.Business.Implement
 
             if (queryModel.DanhMucId.HasValue)
             {
-                query = query.Where(x => x.DanhMucId == queryModel.DanhMucId.Value);
+                query = query.Where(x => x.MainCategoryId == queryModel.DanhMucId.Value);
             }
 
             if (!string.IsNullOrEmpty(queryModel.Status))
@@ -121,7 +121,7 @@ namespace Project.Business.Implement
 
             if (!string.IsNullOrEmpty(queryModel.TenSanPham))
             {
-                query = query.Where(x => x.TenSanPham.Contains(queryModel.TenSanPham));
+                query = query.Where(x => x.Name.Contains(queryModel.TenSanPham));
             }
 
             if (!string.IsNullOrEmpty(queryModel.Description))
@@ -188,9 +188,9 @@ namespace Project.Business.Implement
                 {
                     _context.Entry(exist).State = EntityState.Detached;
                     exist.ImageUrl= product.ImageUrl;
-                    exist.TenSanPham = product.TenSanPham;  
-                    exist.MaSanPham=product.MaSanPham;
-                    exist.DanhMucId=product.DanhMucId;
+                    exist.Name = product.Name;  
+                    exist.Code=product.Code;
+                    exist.MainCategoryId=product.MainCategoryId;
                     exist.CompletePath=product.CompletePath;
                     exist.CompleteName=product.CompleteName;
                     exist.CompleteCode=product.CompleteCode;

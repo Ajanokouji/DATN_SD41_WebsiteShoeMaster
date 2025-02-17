@@ -147,11 +147,5 @@ namespace Project.Business.Implement
             return await SaveAsync(update);
         }
 
-   
-
-        public Task<IEnumerable<CategoriesEntity>> SaveAsync(IEnumerable<CategoriesQueryModel> categoryEntities)
-        {
-            throw new NotImplementedException();
-        }
     }
 }

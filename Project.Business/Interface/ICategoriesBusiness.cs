@@ -67,7 +67,7 @@ namespace Project.Business.Interface
         /// </summary>
         /// <param name="categoryEntities">The list of category entities.</param>
         /// <returns>The saved categories.</returns>
-        Task<IEnumerable<CategoriesEntity>> SaveAsync(IEnumerable<CategoriesQueryModel> categoryEntities);
+        Task<IEnumerable<CategoriesEntity>> SaveAsync(IEnumerable<CategoriesEntity> categoryEntities);
 
         /// <summary>
         /// Updates a category.

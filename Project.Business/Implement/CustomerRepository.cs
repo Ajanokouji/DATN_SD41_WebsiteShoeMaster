@@ -74,12 +74,12 @@ namespace Project.Business.Implement
 
             if (!string.IsNullOrEmpty(queryModel.Ten))
             {
-                query = query.Where(x => x.Ten.Contains(queryModel.Ten));
+                query = query.Where(x => x.Name.Contains(queryModel.Ten));
             }
 
             if (!string.IsNullOrEmpty(queryModel.DiaChi))
             {
-                query = query.Where(x => x.DiaChi.Contains(queryModel.DiaChi));
+                query = query.Where(x => x.Address.Contains(queryModel.DiaChi));
             }
 
             if (!string.IsNullOrEmpty(queryModel.Email))
@@ -144,12 +144,12 @@ namespace Project.Business.Implement
                 else
                 {
                     _context.Entry(exist).State = EntityState.Detached;
-                    exist.Ten = customer.Ten;
+                    exist.Name = customer.Name;
                     exist.PhoneNumber = customer.PhoneNumber;
-                    exist.DiaChi = customer.DiaChi;
+                    exist.Address = customer.Address;
                     exist.Email = customer.Email;
                     exist.Description = customer.Description;
-                    exist.UserNameTaiKhoan = customer.UserNameTaiKhoan;
+                    exist.UserName = customer.UserName;
                     customer.UpdateTracking(customer.Id);
                     _context.Customers.Update(exist);
                     updated.Add(exist);

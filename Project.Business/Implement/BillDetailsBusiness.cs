@@ -9,51 +9,51 @@ namespace Project.Business.Implement;
 
 public class BillDetailsBusiness : IBillDetailsBusiness
 {
-    private readonly IBillDetailsRepository _iBillDetailsRepository;
+    private readonly IBillDetailsRepository _billDetailsRepository;
 
     public BillDetailsBusiness(IBillDetailsRepository iBillDetailsRepository)
     {
-        _iBillDetailsRepository = iBillDetailsRepository;
+        _billDetailsRepository = iBillDetailsRepository;
     }
 
     public async Task<BillDetails> DeleteAsync(Guid contentId)
     {
-        return await _iBillDetailsRepository.DeleteAsync(contentId);
+        return await _billDetailsRepository.DeleteAsync(contentId);
     }
 
     public async Task<IEnumerable<BillDetails>> DeleteAsync(Guid[] deleteIds)
     {
-        return await _iBillDetailsRepository.DeleteAsync(deleteIds);
+        return await _billDetailsRepository.DeleteAsync(deleteIds);
     }
 
     public async Task<BillDetails> FindAsync(Guid contentId)
     {
-        return await _iBillDetailsRepository.FindAsync(contentId);
+        return await _billDetailsRepository.FindAsync(contentId);
     }
 
     public async Task<Pagination<BillDetails>> GetAllAsync(BillDetailsQueryModel queryModel)
     {
-        return await _iBillDetailsRepository.GetAllAsync(queryModel);
+        return await _billDetailsRepository.GetAllAsync(queryModel);
     }
 
     public async Task<int> GetCountAsync(BillDetailsQueryModel queryModel)
     {
-        return await _iBillDetailsRepository.GetCountAsync(queryModel);
+        return await _billDetailsRepository.GetCountAsync(queryModel);
     }
 
     public async Task<IEnumerable<BillDetails>> ListAllAsync(BillDetailsQueryModel queryModel)
     {
-        return await _iBillDetailsRepository.ListAllAsync(queryModel);
+        return await _billDetailsRepository.ListAllAsync(queryModel);
     }
 
     public async Task<IEnumerable<BillDetails>> ListByIdsAsync(IEnumerable<Guid> ids)
     {
-        return await _iBillDetailsRepository.ListByIdsAsync(ids);
+        return await _billDetailsRepository.ListByIdsAsync(ids);
     }
 
     public async Task<BillDetails> PatchAsync(BillDetails model)
     {
-        var exist = await _iBillDetailsRepository.FindAsync(model.Id);
+        var exist = await _billDetailsRepository.FindAsync(model.Id);
 
         if (exist == null)
         {
@@ -112,11 +112,12 @@ public class BillDetailsBusiness : IBillDetailsBusiness
 
     public async Task<BillDetails> SaveAsync(BillDetails billDetails)
     {
-        return await SaveAsync(new[] { billDetails });
+        var res = await SaveAsync(new[] { billDetails });
+        return res.FirstOrDefault();
     }
 
-    public Task<BillDetails> SaveAsync(IEnumerable<BillDetails> billDetailsEntities)
+    public async Task<IEnumerable<BillDetails>> SaveAsync(IEnumerable<BillDetails> billDetailsEntities)
     {
-        throw new NotImplementedException();
+        return await _billDetailsRepository.SaveAsync(billDetailsEntities);
     }
 }

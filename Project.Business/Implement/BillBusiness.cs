@@ -190,11 +190,12 @@ public class BillBusiness : IBillBusiness
 
     public async Task<BillEntity> SaveAsync(BillEntity billEntity)
     {
-        return await SaveAsync(new[] { billEntity });
+        var res = await SaveAsync(new[] { billEntity });
+        return  res.FirstOrDefault();
     }
 
-    public Task<BillEntity> SaveAsync(IEnumerable<BillEntity> billEntities)
+    public async Task<IEnumerable<BillEntity>> SaveAsync(IEnumerable<BillEntity> billEntities)
     {
-        throw new NotImplementedException();
+       return  await _billRepository.SaveAsync(billEntities);
     }
 }

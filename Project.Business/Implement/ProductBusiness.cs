@@ -62,7 +62,7 @@ namespace Project.Business.Implement
             var update = new ProductEntity
             {
                 Id = exist.Id,
-                DanhMucId = exist.DanhMucId,
+                MainCategoryId = exist.MainCategoryId,
                 CompleteCode = exist.CompleteCode,
                 CompleteName = exist.CompleteName,
                 CompletePath = exist.CompletePath,
@@ -75,24 +75,24 @@ namespace Project.Business.Implement
                 LabelsObjs = exist.LabelsObjs,
                 LastModifiedByUserId = exist.LastModifiedByUserId,
                 LastModifiedOnDate = exist.LastModifiedOnDate,
-                MaSanPham = exist.MaSanPham,
+                Code = exist.Code,
                 MetadataObj = exist.MetadataObj,
                 PublicOnDate = exist.PublicOnDate,
                 RelatedIds = exist.RelatedIds,
                 RelatedObjectIds = exist.RelatedObjectIds,
                 SortOrder = exist.SortOrder,
                 Status = exist.Status,
-                TenSanPham = exist.TenSanPham,
+                Name = exist.Name,
                 WorkFlowStates = exist.WorkFlowStates
             };
 
-            if (!string.IsNullOrWhiteSpace(model.MaSanPham))
+            if (!string.IsNullOrWhiteSpace(model.Code))
             {
-                update.MaSanPham = model.MaSanPham;
+                update.Code = model.Code;
             }
-            if (!string.IsNullOrWhiteSpace(model.TenSanPham))
+            if (!string.IsNullOrWhiteSpace(model.Name))
             {
-                update.TenSanPham = model.TenSanPham;
+                update.Name = model.Name;
             }
             if (!string.IsNullOrWhiteSpace(model.Status))
             {
@@ -110,9 +110,9 @@ namespace Project.Business.Implement
             {
                 update.Description = model.Description;
             }
-            if (model.DanhMucId.HasValue)
+            if (model.MainCategoryId.HasValue)
             {
-                update.DanhMucId = model.DanhMucId;
+                update.MainCategoryId = model.MainCategoryId;
             }
             if (model.RelatedObjectIds != null && model.RelatedObjectIds.Any())
             {

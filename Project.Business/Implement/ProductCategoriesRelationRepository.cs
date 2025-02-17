@@ -1,6 +1,7 @@
 ﻿using LinqKit;
 using Microsoft.EntityFrameworkCore;
 using Project.Business.Interface.Repositories;
+using Project.Business.Model;
 using Project.DbManagement;
 using Project.DbManagement.Entity;
 using SERP.Framework.Business;
@@ -79,7 +80,7 @@ namespace Project.Business.Implement
                 var expressionStarter = LinqKit.PredicateBuilder.New<ProductCategoriesRelation>();
                 foreach (string ts in queryModel.ListTextSearch)
                 {
-                    expressionStarter = expressionStarter.Or(p => p.TenSanPham.Contains(ts.ToLower()) || p.Description.Contains(ts.ToLower()));
+                    expressionStarter = expressionStarter.Or(p => p.ProductName.Contains(ts.ToLower()) || p.Description.Contains(ts.ToLower()));
                 }
 
                 query = query.Where(expressionStarter);
@@ -88,12 +89,12 @@ namespace Project.Business.Implement
             if (!string.IsNullOrWhiteSpace(queryModel.FullTextSearch))
             {
                 string fullTextSearch = queryModel.FullTextSearch.ToLower();
-                query = query.Where(x => x.TenSanPham.Contains(fullTextSearch));
+                query = query.Where(x => x.ProductName.Contains(fullTextSearch));
             }
 
             if (!string.IsNullOrEmpty(queryModel.TenSanPham))
             {
-                query = query.Where(x => x.TenSanPham.Contains(queryModel.TenSanPham));
+                query = query.Where(x => x.ProductName.Contains(queryModel.TenSanPham));
             }
 
             if (!string.IsNullOrEmpty(queryModel.Description))
@@ -137,8 +138,8 @@ namespace Project.Business.Implement
                 else
                 {
                     _context.Entry(exist).State = EntityState.Detached;
-                    exist.TenSanPham = entity.TenSanPham;
-                    exist.TenDanhMuc = entity.TenDanhMuc;
+                    exist.ProductName = entity.ProductName;
+                    exist.CategoryName = entity.CategoryName;
                     exist.RelationType = entity.RelationType;
                     exist.Order = entity.Order;
                     exist.IsPublish = entity.IsPublish;

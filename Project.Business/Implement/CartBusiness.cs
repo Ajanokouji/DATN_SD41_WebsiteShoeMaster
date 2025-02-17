@@ -68,8 +68,8 @@ namespace Project.Business.Implement
             var update = new Cart
             {
                 Id = exist.Id,
-                IdTaiKhoan = exist.IdTaiKhoan,
-                IdThongTinLienHe = exist.IdThongTinLienHe,
+                IdUser = exist.IdUser,
+                IdContact = exist.IdContact,
                 Status = exist.Status,
                 Description = exist.Description,
                 CreatedByUserId = exist.CreatedByUserId,
@@ -79,13 +79,13 @@ namespace Project.Business.Implement
                 Isdeleted = exist.Isdeleted
             };
 
-            if (model.IdTaiKhoan != Guid.Empty)
+            if (model.IdUser != Guid.Empty)
             {
-                update.IdTaiKhoan = model.IdTaiKhoan;
+                update.IdUser = model.IdUser;
             }
-            if (model.IdThongTinLienHe != Guid.Empty)
+            if (model.IdContact != Guid.Empty)
             {
-                update.IdThongTinLienHe = model.IdThongTinLienHe;
+                update.IdContact = model.IdContact;
             }
             if (model.Status != 0)
             {

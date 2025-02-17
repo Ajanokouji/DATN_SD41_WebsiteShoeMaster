@@ -22,7 +22,7 @@ public interface IBillDetailsBusiness
 
     Task<BillDetails> SaveAsync(BillDetails article);
 
-    Task<BillDetails> SaveAsync(IEnumerable<BillDetails> article);
+    Task<IEnumerable<BillDetails>> SaveAsync(IEnumerable<BillDetails> article);
 
     Task<BillDetails> PatchAsync(BillDetails article);
 }

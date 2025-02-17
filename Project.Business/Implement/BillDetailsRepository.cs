@@ -134,14 +134,14 @@ public class BillDetailsRepository : IBillDetailsRepository
             return res;
         }
 
-        public async Task<BillDetails> saveAsync(BillDetails billDetails)
+        public async Task<BillDetails> SaveAsync(BillDetails billDetails)
         {
-            var res = await saveAsync(new [] { billDetails });
+            var res = await SaveAsync(new [] { billDetails });
             return res.FirstOrDefault();
 
         }
 
-        public virtual async Task<IEnumerable<BillDetails>> saveAsync( IEnumerable<BillDetails>  billDetails)
+        public virtual async Task<IEnumerable<BillDetails>> SaveAsync( IEnumerable<BillDetails>  billDetails)
         {
             var updated = new List<BillDetails>();
 
