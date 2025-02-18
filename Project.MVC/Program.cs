@@ -1,4 +1,4 @@
-var builder = WebApplication.CreateBuilder(args);
+﻿var builder = WebApplication.CreateBuilder(args);
 
 // Add services to the container.
 builder.Services.AddControllersWithViews();
@@ -19,6 +19,8 @@ app.UseStaticFiles();
 app.UseRouting();
 
 app.UseAuthorization();
+
+app.UseStaticFiles(); // Đảm bảo ứng dụng có thể phục vụ file tĩnh
 
 app.MapControllerRoute(
     name: "default",
