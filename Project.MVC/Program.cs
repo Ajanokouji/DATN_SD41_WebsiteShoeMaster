@@ -22,8 +22,12 @@ app.UseAuthorization();
 
 app.UseStaticFiles(); // Đảm bảo ứng dụng có thể phục vụ file tĩnh
 
-app.MapControllerRoute(
+app.MapControllerRoute( // Addmin
     name: "default",
-    pattern: "{controller=Home}/{action=Index}/{id?}");
+    pattern: "{area=Admin}/{controller=Home}/{action=Home}/{id?}");
+
+// app.MapControllerRoute(
+//     name: "default",
+//     pattern: "{controller=Home}/{action=Index}/{id?}");
 
 app.Run();
