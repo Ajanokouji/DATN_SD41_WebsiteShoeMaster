@@ -17,12 +17,12 @@ public class BillDetailsRepository : IBillDetailsRepository
     {
         _context = context;
     }
-    public async Task<BillDetails> FindAsync(Guid id)
+    public async Task<BillDetailsEntity> FindAsync(Guid id)
         {
             var res = await _context.BillDetails.FindAsync(id);
             return res;
         }
-        public async Task<IEnumerable<BillDetails>> ListAllAsync(BillDetailsQueryModel queryModel)
+        public async Task<IEnumerable<BillDetailsEntity>> ListAllAsync(BillDetailsQueryModel queryModel)
         {
             var query = BuildQuery( queryModel);
             var resId = await query.Select(x => x.Id).ToListAsync();
@@ -30,23 +30,23 @@ public class BillDetailsRepository : IBillDetailsRepository
             return res;
         }
 
-        public async Task<IEnumerable<BillDetails>> ListByIdsAsync(IEnumerable<Guid> ids)
+        public async Task<IEnumerable<BillDetailsEntity>> ListByIdsAsync(IEnumerable<Guid> ids)
         {
             var res = await _context.BillDetails.Where(x => ids.Contains(x.Id)).ToListAsync();
             return res;
         }
 
-        public async Task<Pagination<BillDetails>> GetAllAsync(BillDetailsQueryModel queryModel)
+        public async Task<Pagination<BillDetailsEntity>> GetAllAsync(BillDetailsQueryModel queryModel)
         {
             BillDetailsQueryModel billDetailsQueryModel = queryModel;
 
 
             queryModel.Sort = QueryUtils.FormatSortInput(queryModel.Sort);
-            IQueryable<BillDetails> queryable = BuildQuery( queryModel);
+            IQueryable<BillDetailsEntity> queryable = BuildQuery( queryModel);
             string sortExpression = string.Empty;
             if (string.IsNullOrWhiteSpace(queryModel.Sort) || queryModel.Sort.Equals("-LastModifiedOnDate"))
             {
-                queryable = queryable.OrderByDescending((BillDetails x) => x.LastModifiedOnDate);
+                queryable = queryable.OrderByDescending((BillDetailsEntity x) => x.LastModifiedOnDate);
             }
             else
             {
@@ -56,26 +56,26 @@ public class BillDetailsRepository : IBillDetailsRepository
             return await queryable.GetPagedOrderAsync(queryModel.CurrentPage.Value, queryModel.PageSize.Value, sortExpression);
         }
 
-        private IQueryable<BillDetails> BuildQuery( BillDetailsQueryModel queryModel)
+        private IQueryable<BillDetailsEntity> BuildQuery( BillDetailsQueryModel queryModel)
         {
-            IQueryable<BillDetails> query = _context.BillDetails.AsNoTracking().Where(x => x.Isdeleted!=true);
+            IQueryable<BillDetailsEntity> query = _context.BillDetails.AsNoTracking().Where(x => x.Isdeleted!=true);
 
             if (queryModel.Id.HasValue)
             {
-                query = query.Where((BillDetails x) => x.Id == queryModel.Id.Value);
+                query = query.Where((BillDetailsEntity x) => x.Id == queryModel.Id.Value);
             }
 
             if (queryModel.ListId != null && queryModel.ListId.Any())
             {
-                query = query.Where((BillDetails x) => queryModel.ListId.Contains(x.Id));
+                query = query.Where((BillDetailsEntity x) => queryModel.ListId.Contains(x.Id));
             }
 
             if (queryModel.ListTextSearch != null && queryModel.ListTextSearch.Any())
             {
-                ExpressionStarter<BillDetails> expressionStarter = LinqKit.PredicateBuilder.New<BillDetails>();
+                ExpressionStarter<BillDetailsEntity> expressionStarter = LinqKit.PredicateBuilder.New<BillDetailsEntity>();
                 foreach (string ts in queryModel.ListTextSearch)
                 {
-                    expressionStarter = expressionStarter.Or((BillDetails p) => 
+                    expressionStarter = expressionStarter.Or((BillDetailsEntity p) => 
                                                                 p.BillDetailCode.Contains(ts.ToLower()) ||
                                                                 p.Notes.Contains(ts.ToLower()));
                 }
@@ -95,7 +95,7 @@ public class BillDetailsRepository : IBillDetailsRepository
             
             if (queryModel.id_san_pham_chi_tiet.HasValue)
             {
-                query = query.Where(x => x.ProductDetailId == queryModel.id_san_pham_chi_tiet.Value);
+                query = query.Where(x => x.ProductId == queryModel.id_san_pham_chi_tiet.Value);
             }
             
             if (!string.IsNullOrEmpty(queryModel.ma_hoa_don_chi_tiet))
@@ -134,16 +134,16 @@ public class BillDetailsRepository : IBillDetailsRepository
             return res;
         }
 
-        public async Task<BillDetails> SaveAsync(BillDetails billDetails)
+        public async Task<BillDetailsEntity> SaveAsync(BillDetailsEntity billDetails)
         {
             var res = await SaveAsync(new [] { billDetails });
             return res.FirstOrDefault();
 
         }
 
-        public virtual async Task<IEnumerable<BillDetails>> SaveAsync( IEnumerable<BillDetails>  billDetails)
+        public virtual async Task<IEnumerable<BillDetailsEntity>> SaveAsync( IEnumerable<BillDetailsEntity>  billDetails)
         {
-            var updated = new List<BillDetails>();
+            var updated = new List<BillDetailsEntity>();
 
             foreach (var billDetail in billDetails)
             {
@@ -165,7 +165,7 @@ public class BillDetailsRepository : IBillDetailsRepository
                     _context.Entry(exist).State = EntityState.Detached;
                     exist.Id = billDetail.Id;
                     exist.BillId = billDetail.BillId;  
-                    exist.ProductDetailId = billDetail.ProductDetailId;
+                    exist.ProductId = billDetail.ProductId;
                     exist.BillDetailCode = billDetail.BillDetailCode;
                     exist.Status = billDetail.Status;
                     exist.Quantity = billDetail.Quantity;
@@ -184,7 +184,7 @@ public class BillDetailsRepository : IBillDetailsRepository
 
 
 
-        public async Task<BillDetails> DeleteAsync(Guid Id)
+        public async Task<BillDetailsEntity> DeleteAsync(Guid Id)
         {
             var exist = await FindAsync(Id);
             if (exist==null) throw new Exception(IBillDetailsRepository.MessageNotFound);
@@ -194,7 +194,7 @@ public class BillDetailsRepository : IBillDetailsRepository
             return exist;
         }
 
-        public Task<IEnumerable<BillDetails>> DeleteAsync(Guid[] deleteIds)
+        public Task<IEnumerable<BillDetailsEntity>> DeleteAsync(Guid[] deleteIds)
         {
             throw new NotImplementedException();
         }

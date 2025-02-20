@@ -3,9 +3,9 @@ using Project.DbManagement;
 
 namespace Project.Business.Interface.Repositories;
 
-public interface IBillDetailsRepository : IRepository<BillDetails, BillDetailsQueryModel>
+public interface IBillDetailsRepository : IRepository<BillDetailsEntity, BillDetailsQueryModel>
 {
     protected const string MessageNotFound = "Bill not found";
-    Task<BillDetails> SaveAsync(BillDetails billDetails);
-    Task<IEnumerable<BillDetails>> SaveAsync(IEnumerable<BillDetails> billDetails);
+    Task<BillDetailsEntity> SaveAsync(BillDetailsEntity billDetails);
+    Task<IEnumerable<BillDetailsEntity>> SaveAsync(IEnumerable<BillDetailsEntity> billDetails);
 }

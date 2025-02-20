@@ -2,13 +2,9 @@ using Microsoft.AspNetCore.Mvc;
 using Project.Business.Interface;
 using Project.Business.Model;
 using Project.DbManagement;
-using Project.DbManagement.Entity;
 using SERP.Framework.ApiUtils.Controllers;
 using SERP.Framework.ApiUtils.Responses;
 using SERP.Framework.ApiUtils.Utils;
-using System;
-using System.Collections.Generic;
-using System.Threading.Tasks;
 
 namespace Project.Api.Controllers
 {
