@@ -1,141 +1,77 @@
-@{
-    Layout = null;
+﻿@{
+    ViewData["Title"] = "sell Off";
     Layout = "~/Areas/Admin/Views/Shared/_Layout.cshtml";
 }
 
-<html lang="vi"><head>
+<!DOCTYPE html>
+<html lang="vi">
+<head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
-    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.1/font/bootstrap-icons.css">
-    <link rel="stylesheet" href="../SellOff/css/style.css">
-    <title>Danh Sách Hóa đơn</title>
-  </head>
-  <body>
-    <div class="container mt-4">
-      <div class="rounded-table-container mb-4">
-        <div class="table-header d-flex justify-content-between align-items-center pt-2 px-3">
-          <h4 class="m-0">Danh Sách Hoá Đơn</h4>
-          <div class="d-flex justify-content-end">
-            <button class="btn btn-primary" id="create-order-button">
-              + Tạo đơn hàng
-            </button>
-          </div>
-        </div>
-        <div class="table-responsive">
-          <table class="table rounded-table" id="invoice-table">
-            <thead>
-              <tr>
-                <th><input type="checkbox"></th>
-                <th>Invoice ID</th>
-                <th>Billing Name</th>
-                <th>Order Date</th>
-                <th>Total</th>
-                <th>Payment Method</th>
-                <th>Status</th>
-                <th>Action</th>
-              </tr>
-            </thead>
-            <tbody>
-              <tr data-month="january">
-                <td><input type="checkbox"></td>
-                <td>#INV2540</td>
-                <td>Michael A. Miner</td>
-                <td>07 Jan, 2023</td>
-                <td>$452</td>
-                <td>Mastercard</td>
-                <td class="text-center">
-                  <span class="badge bg-success">Completed</span>
-                </td>
-                <td>
-                  <div class="button-group">
-                    <button class="custom-button view-button">
-                      <i class="bi bi-eye"></i>
-                    </button>
-                    <button class="custom-button edit-button">
-                      <i class="bi bi-pencil-square"></i>
-                    </button>
-                    <button class="custom-button delete-button">
-                      <i class="bi bi-trash"></i>
-                    </button>
-                  </div>
-                </td>
-              </tr>
-              <tr data-month="december">
-                <td><input type="checkbox"></td>
-                <td>#INV3924</td>
-                <td>Theresa T. Brose</td>
-                <td>03 Dec, 2023</td>
-                <td>$783</td>
-                <td>Visa</td>
-                <td class="text-center">
-                  <span class="badge bg-danger">Cancel</span>
-                </td>
-                <td>
-                  <div class="button-group">
-                    <button class="custom-button view-button">
-                      <i class="bi bi-eye"></i>
-                    </button>
-                    <button class="custom-button edit-button">
-                      <i class="bi bi-pencil-square"></i>
-                    </button>
-                    <button class="custom-button delete-button">
-                      <i class="bi bi-trash"></i>
-                    </button>
-                  </div>
-                </td>
-              </tr>
-              <tr data-month="december">
-                <td><input type="checkbox"></td>
-                <td>#INV3924</td>
-                <td>Theresa T. Brose</td>
-                <td>03 Dec, 2023</td>
-                <td>$783</td>
-                <td>Visa</td>
-                <td class="text-center">
-                  <span class="badge bg-danger">Cancel</span>
-                </td>
-                <td>
-                  <div class="button-group">
-                    <button class="custom-button view-button">
-                      <i class="bi bi-eye"></i>
-                    </button>
-                    <button class="custom-button edit-button">
-                      <i class="bi bi-pencil-square"></i>
-                    </button>
-                    <button class="custom-button delete-button">
-                      <i class="bi bi-trash"></i>
-                    </button>
-                  </div>
-                </td>
-              </tr>
-            </tbody>
-          </table>
-        </div>
-        <nav aria-label="Page navigation example">
-          <ul class="pagination justify-content-end mt-3">
-            <li class="page-item">
-              <a class="page-link" href="#" aria-label="Previous" id="previous-page">
-                <span aria-hidden="true">« Previous</span>
-              </a>
-            </li>
-            <li class="page-item active">
-              <a class="page-link" href="#" data-page="1">1</a>
-            </li>
-            <li class="page-item">
-              <a class="page-link" href="#" data-page="2">2</a>
-            </li>
-            <li class="page-item">
-              <a class="page-link" href="#" data-page="3">3</a>
-            </li>
-            <li class="page-item">
-              <a class="page-link" href="#" aria-label="Next" id="next-page">
-                <span aria-hidden="true">Next »</span>
-              </a>
-            </li>
-          </ul>
-        </nav>
-      </div>
+    <title>Sell Off</title>
+    <link rel="stylesheet" href="../SellOffAssets/css/styles.css">
+</head>
+<body>
+<div class="container">
+    <h1>Hệ Thống Bán Hàng</h1>
+
+    <button onclick="openProductModal()">+ Sản Phẩm</button>
+    <button onclick="openOrderModal()">+ Hóa Đơn Chờ</button>
+
+    <h2>Giỏ Hàng</h2>
+    <table id="cart">
+        <thead>
+        <tr>
+            <th>Tên Sản Phẩm</th>
+            <th>Giá</th>
+            <th>Số Lượng</th>
+            <th>Tổng</th>
+        </tr>
+        </thead>
+        <tbody></tbody>
+    </table>
+    <h3>Tổng Tiền: <span id="total">0</span>đ</h3>
+
+    <h2>Hóa Đơn Chờ</h2>
+    <select id="pendingOrderSelect">
+        <option value="">Chọn hóa đơn thanh toán</option>
+    </select>
+    <button onclick="processPayment()">Thanh Toán</button>
+    <div id="pendingOrders"></div>
+
+    <h2>Thông Tin Thanh Toán</h2>
+    <div class="payment-form">
+        <input type="text" id="customerName" placeholder="Tên Khách Hàng">
+        <input type="text" id="customerPhone" placeholder="Số Điện Thoại">
+        <input type="text" id="customerAddress" placeholder="Địa Chỉ">
+        <select id="paymentMethod">
+            <option value="Tiền Mặt">Tiền Mặt</option>
+            <option value="Chuyển Khoản">Chuyển Khoản</option>
+        </select>
+        <input type="text" id="voucher" placeholder="Mã Giảm Giá">
+        <button onclick="processPayment()">Thanh Toán</button>
     </div>
-    <script src="index.js"></script>
-</body></html>
+</div>
+
+<div id="productModal" class="modal">
+    <div class="modal-content">
+        <h2>Thêm Sản Phẩm</h2>
+        <input type="text" id="productName" placeholder="Tên sản phẩm">
+        <input type="number" id="productPrice" placeholder="Giá sản phẩm">
+        <input type="number" id="productQuantity" placeholder="Số lượng">
+        <button onclick="confirmAddProduct()">Thêm vào giỏ</button>
+        <button onclick="closeProductModal()">Hủy</button>
+    </div>
+</div>
+
+<div id="orderModal" class="modal">
+    <div class="modal-content">
+        <h2>Thêm Hóa Đơn Chờ</h2>
+        <button onclick="confirmAddPendingOrder()">Xác nhận</button>
+        <button onclick="closeOrderModal()">Hủy</button>
+    </div>
+</div>
+
+<script src="../SellOffAssets/js/script.js"></script>
+</body>
+</html>
