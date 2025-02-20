@@ -19,6 +19,8 @@ Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "1.Project.Busines", "1.Proj
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Project.Api", "Project.Api\Project.Api.csproj", "{99E12970-0C5E-47F9-A901-DF44BC8D277C}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Project.AdminSell", "Project.AdminSell\Project.AdminSell.csproj", "{C309819F-55F7-4A67-9CFC-716B212F06E6}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -49,6 +51,10 @@ Global
 		{99E12970-0C5E-47F9-A901-DF44BC8D277C}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{99E12970-0C5E-47F9-A901-DF44BC8D277C}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{99E12970-0C5E-47F9-A901-DF44BC8D277C}.Release|Any CPU.Build.0 = Release|Any CPU
+		{C309819F-55F7-4A67-9CFC-716B212F06E6}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{C309819F-55F7-4A67-9CFC-716B212F06E6}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{C309819F-55F7-4A67-9CFC-716B212F06E6}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{C309819F-55F7-4A67-9CFC-716B212F06E6}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
@@ -59,5 +65,6 @@ Global
 		{190A2A7A-70E7-4AE5-99BF-CF32C6152668} = {40D3DC26-BAE5-48B0-BA27-4273667D6FF4}
 		{2BF9E45B-84D7-49E3-8717-6DF71470DD53} = {540222D1-65C1-4564-99DD-A5D4643A1F5B}
 		{99E12970-0C5E-47F9-A901-DF44BC8D277C} = {540222D1-65C1-4564-99DD-A5D4643A1F5B}
+		{C309819F-55F7-4A67-9CFC-716B212F06E6} = {40D3DC26-BAE5-48B0-BA27-4273667D6FF4}
 	EndGlobalSection
 EndGlobal

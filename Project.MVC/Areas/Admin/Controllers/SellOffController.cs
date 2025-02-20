@@ -2,11 +2,11 @@
 
 namespace Project.MVC.Areas.Admin.Controllers;
 
-public class HomeController : Controller
+public class SellOffController : Controller
 {
     // GET
     [Area("Admin")]
-    public IActionResult Home()
+    public IActionResult SellOff()
     {
         return View();
     }
