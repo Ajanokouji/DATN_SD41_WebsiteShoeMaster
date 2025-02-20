@@ -1,0 +1,36 @@
+/* style.css */
+.payment-info {
+    background-color: #fff;
+    padding: 20px;
+    border-radius: 8px;
+    box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
+    border: 1px solid #eee;
+}
+
+.payment-info .required::after {
+    content: "*";
+    color: red;
+    margin-left: 5px;
+}
+
+.order-summary {
+    border: 1px solid #eee;
+    padding: 10px;
+    border-radius: 5px;
+}
+
+.payment-button {
+    border: 1px solid #ddd;
+    border-radius: 5px;
+    padding: 8px 15px;
+    background-color: white;
+    color: #333;
+}
+
+.payment-button.active {
+    border-color: #0d6efd; /* Màu xanh dương của Bootstrap */
+    color: #0d6efd;
+}
+.payment-methods p{
+    margin-bottom: 5px;
+}

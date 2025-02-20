@@ -1,0 +1,147 @@
+/* style.css */
+.summary-icon {
+  font-size: 2rem;
+  color: #f0ad4e;
+  opacity: 0.7;
+}
+
+.summary-box {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  background-color: #fff; /* Nền trắng */
+  padding: 15px;
+  border-radius: 8px; /* Bo tròn */
+  box-shadow: 2px 2px 5px rgba(0, 0, 0, 0.1); /* Đổ bóng */
+  border: 1px solid #eee; /* Viền mỏng */
+}
+/* style.css */
+.rounded-table-container {
+  background-color: #fff;
+  padding: 15px;
+  border-radius: 10px; /* Bo tròn container */
+  box-shadow: 2px 2px 5px rgba(0, 0, 0, 0.1);
+  border: 1px solid #eee;
+  overflow: hidden; /* Bắt buộc để bo góc hoạt động tốt */
+}
+
+.rounded-table {
+  width: 100%;
+  border-collapse: separate; /* Quan trọng: tách border */
+  border-spacing: 0; /* Loại bỏ khoảng cách giữa các ô */
+  margin-bottom: 0; /* loại bỏ margin mặc định của table */
+}
+
+.rounded-table th,
+.rounded-table td {
+  border: none; /* Loại bỏ border mặc định của ô */
+  padding: 12px 15px;
+  text-align: left;
+  border-bottom: 1px solid #dee2e6; /* Chỉ giữ border dưới */
+  white-space: nowrap; /* ngăn chặn văn bản xuống dòng trong ô */
+}
+
+.rounded-table th {
+  background-color: #E4E0E1; /* Màu nền header */
+  font-weight: 500; /* độ đậm chữ header */
+}
+
+.rounded-table tr:last-child td {
+  border-bottom: none; /* loại bỏ border dưới cùng của hàng cuối */
+}
+
+/* Bo tròn góc cho TRONG bảng */
+.rounded-table tr:first-child th:first-child {
+  border-top-left-radius: 10px;
+}
+
+.rounded-table tr:first-child th:last-child {
+  border-top-right-radius: 10px;
+}
+.rounded-table tr:last-child td:first-child {
+  border-bottom-left-radius: 10px;
+}
+.rounded-table tr:last-child td:last-child {
+  border-bottom-right-radius: 10px;
+}
+
+.badge {
+  font-size: 0.9rem;
+}
+
+.table-responsive {
+  overflow-x: auto;
+}
+.pagination .page-item.active .page-link {
+  background-color: #e67e22; /* Màu cam */
+  border-color: #e67e22;
+  color: white;
+}
+.page-link {
+  color: #34495e; /* Màu chữ */
+}
+body {
+  font-family: sans-serif;
+  margin: 20px;
+  background-color: #f4f4f4;
+}
+h3 {
+  align-items: center;
+  color: #5d7186;
+  display: flex;
+  justify-content: center;
+  line-height: 21px;
+}
+.table-header {
+  margin-bottom: 10px; /* Khoảng cách giữa header và bảng */
+}
+/* style.css */
+.filter-container {
+  background-color: #fff;
+  padding: 20px;
+  border-radius: 8px;
+  box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
+  border: 1px solid #eee; /* Viền mỏng */
+  margin-bottom: 30px; /* Tạo khoảng cách 30px bên dưới bộ lọc */
+}
+.filter-container h3{
+  margin-bottom: 20px;
+}
+/* style.css */
+.button-group {
+  display: flex; /* Để các nút nằm ngang */
+  gap: 10px; /* Khoảng cách giữa các nút */
+}
+
+.custom-button {
+  width: 40px; /* Kích thước nút */
+  height: 40px;
+  border: none;
+  border-radius: 10px; /* Bo tròn */
+  display: flex;
+  justify-content: center; /* Căn giữa icon theo chiều ngang */
+  align-items: center; /* Căn giữa icon theo chiều dọc */
+  cursor: pointer; /* Hiển thị con trỏ chuột khi hover */
+  font-size: 1.2rem; /* Kích thước icon */
+  opacity: 0.8; /* độ trong suốt của button */
+}
+
+.view-button {
+  background-color: #e9ecef; /* Màu nền xám nhạt */
+  color: #343a40; /* Màu icon đen */
+}
+
+.edit-button {
+  background-color: #ffe8d6; /* Màu nền cam nhạt */
+  color: #e67e22; /* Màu icon cam */
+}
+
+.delete-button {
+  background-color: #f8d7da; /* Màu nền đỏ nhạt */
+  color: #dc3545; /* Màu icon đỏ */
+}
+.custom-button:hover{
+  opacity: 1;
+}
+
+  
