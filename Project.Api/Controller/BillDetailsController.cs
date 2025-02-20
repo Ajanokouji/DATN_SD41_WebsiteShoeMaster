@@ -54,7 +54,7 @@ namespace Project.Api.Controllers
         }
 
         [HttpPost]
-        public async Task<IActionResult> CreateBillDetails([FromBody] BillDetails billDetails)
+        public async Task<IActionResult> CreateBillDetails([FromBody] BillDetailsEntity billDetails)
         {
             return await ExecuteFunction(async () =>
             {
@@ -64,8 +64,8 @@ namespace Project.Api.Controllers
         }
 
         [HttpPatch("{id}")]
-        [ProducesResponseType(typeof(ResponseObject<BillDetails>), StatusCodes.Status200OK)]
-        public async Task<IActionResult> PatchBillDetails(Guid id, [FromBody] BillDetails billDetails)
+        [ProducesResponseType(typeof(ResponseObject<BillDetailsEntity>), StatusCodes.Status200OK)]
+        public async Task<IActionResult> PatchBillDetails(Guid id, [FromBody] BillDetailsEntity billDetails)
         {
             return await ExecuteFunction(async () =>
             {
@@ -78,14 +78,14 @@ namespace Project.Api.Controllers
         }
 
         [HttpDelete("{id}")]
-        public async Task<ActionResult<BillDetails>> DeleteBillDetails(Guid id)
+        public async Task<ActionResult<BillDetailsEntity>> DeleteBillDetails(Guid id)
         {
             var deletedBillDetails = await _billDetailsBusiness.DeleteAsync(id);
             return Ok(deletedBillDetails);
         }
 
         [HttpDelete]
-        public async Task<ActionResult<IEnumerable<BillDetails>>> DeleteBillDetails([FromBody] Guid[] ids)
+        public async Task<ActionResult<IEnumerable<BillDetailsEntity>>> DeleteBillDetails([FromBody] Guid[] ids)
         {
             var deletedBillDetails = await _billDetailsBusiness.DeleteAsync(ids);
             return Ok(deletedBillDetails);

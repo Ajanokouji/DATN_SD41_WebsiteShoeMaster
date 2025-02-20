@@ -6,23 +6,23 @@ namespace Project.Business.Interface;
 
 public interface IBillDetailsBusiness
 {
-    Task<Pagination<BillDetails>> GetAllAsync(BillDetailsQueryModel queryModel);
+    Task<Pagination<BillDetailsEntity>> GetAllAsync(BillDetailsQueryModel queryModel);
 
-    Task<IEnumerable<BillDetails>> ListAllAsync(BillDetailsQueryModel queryModel);
+    Task<IEnumerable<BillDetailsEntity>> ListAllAsync(BillDetailsQueryModel queryModel);
 
     Task<int> GetCountAsync(BillDetailsQueryModel queryModel);
 
-    Task<IEnumerable<BillDetails>> ListByIdsAsync(IEnumerable<Guid> ids);
+    Task<IEnumerable<BillDetailsEntity>> ListByIdsAsync(IEnumerable<Guid> ids);
 
-    Task<BillDetails> FindAsync(Guid contentId);
+    Task<BillDetailsEntity> FindAsync(Guid contentId);
 
-    Task<BillDetails> DeleteAsync(Guid contentId);
+    Task<BillDetailsEntity> DeleteAsync(Guid contentId);
     
-    Task<IEnumerable<BillDetails>> DeleteAsync(Guid[] deleteIds);
+    Task<IEnumerable<BillDetailsEntity>> DeleteAsync(Guid[] deleteIds);
 
-    Task<BillDetails> SaveAsync(BillDetails article);
+    Task<BillDetailsEntity> SaveAsync(BillDetailsEntity article);
 
-    Task<IEnumerable<BillDetails>> SaveAsync(IEnumerable<BillDetails> article);
+    Task<IEnumerable<BillDetailsEntity>> SaveAsync(IEnumerable<BillDetailsEntity> article);
 
-    Task<BillDetails> PatchAsync(BillDetails article);
+    Task<BillDetailsEntity> PatchAsync(BillDetailsEntity article);
 }

@@ -14,9 +14,13 @@ namespace Project.DbManagement.Entity
     {
         [Key]
         public Guid Id { get; set; }
-        
+
+        [ForeignKey("ProductEntity")]
         public Guid IdProduct { get; set; }
-        public Guid IdCategory { get; set; }
+        public virtual ProductEntity ProductEntity { get; set; }
+        [ForeignKey("CategoriesEntity")]
+        public Guid CategoriesId { get; set; }
+        public virtual CategoriesEntity? CategoriesEntity { get; set; }
         public string ProductName { get; set; }
         public string CategoryName { get; set; }
         public string RelationType { get; set; }
@@ -82,6 +86,5 @@ namespace Project.DbManagement.Entity
                 }
             }
         }
-
     }
 }

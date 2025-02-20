@@ -9,13 +9,17 @@ using System.Threading.Tasks;
 
 namespace Project.DbManagement
 {
-    public class BillDetails: BaseEntity
+    public class BillDetailsEntity: BaseEntity
     {
         [Key]
         public Guid Id { get; set; }
         public string BillDetailCode { get; set; }
+        [ForeignKey("BillEntity")]
         public Guid? BillId { get; set; }
-        public Guid? ProductDetailId { get; set; }
+        public virtual BillEntity? Bill { get; set; }
+        [ForeignKey("ProductEntity")]
+        public Guid? ProductId { get; set; }
+        public virtual ProductEntity?  ProductEntity { get; set; }
         public int Status { get; set; }
         public int Quantity { get; set; }
         public double Price { get; set; }

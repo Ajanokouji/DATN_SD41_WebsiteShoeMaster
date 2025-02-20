@@ -16,22 +16,22 @@ public class BillDetailsBusiness : IBillDetailsBusiness
         _billDetailsRepository = iBillDetailsRepository;
     }
 
-    public async Task<BillDetails> DeleteAsync(Guid contentId)
+    public async Task<BillDetailsEntity> DeleteAsync(Guid contentId)
     {
         return await _billDetailsRepository.DeleteAsync(contentId);
     }
 
-    public async Task<IEnumerable<BillDetails>> DeleteAsync(Guid[] deleteIds)
+    public async Task<IEnumerable<BillDetailsEntity>> DeleteAsync(Guid[] deleteIds)
     {
         return await _billDetailsRepository.DeleteAsync(deleteIds);
     }
 
-    public async Task<BillDetails> FindAsync(Guid contentId)
+    public async Task<BillDetailsEntity> FindAsync(Guid contentId)
     {
         return await _billDetailsRepository.FindAsync(contentId);
     }
 
-    public async Task<Pagination<BillDetails>> GetAllAsync(BillDetailsQueryModel queryModel)
+    public async Task<Pagination<BillDetailsEntity>> GetAllAsync(BillDetailsQueryModel queryModel)
     {
         return await _billDetailsRepository.GetAllAsync(queryModel);
     }
@@ -41,17 +41,17 @@ public class BillDetailsBusiness : IBillDetailsBusiness
         return await _billDetailsRepository.GetCountAsync(queryModel);
     }
 
-    public async Task<IEnumerable<BillDetails>> ListAllAsync(BillDetailsQueryModel queryModel)
+    public async Task<IEnumerable<BillDetailsEntity>> ListAllAsync(BillDetailsQueryModel queryModel)
     {
         return await _billDetailsRepository.ListAllAsync(queryModel);
     }
 
-    public async Task<IEnumerable<BillDetails>> ListByIdsAsync(IEnumerable<Guid> ids)
+    public async Task<IEnumerable<BillDetailsEntity>> ListByIdsAsync(IEnumerable<Guid> ids)
     {
         return await _billDetailsRepository.ListByIdsAsync(ids);
     }
 
-    public async Task<BillDetails> PatchAsync(BillDetails model)
+    public async Task<BillDetailsEntity> PatchAsync(BillDetailsEntity model)
     {
         var exist = await _billDetailsRepository.FindAsync(model.Id);
 
@@ -60,11 +60,11 @@ public class BillDetailsBusiness : IBillDetailsBusiness
             throw new ArgumentException(BillConstant.BillNotFound);
         }
 
-        var update = new BillDetails()
+        var update = new BillDetailsEntity()
         {
             Id = exist.Id,
             BillId = exist.BillId,
-            ProductDetailId = exist.ProductDetailId,
+            ProductId = exist.ProductId,
             BillDetailCode = exist.BillDetailCode,
             Status = exist.Status,
             Quantity = exist.Quantity,
@@ -82,9 +82,9 @@ public class BillDetailsBusiness : IBillDetailsBusiness
             update.BillId = model.BillId;
         }
         
-        if (model.ProductDetailId != null)
+        if (model.ProductId != null)
         {
-            update.ProductDetailId = model.ProductDetailId;
+            update.ProductId = model.ProductId;
         }
         
         if (model.Status > 0)
@@ -110,13 +110,13 @@ public class BillDetailsBusiness : IBillDetailsBusiness
         return await SaveAsync(update);
     }
 
-    public async Task<BillDetails> SaveAsync(BillDetails billDetails)
+    public async Task<BillDetailsEntity> SaveAsync(BillDetailsEntity billDetails)
     {
         var res = await SaveAsync(new[] { billDetails });
         return res.FirstOrDefault();
     }
 
-    public async Task<IEnumerable<BillDetails>> SaveAsync(IEnumerable<BillDetails> billDetailsEntities)
+    public async Task<IEnumerable<BillDetailsEntity>> SaveAsync(IEnumerable<BillDetailsEntity> billDetailsEntities)
     {
         return await _billDetailsRepository.SaveAsync(billDetailsEntities);
     }

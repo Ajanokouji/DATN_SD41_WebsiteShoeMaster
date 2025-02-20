@@ -13,7 +13,7 @@ namespace Project.DbManagement
         public DbSet<Voucher> Vouchers { get; set; }
         public DbSet<VoucherDetails> VoucherDetails { get; set; }
         public DbSet<BillEntity> Bills { get; set; }
-        public DbSet<BillDetails> BillDetails { get; set; }
+        public DbSet<BillDetailsEntity> BillDetails { get; set; }
         public DbSet<PaymentMethods> PaymentMethods { get; set; }
         public DbSet<Contacts> Contacts{ get; set; }
         public DbSet<Cart> Carts { get; set; }
