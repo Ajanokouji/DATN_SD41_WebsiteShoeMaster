@@ -24,7 +24,7 @@ app.UseStaticFiles(); // Đảm bảo ứng dụng có thể phục vụ file t�
 
 app.MapControllerRoute( // Addmin
     name: "default",
-    pattern: "{area=Admin}/{controller=SellOff}/{action=SellOff}/{id?}");
+    pattern: "{area=Admin}/{controller=Home}/{action=Index}/{id?}");
 
 // app.MapControllerRoute(
 //     name: "default",

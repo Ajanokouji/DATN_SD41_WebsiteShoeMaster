@@ -28,7 +28,7 @@ namespace Project.AdminSell
 
             app.MapControllerRoute(
                 name: "default",
-                pattern: "{controller=Home}/{action=Index}/{id?}");
+                pattern: "{controller=SellOff}/{action=SellOff}/{id?}");
 
             app.Run();
         }
