@@ -1,0 +1,76 @@
+﻿@{
+    Layout = null;
+}
+
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Quản Lý Bán Hàng</title>
+    <link rel="stylesheet" href="../SellOffAssets/css/styles.css">
+</head>
+<body>
+<div class="container">
+    <h1>Hệ Thống Bán Hàng</h1>
+
+    <button onclick="openProductModal()">Thêm Sản Phẩm</button>
+    <button onclick="openOrderModal()">Thêm Hóa Đơn Chờ</button>
+
+    <h2>Giỏ Hàng</h2>
+    <table id="cart">
+        <thead>
+        <tr>
+            <th>Tên Sản Phẩm</th>
+            <th>Giá</th>
+            <th>Số Lượng</th>
+            <th>Tổng</th>
+        </tr>
+        </thead>
+        <tbody></tbody>
+    </table>
+    <h3>Tổng Tiền: <span id="total">0</span>đ</h3>
+
+    <h2>Hóa Đơn Chờ</h2>
+    <select id="pendingOrderSelect">
+        <option value="">Chọn hóa đơn để thanh toán</option>
+    </select>
+    <button onclick="processPayment()">Thanh Toán</button>
+    <div id="pendingOrders"></div>
+
+    <h2>Thông Tin Thanh Toán</h2>
+    <div class="payment-form">
+        <input type="text" id="customerName" placeholder="Tên Khách Hàng">
+        <input type="text" id="customerPhone" placeholder="Số Điện Thoại">
+        <input type="text" id="customerAddress" placeholder="Địa Chỉ">
+        <select id="paymentMethod">
+            <option value="Tiền Mặt">Tiền Mặt</option>
+            <option value="Chuyển Khoản">Chuyển Khoản</option>
+        </select>
+        <input type="text" id="voucher" placeholder="Mã Giảm Giá">
+        <button onclick="processPayment()">Thanh Toán</button>
+    </div>
+</div>
+
+<div id="productModal" class="modal">
+    <div class="modal-content">
+        <h2>Thêm Sản Phẩm</h2>
+        <input type="text" id="productName" placeholder="Tên sản phẩm">
+        <input type="number" id="productPrice" placeholder="Giá sản phẩm">
+        <input type="number" id="productQuantity" placeholder="Số lượng">
+        <button onclick="confirmAddProduct()">Thêm vào giỏ</button>
+        <button onclick="closeProductModal()">Hủy</button>
+    </div>
+</div>
+
+<div id="orderModal" class="modal">
+    <div class="modal-content">
+        <h2>Thêm Hóa Đơn Chờ</h2>
+        <button onclick="confirmAddPendingOrder()">Xác nhận</button>
+        <button onclick="closeOrderModal()">Hủy</button>
+    </div>
+</div>
+
+<script src="../SellOffAssets/js/script.js"></script>
+</body>
+</html>

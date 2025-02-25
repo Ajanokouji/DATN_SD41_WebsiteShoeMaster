@@ -4,21 +4,16 @@ using Project.AdminSell.Models;
 
 namespace Project.AdminSell.Controllers;
 
-public class HomeController : Controller
+public class SellOffController : Controller
 {
-    private readonly ILogger<HomeController> _logger;
+    private readonly ILogger<SellOffController> _logger;
 
-    public HomeController(ILogger<HomeController> logger)
+    public SellOffController(ILogger<SellOffController> logger)
     {
         _logger = logger;
     }
 
-    public IActionResult Index()
-    {
-        return View();
-    }
-
-    public IActionResult Privacy()
+    public IActionResult SellOff()
     {
         return View();
     }
