@@ -1,0 +1,24 @@
+﻿@using Project.Common
+@using Project.DbManagement.Entity;
+@model Project.DbManagement.Entity.ProductEntity;
+<div class="product__item sale">
+    <div class="product__item__pic set-bg" data-setbg="@Model.ImageUrl" style="background-size: contain; background-repeat: no-repeat;">
+        <div class="label">Giảm giá</div>
+        <ul class="product__hover">
+            <li><a href="/assets/images/shop/shop-5.jpg" class="image-popup"><span class="arrow_expand"></span></a></li>
+            <li><a href="#"><span class="icon_heart_alt"></span></a></li>
+            <li><a href="#"><span class="icon_bag_alt"></span></a></li>
+        </ul>
+    </div>
+    <div class="product__item__text">
+        <h6><a href="#">@Model.Name</a></h6>
+        <div class="rating">
+            <i class="fa fa-star"></i>
+            <i class="fa fa-star"></i>
+            <i class="fa fa-star"></i>
+            <i class="fa fa-star"></i>
+            <i class="fa fa-star"></i>
+        </div>
+        <div class="product__price"> <span>@Model.MetadataObj.FindMetadatavalue("MaxPrice")</span></div>
+    </div>
+</div>
