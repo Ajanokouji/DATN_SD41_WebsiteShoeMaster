@@ -5,7 +5,7 @@ class CategoryService {
   private static instance: CategoryService;
 
   private readonly endpoints = {
-    createCategory: "/category/",
+    createCategory: "/category",
   };
 
   private constructor() {

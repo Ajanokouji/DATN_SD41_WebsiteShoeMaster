@@ -7,140 +7,99 @@ import {
   DialogHeader,
   DialogTitle,
 } from "@/components/ui/dialog";
-import React from "react";
-// import TableForm from "./TableForm";
-import ContactInfoForm from "./ContactInfoForm";
-import AddressInfoForm from "./AddressInfoForm";
-import BasicInfoForm from "./BasicInfoForm";
-// import { useAppDispatch } from "@/hooks/use-app-dispatch";
-// import { createCustomer } from "@/redux/apps/customer/customerSlice";
-// import * as Yup from "yup";
-// import CustomerReqDto from "@/types/category/category";
-// import { Form, Formik } from "formik";
+import { Form } from "@/components/ui/form";
+import React, { useState } from "react";
+import { useAppDispatch } from "@/hooks/use-app-dispatch";
+import { createCategory } from "@/redux/apps/category/categorySlice";
+import CategoryReqDto from "@/types/category/category";
+import { useForm } from "react-hook-form";
+import { zodResolver } from "@hookform/resolvers/zod";
+import { CategoryFormSchema, categoryFormSchema } from "./FormSchema";
+import { BasicInfoFields } from "./BasicInfoFields";
+import { MetadataSection } from "./MetadataSection";
 
-// const customerValidationSchema = Yup.object({
-//   full_name: Yup.string().required("Họ tên khách hàng là bắt buộc"),
-// });
-
-interface AddCustomerDialogProps {
+interface AddCategoryDialogProps {
   isOpen: boolean;
   onClose: () => void;
 }
 
-const AddCustomerDialog: React.FC<AddCustomerDialogProps> = ({
+const AddCategoryDialog: React.FC<AddCategoryDialogProps> = ({
   isOpen,
   onClose,
 }) => {
-  // const dispatch = useAppDispatch();
+  const dispatch = useAppDispatch();
+  const [isSubmitting, setIsSubmitting] = useState(false);
 
-  // const handleSubmit = async (values: CustomerReqDto) => {
-  //   try {
-  //     // await dispatch(createCustomer(values));
-  //     console.log("Create customer success", values);
-  //   } catch (error) {
-  //     console.error("Create customer error details:", error);
-  //   }
-  // };
+  const form = useForm<CategoryFormSchema>({
+    resolver: zodResolver(categoryFormSchema),
+    defaultValues: {
+      code: "",
+      name: "",
+      description: "",
+      metadataObj: [],
+      sortOrder: 0,
+      createdByUserId: "",
+      lastModifiedByUserId: "",
+      lastModifiedDate: new Date().toISOString(),
+      createdOnDate: new Date().toISOString(),
+    },
+  });
 
-  // const initialValues: CustomerReqDto = {
-  //   full_name: "",
-  //   gender: "Nam",
-  //   date_of_birth: "",
-  //   status: 0,
-  //   source: 0,
-  //   phone_number: "",
-  //   email: "",
-  //   address: "",
-  //   city: "",
-  //   district: "",
-  //   ward: "",
-  //   detailed_info: "",
-  //   follow_up_date: "",
-  //   follow_down_date: "",
-  //   notes: "",
-  //   comments: [
-  //     {
-  //       time: "",
-  //       title: "",
-  //       status_id: 0,
-  //     },
-  //   ],
-  //   service: [],
-  //   social_media: 0,
-  // };
+  const handleSubmit = async (values: CategoryFormSchema) => {
+    setIsSubmitting(true);
+    try {
+      // Convert to appropriate type
+      const categoryData: CategoryReqDto = {
+        ...values,
+        sortOrder: values.sortOrder || 0,
+        createdByUserId: values.createdByUserId || "",
+        lastModifiedByUserId: values.lastModifiedByUserId || "",
+        lastModifiedDate: values.lastModifiedDate || new Date().toISOString(),
+        createdOnDate: values.createdOnDate || new Date().toISOString(),
+        metadataObj: values.metadataObj || [],
+      };
+      
+      await dispatch(createCategory(categoryData));
+     
+      onClose();
+    } catch (error) {
+      console.error("Create category error details:", error);
+      
+    } finally {
+      setIsSubmitting(false);
+    }
+  };
 
   return (
     <Dialog open={isOpen} onOpenChange={onClose}>
-      <DialogDescription />
-      <DialogContent className="max-w-7xl max-h-[90vh] overflow-y-auto">
+      <DialogContent className="max-w-4xl max-h-[90vh] overflow-y-auto">
         <DialogHeader>
-          <DialogTitle className="text-xl font-semibold text-yellow-700">
-            Tạo khách hàng
+          <DialogTitle className="text-xl font-semibold text-gray-700">
+            Add Category
           </DialogTitle>
+          <DialogDescription>
+            Create a new category with custom metadata fields
+          </DialogDescription>
         </DialogHeader>
-        {/* <Formik
-          initialValues={initialValues}
-          validationSchema={customerValidationSchema}
-          onSubmit={handleSubmit}
-        >
-          {({ values, errors, touched, handleChange, setFieldValue }) => (
-            <Form className="space-y-5"> */}
-              <div className="container space-y-5">
-                {/* Basic Info */}
-                <BasicInfoForm
-                  // values={values}
-                  // errors={errors}
-                  // touched={touched}
-                  // handleChange={handleChange}
-                  // setFieldValue={setFieldValue}
-                />
+        
+        <Form {...form}>
+          <form onSubmit={form.handleSubmit(handleSubmit)} className="space-y-6">
+            <BasicInfoFields control={form.control} />
+            <MetadataSection form={form} />
 
-                <div className="border-b-2 pt-6"></div>
-
-                {/* Contact Info */}
-                <h5 className="text-lg font-semibold pt-4">
-                  Thông tin liên hệ
-                </h5>
-                <ContactInfoForm
-                  // values={values}
-                  // errors={errors}
-                  // touched={touched}
-                  // handleChange={handleChange}
-                  // setFieldValue={setFieldValue}
-                />
-                <AddressInfoForm
-                  // values={values}
-                  // errors={errors}
-                  // touched={touched}
-                  // handleChange={handleChange}
-                  // setFieldValue={setFieldValue}
-                />
-              </div>
-
-              {/* Care Info Table */}
-              <div className="mt-6">
-                <h3 className="text-lg font-medium">
-                  Thông tin chăm sóc khách hàng
-                </h3>
-                {/* <TableForm
-                  values={values.comments}
-                  handleChange={handleChange}
-                  setFieldValue={setFieldValue}
-                /> */}
-              </div>
-
-              <DialogFooter className="mt-6 flex justify-between">
-                <Button variant="outline" onClick={onClose}>
-                  Hủy
-                </Button>
-                <Button type="submit">Xác nhận</Button>
-              </DialogFooter>
-            {/* </Form>
-          )}
-        </Formik> */}
+            <DialogFooter className="gap-2 pt-4">
+              <Button type="submit" disabled={isSubmitting}>
+                {isSubmitting ? "Creating..." : "Add new category"}
+              </Button>
+              <Button variant="outline" onClick={onClose} type="button">
+                Cancel
+              </Button>
+            </DialogFooter>
+          </form>
+        </Form>
       </DialogContent>
     </Dialog>
   );
 };
 
-export default AddCustomerDialog;
+export default AddCategoryDialog;
