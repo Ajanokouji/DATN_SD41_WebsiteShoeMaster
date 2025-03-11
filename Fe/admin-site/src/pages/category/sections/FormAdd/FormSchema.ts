@@ -1,4 +1,3 @@
-// CategoryFormSchema.ts
 import * as z from "zod";
 
 export const categoryFormSchema = z.object({

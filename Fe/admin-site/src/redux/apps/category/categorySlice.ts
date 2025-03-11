@@ -12,6 +12,7 @@ export interface InitState {
   category: CategoryReqDto | null;
   products: Product[];
   pagination: {
+    TenSanPham: string;
     currentPage: number;
     totalPages: number;
     pageSize: number;
@@ -25,6 +26,7 @@ const initialState: InitState = {
   category: null,
   products: [],
   pagination: {
+    TenSanPham: "a",
     currentPage: 1,
     totalPages: 0,
     pageSize: 20,
@@ -49,6 +51,18 @@ export const fetchProducts = createAppThunk(
   }
 );
 
+export const deleteCategory = createAppThunk(
+  "category/delete",
+  async (id: string) => {
+    await categoryService.deleteProductReq(id);
+    return id;
+  },
+  {
+    successMessage: CATEGORY_MESSAGES.DELETE_CATEGORY.SUCCESS,
+    errorMessage: CATEGORY_MESSAGES.DELETE_CATEGORY.ERROR,
+  }
+);
+
 
 const categorySlice = createSlice({
   name: "category",
@@ -67,6 +81,7 @@ const categorySlice = createSlice({
         state.loading = false;
         state.products = action.payload.data.content;
         state.pagination = {
+          TenSanPham:'a',
           currentPage: action.payload.data.currentPage,
           totalPages: action.payload.data.totalPages,
           pageSize: action.payload.data.pageSize,
@@ -82,8 +97,19 @@ const categorySlice = createSlice({
         state.category = action?.payload ?? null;
       },
     });
+
+    // Delete category
+    addLoadingCases(builder, deleteCategory, {
+      onFulfilled: (state, action) => {
+        state.loading = false;
+        state.products = state.products.filter(
+          (product) => product.id !== action.payload
+        );
+      },
+    });
     
   },
 });
 
+export const { setPage, setPageSize } = categorySlice.actions;
 export default categorySlice.reducer;

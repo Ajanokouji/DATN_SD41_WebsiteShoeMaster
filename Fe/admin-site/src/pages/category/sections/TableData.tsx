@@ -6,16 +6,28 @@ import { Table, TableBody } from "@/components/ui/table";
 import CategoryTableProps from "@/types/category/table";
 import { useAppDispatch } from "@/hooks/use-app-dispatch";
 import { useAppSelector } from "@/hooks/use-app-selector";
-import { selectProducts } from "@/redux/apps/category/CategorySelector";
-import { fetchProducts } from "@/redux/apps/category/categorySlice";
+import {
+  selectProducts,
+  selectPagination,
+} from "@/redux/apps/category/categorySelector";
+import {
+  fetchProducts,
+  deleteCategory, 
+  setPage,
+  setPageSize,
+} from "@/redux/apps/category/categorySlice";
 import { Product } from "@/types/category/category";
 
-const CategoryTable = <T,>({ headers, data, columns }: CategoryTableProps<T>) => (
+const CategoryTable = <T extends { id: string },>({
+  headers,
+  data,
+  columns,
+}: CategoryTableProps<T>) => (
   <div className="border border-gray-300 rounded-t-xl overflow-hidden">
     {/* <Table className="w-full">
       <TableHeaderComponent headers={headers} />
     </Table> */}
-    <div className="md:max-h-80 lg:max-h-full max-w-full overflow-x-auto overflow-y-auto">
+    <div className="max-h-80 max-w-full overflow-x-auto overflow-y-auto">
       <Table className="w-full">
         <TableHeaderComponent headers={headers} className="text-center" />
         <TableBody>
@@ -52,6 +64,7 @@ const CategoriesTable: React.FC = () => {
     className?: string;
     isActionColumn?: boolean;
     action?: (data: Product) => void;
+    deleteAction?: (id: string) => void; 
   }[] = [
     { key: "code", className: "text-center" },
     { key: "name" },
@@ -65,25 +78,51 @@ const CategoriesTable: React.FC = () => {
       action: (category) => {
         console.log("Performing action for:", category);
       },
+      deleteAction: (id: string) => {
+        dispatch(deleteCategory(id)); 
+      },
     },
   ];
 
   const dispatch = useAppDispatch();
   const products = useAppSelector(selectProducts);
+  const pagination = useAppSelector(selectPagination);
 
   useEffect(() => {
-    dispatch(fetchProducts({ CurrentPage: 1, PageSize: 20 }));
-  }, [dispatch]);
+    dispatch(
+      fetchProducts({
+        TenSanPham:"a",
+        CurrentPage: pagination.currentPage,
+        PageSize: pagination.pageSize,
+      })
+    );
+  }, [dispatch, pagination.currentPage, pagination.pageSize]);
+
+  // Xử lý khi thay đổi trang
+  const handlePageChange = (newPage: number) => {
+    dispatch(setPage(newPage));
+  };
+
+  // Xử lý khi thay đổi số lượng sản phẩm trên trang
+  const handlePageSizeChange = (newSize: number) => {
+    dispatch(setPageSize(newSize));
+  };
 
   return (
-    
     <section className="mt-10">
       <CategoryTable<Product>
         headers={headers}
         data={products}
         columns={columns}
       />
-      <Pagination />
+      <Pagination
+        currentPage={pagination.currentPage}
+        totalPages={pagination.totalPages}
+        pageSize={pagination.pageSize}
+        totalRecords={pagination.totalRecords}
+        onPageChange={handlePageChange}
+        onPageSizeChange={handlePageSizeChange}
+      />
     </section>
   );
 };

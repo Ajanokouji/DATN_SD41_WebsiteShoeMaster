@@ -6,13 +6,15 @@ class CategoryService {
   private static instance: CategoryService;
 
   private readonly endpoints = {
-    fetchCategories: "/Product/filter?TenSanPham=a", 
-    createCategory: "/category",
+    fetchCategories: "/Product/filter",
+    createCategory: "/Product",
+    deleteCategory: "/Product",
   };
 
   private constructor() {
     this.getProducts = this.getProducts.bind(this);
     this.createCategoryReq = this.createCategoryReq.bind(this);
+    this.deleteProductReq = this.deleteProductReq.bind(this);
   }
 
   static getInstance(): CategoryService {
@@ -22,10 +24,13 @@ class CategoryService {
     return CategoryService.instance;
   }
 
-  async getProducts(params: PaginationParams): Promise<PaginatedResponse<Product>> {
+  async getProducts(
+    params: PaginationParams
+  ): Promise<PaginatedResponse<Product>> {
     try {
       const response = await httpClient.post<PaginatedResponse<Product>>(
-        this.endpoints.fetchCategories,
+        `${this.endpoints.fetchCategories}`,
+        {},
         { params }
       );
       return response;
@@ -45,6 +50,15 @@ class CategoryService {
     } catch (error) {
       console.log("Create category error:", error);
       throw new Error(`Create category failed: ${error}`);
+    }
+  }
+
+  async deleteProductReq(id: string): Promise<void> {
+    try {
+      await httpClient.delete(`${this.endpoints.deleteCategory}/${id}`);
+    } catch (error) {
+      console.log("Delete category error:", error);
+      throw new Error(`Delete category failed: ${error}`);
     }
   }
 }
