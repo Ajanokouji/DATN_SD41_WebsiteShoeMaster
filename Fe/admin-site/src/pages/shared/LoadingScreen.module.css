@@ -1,0 +1,52 @@
+.root {
+  right: 0;
+  bottom: 0;
+  z-index: 9999;
+  width: 100%;
+  height: 100%;
+  position: fixed;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background-color: white;
+  /* backdrop-filter: blur(8px); */
+}
+
+.imageContainer {
+  width: 120px;
+  height: 60px;
+  margin: 0;
+  position: relative;
+}
+
+.border1 {
+  width: 125px;
+  height: 125px;
+  position: absolute;
+  border: solid 3px rgba(255, 168, 29, 0.5);
+}
+
+.border2 {
+  width: 140px;
+  height: 140px;
+  position: absolute;
+  border: solid 3px rgba(247, 186, 89, 0.5);
+  background-color: rgba(255, 199, 110, 0.3);
+}
+
+@media (max-width: 600px) {
+  .imageContainer {
+    width: 75px;
+    height: 40px;
+  }
+
+  .border1 {
+    width: 90px;
+    height: 90px;
+  }
+
+  .border2 {
+    width: 100px;
+    height: 100px;
+  }
+}
