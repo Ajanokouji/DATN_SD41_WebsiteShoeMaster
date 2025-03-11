@@ -1,4 +1,5 @@
 ﻿using Project.DbManagement.Extension;
+using SERP.Framework.Entities.Metadata;
 using System;
 using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
@@ -16,7 +17,7 @@ namespace Project.DbManagement.Entity
         [Key]
         public Guid Id { get; set; }
         public string? Code { get; set; }
-        public string Name { get; set; }
+        public string? Name { get; set; }
         public string? Status { get; set; }
         public string? ImageUrl { get; set; }
         public string? SortOrder { get; set; }
@@ -43,6 +44,8 @@ namespace Project.DbManagement.Entity
         public DateTime? PublicOnDate { get; set; }
         [NotMapped]
         public virtual List<MetaField> MetadataObj { get; set; }
+
+
         public virtual string MetadataJson
         {
             get
@@ -72,12 +75,12 @@ namespace Project.DbManagement.Entity
                 }
             }
         }
-        public string CompleteName { get; set; }
-        public string CompletePath { get; set; }
-        public string CompleteCode { get; set; }
+        public string? CompleteName { get; set; }
+        public string? CompletePath { get; set; }
+        public string? CompleteCode { get; set; }
         [NotMapped]
         public List<LabelsObj> LabelsObjs { get; set; }
-        public virtual string LabelsJson
+        public virtual string? LabelsJson
         {
             get
             {
