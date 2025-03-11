@@ -10,7 +10,7 @@ export interface TokenResponse {
 
 export const API_CONFIG = {
   baseURL: import.meta.env.VITE_API_BASE_URL,
-  timeout: 90_000, // 90 seconds
+  timeout: 120000,
   tokenCookieName: "mic-auth",
   refreshTokenCookieName: "mic-refresh",
   refreshTokenEndpoint: "/application/refresh-token",

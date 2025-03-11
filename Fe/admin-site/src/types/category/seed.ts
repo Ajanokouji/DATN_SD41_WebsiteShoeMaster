@@ -1,4 +1,3 @@
-import { Comment } from "./category";
 
 const socialMediaOptions = [
   { title: "Facebook", value: 0 },
@@ -29,20 +28,6 @@ const statusCommentOptions = [
   { title: "Yêu cầu trải nghiệm", value: 1 },
 ];
 
-const comments: Comment[] = [
-  {
-    index: 1,
-    time: "2024-09-12T00:00:00.000Z",
-    title: "Khach hang hen goi lai sau",
-    status_id: 1,
-  },
-  {
-    index: 2,
-    time: "2024-10-12T00:00:00.000Z",
-    title: "Khach hang yeu cau trai nghiem",
-    status_id: 2,
-  },
-];
 
 const cityOptions = [
   { title: "Hà Nội", value: "Hà Nội" },
@@ -144,7 +129,6 @@ export {
   statusOptions,
   resultCommentOptions,
   statusCommentOptions,
-  comments,
   cityOptions,
   districtOptions,
   wardOptions,

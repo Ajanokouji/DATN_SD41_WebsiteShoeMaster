@@ -3,7 +3,7 @@ import {
   ActionReducerMapBuilder,
   AsyncThunk,
   Draft,
-  AnyAction,
+  PayloadAction,
 } from "@reduxjs/toolkit";
 
 // Basic interface for state with loading and error
@@ -13,16 +13,16 @@ export interface LoadingState {
 }
 
 // Type for state handlers with proper action typing
-export type StateHandler<T extends LoadingState, Action = AnyAction> = (
+export type StateHandler<T extends LoadingState, P = any> = (
   state: Draft<T>,
-  action?: Action
+  action: PayloadAction<P>
 ) => void;
 
 // Options for addLoadingCases with proper generic types
 export interface LoadingCaseOptions<T extends LoadingState, ReturnType = any> {
-  onPending?: StateHandler<T>;
-  onFulfilled?: StateHandler<T, { payload: ReturnType }>;
-  onRejected?: StateHandler<T, { payload: string | undefined }>;
+  onPending?: (state: Draft<T>) => void;
+  onFulfilled?: StateHandler<T, ReturnType>;
+  onRejected?: StateHandler<T, string | undefined>;
 }
 
 // Default handlers with proper typing
@@ -39,7 +39,7 @@ export const defaultHandlers = {
 
   handleError: <T extends LoadingState>(
     state: Draft<T>,
-    action: { payload: string | undefined }
+    action: PayloadAction<string | undefined>
   ) => {
     state.loading = false;
     state.error = action.payload || null;
@@ -65,7 +65,14 @@ export const addLoadingCases = <
   } = options;
 
   builder
-    .addCase(thunk.pending, (state) => onPending(state))
-    .addCase(thunk.fulfilled, (state, action) => onFulfilled(state, action))
-    .addCase(thunk.rejected, (state, action) => onRejected(state, action));
+    .addCase(thunk.pending, (state) => {
+      onPending(state);
+    })
+    .addCase(thunk.fulfilled, (state, action) => {
+      onFulfilled(state, action);
+    })
+    .addCase(thunk.rejected, (state, action) => {
+      // Handle the case when action.payload could be undefined
+      onRejected(state, action);
+    });
 };

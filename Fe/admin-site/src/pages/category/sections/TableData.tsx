@@ -1,20 +1,14 @@
+import React, { useEffect } from "react";
 import Pagination from "@/components/Pagination";
 import TableHeaderComponent from "@/components/TableHeader";
 import TableRowComponent from "@/components/TableRow";
 import { Table, TableBody } from "@/components/ui/table";
-import { categories } from "@/types/category/seed";
 import CategoryTableProps from "@/types/category/table";
-import React from "react";
-
-type Category = {
-  index: number;
-  code: string;
-  name: string;
-  source: string;
-  description : string;
-  creator : string;
-  createAt: string;
-};
+import { useAppDispatch } from "@/hooks/use-app-dispatch";
+import { useAppSelector } from "@/hooks/use-app-selector";
+import { selectProducts } from "@/redux/apps/category/CategorySelector";
+import { fetchProducts } from "@/redux/apps/category/categorySlice";
+import { Product } from "@/types/category/category";
 
 const CategoryTable = <T,>({ headers, data, columns }: CategoryTableProps<T>) => (
   <div className="border border-gray-300 rounded-t-xl overflow-hidden">
@@ -44,29 +38,27 @@ const CategoryTable = <T,>({ headers, data, columns }: CategoryTableProps<T>) =>
 
 const CategoriesTable: React.FC = () => {
   const headers = [
-    { label: "#", className: "text-center" },
-    { label: "Code" },
+    { label: "Code", className: "text-center" },
     { label: "Name" },
-    { label: "Source" },
+    { label: "Image" },
     { label: "Description" },
-    { label: "Creator" },
+    { label: "Status" },
     { label: "Create At" },
     { label: " " },
   ];
 
   const columns: {
-    key?: keyof Category;
+    key?: keyof Product;
     className?: string;
     isActionColumn?: boolean;
-    action?: (data: Category) => void;
+    action?: (data: Product) => void;
   }[] = [
-    { key: "index", className: "text-center" },
-    { key: "code" },
+    { key: "code", className: "text-center" },
     { key: "name" },
-    { key: "source" },
+    { key: "imageUrl" },
     { key: "description" },
-    { key: "creator" },
-    { key: "createAt" },
+    { key: "status" },
+    { key: "createdOnDate" },
     {
       isActionColumn: true,
       className: "text-center",
@@ -76,11 +68,19 @@ const CategoriesTable: React.FC = () => {
     },
   ];
 
+  const dispatch = useAppDispatch();
+  const products = useAppSelector(selectProducts);
+
+  useEffect(() => {
+    dispatch(fetchProducts({ CurrentPage: 1, PageSize: 20 }));
+  }, [dispatch]);
+
   return (
+    
     <section className="mt-10">
-      <CategoryTable<Category>
+      <CategoryTable<Product>
         headers={headers}
-        data={categories}
+        data={products}
         columns={columns}
       />
       <Pagination />

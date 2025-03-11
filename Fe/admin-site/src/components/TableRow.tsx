@@ -22,6 +22,7 @@ const TableRowComponent = <T,>({ data, columns }: TableRowProps<T>) => {
     console.log("Item deleted");
     setModalDeleteOpen(false);
   };
+
   return (
     <>
       <TableRow>
@@ -31,34 +32,36 @@ const TableRowComponent = <T,>({ data, columns }: TableRowProps<T>) => {
             className={`${column.className || ""} py-4 text-center`}
           >
             {column.isActionColumn ? (
-              <div className="flex flex-grow gap-2">
-                <button onClick={() => column.action?.(data!)}>
-                  <LuSquarePen className="text-indigo-600" size={20} />
-                </button>
-                <button onClick={() => column.action?.(data!)}>
-                  <RiDeleteBin3Line
-                    className="text-red-600"
-                    size={20}
-                    onClick={() => setModalDeleteOpen(true)}
-                  />
-                </button>
-              </div>
-            ) : column.render ? (
               data ? (
-                column.render(data[column.key!], data)
+                <div className="flex flex-grow gap-2">
+                  <button onClick={() => column.action?.(data)}>
+                    <LuSquarePen className="text-indigo-600" size={20} />
+                  </button>
+                  <button>
+                    <RiDeleteBin3Line
+                      className="text-red-600"
+                      size={20}
+                      onClick={() => setModalDeleteOpen(true)}
+                    />
+                  </button>
+                </div>
               ) : null
+            ) : column.render && data ? (
+              column.render(data[column.key!], data)
             ) : (
-              String(data![column.key!])
+              data && column.key ? String(data[column.key]) : "-"
             )}
           </TableCell>
         ))}
       </TableRow>
-      <ConfirmDeleteModal
-        isOpen={isModalDeleteOpen}
-        onClose={() => setModalDeleteOpen(false)}
-        onConfirm={handleDelete}
-        itemName="Sample Item"
-      />
+      {data && (
+        <ConfirmDeleteModal
+          isOpen={isModalDeleteOpen}
+          onClose={() => setModalDeleteOpen(false)}
+          onConfirm={handleDelete}
+          itemName="Sample Item"
+        />
+      )}
     </>
   );
 };

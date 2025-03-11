@@ -26,3 +26,18 @@ export interface FieldSelectionValues {
   value: string;
   order: number;
 }
+
+export interface Product {
+  id: string;
+  code: string;
+  name: string;
+  status: string;
+  imageUrl: string;
+  sortOrder: number | null;
+  description: string | null;
+  mainCategoryId: string;
+  metadataObj: any[];
+  createdOnDate: string;
+  lastModifiedOnDate: string;
+  isdeleted: boolean;
+}
