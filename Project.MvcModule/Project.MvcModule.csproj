@@ -1,9 +1,48 @@
-<Project Sdk="Microsoft.NET.Sdk">
+﻿<Project Sdk="Microsoft.NET.Sdk">
 
   <PropertyGroup>
-    <TargetFramework>net6.0</TargetFramework>
+    <TargetFramework>net8.0</TargetFramework>
     <ImplicitUsings>enable</ImplicitUsings>
     <Nullable>enable</Nullable>
   </PropertyGroup>
+
+	<ItemGroup>
+ 
+		<None Include="Views\**\*">
+			<Pack>True</Pack>
+			<PackageCopyToOutput>true</PackageCopyToOutput>
+			<CopyToOutputDirectory>Always</CopyToOutputDirectory>
+		</None>
+	</ItemGroup>
+
+
+	<Target Name="CopyViewsFiles" BeforeTargets="Build">
+		<Message Text="Copying Views files to Portal" Importance="High" />
+		<ItemGroup>
+			<MySourceFiles Include="Views/**/*.*" />
+		</ItemGroup>
+		<Copy SourceFiles="@(MySourceFiles)" DestinationFolder="../Project.MVC/Views/%(RecursiveDir)" SkipUnchangedFiles="true" />
+	</Target>
+
+	<ItemGroup>
+    <PackageReference Include="Microsoft.AspNetCore.Mvc.ViewFeatures" Version="2.3.0" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <Folder Include="Controller\" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="..\Project.Business\Project.Business.csproj" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <None Update="Views\BlockProductsByFilter\BlockProductsByFilter.cshtml">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </None>
+    <None Update="Views\SocialMedial\SocialMedial.cshtml">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </None>
+  </ItemGroup>
 
 </Project>

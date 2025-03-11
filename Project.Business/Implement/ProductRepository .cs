@@ -51,7 +51,7 @@ namespace Project.Business.Implement
             ProductQueryModel productQueryModel = queryModel;
 
 
-            queryModel.Sort = QueryUtils.FormatSortInput(queryModel.Sort);
+            queryModel.Sort = QueryUtils.FormatSortInput(queryModel.Sort??"-CreatedOnDate");
             IQueryable<ProductEntity> queryable = BuildQuery( queryModel);
             string sortExpression = string.Empty;
             if (string.IsNullOrWhiteSpace(queryModel.Sort) || queryModel.Sort.Equals("-LastModifiedOnDate"))
@@ -168,52 +168,59 @@ namespace Project.Business.Implement
         public virtual async Task<IEnumerable<ProductEntity>> SaveAsync( IEnumerable<ProductEntity>  productEntities)
         {
             var updated = new List<ProductEntity>();
-
-            foreach (var product in productEntities)
+       try
             {
-                var exist = await _context.Products
-                    .AsNoTracking()
-                    .FirstOrDefaultAsync(x =>
-                            x.Id==product.Id
-                    );
 
-                if (exist == null)
+                var x = _context.Database.GetDbConnection();
+                foreach (var product in productEntities)
                 {
-                    product.CreateTracking(product.Id);
-                    product.UpdateTracking(product.Id);
-                    _context.Products.Add(product);
-                    updated.Add(product);
-                }
-                else
-                {
-                    _context.Entry(exist).State = EntityState.Detached;
-                    exist.ImageUrl= product.ImageUrl;
-                    exist.Name = product.Name;  
-                    exist.Code=product.Code;
-                    exist.MainCategoryId=product.MainCategoryId;
-                    exist.CompletePath=product.CompletePath;
-                    exist.CompleteName=product.CompleteName;
-                    exist.CompleteCode=product.CompleteCode;
-                    exist.CreatedByUserId=product.CreatedByUserId;
-                    exist.LastModifiedByUserId=product.LastModifiedByUserId;
-                    exist.RelatedObjectIds=product.RelatedObjectIds;
-                    exist.MetadataObj=product.MetadataObj;
-                    exist.SortOrder=product.SortOrder;
-                    exist.LabelsObjs=product.LabelsObjs;
-                    exist.CreatedOnDate=exist.CreatedOnDate;
-                    exist.PublicOnDate=product.PublicOnDate;
-                    exist.Status=product.Status;
-                    exist.LastModifiedOnDate=product.LastModifiedOnDate;
-                    exist.WorkFlowStates=product.WorkFlowStates;
-                    exist.CreatedOnDate=product.CreatedOnDate;
-                   exist.Description = product.Description;
+                    var exist = await _context.Products
+                        .AsNoTracking()
+                        .FirstOrDefaultAsync(x =>
+                                x.Id==product.Id
+                        );
 
-                    product.UpdateTracking(product.Id);
-                    _context.Products.Update(exist);
-                    updated.Add(exist);
+                    if (exist == null)
+                    {
+                        product.CreateTracking(product.Id);
+                        product.UpdateTracking(product.Id);
+                        _context.Products.Add(product);
+                        updated.Add(product);
+                    }
+                    else
+                    {
+                        _context.Entry(exist).State = EntityState.Detached;
+                        exist.ImageUrl= product.ImageUrl;
+                        exist.Name = product.Name;
+                        exist.Code=product.Code;
+                        exist.MainCategoryId=product.MainCategoryId;
+                        exist.CompletePath=product.CompletePath;
+                        exist.CompleteName=product.CompleteName;
+                        exist.CompleteCode=product.CompleteCode;
+                        exist.CreatedByUserId=product.CreatedByUserId;
+                        exist.LastModifiedByUserId=product.LastModifiedByUserId;
+                        exist.RelatedObjectIds=product.RelatedObjectIds;
+                        exist.MetadataObj=product.MetadataObj;
+                        exist.SortOrder=product.SortOrder;
+                        exist.LabelsObjs=product.LabelsObjs;
+                        exist.CreatedOnDate=exist.CreatedOnDate;
+                        exist.PublicOnDate=product.PublicOnDate;
+                        exist.Status=product.Status;
+                        exist.LastModifiedOnDate=product.LastModifiedOnDate;
+                        exist.WorkFlowStates=product.WorkFlowStates;
+                        exist.CreatedOnDate=product.CreatedOnDate;
+                        exist.Description = product.Description;
+
+                        product.UpdateTracking(product.Id);
+                        _context.Products.Update(exist);
+                        updated.Add(exist);
+                    }
                 }
+                await _context.SaveChangesAsync();
+            }catch ( Exception ex)
+            {
+                throw new ArgumentException(ex.Message, ex);
             }
-            await _context.SaveChangesAsync();
 
             return updated;
         }

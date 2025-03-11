@@ -3,10 +3,14 @@ using Project.Business.Interface.Repositories;
 using Project.Business.Model;
 using Project.Common;
 using Project.DbManagement.Entity;
+using SERP.FileManagementService.Business;
 using SERP.Framework.Common;
+using System;
 
 namespace Project.Business.Implement
 {
+
+ 
     public class ProductBusiness : IProductBusiness
     {
         private readonly IProductRepository _productRepository;

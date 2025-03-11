@@ -17,10 +17,10 @@ namespace Project.DbManagement.Migrations
         {
 #pragma warning disable 612, 618
             modelBuilder
-                .HasAnnotation("ProductVersion", "8.0.12")
+                .HasAnnotation("ProductVersion", "6.0.19")
                 .HasAnnotation("Relational:MaxIdentifierLength", 128);
 
-            SqlServerModelBuilderExtensions.UseIdentityColumns(modelBuilder);
+            SqlServerModelBuilderExtensions.UseIdentityColumns(modelBuilder, 1L, 1);
 
             modelBuilder.Entity("Project.DbManagement.BillDetailsEntity", b =>
                 {
@@ -503,15 +503,12 @@ namespace Project.DbManagement.Migrations
                         .HasColumnType("nvarchar(max)");
 
                     b.Property<string>("CompleteCode")
-                        .IsRequired()
                         .HasColumnType("nvarchar(max)");
 
                     b.Property<string>("CompleteName")
-                        .IsRequired()
                         .HasColumnType("nvarchar(max)");
 
                     b.Property<string>("CompletePath")
-                        .IsRequired()
                         .HasColumnType("nvarchar(max)");
 
                     b.Property<Guid?>("CreatedByUserId")
@@ -530,7 +527,6 @@ namespace Project.DbManagement.Migrations
                         .HasColumnType("bit");
 
                     b.Property<string>("LabelsJson")
-                        .IsRequired()
                         .HasColumnType("nvarchar(max)");
 
                     b.Property<Guid?>("LastModifiedByUserId")
@@ -547,7 +543,6 @@ namespace Project.DbManagement.Migrations
                         .HasColumnType("nvarchar(max)");
 
                     b.Property<string>("Name")
-                        .IsRequired()
                         .HasColumnType("nvarchar(max)");
 
                     b.Property<DateTime?>("PublicOnDate")
