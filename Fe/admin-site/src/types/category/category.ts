@@ -1,4 +1,4 @@
-export default interface CustomerReqDto {
+export default interface CategoryReqDto {
   status: number;
   source: number;
   social_media: number;
