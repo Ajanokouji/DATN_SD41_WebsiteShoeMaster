@@ -50,7 +50,16 @@ namespace Project.Api
             services.AddEndpointsApiExplorer();
             services.AddSwaggerGen();
 
-            
+            // Thêm cấu hình CORS
+            services.AddCors(options =>
+            {
+                options.AddPolicy("AllowLocalhost3000", builder =>
+                {
+                    builder.WithOrigins("http://localhost:3000")
+                           .AllowAnyMethod()
+                           .AllowAnyHeader();
+                });
+            });
         }
 
         public void Configure(IApplicationBuilder app, IWebHostEnvironment env)
@@ -70,6 +79,7 @@ namespace Project.Api
 
             app.UseRouting();
             // app.UseAuthorization();
+            app.UseCors("AllowLocalhost3000");
 
             app.UseHttpsRedirection();
 
