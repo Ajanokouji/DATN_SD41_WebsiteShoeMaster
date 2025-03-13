@@ -40,13 +40,13 @@ class ProductService {
     }
   }
 
-  async createProductReq(userData: ProductReqDto): Promise<ProductReqDto> {
+  async createProductReq(userData: ProductReqDto): Promise<ProductResDto> {
     try {
-      const response = await httpClient.post<ProductReqDto>(
+      const response = await httpClient.post<{ data: ProductResDto}>(
         this.endpoints.createProduct,
         userData
       );
-      return response;
+      return response.data;
     } catch (error) {
       console.log("Create product error:", error);
       throw new Error(`Create product failed: ${error}`);

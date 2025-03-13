@@ -32,6 +32,14 @@ const initialState: InitState = {
   },
 };
 
+export const fetchCategories = createAppThunk(
+  "categories/fetch",
+  async (params: PaginationParams) => {
+    const response = await categoryService.getCategories(params);
+    return response;
+  }
+);
+
 export const createCategory = createAppThunk(
   "category/create",
   categoryService.createCategoryReq,
@@ -41,11 +49,15 @@ export const createCategory = createAppThunk(
   }
 );
 
-export const fetchCategories = createAppThunk(
-  "categories/fetch",
-  async (params: PaginationParams) => {
-    const response = await categoryService.getCategories(params);
+export const updateCategory = createAppThunk(
+  "category/update",
+  async ({ id, data }: { id: string; data: Partial<CategoryReqDto> }) => {
+    const response = await categoryService.updateCategoryReq(id, data);
     return response;
+  },
+  {
+    successMessage: CATEGORY_MESSAGES.UPDATE_CATEGORY.SUCCESS,
+    errorMessage: CATEGORY_MESSAGES.UPDATE_CATEGORY.ERROR,
   }
 );
 
@@ -61,7 +73,6 @@ export const deleteCategory = createAppThunk(
   }
 );
 
-
 const categorySlice = createSlice({
   name: "category",
   initialState,
@@ -71,7 +82,7 @@ const categorySlice = createSlice({
     },
     setPageSize: (state, action: PayloadAction<number>) => {
       state.pagination.pageSize = action.payload;
-    }
+    },
   },
   extraReducers: (builder) => {
     addLoadingCases(builder, fetchCategories, {
@@ -86,12 +97,23 @@ const categorySlice = createSlice({
         };
       },
     });
-    
+
     // Create category
     addLoadingCases(builder, createCategory, {
       onFulfilled: (state, action) => {
         state.loading = false;
-        state.category = action?.payload ?? null;
+        // state.category = action?.payload ?? null;
+        state.categories = [action.payload, ...state.categories];
+      },
+    });
+
+    // Update category
+    addLoadingCases(builder, updateCategory, {
+      onFulfilled: (state, action) => {
+        state.loading = false;
+        state.categories = state.categories.map((category) =>
+          category.id === action.payload.id ? action.payload : category
+        );
       },
     });
 
@@ -104,7 +126,6 @@ const categorySlice = createSlice({
         );
       },
     });
-    
   },
 });
 

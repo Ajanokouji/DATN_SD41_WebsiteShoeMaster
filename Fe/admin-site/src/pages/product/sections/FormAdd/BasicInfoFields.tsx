@@ -1,6 +1,6 @@
 // BasicInfoFields.tsx
 import React from "react";
-import { Control } from "react-hook-form";
+import { Control, useController, useWatch } from "react-hook-form";
 import {
   FormControl,
   FormDescription,
@@ -11,15 +11,60 @@ import {
 } from "@/components/ui/form";
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
-import { CategoryFormSchema } from "./FormSchema";
+import { ProductFormSchema } from "./FormSchema";
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
 
 interface BasicInfoFieldsProps {
-  control: Control<CategoryFormSchema>;
+  control: Control<ProductFormSchema>;
 }
+
+const formatType = (name: string) => {
+  return name
+    .toLowerCase()
+    .normalize("NFD")
+    .replace(/\p{Diacritic}/gu, "")
+    .replace(/[^a-z0-9]+/g, "-")
+    .replace(/(^-|-$)/g, "");
+};
 
 export const BasicInfoFields: React.FC<BasicInfoFieldsProps> = ({
   control,
 }) => {
+  const nameValue = useWatch({ control, name: "name" });
+  const codeValue = useWatch({ control, name: "code" });
+
+  const { field: completeCodeField } = useController({
+    control,
+    name: "completeCode",
+  });
+  const { field: completeNameField } = useController({
+    control,
+    name: "completeName",
+  });
+  const { field: completePathField } = useController({
+    control,
+    name: "completePath",
+  });
+
+  React.useEffect(() => {
+    if (nameValue) {
+      const formattedType = formatType(nameValue);
+      completeNameField.onChange(nameValue + " complete");
+      completePathField.onChange(`/${formattedType}`);
+    }
+  }, [nameValue, completeNameField, completePathField]);
+
+  React.useEffect(() => {
+    if (codeValue) {
+      completeCodeField.onChange(codeValue + " complete");
+    }
+  }, [codeValue, completeCodeField]);
   return (
     <>
       <div className="grid grid-cols-2 gap-4">
@@ -30,7 +75,7 @@ export const BasicInfoFields: React.FC<BasicInfoFieldsProps> = ({
             <FormItem>
               <FormLabel>Code</FormLabel>
               <FormControl>
-                <Input placeholder="Category code" {...field} />
+                <Input placeholder="Product code" {...field} />
               </FormControl>
               <FormMessage />
             </FormItem>
@@ -44,7 +89,7 @@ export const BasicInfoFields: React.FC<BasicInfoFieldsProps> = ({
             <FormItem>
               <FormLabel>Name</FormLabel>
               <FormControl>
-                <Input placeholder="Category name" {...field} />
+                <Input placeholder="Product name" {...field} />
               </FormControl>
               <FormMessage />
             </FormItem>
@@ -60,7 +105,7 @@ export const BasicInfoFields: React.FC<BasicInfoFieldsProps> = ({
             <FormLabel>Description</FormLabel>
             <FormControl>
               <Textarea
-                placeholder="Enter category description"
+                placeholder="Enter product description"
                 className="min-h-24"
                 {...field}
               />
@@ -69,28 +114,55 @@ export const BasicInfoFields: React.FC<BasicInfoFieldsProps> = ({
           </FormItem>
         )}
       />
-
-      <FormField
-        control={control}
-        name="sortOrder"
-        render={({ field }) => (
-          <FormItem>
-            <FormLabel>Sort Order</FormLabel>
-            <FormControl>
-              <Input
-                type="number"
-                placeholder="0"
-                {...field}
-                onChange={(e) => field.onChange(parseInt(e.target.value) || 0)}
-              />
-            </FormControl>
-            <FormDescription>
-              Determines the display order of categories
-            </FormDescription>
-            <FormMessage />
-          </FormItem>
-        )}
-      />
+      <div className="grid grid-cols-2 gap-4">
+        <FormField
+          control={control}
+          name="sortOrder"
+          render={({ field }) => (
+            <FormItem>
+              <FormLabel>Sort Order</FormLabel>
+              <FormControl>
+                <Input
+                  type="number"
+                  placeholder="0"
+                  {...field}
+                  onChange={(e) =>
+                    field.onChange(parseInt(e.target.value) || 0)
+                  }
+                />
+              </FormControl>
+              <FormDescription>
+                Determines the display order of products
+              </FormDescription>
+              <FormMessage />
+            </FormItem>
+          )}
+        />
+        <FormField
+          control={control}
+          name="status"
+          render={({ field }) => (
+            <FormItem>
+              <FormLabel>Trạng thái</FormLabel>
+              <Select onValueChange={field.onChange} defaultValue={field.value}>
+                <FormControl>
+                  <SelectTrigger>
+                    <SelectValue placeholder="Chọn trạng thái" />
+                  </SelectTrigger>
+                </FormControl>
+                <SelectContent>
+                  <SelectItem value="Available">Có sẵn</SelectItem>
+                  <SelectItem value="Unavailable">Không có sẵn</SelectItem>
+                </SelectContent>
+              </Select>
+              <FormDescription>
+                Trạng thái hiển thị của sản phẩm
+              </FormDescription>
+              <FormMessage />
+            </FormItem>
+          )}
+        />
+      </div>
     </>
   );
 };

@@ -2,7 +2,7 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Filter } from "lucide-react";
 import { useState } from "react";
-import AddCustomerDialog from "./FormAdd/DialogAdd";
+import AddProductDialog from "./FormAdd/DialogAdd";
 import { FaPlus } from "react-icons/fa6";
 
 const ActionHeader = () => {
@@ -29,7 +29,7 @@ const ActionHeader = () => {
       </div>
 
       {isOpenAdd && (
-        <AddCustomerDialog
+        <AddProductDialog
           isOpen={isOpenAdd}
           onClose={() => setIsOpenAdd(false)}
         />

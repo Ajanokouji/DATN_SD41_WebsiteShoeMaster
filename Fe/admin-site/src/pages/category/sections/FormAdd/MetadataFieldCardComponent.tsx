@@ -50,7 +50,7 @@ export const MetadataFieldCard: React.FC<MetadataFieldCardProps> = ({
     const newSelectionValues = [
       ...currentSelectionValues,
       {
-        key: currentSelectionValues.length,
+        key: String(currentSelectionValues.length),
         code: "",
         value: "",
         order: currentSelectionValues.length,

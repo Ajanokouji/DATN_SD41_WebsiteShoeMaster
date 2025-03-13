@@ -1,107 +1,116 @@
 import { Button } from "@/components/ui/button";
 import {
-  Dialog,
-  DialogContent,
-  DialogDescription,
-  DialogFooter,
-  DialogHeader,
-  DialogTitle,
-} from "@/components/ui/dialog";
+  Sheet,
+  SheetContent,
+  SheetHeader,
+  SheetTitle,
+  SheetDescription,
+} from "@/components/ui/sheet";
 import { Form } from "@/components/ui/form";
 import React, { useState } from "react";
 import { useAppDispatch } from "@/hooks/use-app-dispatch";
-import { createCategory } from "@/redux/apps/category/categorySlice";
-import CategoryReqDto from "@/types/category/category";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
-import { CategoryFormSchema, categoryFormSchema } from "./FormSchema";
 import { BasicInfoFields } from "./BasicInfoFields";
 import { MetadataSection } from "./MetadataSection";
+import { productFormSchema, ProductFormSchema } from "./FormSchema";
+import ProductReqDto from "@/types/product/product";
+import { createProduct } from "@/redux/apps/product/productSlice";
+import { LabelsSection } from "./LabelsSection";
+import { ImageField } from "./ImageFieldComponent";
 
-interface AddCategoryDialogProps {
+interface AddProductDialogProps {
   isOpen: boolean;
   onClose: () => void;
 }
 
-const AddCategoryDialog: React.FC<AddCategoryDialogProps> = ({
+const AddProductDialog: React.FC<AddProductDialogProps> = ({
   isOpen,
   onClose,
 }) => {
   const dispatch = useAppDispatch();
   const [isSubmitting, setIsSubmitting] = useState(false);
 
-  const form = useForm<CategoryFormSchema>({
-    resolver: zodResolver(categoryFormSchema),
+  const form = useForm<ProductFormSchema>({
+    resolver: zodResolver(productFormSchema),
     defaultValues: {
       code: "",
       name: "",
       description: "",
+      imageUrl: "",
       metadataObj: [],
-      sortOrder: 0,
-      createdByUserId: "",
-      lastModifiedByUserId: "",
+      labelsObjs: [],
+      sortOrder: "0",
       lastModifiedDate: new Date().toISOString(),
       createdOnDate: new Date().toISOString(),
+      publicOnDate: new Date().toISOString(),
+      createdByUserId: "3fa85f64-5717-4562-b3fc-2c963f66afa6",
+      lastModifiedByUserId: "3fa85f64-5717-4562-b3fc-2c963f66afa6",
+      mainCategoryId: "3fa85f64-5717-4562-b3fc-2c963f66afa6",
+      status: "Available",
+      workFlowStates: "Available",
     },
   });
 
-  const handleSubmit = async (values: CategoryFormSchema) => {
+  const handleSubmit = async (values: ProductFormSchema) => {
     setIsSubmitting(true);
     try {
-      // Convert to appropriate type
-      const categoryData: CategoryReqDto = {
+      const productData: ProductReqDto = {
         ...values,
-        sortOrder: values.sortOrder || 0,
+        sortOrder: String(values.sortOrder || 0),
         createdByUserId: values.createdByUserId || "",
         lastModifiedByUserId: values.lastModifiedByUserId || "",
         lastModifiedDate: values.lastModifiedDate || new Date().toISOString(),
         createdOnDate: values.createdOnDate || new Date().toISOString(),
+        publicOnDate: values.createdOnDate || new Date().toISOString(),
         metadataObj: values.metadataObj || [],
+        labelsObjs: values.labelsObjs || [],
       };
 
-      await dispatch(createCategory(categoryData));
-
+      await dispatch(createProduct(productData));
       onClose();
     } catch (error) {
-      console.error("Create category error details:", error);
+      console.error("Create product error details:", error);
     } finally {
       setIsSubmitting(false);
     }
   };
 
   return (
-    <Dialog open={isOpen} onOpenChange={onClose}>
-      <DialogContent className="max-w-4xl max-h-[90vh] overflow-y-auto">
-        <DialogHeader>
-          <DialogTitle className="text-xl font-semibold text-gray-700">
-            Add Category
-          </DialogTitle>
-          <DialogDescription>
-            Create a new category with custom metadata fields
-          </DialogDescription>
-        </DialogHeader>
-
+    <Sheet open={isOpen} onOpenChange={onClose}>
+      <SheetContent className="w-[90%] sm:max-w-[80vw] max-w-none h-screen overflow-y-auto">
+        <SheetHeader>
+          <SheetTitle className="text-xl font-semibold text-gray-700">
+            Add Product
+          </SheetTitle>
+          <SheetDescription>
+            Create a new product with custom metadata fields
+          </SheetDescription>
+        </SheetHeader>
         <Form {...form}>
           <form
             onSubmit={form.handleSubmit(handleSubmit)}
             className="space-y-6"
           >
             <BasicInfoFields control={form.control} />
+            <ImageField control={form.control} />
             <MetadataSection form={form} />
+            <LabelsSection form={form} />
 
-            <DialogFooter className="gap-2 pt-4">
+            <div className="flex justify-end gap-2 pt-4">
+            {/* <pre>{JSON.stringify(form.formState.errors, null, 2)}</pre> */}
               <Button type="submit" disabled={isSubmitting}>
-                {isSubmitting ? "Creating..." : "Add new category"}
+                {isSubmitting ? "Creating..." : "Add new product"}
               </Button>
               <Button variant="outline" onClick={onClose} type="button">
                 Cancel
               </Button>
-            </DialogFooter>
+            </div>
           </form>
         </Form>
-      </DialogContent>
-    </Dialog>
+      </SheetContent>
+    </Sheet>
   );
 };
 
-export default AddCategoryDialog;
+export default AddProductDialog;

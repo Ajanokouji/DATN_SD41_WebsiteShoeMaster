@@ -20,7 +20,7 @@ const ProductTable = <T extends { id: string }>({
     {/* <Table className="w-full">
       <TableHeaderComponent headers={headers} />
     </Table> */}
-    <div className="max-h-80 max-w-full overflow-x-auto overflow-y-auto">
+    <div className="max-h-[58vh] max-w-full overflow-x-auto overflow-y-auto">
       <Table className="w-full">
         <TableHeaderComponent headers={headers} className="text-center" />
         <TableBody>

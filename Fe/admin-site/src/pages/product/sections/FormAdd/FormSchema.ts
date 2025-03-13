@@ -1,9 +1,17 @@
 import * as z from "zod";
 
-export const categoryFormSchema = z.object({
-  code: z.string().min(1, "Code is required"),
-  name: z.string().min(1, "Name is required"),
-  description: z.string(),
+export const productFormSchema = z.object({
+  code: z.string().min(3, "Mã sản phẩm phải có ít nhất 3 ký tự" ),
+  name: z.string().min(2, "Tên sản phẩm phải có ít nhất 2 ký tự" ),
+  description: z
+    .string()
+    .min(10, "Mô tả phải có ít nhất 10 ký tự" ),
+  mainCategoryId: z.string(),
+  status: z.string(),
+  imageUrl: z.string().url( "URL hình ảnh không hợp lệ" ),
+  completeCode: z.string(),
+  completeName: z.string(),
+  completePath: z.string(),
   metadataObj: z.array(
     z.object({
       fieldName: z.string().min(1, "Field name is required"),
@@ -14,7 +22,7 @@ export const categoryFormSchema = z.object({
       fieldValueType: z.string(),
       fieldSelectionValues: z.array(
         z.object({
-          key: z.number(),
+          key: z.string(),
           code: z.string(),
           value: z.string(),
           order: z.number(),
@@ -22,11 +30,21 @@ export const categoryFormSchema = z.object({
       ),
     })
   ),
-  sortOrder: z.number(),
+  labelsObjs: z.array(
+    z.object({
+      objectId: z.string(),
+      objectCode: z.string(),
+      objectName: z.string(),
+      color: z.string(),
+    })
+  ),
+  sortOrder: z.string(),
   createdByUserId: z.string(),
   lastModifiedByUserId: z.string(),
   lastModifiedDate: z.string(),
   createdOnDate: z.string(),
+  publicOnDate: z.string(),
+  workFlowStates: z.string(),
 });
 
-export type CategoryFormSchema = z.infer<typeof categoryFormSchema>;
+export type ProductFormSchema = z.infer<typeof productFormSchema>;

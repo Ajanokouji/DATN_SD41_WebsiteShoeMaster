@@ -1,4 +1,3 @@
-// SelectionValuesList.tsx
 import React from "react";
 import { UseFormReturn } from "react-hook-form";
 import {
@@ -10,11 +9,11 @@ import {
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import { Trash2 } from "lucide-react";
-import { CategoryFormSchema } from "./FormSchema";
+import { ProductFormSchema } from "./FormSchema";
 
 interface SelectionValuesListProps {
   metadataIndex: number;
-  form: UseFormReturn<CategoryFormSchema>;
+  form: UseFormReturn<ProductFormSchema>;
 }
 
 export const SelectionValuesList: React.FC<SelectionValuesListProps> = ({ 

@@ -6,15 +6,14 @@ class CategoryService {
   private static instance: CategoryService;
 
   private readonly endpoints = {
-    fetchCategories: "/Categories/filter",
-    createCategory: "/Categories",
-    deleteCategory: "/Categories",
+    categories: "/Categories",
   };
 
   private constructor() {
     this.getCategories = this.getCategories.bind(this);
     this.createCategoryReq = this.createCategoryReq.bind(this);
     this.deleteCategoryReq = this.deleteCategoryReq.bind(this);
+    this.updateCategoryReq = this.updateCategoryReq.bind(this);
   }
 
   static getInstance(): CategoryService {
@@ -29,7 +28,7 @@ class CategoryService {
   ): Promise<PaginatedResponse<CategoryResDto>> {
     try {
       const response = await httpClient.post<PaginatedResponse<CategoryResDto>>(
-        `${this.endpoints.fetchCategories}`,
+        `${this.endpoints.categories}/filter`,
         {},
         { params }
       );
@@ -40,22 +39,36 @@ class CategoryService {
     }
   }
 
-  async createCategoryReq(userData: CategoryReqDto): Promise<CategoryReqDto> {
+  async createCategoryReq(formData: CategoryReqDto): Promise<CategoryResDto> {
     try {
-      const response = await httpClient.post<CategoryReqDto>(
-        this.endpoints.createCategory,
-        userData
+      const response = await httpClient.post<{ data: CategoryResDto }>(
+        this.endpoints.categories,
+        formData
       );
-      return response;
+      return response.data;
     } catch (error) {
       console.log("Create category error:", error);
       throw new Error(`Create category failed: ${error}`);
     }
   }
 
+  async updateCategoryReq(id: string, formData: Partial<CategoryReqDto>): Promise<CategoryResDto> {
+    try {
+      const response = await httpClient.patch<{ data: CategoryResDto }>(
+        `${this.endpoints.categories}/${id}`,
+        formData
+      );
+      return response.data;
+    } catch (error) {
+      console.log("Update category error:", error);
+      throw new Error(`Update category failed: ${error}`);
+    }
+  }
+  
+
   async deleteCategoryReq(id: string): Promise<void> {
     try {
-      await httpClient.delete(`${this.endpoints.deleteCategory}/${id}`);
+      await httpClient.delete(`${this.endpoints.categories}/${id}`);
     } catch (error) {
       console.log("Delete category error:", error);
       throw new Error(`Delete category failed: ${error}`);

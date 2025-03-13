@@ -1,4 +1,4 @@
-import React, { useEffect } from "react";
+import React, { useEffect, useState } from "react";
 import Pagination from "@/components/Pagination";
 import TableHeaderComponent from "@/components/TableHeader";
 import TableRowComponent from "@/components/TableRow";
@@ -11,14 +11,15 @@ import {
   selectPagination,
 } from "@/redux/apps/category/categorySelector";
 import {
-  deleteCategory, 
-  fetchCategories, 
+  deleteCategory,
+  fetchCategories,
   setPage,
   setPageSize,
 } from "@/redux/apps/category/categorySlice";
 import { CategoryResDto } from "@/types/category/category";
+import DetailCategorySheet from "./UpdateDetail/DetailCategorySheet";
 
-const CategoryTable = <T extends { id: string },>({
+const CategoryTable = <T extends { id: string }>({
   headers,
   data,
   columns,
@@ -27,7 +28,7 @@ const CategoryTable = <T extends { id: string },>({
     {/* <Table className="w-full">
       <TableHeaderComponent headers={headers} />
     </Table> */}
-    <div className="max-h-80 max-w-full overflow-x-auto overflow-y-auto">
+    <div className="max-h-[58vh] max-w-full overflow-x-auto overflow-y-auto">
       <Table className="w-full">
         <TableHeaderComponent headers={headers} className="text-center" />
         <TableBody>
@@ -49,6 +50,17 @@ const CategoryTable = <T extends { id: string },>({
 );
 
 const CategoriesTable: React.FC = () => {
+  const dispatch = useAppDispatch();
+  const products = useAppSelector(selectCategories);
+  const pagination = useAppSelector(selectPagination);
+  const [isOpenUpdate, setIsOpenUpdate] = useState(false);
+  const [selectedCategoryId, setSelectedCategoryId] = useState<string | null>(null);
+
+  const handleOpenDialogUpdate = (id: string) => {
+    setIsOpenUpdate(true);
+    setSelectedCategoryId(id);
+  };
+
   const headers = [
     { label: "Code", className: "text-center" },
     { label: "Name" },
@@ -62,7 +74,8 @@ const CategoriesTable: React.FC = () => {
     className?: string;
     isActionColumn?: boolean;
     action?: (data: CategoryResDto) => void;
-    deleteAction?: (id: string) => void; 
+    deleteAction?: (id: string) => void;
+    updateAction?: (id: string) => void;
   }[] = [
     { key: "code", className: "text-center" },
     { key: "name" },
@@ -75,14 +88,13 @@ const CategoriesTable: React.FC = () => {
         console.log("Performing action for:", category);
       },
       deleteAction: (id: string) => {
-        dispatch(deleteCategory(id)); 
+        dispatch(deleteCategory(id));
+      },
+      updateAction: (id: string) => {
+        handleOpenDialogUpdate(id);
       },
     },
   ];
-
-  const dispatch = useAppDispatch();
-  const products = useAppSelector(selectCategories);
-  const pagination = useAppSelector(selectPagination);
 
   useEffect(() => {
     dispatch(
@@ -118,6 +130,13 @@ const CategoriesTable: React.FC = () => {
         onPageChange={handlePageChange}
         onPageSizeChange={handlePageSizeChange}
       />
+      {isOpenUpdate && selectedCategoryId && (
+        <DetailCategorySheet
+          categoryId={selectedCategoryId}
+          isOpen={isOpenUpdate}
+          onClose={() => setIsOpenUpdate(false)}
+        />
+      )}
     </section>
   );
 };

@@ -2,10 +2,15 @@ export default interface CategoryReqDto {
   code: string;
   name: string;
   description: string;
+  type: string;
+  completeCode: string;
+  completeName:string;
+  completePath:string;
+  parentPath:string;
   metadataObj: MetadataObj[];
   createdByUserId: string;
   lastModifiedByUserId: string;
-  lastModifiedDate: string;
+  lastModifiedOnDate: string;
   createdOnDate: string;
   sortOrder: number;
 }
@@ -21,7 +26,7 @@ export interface MetadataObj {
 }
 
 export interface FieldSelectionValues {
-  key: number;
+  key: string;
   code: string;
   value: string;
   order: number;
@@ -34,7 +39,6 @@ export interface CategoryResDto {
   sortOrder: number | null;
   description: string | null;
   mainCategoryId: string;
-  metadataObj: any[];
   createdOnDate: string;
   lastModifiedOnDate: string;
   isdeleted: boolean;

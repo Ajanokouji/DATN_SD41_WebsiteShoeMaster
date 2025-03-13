@@ -90,7 +90,9 @@ const productSlice = createSlice({
     addLoadingCases(builder, createProduct, {
       onFulfilled: (state, action) => {
         state.loading = false;
-        state.product = action?.payload ?? null;
+        // state.product = action?.payload ?? null;
+        state.products = [action.payload, ...state.products];
+
       },
     });
 

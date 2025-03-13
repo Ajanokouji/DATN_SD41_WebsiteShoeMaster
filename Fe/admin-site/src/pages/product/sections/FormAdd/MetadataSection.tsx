@@ -3,11 +3,11 @@ import React from "react";
 import { UseFormReturn } from "react-hook-form";
 import { Button } from "@/components/ui/button";
 import { Plus } from "lucide-react";
-import { CategoryFormSchema } from "./FormSchema";
+import { ProductFormSchema } from "./FormSchema";
 import { MetadataFieldCard } from "./MetadataFieldCardComponent";
 
 interface MetadataSectionProps {
-  form: UseFormReturn<CategoryFormSchema>;
+  form: UseFormReturn<ProductFormSchema>;
 }
 
 export const MetadataSection: React.FC<MetadataSectionProps> = ({ form }) => {
@@ -18,10 +18,10 @@ export const MetadataSection: React.FC<MetadataSectionProps> = ({ form }) => {
       {
         fieldName: "",
         fieldDisplayName: "",
-        fieldType: 0,
+        fieldType: 1,
         fieldValues: "",
         fieldValueTexts: "",
-        fieldValueType: "",
+        fieldValueType: "string",
         fieldSelectionValues: [],
       },
     ]);
@@ -38,7 +38,7 @@ export const MetadataSection: React.FC<MetadataSectionProps> = ({ form }) => {
   return (
     <div className="space-y-4">
       <div className="flex justify-between items-center">
-        <h3 className="text-lg font-medium">Custom Metadata Fields</h3>
+        <h3 className="text-lg font-medium">Metadata Fields</h3>
         <Button type="button" variant="outline" size="sm" onClick={addMetadata}>
           <Plus className="h-4 w-4 mr-2" /> Add Field
         </Button>

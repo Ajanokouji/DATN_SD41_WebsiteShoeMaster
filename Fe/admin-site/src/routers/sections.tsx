@@ -14,7 +14,6 @@ export const ProductPage = lazy(() => import("@/pages/product"));
 // export const RegisterPage = lazy(() => import("../pages/auth/Register"));
 export const Page404 = lazy(() => import("../pages/shared/NotFoundPage"));
 
-
 // ----------------------------------------------------------------------
 
 // const useAuth = () => {
@@ -22,7 +21,7 @@ export const Page404 = lazy(() => import("../pages/shared/NotFoundPage"));
 // };
 
 export default function Router() {
-//   const isAuthenticated = useAuth();
+  //   const isAuthenticated = useAuth();
 
   const PrivateRoute = ({ children }: { children: JSX.Element }) => {
     // const isAuthenticated = useAuth();

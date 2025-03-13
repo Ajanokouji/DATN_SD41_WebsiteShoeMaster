@@ -13,6 +13,7 @@ type TableRowProps<T> = {
     isActionColumn?: boolean;
     action?: (data: T) => void;
     deleteAction?: (id: string) => void;
+    updateAction?: (id: string) => void;
   }[];
 };
 
@@ -38,7 +39,7 @@ const TableRowComponent = <T extends { id: string },>({ data, columns }: TableRo
             {column.isActionColumn ? (
               data ? (
                 <div className="flex flex-grow gap-2">
-                  <button onClick={() => column.action?.(data)}>
+                  <button onClick={() => column.updateAction && column.updateAction(data.id)}>
                     <LuSquarePen className="text-indigo-600" size={20} />
                   </button>
                   <button onClick={() => setModalDeleteOpen(true)}>
