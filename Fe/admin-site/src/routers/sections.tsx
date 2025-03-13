@@ -8,7 +8,7 @@ export const LoadingPage = lazy(() => import("@/pages/shared/LoadingPage"));
 export const IndexPage = lazy(() => import("@/pages/dashboard"));
 
 export const CategoryPage = lazy(() => import("@/pages/category"));
-export const ProductPage = lazy(() => import("@/pages/category"));
+export const ProductPage = lazy(() => import("@/pages/product"));
 
 // export const LoginPage = lazy(() => import("../pages/auth/Login"));
 // export const RegisterPage = lazy(() => import("../pages/auth/Register"));

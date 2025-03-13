@@ -1,4 +1,4 @@
-import CategoryReqDto, { Product } from "@/types/category/category";
+import CategoryReqDto, { CategoryResDto } from "@/types/category/category";
 import httpClient from "./agent";
 import { PaginatedResponse, PaginationParams } from "@/types/common/pagination";
 
@@ -6,15 +6,15 @@ class CategoryService {
   private static instance: CategoryService;
 
   private readonly endpoints = {
-    fetchCategories: "/Product/filter",
-    createCategory: "/Product",
-    deleteCategory: "/Product",
+    fetchCategories: "/Categories/filter",
+    createCategory: "/Categories",
+    deleteCategory: "/Categories",
   };
 
   private constructor() {
-    this.getProducts = this.getProducts.bind(this);
+    this.getCategories = this.getCategories.bind(this);
     this.createCategoryReq = this.createCategoryReq.bind(this);
-    this.deleteProductReq = this.deleteProductReq.bind(this);
+    this.deleteCategoryReq = this.deleteCategoryReq.bind(this);
   }
 
   static getInstance(): CategoryService {
@@ -24,19 +24,19 @@ class CategoryService {
     return CategoryService.instance;
   }
 
-  async getProducts(
+  async getCategories(
     params: PaginationParams
-  ): Promise<PaginatedResponse<Product>> {
+  ): Promise<PaginatedResponse<CategoryResDto>> {
     try {
-      const response = await httpClient.post<PaginatedResponse<Product>>(
+      const response = await httpClient.post<PaginatedResponse<CategoryResDto>>(
         `${this.endpoints.fetchCategories}`,
         {},
         { params }
       );
       return response;
     } catch (error) {
-      console.log("Fetch products error:", error);
-      throw new Error(`Fetch products failed: ${error}`);
+      console.log("Fetch categories error:", error);
+      throw new Error(`Fetch categories failed: ${error}`);
     }
   }
 
@@ -53,7 +53,7 @@ class CategoryService {
     }
   }
 
-  async deleteProductReq(id: string): Promise<void> {
+  async deleteCategoryReq(id: string): Promise<void> {
     try {
       await httpClient.delete(`${this.endpoints.deleteCategory}/${id}`);
     } catch (error) {

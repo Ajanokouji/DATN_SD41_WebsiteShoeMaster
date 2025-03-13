@@ -6,19 +6,12 @@ import { Table, TableBody } from "@/components/ui/table";
 import TableProps from "@/types/common/table";
 import { useAppDispatch } from "@/hooks/use-app-dispatch";
 import { useAppSelector } from "@/hooks/use-app-selector";
-import {
-  selectCategories,
-  selectPagination,
-} from "@/redux/apps/category/categorySelector";
-import {
-  deleteCategory, 
-  fetchCategories, 
-  setPage,
-  setPageSize,
-} from "@/redux/apps/category/categorySlice";
-import { CategoryResDto } from "@/types/category/category";
 
-const CategoryTable = <T extends { id: string },>({
+import { ProductResDto } from "@/types/product/product";
+import { deleteProduct, fetchProducts, setPage, setPageSize } from "@/redux/apps/product/productSlice";
+import { selectPagination, selectProducts } from "@/redux/apps/product/productSelector";
+
+const ProductTable = <T extends { id: string }>({
   headers,
   data,
   columns,
@@ -48,25 +41,29 @@ const CategoryTable = <T extends { id: string },>({
   </div>
 );
 
-const CategoriesTable: React.FC = () => {
+const ProductsTable: React.FC = () => {
   const headers = [
     { label: "Code", className: "text-center" },
     { label: "Name" },
+    { label: "Image" },
     { label: "Description" },
+    { label: "Status" },
     { label: "Create At" },
     { label: " " },
   ];
 
   const columns: {
-    key?: keyof CategoryResDto;
+    key?: keyof ProductResDto;
     className?: string;
     isActionColumn?: boolean;
-    action?: (data: CategoryResDto) => void;
-    deleteAction?: (id: string) => void; 
+    action?: (data: ProductResDto) => void;
+    deleteAction?: (id: string) => void;
   }[] = [
     { key: "code", className: "text-center" },
     { key: "name" },
+    { key: "imageUrl" },
     { key: "description" },
+    { key: "status" },
     { key: "createdOnDate" },
     {
       isActionColumn: true,
@@ -75,18 +72,18 @@ const CategoriesTable: React.FC = () => {
         console.log("Performing action for:", category);
       },
       deleteAction: (id: string) => {
-        dispatch(deleteCategory(id)); 
+        dispatch(deleteProduct(id));
       },
     },
   ];
 
   const dispatch = useAppDispatch();
-  const products = useAppSelector(selectCategories);
+  const products = useAppSelector(selectProducts);
   const pagination = useAppSelector(selectPagination);
 
   useEffect(() => {
     dispatch(
-      fetchCategories({
+      fetchProducts({
         CurrentPage: pagination.currentPage,
         PageSize: pagination.pageSize,
       })
@@ -105,7 +102,7 @@ const CategoriesTable: React.FC = () => {
 
   return (
     <section className="mt-10">
-      <CategoryTable<CategoryResDto>
+      <ProductTable<ProductResDto>
         headers={headers}
         data={products}
         columns={columns}
@@ -122,4 +119,4 @@ const CategoriesTable: React.FC = () => {
   );
 };
 
-export default CategoriesTable;
+export default ProductsTable;

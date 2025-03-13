@@ -1,4 +1,4 @@
-type CategoryTableProps<T> = {
+type TableProps<T> = {
   headers: { label: string; className?: string }[];
   data: T[];
   columns: TableColumn<T>[];
@@ -12,4 +12,4 @@ type TableColumn<T> = {
   action?: (data: T) => void;
 };
 
-export default CategoryTableProps;
+export default TableProps;

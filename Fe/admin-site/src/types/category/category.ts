@@ -27,12 +27,10 @@ export interface FieldSelectionValues {
   order: number;
 }
 
-export interface Product {
+export interface CategoryResDto {
   id: string;
   code: string;
   name: string;
-  status: string;
-  imageUrl: string;
   sortOrder: number | null;
   description: string | null;
   mainCategoryId: string;

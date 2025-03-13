@@ -1,16 +1,16 @@
 import { createSlice, PayloadAction } from "@reduxjs/toolkit";
 import { addLoadingCases } from "@/utils/redux.utils";
 import { createAppThunk } from "@/utils/createThunk";
-import { CATEGORY_MESSAGES } from "@/constants/category.constants";
-import CategoryReqDto, { CategoryResDto } from "@/types/category/category";
-import categoryService from "@/redux/api/categoryApi";
 import { PaginationParams } from "@/types/common/pagination";
+import ProductReqDto, { ProductResDto } from "@/types/product/product";
+import productService from "@/redux/api/productApi";
+import { PRODUCT_MESSAGES } from "@/constants/product.constants";
 
 export interface InitState {
   loading: boolean;
   error: string | null;
-  category: CategoryReqDto | null;
-  categories: CategoryResDto[];
+  product: ProductReqDto | null;
+  products: ProductResDto[];
   pagination: {
     currentPage: number;
     totalPages: number;
@@ -22,8 +22,8 @@ export interface InitState {
 const initialState: InitState = {
   loading: false,
   error: null,
-  category: null,
-  categories: [],
+  product: null,
+  products: [],
   pagination: {
     currentPage: 1,
     totalPages: 0,
@@ -32,38 +32,37 @@ const initialState: InitState = {
   },
 };
 
-export const createCategory = createAppThunk(
-  "category/create",
-  categoryService.createCategoryReq,
+export const createProduct = createAppThunk(
+  "product/create",
+  productService.createProductReq,
   {
-    successMessage: CATEGORY_MESSAGES.CREATE_CATEGORY.SUCCESS,
-    errorMessage: CATEGORY_MESSAGES.CREATE_CATEGORY.ERROR,
+    successMessage: PRODUCT_MESSAGES.CREATE_PRODUCT.SUCCESS,
+    errorMessage: PRODUCT_MESSAGES.CREATE_PRODUCT.ERROR,
   }
 );
 
-export const fetchCategories = createAppThunk(
-  "categories/fetch",
+export const fetchProducts = createAppThunk(
+  "products/fetch",
   async (params: PaginationParams) => {
-    const response = await categoryService.getCategories(params);
+    const response = await productService.getProducts(params);
     return response;
   }
 );
 
-export const deleteCategory = createAppThunk(
-  "category/delete",
+export const deleteProduct = createAppThunk(
+  "product/delete",
   async (id: string) => {
-    await categoryService.deleteCategoryReq(id);
+    await productService.deleteProductReq(id);
     return id;
   },
   {
-    successMessage: CATEGORY_MESSAGES.DELETE_CATEGORY.SUCCESS,
-    errorMessage: CATEGORY_MESSAGES.DELETE_CATEGORY.ERROR,
+    successMessage: PRODUCT_MESSAGES.DELETE_PRODUCT.SUCCESS,
+    errorMessage: PRODUCT_MESSAGES.DELETE_PRODUCT.ERROR,
   }
 );
 
-
-const categorySlice = createSlice({
-  name: "category",
+const productSlice = createSlice({
+  name: "product",
   initialState,
   reducers: {
     setPage: (state, action: PayloadAction<number>) => {
@@ -71,13 +70,13 @@ const categorySlice = createSlice({
     },
     setPageSize: (state, action: PayloadAction<number>) => {
       state.pagination.pageSize = action.payload;
-    }
+    },
   },
   extraReducers: (builder) => {
-    addLoadingCases(builder, fetchCategories, {
+    addLoadingCases(builder, fetchProducts, {
       onFulfilled: (state, action) => {
         state.loading = false;
-        state.categories = action.payload.data.content;
+        state.products = action.payload.data.content;
         state.pagination = {
           currentPage: action.payload.data.currentPage,
           totalPages: action.payload.data.totalPages,
@@ -86,27 +85,26 @@ const categorySlice = createSlice({
         };
       },
     });
-    
-    // Create category
-    addLoadingCases(builder, createCategory, {
+
+    // Create product
+    addLoadingCases(builder, createProduct, {
       onFulfilled: (state, action) => {
         state.loading = false;
-        state.category = action?.payload ?? null;
+        state.product = action?.payload ?? null;
       },
     });
 
-    // Delete category
-    addLoadingCases(builder, deleteCategory, {
+    // Delete product
+    addLoadingCases(builder, deleteProduct, {
       onFulfilled: (state, action) => {
         state.loading = false;
-        state.categories = state.categories.filter(
-          (category) => category.id !== action.payload
+        state.products = state.products.filter(
+          (product) => product.id !== action.payload
         );
       },
     });
-    
   },
 });
 
-export const { setPage, setPageSize } = categorySlice.actions;
-export default categorySlice.reducer;
+export const { setPage, setPageSize } = productSlice.actions;
+export default productSlice.reducer;
