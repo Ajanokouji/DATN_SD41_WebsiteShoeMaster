@@ -17,7 +17,7 @@ namespace Project.DbManagement.Entity
 
         [ForeignKey("ProductEntity")]
         public Guid IdProduct { get; set; }
-        public virtual ProductEntity ProductEntity { get; set; }
+        public virtual ProductEntity? ProductEntity { get; set; }
         [ForeignKey("CategoriesEntity")]
         public Guid CategoriesId { get; set; }
         public virtual CategoriesEntity? CategoriesEntity { get; set; }
@@ -34,9 +34,9 @@ namespace Project.DbManagement.Entity
         public string Description { get; set; }
 
         [NotMapped]
-        public virtual RelatedObj RelatedObj { get; set; }
+        public virtual RelatedObj? RelatedObj { get; set; }
 
-        public virtual string RelatedObjJson
+        public virtual string? RelatedObjJson
         {
             get
             {
@@ -61,9 +61,9 @@ namespace Project.DbManagement.Entity
         }
 
         [NotMapped]
-        public virtual RelatedObj RelatedObj2 { get; set; }
+        public virtual RelatedObj? RelatedObj2 { get; set; }
 
-        public virtual string RelatedObj2Json
+        public virtual string? RelatedObj2Json
         {
             get
             {
