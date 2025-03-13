@@ -138,10 +138,10 @@ ol {
 	background-position: top center;
 }
 
-.spad {
+/*.spad {
 	padding-top: 100px;
 	padding-bottom: 100px;
-}
+}*/
 
 .text-white h1,
 .text-white h2,
@@ -1031,6 +1031,7 @@ ol {
 .categories {
 	overflow: hidden;
 	margin-top: 10px;
+	padding-bottom: 50px;
 }
 
 .categories .container-fluid {
@@ -1102,11 +1103,11 @@ ol {
   Product
 -----------------------*/
 
-.product {
+/*.product {
 	padding-top: 60px;
 	padding-bottom: 50px;
 }
-
+*/
 .filter__controls {
 	text-align: right;
 	margin-bottom: 50px;

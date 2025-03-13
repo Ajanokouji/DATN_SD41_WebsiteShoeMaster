@@ -51,7 +51,7 @@ namespace Project.Business.Implement
             ProductQueryModel productQueryModel = queryModel;
 
 
-            queryModel.Sort = QueryUtils.FormatSortInput(queryModel.Sort);
+            queryModel.Sort = QueryUtils.FormatSortInput(queryModel.Sort??"-CreatedOnDate");
             IQueryable<ProductEntity> queryable = BuildQuery( queryModel);
             string sortExpression = string.Empty;
             if (string.IsNullOrWhiteSpace(queryModel.Sort) || queryModel.Sort.Equals("-LastModifiedOnDate"))

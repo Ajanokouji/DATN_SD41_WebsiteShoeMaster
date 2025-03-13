@@ -37,6 +37,9 @@
   </ItemGroup>
 
   <ItemGroup>
+    <None Update="Views\BlockProductsByFilter\BlockProductsByFilter.cshtml">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </None>
     <None Update="Views\SocialMedial\SocialMedial.cshtml">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </None>

@@ -15,14 +15,10 @@ namespace Project.MvcModule.Components
             _productBusiness=productBusiness;
         }
 
-        public async  Task<IViewComponentResult> InvokeAsync(ProductQueryModel  queryModel )
+        public async  Task<IViewComponentResult> InvokeAsync(ProductEntity  entity )
         {
-            var res = new BlockProductsByFilterViewModel();
-
-            var data = _productBusiness.GetAllAsync(queryModel);
-
             var viewPath = GetViewPath("BlockProductDetail", "BlockProductDetail.cshtml");
-            return View(viewPath, res);
+            return View(viewPath, entity);
         }
 
     }

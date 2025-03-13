@@ -1,4 +1,5 @@
 ﻿using Project.DbManagement.Entity;
+using SERP.Framework.Common;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -7,8 +8,8 @@ using System.Threading.Tasks;
 
 namespace Project.MvcModule.Model
 {
-    class BlockProductsByFilterViewModel
+    public class BlockProductsByFilterViewModel
     {
-        public List<ProductEntity> Products { get; set; }
+        public Pagination<ProductEntity> ProductsPagination { get; set; }
     }
 }
