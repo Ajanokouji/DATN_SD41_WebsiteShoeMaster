@@ -20,6 +20,7 @@ namespace Project.MvcModule.Components
             var res = new BlockProductsByFilterViewModel();
 
             var data = _productBusiness.GetAllAsync(queryModel);
+
             var viewPath = GetViewPath("BlockProductDetail", "BlockProductDetail.cshtml");
             return View(viewPath, res);
         }
