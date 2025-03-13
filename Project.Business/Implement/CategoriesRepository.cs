@@ -79,7 +79,7 @@ namespace Project.Business.Implement
                 query = query.Where(x => x.Description.Contains(queryModel.Description));
             }
 
-            if (queryModel.ParentId != Guid.Empty)
+            if (queryModel.ParentId != Guid.Empty && queryModel.ParentId != null)
             {
                 query = query.Where(x => x.ParentId == queryModel.ParentId);
             }
