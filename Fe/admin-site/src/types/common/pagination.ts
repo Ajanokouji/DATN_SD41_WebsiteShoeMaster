@@ -10,7 +10,6 @@ export interface PaginatedResponse<T> {
 }
 
 export interface PaginationParams {
-  TenSanPham: string;
   CurrentPage: number;
   PageSize: number;
   search?: string;

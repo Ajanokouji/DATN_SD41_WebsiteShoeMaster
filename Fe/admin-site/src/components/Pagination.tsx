@@ -28,7 +28,7 @@ const Pagination: React.FC<PaginationProps> = ({
     <div className="flex items-center justify-between py-4">
       <div className="text-sm text-gray-600">
         Views {(currentPage - 1) * pageSize + 1}- 
-        {Math.min(currentPage * pageSize, totalRecords)} / {totalRecords} category
+        {Math.min(currentPage * pageSize, totalRecords)} / {totalRecords} items
       </div>
 
       <div className="flex items-center gap-4">

@@ -12,7 +12,6 @@ export interface InitState {
   category: CategoryReqDto | null;
   products: Product[];
   pagination: {
-    TenSanPham: string;
     currentPage: number;
     totalPages: number;
     pageSize: number;
@@ -26,7 +25,6 @@ const initialState: InitState = {
   category: null,
   products: [],
   pagination: {
-    TenSanPham: "a",
     currentPage: 1,
     totalPages: 0,
     pageSize: 20,
@@ -81,7 +79,6 @@ const categorySlice = createSlice({
         state.loading = false;
         state.products = action.payload.data.content;
         state.pagination = {
-          TenSanPham:'a',
           currentPage: action.payload.data.currentPage,
           totalPages: action.payload.data.totalPages,
           pageSize: action.payload.data.pageSize,

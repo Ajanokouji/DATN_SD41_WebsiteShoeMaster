@@ -91,7 +91,6 @@ const CategoriesTable: React.FC = () => {
   useEffect(() => {
     dispatch(
       fetchProducts({
-        TenSanPham:"a",
         CurrentPage: pagination.currentPage,
         PageSize: pagination.pageSize,
       })
