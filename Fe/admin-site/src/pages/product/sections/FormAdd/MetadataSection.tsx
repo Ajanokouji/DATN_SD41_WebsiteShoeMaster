@@ -1,4 +1,3 @@
-// MetadataSection.tsx
 import React from "react";
 import { UseFormReturn } from "react-hook-form";
 import { Button } from "@/components/ui/button";

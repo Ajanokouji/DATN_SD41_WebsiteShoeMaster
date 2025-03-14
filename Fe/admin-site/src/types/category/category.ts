@@ -42,7 +42,7 @@ export interface CategoryResDto {
   lastModifiedOnDate: string;
 }
 
-export interface CategoryResDetailDto {
+export interface CategoryDetailResDto {
   id: string;
   code: string;
   name: string;

@@ -1,52 +1,57 @@
 import React from "react";
-import { Sheet, SheetContent, SheetHeader, SheetTitle, SheetDescription } from "@/components/ui/sheet";
+import {
+  Sheet,
+  SheetContent,
+  SheetHeader,
+  SheetTitle,
+  SheetDescription,
+} from "@/components/ui/sheet";
 import { useAppSelector } from "@/hooks/use-app-selector";
-import { selectCategory } from "@/redux/apps/category/categorySelector";
 import { Button } from "@/components/ui/button";
-import { useCategoryForm } from "./use-category-form";
-import { CategoryForm } from "./CategoryForm";
 import { FieldSelectionValuesList } from "./FieldSelectionValuesList";
+import { ProductForm } from "./ProductForm";
+import { useProductForm } from "./use-product-form";
+import { selectProduct } from "@/redux/apps/product/productSelector";
 
-
-interface DetailCategorySheetProps {
+interface DetailProductSheetProps {
   categoryId: string;
   isOpen: boolean;
   onClose: () => void;
 }
 
-const DetailCategorySheet: React.FC<DetailCategorySheetProps> = ({
+const DetailProductSheet: React.FC<DetailProductSheetProps> = ({
   categoryId,
   isOpen,
   onClose,
 }) => {
-  const category = useAppSelector(selectCategory);
+  const category = useAppSelector(selectProduct);
   const {
-    isEditing, 
+    isEditing,
     setIsEditing,
     methods,
     fieldSelectionValues,
     handleFieldSelectionValueChange,
     handleAddFieldSelectionValue,
     handleRemoveFieldSelectionValue,
-    handleSubmit
-  } = useCategoryForm(categoryId, category, onClose);
+    handleSubmit,
+  } = useProductForm(categoryId, category, onClose);
 
   return (
     <Sheet open={isOpen} onOpenChange={onClose}>
       <SheetContent className="w-[90%] sm:max-w-[80vw] max-w-none h-screen overflow-y-auto">
         <SheetHeader>
           <SheetTitle className="text-xl font-semibold text-gray-700">
-            Detail Category: {category?.name}
+            Detail Product: {category?.name}
           </SheetTitle>
           <SheetDescription />
         </SheetHeader>
-        
-        <CategoryForm 
-          methods={methods} 
-          isEditing={isEditing} 
+
+        <ProductForm
+          methods={methods}
+          isEditing={isEditing}
           onSubmit={handleSubmit}
         >
-          <FieldSelectionValuesList 
+          <FieldSelectionValuesList
             fieldSelectionValues={fieldSelectionValues}
             isEditing={isEditing}
             onValueChange={handleFieldSelectionValueChange}
@@ -55,7 +60,11 @@ const DetailCategorySheet: React.FC<DetailCategorySheetProps> = ({
           />
 
           {!isEditing ? (
-            <Button className="flex absolute bottom-3 left-7" type="button" onClick={() => setIsEditing(true)}>
+            <Button
+              className="flex absolute bottom-3 left-7"
+              type="button"
+              onClick={() => setIsEditing(true)}
+            >
               Chỉnh sửa
             </Button>
           ) : (
@@ -70,10 +79,10 @@ const DetailCategorySheet: React.FC<DetailCategorySheetProps> = ({
               </Button>
             </div>
           )}
-        </CategoryForm>
+        </ProductForm>
       </SheetContent>
     </Sheet>
   );
 };
 
-export default DetailCategorySheet;
+export default DetailProductSheet;

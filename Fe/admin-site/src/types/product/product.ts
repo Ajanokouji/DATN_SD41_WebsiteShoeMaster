@@ -53,5 +53,26 @@ export interface ProductResDto {
   mainCategoryId: string;
   createdOnDate: string;
   lastModifiedOnDate: string;
-  isdeleted: boolean;
+}
+
+export interface ProductDetailResDto {
+  id: string;
+  code: string;
+  name: string;
+  description: string;
+  status: string;
+  imageUrl: string;
+  createdByUserId: string;
+  lastModifiedByUserId: string;
+  lastModifiedDate: string;
+  createdOnDate: string;
+  publicOnDate: string;
+  sortOrder: string;
+  workFlowStates: string;
+  completeName: string;
+  completePath: string;
+  completeCode: string;
+  mainCategoryId: string;
+  metadataObj: MetadataObj[];
+  labelsObjs: LabelsObjs[];
 }

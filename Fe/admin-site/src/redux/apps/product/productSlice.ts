@@ -2,14 +2,17 @@ import { createSlice, PayloadAction } from "@reduxjs/toolkit";
 import { addLoadingCases } from "@/utils/redux.utils";
 import { createAppThunk } from "@/utils/createThunk";
 import { PaginationParams } from "@/types/common/pagination";
-import ProductReqDto, { ProductResDto } from "@/types/product/product";
+import ProductReqDto, {
+  ProductDetailResDto,
+  ProductResDto,
+} from "@/types/product/product";
 import productService from "@/redux/api/productApi";
 import { PRODUCT_MESSAGES } from "@/constants/product.constants";
 
 export interface InitState {
   loading: boolean;
   error: string | null;
-  product: ProductReqDto | null;
+  product: ProductDetailResDto | null;
   products: ProductResDto[];
   pagination: {
     currentPage: number;
@@ -32,6 +35,21 @@ const initialState: InitState = {
   },
 };
 
+export const fetchProducts = createAppThunk(
+  "products/fetch",
+  async (params: PaginationParams) => {
+    const response = await productService.getProducts(params);
+    return response;
+  }
+);
+export const fetchProductById = createAppThunk(
+  "product/fetch",
+  async (id: string) => {
+    const response = await productService.getProductById(id);
+    return response;
+  }
+);
+
 export const createProduct = createAppThunk(
   "product/create",
   productService.createProductReq,
@@ -41,11 +59,15 @@ export const createProduct = createAppThunk(
   }
 );
 
-export const fetchProducts = createAppThunk(
-  "products/fetch",
-  async (params: PaginationParams) => {
-    const response = await productService.getProducts(params);
+export const updateProduct = createAppThunk(
+  "product/update",
+  async ({ id, data }: { id: string; data: Partial<ProductReqDto> }) => {
+    const response = await productService.updateProductReq(id, data);
     return response;
+  },
+  {
+    successMessage: PRODUCT_MESSAGES.UPDATE_PRODUCT.SUCCESS,
+    errorMessage: PRODUCT_MESSAGES.UPDATE_PRODUCT.ERROR,
   }
 );
 
@@ -86,13 +108,30 @@ const productSlice = createSlice({
       },
     });
 
+    // Fetch by ID
+    addLoadingCases(builder, fetchProductById, {
+      onFulfilled: (state, action) => {
+        state.loading = false;
+        state.product = action.payload;
+      },
+    });
+
     // Create product
     addLoadingCases(builder, createProduct, {
       onFulfilled: (state, action) => {
         state.loading = false;
         // state.product = action?.payload ?? null;
         state.products = [action.payload, ...state.products];
+      },
+    });
 
+    // Update
+    addLoadingCases(builder, updateProduct, {
+      onFulfilled: (state, action) => {
+        state.loading = false;
+        state.products = state.products.map((product) =>
+          product.id === action.payload.id ? action.payload : product
+        );
       },
     });
 

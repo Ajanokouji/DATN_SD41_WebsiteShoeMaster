@@ -1,4 +1,4 @@
-import CategoryReqDto, { CategoryResDetailDto, CategoryResDto } from "@/types/category/category";
+import CategoryReqDto, { CategoryDetailResDto, CategoryResDto } from "@/types/category/category";
 import httpClient from "./agent";
 import { PaginatedResponse, PaginationParams } from "@/types/common/pagination";
 
@@ -11,6 +11,7 @@ class CategoryService {
 
   private constructor() {
     this.getCategories = this.getCategories.bind(this);
+    this.getCategoryById = this.getCategoryById.bind(this);
     this.createCategoryReq = this.createCategoryReq.bind(this);
     this.deleteCategoryReq = this.deleteCategoryReq.bind(this);
     this.updateCategoryReq = this.updateCategoryReq.bind(this);
@@ -39,9 +40,9 @@ class CategoryService {
     }
   }
 
-  async getCategoryById(id: string): Promise<CategoryResDetailDto> {
+  async getCategoryById(id: string): Promise<CategoryDetailResDto> {
     try {
-      const response = await httpClient.get<{ data: CategoryResDetailDto }>(
+      const response = await httpClient.get<{ data: CategoryDetailResDto }>(
         `${this.endpoints.categories}/${id}`
       );
       return response.data;

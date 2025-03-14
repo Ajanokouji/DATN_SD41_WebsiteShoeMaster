@@ -3,7 +3,7 @@ import { addLoadingCases } from "@/utils/redux.utils";
 import { createAppThunk } from "@/utils/createThunk";
 import { CATEGORY_MESSAGES } from "@/constants/category.constants";
 import CategoryReqDto, {
-  CategoryResDetailDto,
+  CategoryDetailResDto,
   CategoryResDto,
 } from "@/types/category/category";
 import categoryService from "@/redux/api/categoryApi";
@@ -12,7 +12,7 @@ import { PaginationParams } from "@/types/common/pagination";
 export interface InitState {
   loading: boolean;
   error: string | null;
-  category: CategoryResDetailDto | null;
+  category: CategoryDetailResDto | null;
   categories: CategoryResDto[];
   pagination: {
     currentPage: number;
