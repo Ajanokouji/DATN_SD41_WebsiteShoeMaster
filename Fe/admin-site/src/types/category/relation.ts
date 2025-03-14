@@ -1,14 +1,14 @@
 import { PaginationParams } from "../common/pagination";
 
-export default interface CategoryReqDto {
+export default interface RelationReqDto {
   code: string;
   name: string;
   description: string;
   type: string;
   completeCode: string;
-  completeName:string;
-  completePath:string;
-  parentPath:string;
+  completeName: string;
+  completePath: string;
+  parentPath: string;
   metadataObj: MetadataObj[];
   createdByUserId: string;
   lastModifiedByUserId: string;
@@ -34,26 +34,28 @@ export interface FieldSelectionValues {
   order: number;
 }
 
-export interface CategoryResDto {
+export interface RelationResDto {
   id: string;
-  code: string;
-  name: string;
-  sortOrder: number | null;
+  idProduct: string;
+  categoriesId: string;
+  productName: string;
+  categoryName: string;
+  order: number | null;
   description: string | null;
   createdOnDate: string;
   lastModifiedOnDate: string;
 }
 
-export interface CategoryDetailResDto {
+export interface RelationDetailResDto {
   id: string;
   code: string;
   name: string;
   description: string;
   type: string;
   completeCode: string;
-  completeName:string;
-  completePath:string;
-  parentPath:string;
+  completeName: string;
+  completePath: string;
+  parentPath: string;
   metadataObj: MetadataObj[];
   createdByUserId: string;
   lastModifiedByUserId: string;
@@ -62,7 +64,11 @@ export interface CategoryDetailResDto {
   sortOrder: number;
 }
 
-export interface CategoryFilterParams extends PaginationParams {
-  Name?: string;
-  Code?: string;
+export interface RelationFilterParams extends PaginationParams {
+  IdDanhMuc?: string;
+  IdSanPham?: string;
+  TenSanPham?: string;
+  TenDanhMuc?: string;
+  status?: string;
+  name?: string;
 }
