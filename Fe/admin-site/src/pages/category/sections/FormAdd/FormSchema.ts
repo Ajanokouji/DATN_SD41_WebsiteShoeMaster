@@ -1,10 +1,14 @@
-// CategoryFormSchema.ts
 import * as z from "zod";
 
 export const categoryFormSchema = z.object({
   code: z.string().min(1, "Code is required"),
   name: z.string().min(1, "Name is required"),
   description: z.string(),
+  type: z.string(),
+  completeCode: z.string(),
+  completeName: z.string(),
+  completePath: z.string(),
+  parentPath: z.string(),
   metadataObj: z.array(
     z.object({
       fieldName: z.string().min(1, "Field name is required"),
@@ -15,7 +19,7 @@ export const categoryFormSchema = z.object({
       fieldValueType: z.string(),
       fieldSelectionValues: z.array(
         z.object({
-          key: z.number(),
+          key: z.string(),
           code: z.string(),
           value: z.string(),
           order: z.number()
@@ -26,7 +30,7 @@ export const categoryFormSchema = z.object({
   sortOrder: z.number(),
   createdByUserId: z.string(),
   lastModifiedByUserId: z.string(),
-  lastModifiedDate: z.string(),
+  lastModifiedOnDate: z.string(),
   createdOnDate: z.string(),
 });
 

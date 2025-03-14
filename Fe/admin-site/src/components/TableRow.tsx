@@ -12,16 +12,22 @@ type TableRowProps<T> = {
     render?: (value: T[keyof T], data: T) => React.ReactNode;
     isActionColumn?: boolean;
     action?: (data: T) => void;
+    deleteAction?: (id: string) => void;
+    updateAction?: (id: string) => void;
   }[];
 };
 
-const TableRowComponent = <T,>({ data, columns }: TableRowProps<T>) => {
+const TableRowComponent = <T extends { id: string },>({ data, columns }: TableRowProps<T>) => {
   const [isModalDeleteOpen, setModalDeleteOpen] = useState(false);
 
   const handleDelete = () => {
-    console.log("Item deleted");
+    if (data) {
+      const deleteColumn = columns.find(col => col.deleteAction);
+      deleteColumn?.deleteAction?.(data.id);
+    }
     setModalDeleteOpen(false);
   };
+
   return (
     <>
       <TableRow>
@@ -31,34 +37,43 @@ const TableRowComponent = <T,>({ data, columns }: TableRowProps<T>) => {
             className={`${column.className || ""} py-4 text-center`}
           >
             {column.isActionColumn ? (
-              <div className="flex flex-grow gap-2">
-                <button onClick={() => column.action?.(data!)}>
-                  <LuSquarePen className="text-indigo-600" size={20} />
-                </button>
-                <button onClick={() => column.action?.(data!)}>
-                  <RiDeleteBin3Line
-                    className="text-red-600"
-                    size={20}
-                    onClick={() => setModalDeleteOpen(true)}
-                  />
-                </button>
-              </div>
-            ) : column.render ? (
               data ? (
-                column.render(data[column.key!], data)
+                <div className="flex flex-grow gap-2">
+                  <button onClick={() => column.updateAction && column.updateAction(data.id)}>
+                    <LuSquarePen className="text-indigo-600" size={20} />
+                  </button>
+                  <button onClick={() => setModalDeleteOpen(true)}>
+                    <RiDeleteBin3Line className="text-red-600" size={20} />
+                  </button>
+                </div>
               ) : null
+            ) : column.render && data ? (
+              column.render(data[column.key!], data)
+            ) : data && column.key ? (
+              typeof data[column.key] === "string" &&
+              (data[column.key] as string).startsWith("http") ? (
+                <img
+                  src={data[column.key] as string}
+                  alt="Product"
+                  className="h-12 w-12 object-cover rounded"
+                />
+              ) : (
+                String(data[column.key])
+              )
             ) : (
-              String(data![column.key!])
+              "-"
             )}
           </TableCell>
         ))}
       </TableRow>
-      <ConfirmDeleteModal
-        isOpen={isModalDeleteOpen}
-        onClose={() => setModalDeleteOpen(false)}
-        onConfirm={handleDelete}
-        itemName="Sample Item"
-      />
+      {data && (
+        <ConfirmDeleteModal
+          isOpen={isModalDeleteOpen}
+          onClose={() => setModalDeleteOpen(false)}
+          onConfirm={handleDelete}
+          itemName={data.id}
+        />
+      )}
     </>
   );
 };

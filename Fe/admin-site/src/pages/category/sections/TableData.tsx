@@ -1,27 +1,34 @@
+import React, { useEffect, useState } from "react";
 import Pagination from "@/components/Pagination";
 import TableHeaderComponent from "@/components/TableHeader";
 import TableRowComponent from "@/components/TableRow";
 import { Table, TableBody } from "@/components/ui/table";
-import { categories } from "@/types/category/seed";
-import CategoryTableProps from "@/types/category/table";
-import React from "react";
+import TableProps from "@/types/common/table";
+import { useAppDispatch } from "@/hooks/use-app-dispatch";
+import { useAppSelector } from "@/hooks/use-app-selector";
+import {
+  selectCategories,
+  selectPagination,
+} from "@/redux/apps/category/categorySelector";
+import {
+  deleteCategory,
+  fetchCategories,
+  setPage,
+  setPageSize,
+} from "@/redux/apps/category/categorySlice";
+import { CategoryResDto } from "@/types/category/category";
+import DetailCategorySheet from "./UpdateDetail/DetailCategorySheet";
 
-type Category = {
-  index: number;
-  code: string;
-  name: string;
-  source: string;
-  description : string;
-  creator : string;
-  createAt: string;
-};
-
-const CategoryTable = <T,>({ headers, data, columns }: CategoryTableProps<T>) => (
+const CategoryTable = <T extends { id: string }>({
+  headers,
+  data,
+  columns,
+}: TableProps<T>) => (
   <div className="border border-gray-300 rounded-t-xl overflow-hidden">
     {/* <Table className="w-full">
       <TableHeaderComponent headers={headers} />
     </Table> */}
-    <div className="md:max-h-80 lg:max-h-full max-w-full overflow-x-auto overflow-y-auto">
+    <div className="max-h-[58vh] max-w-full overflow-x-auto overflow-y-auto">
       <Table className="w-full">
         <TableHeaderComponent headers={headers} className="text-center" />
         <TableBody>
@@ -43,47 +50,93 @@ const CategoryTable = <T,>({ headers, data, columns }: CategoryTableProps<T>) =>
 );
 
 const CategoriesTable: React.FC = () => {
+  const dispatch = useAppDispatch();
+  const products = useAppSelector(selectCategories);
+  const pagination = useAppSelector(selectPagination);
+  const [isOpenUpdate, setIsOpenUpdate] = useState(false);
+  const [selectedCategoryId, setSelectedCategoryId] = useState<string | null>(null);
+
+  const handleOpenDialogUpdate = (id: string) => {
+    setIsOpenUpdate(true);
+    setSelectedCategoryId(id);
+  };
+
   const headers = [
-    { label: "#", className: "text-center" },
-    { label: "Code" },
+    { label: "Code", className: "text-center" },
     { label: "Name" },
-    { label: "Source" },
     { label: "Description" },
-    { label: "Creator" },
     { label: "Create At" },
     { label: " " },
   ];
 
   const columns: {
-    key?: keyof Category;
+    key?: keyof CategoryResDto;
     className?: string;
     isActionColumn?: boolean;
-    action?: (data: Category) => void;
+    action?: (data: CategoryResDto) => void;
+    deleteAction?: (id: string) => void;
+    updateAction?: (id: string) => void;
   }[] = [
-    { key: "index", className: "text-center" },
-    { key: "code" },
+    { key: "code", className: "text-center" },
     { key: "name" },
-    { key: "source" },
     { key: "description" },
-    { key: "creator" },
-    { key: "createAt" },
+    { key: "createdOnDate" },
     {
       isActionColumn: true,
       className: "text-center",
       action: (category) => {
         console.log("Performing action for:", category);
       },
+      deleteAction: (id: string) => {
+        dispatch(deleteCategory(id));
+      },
+      updateAction: (id: string) => {
+        handleOpenDialogUpdate(id);
+      },
     },
   ];
 
+  useEffect(() => {
+    dispatch(
+      fetchCategories({
+        CurrentPage: pagination.currentPage,
+        PageSize: pagination.pageSize,
+      })
+    );
+  }, [dispatch, pagination.currentPage, pagination.pageSize]);
+
+  // Xử lý khi thay đổi trang
+  const handlePageChange = (newPage: number) => {
+    dispatch(setPage(newPage));
+  };
+
+  // Xử lý khi thay đổi số lượng sản phẩm trên trang
+  const handlePageSizeChange = (newSize: number) => {
+    dispatch(setPageSize(newSize));
+  };
+
   return (
     <section className="mt-10">
-      <CategoryTable<Category>
+      <CategoryTable<CategoryResDto>
         headers={headers}
-        data={categories}
+        data={products}
         columns={columns}
       />
-      <Pagination />
+      <Pagination
+        currentPage={pagination.currentPage}
+        totalPages={pagination.totalPages}
+        pageSize={pagination.pageSize}
+        totalRecords={pagination.totalRecords}
+        onPageChange={handlePageChange}
+        onPageSizeChange={handlePageSizeChange}
+      />
+      {isOpenUpdate && selectedCategoryId && (
+        <DetailCategorySheet
+          categoryId={selectedCategoryId}
+          isOpen={isOpenUpdate}
+          onClose={() => setIsOpenUpdate(false)}
+        />
+      )}
     </section>
   );
 };

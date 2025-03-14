@@ -1,15 +1,19 @@
-import CategoryReqDto from "@/types/category/category";
+import CategoryReqDto, { CategoryResDto } from "@/types/category/category";
 import httpClient from "./agent";
+import { PaginatedResponse, PaginationParams } from "@/types/common/pagination";
 
 class CategoryService {
   private static instance: CategoryService;
 
   private readonly endpoints = {
-    createCategory: "/category",
+    categories: "/Categories",
   };
 
   private constructor() {
+    this.getCategories = this.getCategories.bind(this);
     this.createCategoryReq = this.createCategoryReq.bind(this);
+    this.deleteCategoryReq = this.deleteCategoryReq.bind(this);
+    this.updateCategoryReq = this.updateCategoryReq.bind(this);
   }
 
   static getInstance(): CategoryService {
@@ -19,16 +23,55 @@ class CategoryService {
     return CategoryService.instance;
   }
 
-  async createCategoryReq(userData: CategoryReqDto): Promise<CategoryReqDto> {
+  async getCategories(
+    params: PaginationParams
+  ): Promise<PaginatedResponse<CategoryResDto>> {
     try {
-      const response = await httpClient.post<CategoryReqDto>(
-        this.endpoints.createCategory,
-        userData
+      const response = await httpClient.post<PaginatedResponse<CategoryResDto>>(
+        `${this.endpoints.categories}/filter`,
+        {},
+        { params }
       );
       return response;
     } catch (error) {
+      console.log("Fetch categories error:", error);
+      throw new Error(`Fetch categories failed: ${error}`);
+    }
+  }
+
+  async createCategoryReq(formData: CategoryReqDto): Promise<CategoryResDto> {
+    try {
+      const response = await httpClient.post<{ data: CategoryResDto }>(
+        this.endpoints.categories,
+        formData
+      );
+      return response.data;
+    } catch (error) {
       console.log("Create category error:", error);
       throw new Error(`Create category failed: ${error}`);
+    }
+  }
+
+  async updateCategoryReq(id: string, formData: Partial<CategoryReqDto>): Promise<CategoryResDto> {
+    try {
+      const response = await httpClient.patch<{ data: CategoryResDto }>(
+        `${this.endpoints.categories}/${id}`,
+        formData
+      );
+      return response.data;
+    } catch (error) {
+      console.log("Update category error:", error);
+      throw new Error(`Update category failed: ${error}`);
+    }
+  }
+  
+
+  async deleteCategoryReq(id: string): Promise<void> {
+    try {
+      await httpClient.delete(`${this.endpoints.categories}/${id}`);
+    } catch (error) {
+      console.log("Delete category error:", error);
+      throw new Error(`Delete category failed: ${error}`);
     }
   }
 }

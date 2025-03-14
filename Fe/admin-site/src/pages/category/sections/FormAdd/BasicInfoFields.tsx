@@ -1,6 +1,6 @@
 // BasicInfoFields.tsx
 import React from "react";
-import { Control } from "react-hook-form";
+import { Control, useController, useWatch } from "react-hook-form";
 import {
   FormControl,
   FormDescription,
@@ -17,9 +17,40 @@ interface BasicInfoFieldsProps {
   control: Control<CategoryFormSchema>;
 }
 
-export const BasicInfoFields: React.FC<BasicInfoFieldsProps> = ({
-  control,
-}) => {
+const formatType = (name: string) => {
+  return name
+    .toLowerCase()
+    .normalize("NFD")
+    .replace(/\p{Diacritic}/gu, "")
+    .replace(/[^a-z0-9]+/g, "-")
+    .replace(/(^-|-$)/g, "");
+};
+
+export const BasicInfoFields: React.FC<BasicInfoFieldsProps> = ({ control }) => {
+  const nameValue = useWatch({ control, name: "name" });
+  const codeValue = useWatch({ control, name: "code" });
+
+  const { field: typeField } = useController({ control, name: "type" });
+  const { field: completeCodeField } = useController({ control, name: "completeCode" });
+  const { field: completeNameField } = useController({ control, name: "completeName" });
+  const { field: completePathField } = useController({ control, name: "completePath" });
+
+
+  React.useEffect(() => {
+    if (nameValue) {
+      const formattedType = formatType(nameValue);
+      typeField.onChange(formattedType);
+      completeNameField.onChange(nameValue + " complete");
+      completePathField.onChange(`/${formattedType}`);
+    }
+  }, [nameValue, typeField, completeNameField, completePathField]);
+
+  React.useEffect(() => {
+    if (codeValue) {
+      completeCodeField.onChange(codeValue + " complete");
+    }
+  }, [codeValue, completeCodeField]);
+  
   return (
     <>
       <div className="grid grid-cols-2 gap-4">

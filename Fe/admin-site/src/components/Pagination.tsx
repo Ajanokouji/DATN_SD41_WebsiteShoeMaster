@@ -1,32 +1,40 @@
+import { PaginationProps } from "@/types/common/pagination";
 import { ChevronLeft, ChevronRight } from "lucide-react";
 import React, { useState } from "react";
 
-const Pagination = () => {
-  const [currentPage, setCurrentPage] = useState(1);
-  const totalPages = 6; // Tổng số trang
+const Pagination: React.FC<PaginationProps> = ({
+  currentPage,
+  totalPages,
+  pageSize,
+  totalRecords,
+  onPageChange,
+  onPageSizeChange,
+}) => {
   const pageSizeOptions = [20, 50, 100];
-  const [pageSize, setPageSize] = useState(20);
+  const pageChunkSize = 6; // Hiển thị mỗi lần 6 trang
+  const [startPage, setStartPage] = useState(1);
 
-  const handlePageChange = (page: number) => {
-    setCurrentPage(page);
+  const handleNextRange = () => {
+    setStartPage((prev) => Math.min(prev + pageChunkSize, totalPages - pageChunkSize + 1));
   };
 
-  const handlePageSizeChange = (e: React.ChangeEvent<HTMLSelectElement>) => {
-    setPageSize(parseInt(e.target.value, 10));
-    setCurrentPage(1);
+  const handlePrevRange = () => {
+    setStartPage((prev) => Math.max(prev - pageChunkSize, 1));
   };
+
+  const endPage = Math.min(startPage + pageChunkSize - 1, totalPages);
 
   return (
     <div className="flex items-center justify-between py-4">
       <div className="text-sm text-gray-600">
-        Viewss {(currentPage - 1) * pageSize + 1}-
-        {Math.min(currentPage * pageSize, 3459)} / 3459 category
+        Views {(currentPage - 1) * pageSize + 1}- 
+        {Math.min(currentPage * pageSize, totalRecords)} / {totalRecords} items
       </div>
 
       <div className="flex items-center gap-4">
         <select
           value={pageSize}
-          onChange={handlePageSizeChange}
+          onChange={(e) => onPageSizeChange(parseInt(e.target.value, 10))}
           className="rounded-full border border-gray-300 bg-white px-2 py-1 text-sm focus:outline-none focus:ring-2 focus:ring-gray-500"
         >
           {pageSizeOptions.map((size) => (
@@ -38,29 +46,50 @@ const Pagination = () => {
 
         <div className="flex items-center gap-1">
           <button
-            onClick={() => handlePageChange(currentPage - 1)}
+            onClick={() => onPageChange(currentPage - 1)}
             disabled={currentPage === 1}
             className="rounded-full border border-gray-300 p-1 w-8 text-gray-600 disabled:cursor-not-allowed disabled:opacity-50"
           >
             <ChevronLeft />
           </button>
 
-          {Array.from({ length: totalPages }).map((_, index) => (
+          {startPage > 1 && (
             <button
-              key={index}
-              onClick={() => handlePageChange(index + 1)}
-              className={`rounded-full border p-1 w-8 ${
-                currentPage === index + 1
-                  ? "bg-gray-500 text-white"
-                  : "border-gray-300 text-gray-600"
-              }`}
+              onClick={handlePrevRange}
+              className="rounded-full border p-1 w-8 border-gray-300 text-gray-600"
             >
-              {index + 1}
+              ...
             </button>
-          ))}
+          )}
+
+          {Array.from({ length: endPage - startPage + 1 }).map((_, index) => {
+            const pageNumber = startPage + index;
+            return (
+              <button
+                key={pageNumber}
+                onClick={() => onPageChange(pageNumber)}
+                className={`rounded-full border p-1 w-8 ${
+                  currentPage === pageNumber
+                    ? "bg-gray-500 text-white"
+                    : "border-gray-300 text-gray-600"
+                }`}
+              >
+                {pageNumber}
+              </button>
+            );
+          })}
+
+          {endPage < totalPages && (
+            <button
+              onClick={handleNextRange}
+              className="rounded-full border p-1 w-8 border-gray-300 text-gray-600"
+            >
+              ...
+            </button>
+          )}
 
           <button
-            onClick={() => handlePageChange(currentPage + 1)}
+            onClick={() => onPageChange(currentPage + 1)}
             disabled={currentPage === totalPages}
             className="rounded-full border border-gray-300 p-1 w-8 text-gray-600 disabled:cursor-not-allowed disabled:opacity-50"
           >

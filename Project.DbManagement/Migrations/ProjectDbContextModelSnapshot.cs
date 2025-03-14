@@ -470,11 +470,9 @@ namespace Project.DbManagement.Migrations
                         .HasColumnType("datetime2");
 
                     b.Property<string>("RelatedObj2Json")
-                        .IsRequired()
                         .HasColumnType("nvarchar(max)");
 
                     b.Property<string>("RelatedObjJson")
-                        .IsRequired()
                         .HasColumnType("nvarchar(max)");
 
                     b.Property<string>("RelationType")

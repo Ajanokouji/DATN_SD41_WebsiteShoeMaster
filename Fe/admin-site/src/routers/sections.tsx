@@ -8,11 +8,11 @@ export const LoadingPage = lazy(() => import("@/pages/shared/LoadingPage"));
 export const IndexPage = lazy(() => import("@/pages/dashboard"));
 
 export const CategoryPage = lazy(() => import("@/pages/category"));
+export const ProductPage = lazy(() => import("@/pages/product"));
 
 // export const LoginPage = lazy(() => import("../pages/auth/Login"));
 // export const RegisterPage = lazy(() => import("../pages/auth/Register"));
 export const Page404 = lazy(() => import("../pages/shared/NotFoundPage"));
-
 
 // ----------------------------------------------------------------------
 
@@ -21,7 +21,7 @@ export const Page404 = lazy(() => import("../pages/shared/NotFoundPage"));
 // };
 
 export default function Router() {
-//   const isAuthenticated = useAuth();
+  //   const isAuthenticated = useAuth();
 
   const PrivateRoute = ({ children }: { children: JSX.Element }) => {
     // const isAuthenticated = useAuth();
@@ -48,6 +48,10 @@ export default function Router() {
         {
           path: "category",
           element: <CategoryPage />,
+        },
+        {
+          path: "product",
+          element: <ProductPage />,
         },
       ],
     },

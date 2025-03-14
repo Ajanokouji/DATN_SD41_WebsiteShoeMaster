@@ -105,6 +105,16 @@ class HttpClient {
     }
   }
 
+  async patch<T>(url: string, data?: any, config?: AxiosRequestConfig): Promise<T> {
+    try {
+      const response = await this.axiosInstance.patch<T>(url, data, config);
+      return response.data;
+    } catch (error: any) {
+      console.error(`PATCH request failed: ${url}`, error);
+      throw error?.response?.data || error;
+    }
+  }  
+
   async delete<T>(url: string, config?: AxiosRequestConfig): Promise<T> {
     try {
       const response = await this.axiosInstance.delete<T>(url, config);

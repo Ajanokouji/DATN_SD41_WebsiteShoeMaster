@@ -1,0 +1,10 @@
+{
+  "profiles": {
+    "CrawlDataV2": {
+      "commandName": "Project"
+    },
+    "Container (Dockerfile)": {
+      "commandName": "Docker"
+    }
+  }
+}
