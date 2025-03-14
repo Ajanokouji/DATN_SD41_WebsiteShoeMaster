@@ -1,6 +1,6 @@
-import CategoryReqDto, { CategoryDetailResDto, CategoryResDto } from "@/types/category/category";
+import CategoryReqDto, { CategoryDetailResDto, CategoryFilterParams, CategoryResDto } from "@/types/category/category";
 import httpClient from "./agent";
-import { PaginatedResponse, PaginationParams } from "@/types/common/pagination";
+import { PaginatedResponse } from "@/types/common/pagination";
 
 class CategoryService {
   private static instance: CategoryService;
@@ -25,7 +25,7 @@ class CategoryService {
   }
 
   async getCategories(
-    params: PaginationParams
+    params: CategoryFilterParams
   ): Promise<PaginatedResponse<CategoryResDto>> {
     try {
       const response = await httpClient.post<PaginatedResponse<CategoryResDto>>(

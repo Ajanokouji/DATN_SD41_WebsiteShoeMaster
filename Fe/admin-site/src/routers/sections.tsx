@@ -9,6 +9,10 @@ export const IndexPage = lazy(() => import("@/pages/dashboard"));
 
 export const CategoryPage = lazy(() => import("@/pages/category"));
 export const ProductPage = lazy(() => import("@/pages/product"));
+export const RelationPage = lazy(() => import("@/pages/relation"));
+export const VoucherPage = lazy(() => import("@/pages/voucher"));
+export const ContactPage = lazy(() => import("@/pages/contact"));
+
 export const CustomerPage = lazy(() => import("@/pages/customer"));
 // export const LoginPage = lazy(() => import("../pages/auth/Login"));
 // export const RegisterPage = lazy(() => import("../pages/auth/Register"));
@@ -54,6 +58,17 @@ export default function Router() {
           element: <ProductPage />,
         },
         {
+          path: "relation",
+          element: <RelationPage />,
+        },
+        {
+          path: "voucher",
+          element: <VoucherPage />,
+        },
+        {
+          path: "contact",
+          element: <ContactPage />,
+        },
           path: "customer",
           element: <CustomerPage />,
         }

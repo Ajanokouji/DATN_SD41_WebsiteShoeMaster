@@ -4,10 +4,10 @@ import { createAppThunk } from "@/utils/createThunk";
 import { CATEGORY_MESSAGES } from "@/constants/category.constants";
 import CategoryReqDto, {
   CategoryDetailResDto,
+  CategoryFilterParams,
   CategoryResDto,
 } from "@/types/category/category";
 import categoryService from "@/redux/api/categoryApi";
-import { PaginationParams } from "@/types/common/pagination";
 
 export interface InitState {
   loading: boolean;
@@ -37,7 +37,7 @@ const initialState: InitState = {
 
 export const fetchCategories = createAppThunk(
   "categories/fetch",
-  async (params: PaginationParams) => {
+  async (params: CategoryFilterParams) => {
     const response = await categoryService.getCategories(params);
     return response;
   }
