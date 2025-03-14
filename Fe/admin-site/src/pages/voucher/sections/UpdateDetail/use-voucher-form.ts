@@ -2,6 +2,7 @@ import { useEffect, useState } from "react";
 import { useForm } from "react-hook-form";
 import { useAppDispatch } from "@/hooks/use-app-dispatch";
 import {
+  fetchVoucherById,
   updateVoucher,
 } from "@/redux/apps/voucher/voucherSlice";
 
@@ -20,7 +21,9 @@ export const useVoucherForm = (
 ) => {
   const dispatch = useAppDispatch();
   const [isEditing, setIsEditing] = useState(false);
+  const [isLoading, setIsLoading] = useState(false);
 
+  // Initialize form with empty values
   const methods = useForm<FormData>({
     defaultValues: {
       voucherName: "",
@@ -29,24 +32,31 @@ export const useVoucherForm = (
     }
   });
 
-  const { reset } = methods;
-
-  // Update form values when voucher data changes
+  // Reset form with voucher data when it's available
   useEffect(() => {
     if (voucher) {
-      reset({
+      methods.reset({
         voucherName: voucher.voucherName || "",
         startDate: voucher.startDate || "",
         endDate: voucher.endDate || "",
         // Add other fields as needed
       });
     }
-  }, [voucher, reset]);
+  }, [voucher, methods]);
 
-  const handleSubmit = (formData: FormData) => {
+  // Fetch voucher data when voucherId changes
+  useEffect(() => {
+    if (voucherId) {
+      setIsLoading(true);
+      dispatch(fetchVoucherById(voucherId))
+        .finally(() => setIsLoading(false));
+    }
+  }, [dispatch, voucherId]);
+
+  const handleSubmit = (value: FormData) => {
     const updatedVoucher = {
       ...voucher,
-      ...formData,
+      ...value,
     };
 
     dispatch(updateVoucher({ id: voucherId, data: updatedVoucher }));
@@ -54,22 +64,11 @@ export const useVoucherForm = (
     onClose();
   };
 
-  const resetForm = () => {
-    if (voucher) {
-      reset({
-        voucherName: voucher.voucherName || "",
-        startDate: voucher.startDate || "",
-        endDate: voucher.endDate || "",
-        // Add other fields as needed
-      });
-    }
-  };
-
   return {
     isEditing,
     setIsEditing,
+    isLoading,
     methods,
     handleSubmit,
-    resetForm,
   };
 };

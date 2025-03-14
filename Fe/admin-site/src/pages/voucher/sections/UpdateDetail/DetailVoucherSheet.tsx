@@ -38,7 +38,6 @@ const DetailVoucherSheet: React.FC<DetailVoucherSheetProps> = ({
         <SheetHeader>
           <SheetTitle className="text-xl font-semibold text-gray-700">
             Detail Voucher: {voucher?.voucherName}
-            Detail Voucher: {voucher?.id}
           </SheetTitle>
           <SheetDescription />
         </SheetHeader>
