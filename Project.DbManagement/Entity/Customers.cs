@@ -17,19 +17,30 @@ namespace Project.DbManagement
         [NotMapped]
         public List<Guid> TTLHRelatedIds { get; set; }
 
-        public string? TTLHRelateIdsJson {  
+        public string? TTLHRelateIdsJson
+        {
             get
             {
-                return TTLHRelatedIds == null ? null : string.Join(",", TTLHRelatedIds);
+                return TTLHRelatedIds == null ? null : JsonConvert.SerializeObject(TTLHRelatedIds);
             }
-            set { 
-                  if(string.IsNullOrWhiteSpace(value))
+            set
+            {
+                if (string.IsNullOrWhiteSpace(value))
                 {
                     TTLHRelatedIds = null;
                     return;
                 }
-                  this.TTLHRelatedIds= JsonConvert.DeserializeObject<List<Guid>>(value);
-            } }
+                try
+                {
+                    TTLHRelatedIds = JsonConvert.DeserializeObject<List<Guid>>(value);
+                }
+                catch (JsonReaderException ex)
+                {
+                    // Handle the exception or log the error
+                    TTLHRelatedIds = null;
+                }
+            }
+        }
         public string? Name { get; set; }
         public string? PhoneNumber { get; set; }
         public string? Email { get; set; }

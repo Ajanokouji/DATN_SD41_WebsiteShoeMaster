@@ -14,7 +14,7 @@ namespace Project.Business.Model
         public Guid? Id { get; set; }
         public string? Code { get; set; }
         public Guid? TTTHIDMain { get; set; }
-        public List<Guid> TTLHRelatedIds { get; set; }
+        public List<Guid>? TTLHRelatedIds { get; set; }
         public string? Ten { get; set; }
         public string? PhoneNumber { get; set; }
         public string? Email { get; set; }
