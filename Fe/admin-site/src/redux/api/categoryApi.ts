@@ -1,4 +1,4 @@
-import CategoryReqDto, { CategoryResDto } from "@/types/category/category";
+import CategoryReqDto, { CategoryResDetailDto, CategoryResDto } from "@/types/category/category";
 import httpClient from "./agent";
 import { PaginatedResponse, PaginationParams } from "@/types/common/pagination";
 
@@ -38,6 +38,19 @@ class CategoryService {
       throw new Error(`Fetch categories failed: ${error}`);
     }
   }
+
+  async getCategoryById(id: string): Promise<CategoryResDetailDto> {
+    try {
+      const response = await httpClient.get<{ data: CategoryResDetailDto }>(
+        `${this.endpoints.categories}/${id}`
+      );
+      return response.data;
+    } catch (error) {
+      console.log("Get category by ID error:", error);
+      throw new Error(`Get category by ID failed: ${error}`);
+    }
+  }
+  
 
   async createCategoryReq(formData: CategoryReqDto): Promise<CategoryResDto> {
     try {
