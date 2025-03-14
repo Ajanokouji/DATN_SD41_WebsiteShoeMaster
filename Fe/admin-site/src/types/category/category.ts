@@ -38,8 +38,24 @@ export interface CategoryResDto {
   name: string;
   sortOrder: number | null;
   description: string | null;
-  mainCategoryId: string;
   createdOnDate: string;
   lastModifiedOnDate: string;
-  isdeleted: boolean;
+}
+
+export interface CategoryResDetailDto {
+  id: string;
+  code: string;
+  name: string;
+  description: string;
+  type: string;
+  completeCode: string;
+  completeName:string;
+  completePath:string;
+  parentPath:string;
+  metadataObj: MetadataObj[];
+  createdByUserId: string;
+  lastModifiedByUserId: string;
+  lastModifiedOnDate: string;
+  createdOnDate: string;
+  sortOrder: number;
 }
