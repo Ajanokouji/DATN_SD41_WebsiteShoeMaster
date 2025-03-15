@@ -16,9 +16,10 @@ namespace Project.Business.Model
         public string? Status { get; set; }
         public string? Type { get; set; }
         public string? Description { get; set; }
-        public Guid? DanhMucId { get; set; }
+        public Guid? MainCategoryId { get; set; }
         public string? WorkFlowStates { get; set; }
         public DateTime? PublicOnDate { get; set; }
+        public bool IsSelectMetadata { get; set; } = false;
 
     }
 }

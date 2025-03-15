@@ -25,7 +25,7 @@
             <div class="col-lg-6">
                 <div class="row">
                     <div class="col-lg-6 col-md-6 col-sm-6 p-0">
-                        <div class="categories__item set-bg" data-setbg="assets/images/categories/category-2.jpg">
+                        <div class="categories__item set-bg" data-setbg="assets/images/topcategories/category-2.jpg">
                             <div class="categories__text">
                                 <h4>Giày chạy bộ</h4>
                                 <p>358 sản phẩm</p>
@@ -34,7 +34,7 @@
                         </div>
                     </div>
                     <div class="col-lg-6 col-md-6 col-sm-6 p-0">
-                        <div class="categories__item set-bg" data-setbg="assets/images/categories/category-3.jpg">
+                        <div class="categories__item set-bg" data-setbg="assets/images/topcategories/category-3.jpg">
                             <div class="categories__text">
                                 <h4>Giày bóng rổ</h4>
                                 <p>273 sản phẩm</p>
@@ -43,7 +43,7 @@
                         </div>
                     </div>
                     <div class="col-lg-6 col-md-6 col-sm-6 p-0">
-                        <div class="categories__item set-bg" data-setbg="assets/images/categories/category-4.jpg">
+                        <div class="categories__item set-bg" data-setbg="assets/images/topcategories/category-4.jpg">
                             <div class="categories__text">
                                 <h4>Giày tennis</h4>
                                 <p>159 sản phẩm</p>
@@ -52,7 +52,7 @@
                         </div>
                     </div>
                     <div class="col-lg-6 col-md-6 col-sm-6 p-0">
-                        <div class="categories__item set-bg" data-setbg="assets/images/categories/category-5.jpg">
+                        <div class="categories__item set-bg" data-setbg="assets/images/topcategories/category-5.jpg">
                             <div class="categories__text">
                                 <h4>Giày tập gym</h4>
                                 <p>792 sản phẩm</p>
@@ -71,7 +71,8 @@
 <section class="product spad">
     @await Component.InvokeAsync("BlockProductsByFilter", new BlockProductsByFilterRequestModel(){
         QueryModel = new ProductQueryModel(){
-            PageSize=4
+            PageSize=4,
+        MainCategoryId=Guid.Parse("61646964-6173-0000-0000-000000000000")
         },
         ViewName="BlockProductsByFilter"
     })
@@ -84,7 +85,8 @@
 {
     QueryModel = new ProductQueryModel()
     {
-        PageSize=4
+        PageSize=4,
+        MainCategoryId=Guid.Parse("44756E6B-0000-0000-0000-000000000000")
     },
     ViewName="BlockProductsByFilter"
 })
@@ -96,7 +98,8 @@
 {
     QueryModel = new ProductQueryModel()
     {
-        PageSize=4
+        PageSize=4,
+        MainCategoryId=Guid.Parse("41697220-4A6F-7264-616E-000000000000")
     },
     ViewName="BlockProductsByFilter"
 })
@@ -108,7 +111,8 @@
 {
     QueryModel = new ProductQueryModel()
     {
-        PageSize=4
+        PageSize=4,
+        MainCategoryId=Guid.Parse("4E696B65-0000-0000-0000-000000000000")
     },
     ViewName="BlockProductsByFilter"
 })

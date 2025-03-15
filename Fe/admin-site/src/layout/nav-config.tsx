@@ -4,8 +4,9 @@ import { RiShoppingBag3Line } from "react-icons/ri";
 import { AiOutlineProduct } from "react-icons/ai";
 import { LuUsers } from "react-icons/lu";
 import { MdAttachMoney } from "react-icons/md";
-import { LuShoppingCart } from "react-icons/lu";
 import { LuSettings } from "react-icons/lu";
+import { LuContact } from "react-icons/lu";
+import { TbCirclesRelation } from "react-icons/tb";
 
 interface NavConfigItem {
   title: string;
@@ -36,21 +37,27 @@ const navConfig: NavConfigItem[] = [
     color: "#8b5cf6",
   },
   {
+    title: "Relation",
+    path: "/relation",
+    icon: TbCirclesRelation,
+    color: "#759a94",
+  },
+  {
     title: "Customer",
     path: "/customer",
     icon: LuUsers,
     color: "#ec4899",
   },
   {
-    title: "Discount",
-    path: "/discount",
+    title: "Voucher",
+    path: "/voucher",
     icon: MdAttachMoney,
     color: "#10b981",
   },
   {
-    title: "Order",
-    path: "/order",
-    icon: LuShoppingCart,
+    title: "Contact",
+    path: "/contact",
+    icon: LuContact,
     color: "#f59e0b",
   },
   {

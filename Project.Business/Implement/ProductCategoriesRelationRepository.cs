@@ -26,7 +26,7 @@ namespace Project.Business.Implement
 
         public async Task<ProductCategoriesRelation> FindAsync(Guid id)
         {
-            var res = await _context.ProductCategoriesRelations.FindAsync(id);
+            var res = await _context.ProductCategoriesRelations.AsNoTracking().FirstOrDefaultAsync(x => x.Id == id);
             return res;
         }
 
@@ -63,13 +63,20 @@ namespace Project.Business.Implement
 
         private IQueryable<ProductCategoriesRelation> BuildQuery(ProductCategoriesRelationQueryModel queryModel)
         {
-            IQueryable<ProductCategoriesRelation> query = _context.ProductCategoriesRelations.AsNoTracking().Where(x => x.Isdeleted != true);
+            IQueryable<ProductCategoriesRelation> query = _context.ProductCategoriesRelations.AsNoTracking().Where(x => x.Isdeleted == false);
 
             if (queryModel.Id.HasValue)
             {
                 query = query.Where(x => x.Id == queryModel.Id.Value);
             }
-
+            if (queryModel.IdSanPham.HasValue)
+            {
+                query = query.Where(X => X.IdProduct == queryModel.IdSanPham.Value);
+            }
+            if(queryModel.IdDanhMuc.HasValue)
+            {
+                query = query.Where(x => x.CategoriesId == queryModel.IdDanhMuc.Value);
+            }
             if (queryModel.ListId != null && queryModel.ListId.Any())
             {
                 query = query.Where(x => queryModel.ListId.Contains(x.Id));

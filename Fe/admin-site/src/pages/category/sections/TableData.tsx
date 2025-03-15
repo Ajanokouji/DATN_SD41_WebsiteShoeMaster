@@ -51,7 +51,7 @@ const CategoryTable = <T extends { id: string }>({
 
 const CategoriesTable: React.FC = () => {
   const dispatch = useAppDispatch();
-  const products = useAppSelector(selectCategories);
+  const categories = useAppSelector(selectCategories);
   const pagination = useAppSelector(selectPagination);
   const [isOpenUpdate, setIsOpenUpdate] = useState(false);
   const [selectedCategoryId, setSelectedCategoryId] = useState<string | null>(null);
@@ -119,7 +119,7 @@ const CategoriesTable: React.FC = () => {
     <section className="mt-10">
       <CategoryTable<CategoryResDto>
         headers={headers}
-        data={products}
+        data={categories}
         columns={columns}
       />
       <Pagination

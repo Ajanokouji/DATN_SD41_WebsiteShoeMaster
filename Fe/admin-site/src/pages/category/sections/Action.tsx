@@ -2,7 +2,7 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Filter } from "lucide-react";
 import { useState } from "react";
-import AddCategorySheet from "./FormAdd/DialogAdd";
+import AddCategorySheet from "./FormAdd/AddCategorySheet";
 import { FaPlus } from "react-icons/fa6";
 
 const ActionHeader = () => {

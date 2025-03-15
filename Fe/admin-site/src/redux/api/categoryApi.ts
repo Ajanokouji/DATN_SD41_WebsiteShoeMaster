@@ -1,6 +1,6 @@
-import CategoryReqDto, { CategoryResDto } from "@/types/category/category";
+import CategoryReqDto, { CategoryDetailResDto, CategoryFilterParams, CategoryResDto } from "@/types/category/category";
 import httpClient from "./agent";
-import { PaginatedResponse, PaginationParams } from "@/types/common/pagination";
+import { PaginatedResponse } from "@/types/common/pagination";
 
 class CategoryService {
   private static instance: CategoryService;
@@ -11,6 +11,7 @@ class CategoryService {
 
   private constructor() {
     this.getCategories = this.getCategories.bind(this);
+    this.getCategoryById = this.getCategoryById.bind(this);
     this.createCategoryReq = this.createCategoryReq.bind(this);
     this.deleteCategoryReq = this.deleteCategoryReq.bind(this);
     this.updateCategoryReq = this.updateCategoryReq.bind(this);
@@ -24,7 +25,7 @@ class CategoryService {
   }
 
   async getCategories(
-    params: PaginationParams
+    params: CategoryFilterParams
   ): Promise<PaginatedResponse<CategoryResDto>> {
     try {
       const response = await httpClient.post<PaginatedResponse<CategoryResDto>>(
@@ -38,6 +39,19 @@ class CategoryService {
       throw new Error(`Fetch categories failed: ${error}`);
     }
   }
+
+  async getCategoryById(id: string): Promise<CategoryDetailResDto> {
+    try {
+      const response = await httpClient.get<{ data: CategoryDetailResDto }>(
+        `${this.endpoints.categories}/${id}`
+      );
+      return response.data;
+    } catch (error) {
+      console.log("Get category by ID error:", error);
+      throw new Error(`Get category by ID failed: ${error}`);
+    }
+  }
+  
 
   async createCategoryReq(formData: CategoryReqDto): Promise<CategoryResDto> {
     try {

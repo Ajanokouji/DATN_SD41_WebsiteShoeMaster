@@ -371,7 +371,6 @@ namespace Project.DbManagement.Migrations
                         .HasColumnType("nvarchar(max)");
 
                     b.Property<string>("Content")
-                        .IsRequired()
                         .HasColumnType("nvarchar(max)");
 
                     b.Property<Guid?>("CreatedByUserId")
@@ -384,7 +383,6 @@ namespace Project.DbManagement.Migrations
                         .HasColumnType("datetime2");
 
                     b.Property<string>("Email")
-                        .IsRequired()
                         .HasColumnType("nvarchar(max)");
 
                     b.Property<string>("FullName")
@@ -403,11 +401,9 @@ namespace Project.DbManagement.Migrations
                         .HasColumnType("datetime2");
 
                     b.Property<string>("Name")
-                        .IsRequired()
                         .HasColumnType("nvarchar(max)");
 
                     b.Property<string>("PhoneNumber")
-                        .IsRequired()
                         .HasColumnType("nvarchar(max)");
 
                     b.HasKey("Id");
@@ -536,6 +532,9 @@ namespace Project.DbManagement.Migrations
                     b.Property<Guid?>("MainCategoryId")
                         .HasColumnType("uniqueidentifier");
 
+                    b.Property<string>("MediasJson")
+                        .HasColumnType("nvarchar(max)");
+
                     b.Property<string>("MetadataJson")
                         .IsRequired()
                         .HasColumnType("nvarchar(max)");
@@ -553,6 +552,9 @@ namespace Project.DbManagement.Migrations
                         .HasColumnType("nvarchar(max)");
 
                     b.Property<string>("Status")
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<string>("VariantJson")
                         .HasColumnType("nvarchar(max)");
 
                     b.Property<string>("WorkFlowStates")

@@ -29,7 +29,7 @@ namespace Project.Business.Implement
         }
         public async Task<ProductEntity> FindAsync(Guid id)
         {
-            var res = await _context.Products.FindAsync(id);
+            var res = await _context.Products.AsNoTracking().FirstOrDefaultAsync(x=>x.Id==id);
             return res;
         }
         public async Task<IEnumerable<ProductEntity>> ListAllAsync(ProductQueryModel queryModel)
@@ -61,6 +61,35 @@ namespace Project.Business.Implement
             else
             {
                 sortExpression = queryModel.Sort;
+            }
+
+            //select columns
+            if (queryModel.IsSelectMetadata) {
+                queryable.Select(x => new
+                {
+                    x.Id,
+                    x.Code,
+                    x.Name,
+                    x.Status,
+                    x.ImageUrl,
+                    x.SortOrder,
+                    x.Description,
+                    x.MainCategoryId,
+                    x.RelatedObjectIds,
+                    x.RelatedIds,
+                    x.WorkFlowStates,
+                    x.PublicOnDate,
+                    x.CompleteName,
+                    x.CompleteCode,
+                    x.CompletePath,
+                    x.LabelsJson,
+                    x.LabelsObjs,
+                    x.CreatedByUserId,
+                    x.CreatedOnDate,
+                    x.LastModifiedByUserId,
+                    x.LastModifiedOnDate
+                }
+                );
             }
 
             return await queryable.GetPagedOrderAsync(queryModel.CurrentPage.Value, queryModel.PageSize.Value, sortExpression);
@@ -109,9 +138,9 @@ namespace Project.Business.Implement
                 query = query.Where(x => x.WorkFlowStates==queryModel.WorkFlowStates);
             }
 
-            if (queryModel.DanhMucId.HasValue)
+            if (queryModel.MainCategoryId.HasValue)
             {
-                query = query.Where(x => x.MainCategoryId == queryModel.DanhMucId.Value);
+                query = query.Where(x => x.MainCategoryId == queryModel.MainCategoryId.Value);
             }
 
             if (!string.IsNullOrEmpty(queryModel.Status))

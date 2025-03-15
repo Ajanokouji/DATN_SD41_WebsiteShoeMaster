@@ -23,6 +23,48 @@ namespace Project.DbManagement.Entity
         public string? SortOrder { get; set; }
         public string? Description { get; set; }
         public Guid? MainCategoryId { get; set; }
+
+        [NotMapped]
+        public List<Variant>? VariantObjs { get; set; }
+        public string? VariantJson
+        {
+            get
+            {
+                if (VariantObjs==null) return null;
+                return JsonSerializer.Serialize(VariantObjs);
+            }
+            set
+            {
+                if (string.IsNullOrWhiteSpace(value))
+                {
+                    VariantObjs = null;
+                    return;
+                }
+                VariantObjs = JsonSerializer.Deserialize<List<Variant>>(value);
+            }
+        }
+
+
+        [NotMapped]
+        public List<string>? MediaObjs { get; set; }
+        public string? MediasJson
+        {
+            get
+            {
+                if (MediaObjs==null) return null;
+                return JsonSerializer.Serialize(MediaObjs);
+            }
+            set
+            {
+                if (string.IsNullOrWhiteSpace(value))
+                {
+                    MediaObjs = null;
+                    return;
+                }
+                MediaObjs = JsonSerializer.Deserialize<List<string>>(value);
+            }
+        }
+
         [NotMapped]
         public List<Guid>? RelatedObjectIds { get; set; }
         public string? RelatedIds { 
@@ -44,7 +86,6 @@ namespace Project.DbManagement.Entity
         public DateTime? PublicOnDate { get; set; }
         [NotMapped]
         public virtual List<MetaField> MetadataObj { get; set; }
-
 
         public virtual string MetadataJson
         {
@@ -117,5 +158,14 @@ namespace Project.DbManagement.Entity
                 }
             }
         }
+    }
+
+    public class Variant
+    {
+        public string Id { get; set; } = string.Empty;
+        public string? ProductId { get; set; } = string.Empty;
+        public string? Size { get; set; } = string.Empty;
+        public string? SizeType { get; set; } = string.Empty;
+        public decimal? LowestAsk { get; set; }
     }
 }

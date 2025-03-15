@@ -1,4 +1,3 @@
-// BasicInfoFields.tsx
 import React from "react";
 import { Control, useController, useWatch } from "react-hook-form";
 import {

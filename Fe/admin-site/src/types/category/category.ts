@@ -1,3 +1,5 @@
+import { PaginationParams } from "../common/pagination";
+
 export default interface CategoryReqDto {
   code: string;
   name: string;
@@ -38,8 +40,29 @@ export interface CategoryResDto {
   name: string;
   sortOrder: number | null;
   description: string | null;
-  mainCategoryId: string;
   createdOnDate: string;
   lastModifiedOnDate: string;
-  isdeleted: boolean;
+}
+
+export interface CategoryDetailResDto {
+  id: string;
+  code: string;
+  name: string;
+  description: string;
+  type: string;
+  completeCode: string;
+  completeName:string;
+  completePath:string;
+  parentPath:string;
+  metadataObj: MetadataObj[];
+  createdByUserId: string;
+  lastModifiedByUserId: string;
+  lastModifiedOnDate: string;
+  createdOnDate: string;
+  sortOrder: number;
+}
+
+export interface CategoryFilterParams extends PaginationParams {
+  Name?: string;
+  Code?: string;
 }
