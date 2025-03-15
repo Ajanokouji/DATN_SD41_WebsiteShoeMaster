@@ -28,7 +28,7 @@ namespace Project.Business.Implement
 
         public async Task<Customers> FindAsync(Guid id)
         {
-            var res = await _context.Customers.FindAsync(id);
+            var res = await _context.Customers.AsNoTracking().FirstOrDefaultAsync(x => x.Id == id);
             return res;
         }
 
