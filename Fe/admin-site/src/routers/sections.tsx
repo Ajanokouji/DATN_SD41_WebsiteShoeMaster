@@ -69,6 +69,7 @@ export default function Router() {
           path: "contact",
           element: <ContactPage />,
         },
+        {
           path: "customer",
           element: <CustomerPage />,
         }
