@@ -1,4 +1,4 @@
-import ProductReqDto, { ProductResDto } from "@/types/product/product";
+import ProductReqDto, { ProductDetailResDto, ProductResDto } from "@/types/product/product";
 import httpClient from "./agent";
 import { PaginatedResponse, PaginationParams } from "@/types/common/pagination";
 
@@ -6,14 +6,14 @@ class ProductService {
   private static instance: ProductService;
 
   private readonly endpoints = {
-    fetchProducts: "/Product/filter",
-    createProduct: "/Product",
-    deleteProduct: "/Product",
+    product: "/Product",
   };
 
   private constructor() {
     this.getProducts = this.getProducts.bind(this);
+    this.getProductById = this.getProductById.bind(this);
     this.createProductReq = this.createProductReq.bind(this);
+    this.updateProductReq = this.updateProductReq.bind(this);
     this.deleteProductReq = this.deleteProductReq.bind(this);
   }
 
@@ -29,7 +29,7 @@ class ProductService {
   ): Promise<PaginatedResponse<ProductResDto>> {
     try {
       const response = await httpClient.post<PaginatedResponse<ProductResDto>>(
-        `${this.endpoints.fetchProducts}`,
+        `${this.endpoints.product}/filter`,
         {},
         { params }
       );
@@ -40,10 +40,22 @@ class ProductService {
     }
   }
 
+  async getProductById(id: string): Promise<ProductDetailResDto> {
+    try {
+      const response = await httpClient.get<{ data: ProductDetailResDto }>(
+        `${this.endpoints.product}/${id}`
+      );
+      return response.data;
+    } catch (error) {
+      console.log("Get product by ID error:", error);
+      throw new Error(`Get product by ID failed: ${error}`);
+    }
+  }
+
   async createProductReq(userData: ProductReqDto): Promise<ProductResDto> {
     try {
-      const response = await httpClient.post<{ data: ProductResDto}>(
-        this.endpoints.createProduct,
+      const response = await httpClient.post<{ data: ProductResDto }>(
+        this.endpoints.product,
         userData
       );
       return response.data;
@@ -53,9 +65,22 @@ class ProductService {
     }
   }
 
+  async updateProductReq(id: string, formData: Partial<ProductReqDto>): Promise<ProductResDto> {
+    try {
+      const response = await httpClient.patch<{ data: ProductResDto }>(
+        `${this.endpoints.product}/${id}`,
+        formData
+      );
+      return response.data;
+    } catch (error) {
+      console.log("Update product error:", error);
+      throw new Error(`Update product failed: ${error}`);
+    }
+  }
+
   async deleteProductReq(id: string): Promise<void> {
     try {
-      await httpClient.delete(`${this.endpoints.deleteProduct}/${id}`);
+      await httpClient.delete(`${this.endpoints.product}/${id}`);
     } catch (error) {
       console.log("Delete product error:", error);
       throw new Error(`Delete product failed: ${error}`);

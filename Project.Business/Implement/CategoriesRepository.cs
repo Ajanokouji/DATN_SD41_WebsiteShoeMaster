@@ -20,7 +20,7 @@ namespace Project.Business.Implement
 
         public async Task<CategoriesEntity> FindAsync(Guid id)
         {
-            var res = await _context.Categories.FindAsync(id);
+            var res = await _context.Categories.AsNoTracking().FirstOrDefaultAsync(x=>x.Id==id);
             return res;
         }
 

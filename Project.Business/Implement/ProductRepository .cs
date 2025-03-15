@@ -29,7 +29,7 @@ namespace Project.Business.Implement
         }
         public async Task<ProductEntity> FindAsync(Guid id)
         {
-            var res = await _context.Products.FindAsync(id);
+            var res = await _context.Products.AsNoTracking().FirstOrDefaultAsync(x=>x.Id==id);
             return res;
         }
         public async Task<IEnumerable<ProductEntity>> ListAllAsync(ProductQueryModel queryModel)

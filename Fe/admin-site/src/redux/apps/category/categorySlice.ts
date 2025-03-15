@@ -2,14 +2,17 @@ import { createSlice, PayloadAction } from "@reduxjs/toolkit";
 import { addLoadingCases } from "@/utils/redux.utils";
 import { createAppThunk } from "@/utils/createThunk";
 import { CATEGORY_MESSAGES } from "@/constants/category.constants";
-import CategoryReqDto, { CategoryResDto } from "@/types/category/category";
+import CategoryReqDto, {
+  CategoryDetailResDto,
+  CategoryFilterParams,
+  CategoryResDto,
+} from "@/types/category/category";
 import categoryService from "@/redux/api/categoryApi";
-import { PaginationParams } from "@/types/common/pagination";
 
 export interface InitState {
   loading: boolean;
   error: string | null;
-  category: CategoryReqDto | null;
+  category: CategoryDetailResDto | null;
   categories: CategoryResDto[];
   pagination: {
     currentPage: number;
@@ -34,8 +37,16 @@ const initialState: InitState = {
 
 export const fetchCategories = createAppThunk(
   "categories/fetch",
-  async (params: PaginationParams) => {
+  async (params: CategoryFilterParams) => {
     const response = await categoryService.getCategories(params);
+    return response;
+  }
+);
+
+export const fetchCategoryById = createAppThunk(
+  "category/fetch",
+  async (id: string) => {
+    const response = await categoryService.getCategoryById(id);
     return response;
   }
 );
@@ -95,6 +106,14 @@ const categorySlice = createSlice({
           pageSize: action.payload.data.pageSize,
           totalRecords: action.payload.data.totalRecords,
         };
+      },
+    });
+
+    // Fetch by ID
+    addLoadingCases(builder, fetchCategoryById, {
+      onFulfilled: (state, action) => {
+        state.loading = false;
+        state.category = action.payload;
       },
     });
 

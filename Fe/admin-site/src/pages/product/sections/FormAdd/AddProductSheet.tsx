@@ -19,12 +19,12 @@ import { createProduct } from "@/redux/apps/product/productSlice";
 import { LabelsSection } from "./LabelsSection";
 import { ImageField } from "./ImageFieldComponent";
 
-interface AddProductDialogProps {
+interface AddProductSheetProps {
   isOpen: boolean;
   onClose: () => void;
 }
 
-const AddProductDialog: React.FC<AddProductDialogProps> = ({
+const AddProductSheet: React.FC<AddProductSheetProps> = ({
   isOpen,
   onClose,
 }) => {
@@ -113,4 +113,4 @@ const AddProductDialog: React.FC<AddProductDialogProps> = ({
   );
 };
 
-export default AddProductDialog;
+export default AddProductSheet;

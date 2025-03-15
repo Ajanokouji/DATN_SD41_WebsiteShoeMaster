@@ -1,4 +1,4 @@
-import React, { useEffect } from "react";
+import React, { useEffect, useState } from "react";
 import Pagination from "@/components/Pagination";
 import TableHeaderComponent from "@/components/TableHeader";
 import TableRowComponent from "@/components/TableRow";
@@ -10,6 +10,7 @@ import { useAppSelector } from "@/hooks/use-app-selector";
 import { ProductResDto } from "@/types/product/product";
 import { deleteProduct, fetchProducts, setPage, setPageSize } from "@/redux/apps/product/productSlice";
 import { selectPagination, selectProducts } from "@/redux/apps/product/productSelector";
+import DetailProductSheet from "./UpdateDetail/DetailProductSheet";
 
 const ProductTable = <T extends { id: string }>({
   headers,
@@ -42,6 +43,16 @@ const ProductTable = <T extends { id: string }>({
 );
 
 const ProductsTable: React.FC = () => {
+  const dispatch = useAppDispatch();
+  const products = useAppSelector(selectProducts);
+  const pagination = useAppSelector(selectPagination);
+  const [isOpenUpdate, setIsOpenUpdate] = useState(false);
+  const [selectedProductId, setSelectedProductId] = useState<string | null>(null);
+    
+  const handleOpenDialogUpdate = (id: string) => {
+    setIsOpenUpdate(true);
+    setSelectedProductId(id);
+  };
   const headers = [
     { label: "Code", className: "text-center" },
     { label: "Name" },
@@ -58,6 +69,7 @@ const ProductsTable: React.FC = () => {
     isActionColumn?: boolean;
     action?: (data: ProductResDto) => void;
     deleteAction?: (id: string) => void;
+    updateAction?: (id: string) => void;
   }[] = [
     { key: "code", className: "text-center" },
     { key: "name" },
@@ -74,12 +86,11 @@ const ProductsTable: React.FC = () => {
       deleteAction: (id: string) => {
         dispatch(deleteProduct(id));
       },
+      updateAction: (id: string) => {
+        handleOpenDialogUpdate(id);
+      },
     },
   ];
-
-  const dispatch = useAppDispatch();
-  const products = useAppSelector(selectProducts);
-  const pagination = useAppSelector(selectPagination);
 
   useEffect(() => {
     dispatch(
@@ -115,6 +126,13 @@ const ProductsTable: React.FC = () => {
         onPageChange={handlePageChange}
         onPageSizeChange={handlePageSizeChange}
       />
+      {isOpenUpdate && selectedProductId && (
+        <DetailProductSheet
+          categoryId={selectedProductId}
+          isOpen={isOpenUpdate}
+          onClose={() => setIsOpenUpdate(false)}
+        />
+      )}
     </section>
   );
 };
