@@ -1,132 +1,383 @@
-﻿using Project.Business.Interface;
+﻿using Microsoft.Extensions.Caching.Memory;
+using Project.Business.Interface;
 using Project.Business.Model;
+using Project.Common;
+using Project.Common.Constants;
 using Project.DbManagement;
 using Project.DbManagement.Entity;
+using Serilog;
 using SERP.Framework.Common;
 using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
+using System.Transactions;
 
 namespace Project.Business.Implement
 {
     public class CustomerBusiness : ICustomerBusiness
     {
         private readonly ICustomerRepository _customerRepository;
+        private readonly IMemoryCache _cache;
+        private readonly ILogger _logger;
+        private const string CustomerListCacheKey = "CustomerList";
+        private readonly MemoryCacheEntryOptions _cacheOptions;
 
-        public CustomerBusiness(ICustomerRepository customerRepository)
+        public CustomerBusiness(ICustomerRepository customerRepository, IMemoryCache cache)
         {
-            _customerRepository = customerRepository;
+            _customerRepository = customerRepository ?? throw new ArgumentNullException(nameof(customerRepository));
+            _cache = cache ?? throw new ArgumentNullException(nameof(cache));
+            _logger = Log.ForContext<CustomerBusiness>();
+            _cacheOptions = new MemoryCacheEntryOptions()
+                .SetSlidingExpiration(TimeSpan.FromMinutes(10))
+                .SetAbsoluteExpiration(TimeSpan.FromHours(1));
         }
 
-        public async Task<Customers> DeleteAsync(Guid customerId)
+        public async Task<Customers> DeleteAsync(Guid id)
         {
-            return await _customerRepository.DeleteAsync(customerId);
+            try
+            {
+                if (id == Guid.Empty)
+                {
+                    throw new ArgumentException("Invalid customer ID", nameof(id));
+                }
+
+                using (var scope = new TransactionScope(TransactionScopeAsyncFlowOption.Enabled))
+                {
+                    var result = await _customerRepository.DeleteAsync(id);
+                    if (result != null)
+                    {
+                        _cache.Remove(CustomerListCacheKey);
+                        _logger.Information("Customer {CustomerId} deleted successfully", id);
+                    }
+                    else
+                    {
+                        _logger.Warning("Customer {CustomerId} not found for deletion", id);
+                    }
+
+                    scope.Complete();
+                    return result;
+                }
+            }
+            catch (Exception ex)
+            {
+                _logger.Error(ex, "Error deleting customer {CustomerId}", id);
+                throw;
+            }
         }
 
         public async Task<IEnumerable<Customers>> DeleteAsync(Guid[] deleteIds)
         {
-            return await _customerRepository.DeleteAsync(deleteIds);
+            try
+            {
+                if (deleteIds == null || !deleteIds.Any())
+                {
+                    throw new ArgumentException("Delete IDs cannot be null or empty", nameof(deleteIds));
+                }
+
+                using (var scope = new TransactionScope(TransactionScopeAsyncFlowOption.Enabled))
+                {
+                    var result = await _customerRepository.DeleteAsync(deleteIds);
+                    if (result != null && result.Any())
+                    {
+                        _cache.Remove(CustomerListCacheKey);
+                        _logger.Information("Multiple customers deleted successfully: {CustomerIds}", string.Join(", ", deleteIds));
+                    }
+
+                    scope.Complete();
+                    return result;
+                }
+            }
+            catch (Exception ex)
+            {
+                _logger.Error(ex, "Error deleting multiple customers: {CustomerIds}", string.Join(", ", deleteIds));
+                throw;
+            }
         }
 
-        public async Task<Customers> FindAsync(Guid customerId)
+        public async Task<Customers> FindAsync(Guid id)
         {
-            return await _customerRepository.FindAsync(customerId);
+            try
+            {
+                if (id == Guid.Empty)
+                {
+                    throw new ArgumentException("Invalid customer ID", nameof(id));
+                }
+
+                var customer = await _customerRepository.FindAsync(id);
+                if (customer == null)
+                {
+                    _logger.Warning("Customer {CustomerId} not found", id);
+                }
+                return customer;
+            }
+            catch (Exception ex)
+            {
+                _logger.Error(ex, "Error finding customer {CustomerId}", id);
+                throw;
+            }
         }
 
         public async Task<Pagination<Customers>> GetAllAsync(CustomerQueryModel queryModel)
         {
-            return await _customerRepository.GetAllAsync(queryModel);
+            try
+            {
+                if (queryModel == null)
+                {
+                    throw new ArgumentNullException(nameof(queryModel));
+                }
+
+                if (queryModel.PageSize == 0 && queryModel.CurrentPage == 0)
+                {
+                    if (_cache.TryGetValue(CustomerListCacheKey, out Pagination<Customers> cachedCustomers))
+                    {
+                        _logger.Debug("Retrieved customers from cache");
+                        return cachedCustomers;
+                    }
+
+                    var customers = await _customerRepository.GetAllAsync(queryModel);
+                    _cache.Set(CustomerListCacheKey, customers, _cacheOptions);
+                    _logger.Debug("Customers cached successfully");
+                    return customers;
+                }
+
+                return await _customerRepository.GetAllAsync(queryModel);
+            }
+            catch (Exception ex)
+            {
+                _logger.Error(ex, "Error getting all customers");
+                throw;
+            }
         }
 
         public async Task<int> GetCountAsync(CustomerQueryModel queryModel)
         {
-            return await _customerRepository.GetCountAsync(queryModel);
+            try
+            {
+                if (queryModel == null)
+                {
+                    throw new ArgumentNullException(nameof(queryModel));
+                }
+
+                return await _customerRepository.GetCountAsync(queryModel);
+            }
+            catch (Exception ex)
+            {
+                _logger.Error(ex, "Error getting customer count");
+                throw;
+            }
         }
 
         public async Task<IEnumerable<Customers>> ListAllAsync(CustomerQueryModel queryModel)
         {
-            return await _customerRepository.ListAllAsync(queryModel);
+            try
+            {
+                if (queryModel == null)
+                {
+                    throw new ArgumentNullException(nameof(queryModel));
+                }
+
+                return await _customerRepository.ListAllAsync(queryModel);
+            }
+            catch (Exception ex)
+            {
+                _logger.Error(ex, "Error listing all customers");
+                throw;
+            }
         }
 
         public async Task<IEnumerable<Customers>> ListByIdsAsync(IEnumerable<Guid> ids)
         {
-            return await _customerRepository.ListByIdsAsync(ids);
+            try
+            {
+                if (ids == null || !ids.Any())
+                {
+                    throw new ArgumentException("IDs cannot be null or empty", nameof(ids));
+                }
+
+                return await _customerRepository.ListByIdsAsync(ids);
+            }
+            catch (Exception ex)
+            {
+                _logger.Error(ex, "Error listing customers by ids: {CustomerIds}", string.Join(", ", ids));
+                throw;
+            }
         }
 
-        public async Task<Customers> PatchAsync(Customers model)
+        public async Task<Customers> SaveAsync(Customers customer)
         {
-            var exist = await _customerRepository.FindAsync(model.Id);
+            try
+            {
+                if (customer == null)
+                {
+                    throw new ArgumentNullException(nameof(customer));
+                }
 
-            if (exist == null)
-            {
-                throw new ArgumentException("Customer not found.");
-            }
+                using (var scope = new TransactionScope(TransactionScopeAsyncFlowOption.Enabled))
+                {
+                    var result = await _customerRepository.SaveAsync(customer);
+                    if (result != null)
+                    {
+                        _cache.Remove(CustomerListCacheKey);
+                        _logger.Information("Customer {CustomerId} saved successfully", customer.Id);
+                    }
 
-            var update = new Customers
-            {
-                Id = exist.Id,
-                TTTHIDMain = exist.TTTHIDMain,
-                TTLHRelatedIds = exist.TTLHRelatedIds,
-                Code = exist.Code,
-                CreatedOnDate = exist.CreatedOnDate,
-                Description = exist.Description,
-                Address = exist.Address,
-                Email = exist.Email,
-                PhoneNumber = exist.PhoneNumber,
-                Name = exist.Name,
-                UserName = exist.UserName
-            };
-
-            if (!string.IsNullOrWhiteSpace(model.Code))
-            {
-                update.Code = model.Code;
+                    scope.Complete();
+                    return result;
+                }
             }
-            if (!string.IsNullOrWhiteSpace(model.Name))
+            catch (Exception ex)
             {
-                update.Name = model.Name;
+                _logger.Error(ex, "Error saving customer {CustomerId}", customer?.Id);
+                throw;
             }
-            if (!string.IsNullOrWhiteSpace(model.PhoneNumber))
-            {
-                update.PhoneNumber = model.PhoneNumber;
-            }
-            if (!string.IsNullOrWhiteSpace(model.Email))
-            {
-                update.Email = model.Email;
-            }
-            if (!string.IsNullOrWhiteSpace(model.Address))
-            {
-                update.Address = model.Address;
-            }
-            if (!string.IsNullOrWhiteSpace(model.Description))
-            {
-                update.Description = model.Description;
-            }
-            if (!string.IsNullOrWhiteSpace(model.UserName))
-            {
-                update.UserName = model.UserName;
-            }
-            if (model.TTTHIDMain.HasValue)
-            {
-                update.TTTHIDMain = model.TTTHIDMain;
-            }
-            if (model.TTLHRelatedIds != null && model.TTLHRelatedIds.Any())
-            {
-                update.TTLHRelatedIds = model.TTLHRelatedIds;
-            }
-
-            return await SaveAsync(update);
         }
 
-        public async Task<Customers> SaveAsync(Customers Customers)
+        public async Task<IEnumerable<Customers>> SaveAsync(IEnumerable<Customers> customers)
         {
-            var res = await SaveAsync(new[] { Customers });
-            return res.FirstOrDefault();
+            try
+            {
+                if (customers == null || !customers.Any())
+                {
+                    throw new ArgumentException("Customers cannot be null or empty", nameof(customers));
+                }
+
+                using (var scope = new TransactionScope(TransactionScopeAsyncFlowOption.Enabled))
+                {
+                    var result = await _customerRepository.SaveAsync(customers);
+                    if (result != null && result.Any())
+                    {
+                        _cache.Remove(CustomerListCacheKey);
+                        _logger.Information("Multiple customers saved successfully: {CustomerIds}", 
+                            string.Join(", ", result.Select(c => c.Id)));
+                    }
+
+                    scope.Complete();
+                    return result;
+                }
+            }
+            catch (Exception ex)
+            {
+                _logger.Error(ex, "Error saving multiple customers");
+                throw;
+            }
         }
 
-        public async Task<IEnumerable<Customers>> SaveAsync(IEnumerable<Customers> customerEntities)
+        public async Task<Customers> PatchAsync(Customers customer)
         {
-            return await _customerRepository.SaveAsync(customerEntities);
+            try
+            {
+                if (customer == null)
+                {
+                    throw new ArgumentNullException(nameof(customer));
+                }
+
+                var exist = await _customerRepository.FindAsync(customer.Id);
+                if (exist == null)
+                {
+                    _logger.Warning("Customer {CustomerId} not found for update", customer.Id);
+                    throw new ArgumentException(CustomerConstants.CustomerNotFound);
+                }
+
+                using (var scope = new TransactionScope(TransactionScopeAsyncFlowOption.Enabled))
+                {
+                    // Update customer information
+                    exist.Name = customer.Name ?? exist.Name;
+                    exist.Email = customer.Email ?? exist.Email;
+                    exist.PhoneNumber = customer.PhoneNumber ?? exist.PhoneNumber;
+                    exist.Address = customer.Address ?? exist.Address;
+           
+                    exist.LastModifiedOnDate = DateTime.UtcNow;
+                    exist.LastModifiedByUserId = customer.LastModifiedByUserId;
+
+                    var result = await SaveAsync(exist);
+                    if (result != null)
+                    {
+                        _logger.Information("Customer {CustomerId} updated successfully", customer.Id);
+                    }
+
+                    scope.Complete();
+                    return result;
+                }
+            }
+            catch (Exception ex)
+            {
+                _logger.Error(ex, "Error updating customer {CustomerId}", customer?.Id);
+                throw;
+            }
         }
+
+        public async Task<IEnumerable<Customers>> GetTopCustomersAsync(int count, DateTime? startDate = null, DateTime? endDate = null)
+        {
+            try
+            {
+                if (count <= 0)
+                {
+                    throw new ArgumentException("Count must be greater than zero", nameof(count));
+                }
+
+                var customers = await _customerRepository.ListAllAsync(new CustomerQueryModel 
+                { 
+                    //StartDate = startDate,
+                    //EndDate = endDate,
+                    //PageSize = count,
+                    //SortBy = "TotalPurchases",
+                    //SortDirection = "DESC"
+                });
+
+                _logger.Information("Retrieved top {Count} customers for period {StartDate} to {EndDate}", 
+                    count, startDate, endDate);
+                
+                return customers;
+            }
+            catch (Exception ex)
+            {
+                _logger.Error(ex, "Error getting top customers");
+                throw;
+            }
+        }
+
+        public async Task<CustomerStatistics> GetCustomerStatisticsAsync(Guid customerId)
+        {
+            try
+            {
+                if (customerId == Guid.Empty)
+                {
+                    throw new ArgumentException("Invalid customer ID", nameof(customerId));
+                }
+
+                var customer = await FindAsync(customerId);
+                if (customer == null)
+                {
+                    throw new ArgumentException(CustomerConstants.CustomerNotFound);
+                }
+
+                var stats = new CustomerStatistics
+                {
+                    CustomerId = customerId,
+                    TotalOrders = customer.TotalOrders,
+                    TotalSpent = customer.TotalSpent,
+                    LastOrderDate = customer.LastOrderDate,
+                    JoinDate = customer.CreatedOnDate ?? DateTime.MinValue
+                };
+
+                _logger.Information("Retrieved statistics for customer {CustomerId}", customerId);
+                return stats;
+            }
+            catch (Exception ex)
+            {
+                _logger.Error(ex, "Error getting statistics for customer {CustomerId}", customerId);
+                throw;
+            }
+        }
+    }
+
+    public class CustomerStatistics
+    {
+        public Guid CustomerId { get; set; }
+        public int TotalOrders { get; set; }
+        public decimal TotalSpent { get; set; }
+        public DateTime? LastOrderDate { get; set; }
+        public DateTime JoinDate { get; set; }
     }
 }

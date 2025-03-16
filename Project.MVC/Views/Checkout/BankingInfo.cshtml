@@ -1,0 +1,125 @@
+@model Project.MVC.Models.BankingInfoViewModel
+
+@{
+    ViewData["Title"] = "Thông tin chuyển khoản";
+}
+
+<!-- Breadcrumb Begin -->
+<div class="breadcrumb-option">
+    <div class="container">
+        <div class="row">
+            <div class="col-lg-12">
+                <div class="breadcrumb__links">
+                    <a asp-controller="Home" asp-action="Index"><i class="fa fa-home"></i>Trang chủ</a>
+                    <a asp-controller="Cart" asp-action="Cart">Giỏ hàng</a>
+                    <a asp-controller="Checkout" asp-action="Index">Thông tin đặt hàng</a>
+                    <span>Thông tin chuyển khoản</span>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+<!-- Breadcrumb End -->
+
+<!-- Banking Info Section Begin -->
+<section class="checkout spad">
+    <div class="container">
+        <div class="row">
+            <div class="col-lg-8 mx-auto">
+                <div class="checkout__form">
+                    <h5>Thông tin chuyển khoản</h5>
+                    <div class="card">
+                        <div class="card-body">
+                            <div class="alert alert-info">
+                                <p>Vui lòng chuyển khoản theo thông tin dưới đây để hoàn tất đơn hàng của bạn.</p>
+                                <p>Sau khi chuyển khoản thành công, đơn hàng của bạn sẽ được xử lý trong thời gian sớm nhất.</p>
+                            </div>
+
+                            <div class="row mb-4">
+                                <div class="col-md-12">
+                                    <div class="banking-info">
+                                        <div class="banking-info-item">
+                                            <span class="banking-info-label">Nội dung chuyển khoản:</span>
+                                            <span class="banking-info-value" id="transferContent">@Model.BillCode</span>
+                                            <button class="btn btn-sm btn-outline-primary ml-2" onclick="copyToClipboard('transferContent')">
+                                                <i class="fa fa-copy"></i> Sao chép
+                                            </button>
+                                        </div>
+                                        <div class="banking-info-item">
+                                            <span class="banking-info-label">Số tiền:</span>
+                                            <span class="banking-info-value">@Model.Amount.ToString("N0") VNĐ</span>
+                                        </div>
+                                        <div class="banking-info-item">
+                                            <span class="banking-info-label">Ngân hàng:</span>
+                                            <span class="banking-info-value">@Model.BankName</span>
+                                        </div>
+                                        <div class="banking-info-item">
+                                            <span class="banking-info-label">Số tài khoản:</span>
+                                            <span class="banking-info-value" id="accountNumber">@Model.BankAccount</span>
+                                            <button class="btn btn-sm btn-outline-primary ml-2" onclick="copyToClipboard('accountNumber')">
+                                                <i class="fa fa-copy"></i> Sao chép
+                                            </button>
+                                        </div>
+                                        <div class="banking-info-item">
+                                            <span class="banking-info-label">Chủ tài khoản:</span>
+                                            <span class="banking-info-value">@Model.AccountName</span>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <div class="text-center">
+                                <a asp-controller="Checkout" asp-action="OrderSuccess" asp-route-billId="@Model.BillId" class="site-btn">
+                                    Tôi đã chuyển khoản
+                                </a>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+<!-- Banking Info Section End -->
+
+<div class="toast" id="copyToast" style="position: fixed; top: 20px; right: 20px; z-index: 9999;">
+    <div class="toast-header">
+        <strong class="mr-auto">Thông báo</strong>
+        <button type="button" class="ml-2 mb-1 close" data-dismiss="toast">&times;</button>
+    </div>
+    <div class="toast-body">
+        Đã sao chép vào clipboard!
+    </div>
+</div>
+
+@section Styles {
+    <style>
+        .banking-info {
+            margin-bottom: 20px;
+        }
+        .banking-info-item {
+            margin-bottom: 15px;
+            display: flex;
+            align-items: center;
+        }
+        .banking-info-label {
+            font-weight: bold;
+            min-width: 180px;
+        }
+        .banking-info-value {
+            font-size: 16px;
+        }
+    </style>
+}
+
+@section Scripts {
+    <script>
+        function copyToClipboard(elementId) {
+            var text = document.getElementById(elementId).innerText;
+            navigator.clipboard.writeText(text).then(function() {
+                $('#copyToast').toast({delay: 2000});
+                $('#copyToast').toast('show');
+            });
+        }
+    </script>
+} 

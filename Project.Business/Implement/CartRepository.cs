@@ -192,6 +192,12 @@ namespace Project.Business.Implement
             throw new NotImplementedException();
         }
 
-
+        public async Task<Cart> GetCartByUserId(Guid userId)
+        {
+            return await _context.Carts
+                .Where(x => x.IdUser == userId && !x.Isdeleted.Value && x.Status == 1)
+                .OrderByDescending(x => x.LastModifiedOnDate)
+                .FirstOrDefaultAsync();
+        }
     }
 }

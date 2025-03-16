@@ -26,34 +26,34 @@ namespace Project.Business.Implement
         {
             _context = context;
         }
-        public async Task<User> FindAsync(Guid id)
+        public async Task<UserEntity> FindAsync(Guid id)
         {
             var res = await _context.Users.FindAsync(id);
             return res;
         }
-        public async Task<IEnumerable<User>> ListAllAsync(UserQueryModel queryModel)
+        public async Task<IEnumerable<UserEntity>> ListAllAsync(UserQueryModel queryModel)
         {
             var query = BuildQuery(queryModel);
             var resId = await query.Select(x => x.Id).ToListAsync();
             var res = await ListByIdsAsync(resId);
             return res;
         }
-        public async Task<IEnumerable<User>> ListByIdsAsync(IEnumerable<Guid> ids)
+        public async Task<IEnumerable<UserEntity>> ListByIdsAsync(IEnumerable<Guid> ids)
         {
             var res = await _context.Users.Where(x => ids.Contains(x.Id)).ToListAsync();
             return res;
         }
-        public async Task<Pagination<User>> GetAllAsync(UserQueryModel queryModel)
+        public async Task<Pagination<UserEntity>> GetAllAsync(UserQueryModel queryModel)
         {
             UserQueryModel userQueryModel = queryModel;
 
 
             queryModel.Sort = QueryUtils.FormatSortInput(queryModel.Sort);
-            IQueryable<User> queryable = BuildQuery(queryModel);
+            IQueryable<UserEntity> queryable = BuildQuery(queryModel);
             string sortExpression = string.Empty;
             if (string.IsNullOrWhiteSpace(queryModel.Sort) || queryModel.Sort.Equals("-LastModifiedOnDate"))
             {
-                queryable = queryable.OrderByDescending((User x) => x.LastModifiedOnDate);
+                queryable = queryable.OrderByDescending((UserEntity x) => x.LastModifiedOnDate);
             }
             else
             {
@@ -63,26 +63,26 @@ namespace Project.Business.Implement
             return await queryable.GetPagedOrderAsync(queryModel.CurrentPage.Value, queryModel.PageSize.Value, sortExpression);
         }
 
-        private IQueryable<User> BuildQuery(UserQueryModel queryModel)
+        private IQueryable<UserEntity> BuildQuery(UserQueryModel queryModel)
         {
-            IQueryable<User> query = _context.Users.AsNoTracking().Where(x => x.Isdeleted != true);
+            IQueryable<UserEntity> query = _context.Users.AsNoTracking().Where(x => x.Isdeleted != true);
 
             if (queryModel.Id.HasValue)
             {
-                query = query.Where((User x) => x.Id == queryModel.Id.Value);
+                query = query.Where((UserEntity x) => x.Id == queryModel.Id.Value);
             }
 
             if (queryModel.ListId != null && queryModel.ListId.Any())
             {
-                query = query.Where((User x) => queryModel.ListId.Contains(x.Id));
+                query = query.Where((UserEntity x) => queryModel.ListId.Contains(x.Id));
             }
 
             if (queryModel.ListTextSearch != null && queryModel.ListTextSearch.Any())
             {
-                ExpressionStarter<User> expressionStarter = LinqKit.PredicateBuilder.New<User>();
+                ExpressionStarter<UserEntity> expressionStarter = LinqKit.PredicateBuilder.New<UserEntity>();
                 foreach (string ts in queryModel.ListTextSearch)
                 {
-                    expressionStarter = expressionStarter.Or((User p) =>
+                    expressionStarter = expressionStarter.Or((UserEntity p) =>
                                                                 p.Email.Contains(ts.ToLower()) ||
                                                                 p.PhoneNumber.Contains(ts.ToLower()));
                 }
@@ -93,7 +93,7 @@ namespace Project.Business.Implement
             if (!string.IsNullOrWhiteSpace(queryModel.FullTextSearch))
             {
                 string fullTextSearch = queryModel.FullTextSearch.ToLower();
-                query = query.Where((User x) => x.Email.Contains(fullTextSearch));
+                query = query.Where((UserEntity x) => x.Email.Contains(fullTextSearch));
             }
 
             if (!string.IsNullOrEmpty(queryModel.Type))
@@ -121,14 +121,6 @@ namespace Project.Business.Implement
                 query = query.Where(x => x.AvartarUrl.Contains(queryModel.AvartarUrl));
             }
 
-            if (!string.IsNullOrEmpty(queryModel.Password))
-            {
-                query = query.Where(x => x.Password.Contains(queryModel.Password));
-            }
-            if (!string.IsNullOrEmpty(queryModel.UserDetailJson))
-            {
-                query = query.Where(x => x.UserDetailJson.Contains(queryModel.UserDetailJson));
-            }
             return query;
         }
         public async Task<int> GetCountAsync(UserQueryModel queryModel)
@@ -137,15 +129,15 @@ namespace Project.Business.Implement
             var res = await query.CountAsync();
             return res;
         }
-        public async Task<User> SaveAsync(User user)
+        public async Task<UserEntity> SaveAsync(UserEntity user)
         {
             var res = await SaveAsync(new[] { user });
             return res.FirstOrDefault();
 
         }
-        public virtual async Task<IEnumerable<User>> SaveAsync(IEnumerable<User> users)
+        public virtual async Task<IEnumerable<UserEntity>> SaveAsync(IEnumerable<UserEntity> users)
         {
-            var updated = new List<User>();
+            var updated = new List<UserEntity>();
 
             foreach (var user in users)
             {
@@ -185,7 +177,7 @@ namespace Project.Business.Implement
 
             return updated;
         }
-        public async Task<User> DeleteAsync(Guid Id)
+        public async Task<UserEntity> DeleteAsync(Guid Id)
         {
             var exist = await FindAsync(Id);
             if (exist == null) throw new Exception(IUserRepository.MessageNoTFound);
@@ -195,7 +187,7 @@ namespace Project.Business.Implement
             return exist;
         }
 
-        public Task<IEnumerable<User>> DeleteAsync(Guid[] deleteIds)
+        public Task<IEnumerable<UserEntity>> DeleteAsync(Guid[] deleteIds)
         {
             throw new NotImplementedException();
         }

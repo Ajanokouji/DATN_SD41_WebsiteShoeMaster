@@ -10,4 +10,8 @@
     <ProjectReference Include="..\Project.DbManagement\Project.DbManagement.csproj" />
   </ItemGroup>
 
+  <ItemGroup>
+    <Folder Include="Services\" />
+  </ItemGroup>
+
 </Project>

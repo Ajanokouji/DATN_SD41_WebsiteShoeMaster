@@ -1,0 +1,88 @@
+@model Project.Business.Model.PaymentViewModel
+
+@{
+    ViewData["Title"] = "Phương thức thanh toán";
+}
+
+<!-- Breadcrumb Begin -->
+<div class="breadcrumb-option">
+    <div class="container">
+        <div class="row">
+            <div class="col-lg-12">
+                <div class="breadcrumb__links">
+                    <a asp-controller="Home" asp-action="Index"><i class="fa fa-home"></i>Trang chủ</a>
+                    <a asp-controller="Cart" asp-action="Cart">Giỏ hàng</a>
+                    <a asp-controller="Checkout" asp-action="Index">Thông tin đặt hàng</a>
+                    <span>Phương thức thanh toán</span>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+<!-- Breadcrumb End -->
+
+<!-- Checkout Section Begin -->
+<section class="checkout spad">
+    <div class="container">
+        <div class="row">
+            <div class="col-lg-12">
+                <h5 class="mb-4">Chọn phương thức thanh toán</h5>
+                <div class="checkout__form">
+                    <form asp-action="ProcessPayment" method="post">
+                        <input type="hidden" asp-for="BillId" />
+                        <div class="row">
+                            <div class="col-lg-8">
+                                <div asp-validation-summary="ModelOnly" class="text-danger"></div>
+                                
+                                <div class="checkout__payment">
+                                    <div class="checkout__payment__title">
+                                        <h5>Phương thức thanh toán</h5>
+                                    </div>
+                                    <div class="checkout__payment__methods">
+                                        @foreach (var method in Model.PaymentMethods)
+                                        {
+                                            <div class="payment-method">
+                                                <input type="radio" code="@method.Code" name="SelectedPaymentMethod" value="@method.Code" required>
+                                                <label for="@method.Code">@method.Name</label>
+                                                <div class="payment-method__details">
+                                                    @if (method.Code == "COD")
+                                                    {
+                                                        <p>Thanh toán khi nhận hàng (COD). Bạn sẽ thanh toán bằng tiền mặt khi nhận được hàng.</p>
+                                                    }
+                                                    else if (method.Code == "Banking")
+                                                    {
+                                                        <p>Chuyển khoản qua ngân hàng. Bạn sẽ được cung cấp thông tin tài khoản ngân hàng để chuyển khoản.</p>
+                                                    }
+                                                    else if (method.Code == "VNPay")
+                                                    {
+                                                        <p>Thanh toán trực tuyến qua cổng thanh toán VNPay.</p>
+                                                    }
+                                                </div>
+                                            </div>
+                                        }
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="col-lg-4">
+                                <div class="checkout__order">
+                                    <h5>Đơn hàng của bạn</h5>
+                                    <div class="checkout__order__total">
+                                        <ul>
+                                            <li>Tổng tiền <span>@Model.TotalAmount.ToString("N0") VNĐ</span></li>
+                                        </ul>
+                                    </div>
+                                    <button type="submit" class="site-btn">Tiếp tục thanh toán</button>
+                                </div>
+                            </div>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+<!-- Checkout Section End -->
+
+@section Scripts {
+    @{await Html.RenderPartialAsync("_ValidationScriptsPartial");}
+} 

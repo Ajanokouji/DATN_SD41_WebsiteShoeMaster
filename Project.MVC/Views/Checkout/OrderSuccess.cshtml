@@ -1,0 +1,73 @@
+@model Project.Business.Model.BillModel
+
+@{
+    ViewData["Title"] = "Đặt hàng thành công";
+}
+
+<!-- Breadcrumb Begin -->
+<div class="breadcrumb-option">
+    <div class="container">
+        <div class="row">
+            <div class="col-lg-12">
+                <div class="breadcrumb__links">
+                    <a asp-controller="Home" asp-action="Index"><i class="fa fa-home"></i>Trang chủ</a>
+                    <a asp-controller="Cart" asp-action="Cart">Giỏ hàng</a>
+                    <a asp-controller="Checkout" asp-action="Index">Thông tin đặt hàng</a>
+                    <span>Đặt hàng thành công</span>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+<!-- Breadcrumb End -->
+
+<!-- Order Success Section Begin -->
+<section class="checkout spad">
+    <div class="container">
+        <div class="row">
+            <div class="col-lg-12">
+                <div class="checkout__order__success">
+                    <div class="text-center mb-5">
+                        <i class="fa fa-check-circle text-success" style="font-size: 80px;"></i>
+                        <h2 class="mt-3">Đặt hàng thành công!</h2>
+                        <p class="lead">Cảm ơn bạn đã mua sắm tại cửa hàng của chúng tôi.</p>
+                        <p>Mã đơn hàng của bạn là: <strong>@Model.BillCode</strong></p>
+                    </div>
+
+                    <div class="row">
+                        <div class="col-lg-8 mx-auto">
+                            <div class="card mb-4">
+                                <div class="card-header">
+                                    <h5>Thông tin đơn hàng</h5>
+                                </div>
+                                <div class="card-body">
+                                    <div class="row mb-3">
+                                        <div class="col-md-6">
+                                            <p><strong>Mã đơn hàng:</strong> @Model.BillCode</p>
+                                            <p><strong>Ngày đặt hàng:</strong> @Model.CreatedOnDate.ToString("dd/MM/yyyy HH:mm")</p>
+                                            <p><strong>Tổng tiền:</strong> @Model.TotalAmount.ToString("N0") VNĐ</p>
+                                            <p><strong>Giảm giá:</strong> @Model.DiscountAmount.ToString("N0") VNĐ</p>
+                                            <p><strong>Thành tiền:</strong> @Model.FinalAmount.ToString("N0") VNĐ</p>
+                                            <p><strong>Phương thức thanh toán:</strong> @Model.PaymentMethod</p>
+                                        </div>
+                                        <div class="col-md-6">
+                                            <p><strong>Tên khách hàng:</strong> @Model.CustomerName</p>
+                                            <p><strong>Số điện thoại:</strong> @Model.CustomerPhone</p>
+                                            <p><strong>Email:</strong> @Model.CustomerEmail</p>
+                                            <p><strong>Địa chỉ:</strong> @Model.CustomerAddress</p>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <div class="text-center mt-4">
+                                <a asp-controller="Home" asp-action="Index" class="site-btn">Tiếp tục mua sắm</a>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+<!-- Order Success Section End --> 

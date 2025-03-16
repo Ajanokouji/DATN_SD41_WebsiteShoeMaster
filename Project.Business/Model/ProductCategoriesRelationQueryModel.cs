@@ -1,10 +1,11 @@
 ﻿using SERP.Framework.Common;
+using System;
 
 namespace Project.Business.Model
 {
     public class ProductCategoriesRelationQueryModel : PaginationRequest
     {
-        public Guid? Id { get; set; }
+        public new Guid? Id { get; set; }
 
         public Guid? IdSanPham { get; set; }
         public Guid? IdDanhMuc { get; set; }

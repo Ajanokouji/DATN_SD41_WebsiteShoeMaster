@@ -53,7 +53,7 @@ namespace Project.Api.Controllers
         }
 
         [HttpPost]
-        public async Task<IActionResult> CreateUser([FromBody] User user)
+        public async Task<IActionResult> CreateUser([FromBody] UserEntity user)
         {
             return await ExecuteFunction(async () =>
             {
@@ -63,8 +63,8 @@ namespace Project.Api.Controllers
         }
 
         [HttpPatch("{id}")]
-        [ProducesResponseType(typeof(ResponseObject<User>), StatusCodes.Status200OK)]
-        public async Task<IActionResult> PatchUser(Guid id, [FromBody] User user)
+        [ProducesResponseType(typeof(ResponseObject<UserEntity>), StatusCodes.Status200OK)]
+        public async Task<IActionResult> PatchUser(Guid id, [FromBody] UserEntity user)
         {
             return await ExecuteFunction(async () =>
             {
@@ -77,14 +77,14 @@ namespace Project.Api.Controllers
         }
 
         [HttpDelete("{id}")]
-        public async Task<ActionResult<User>> DeleteUser(Guid id)
+        public async Task<ActionResult<UserEntity>> DeleteUser(Guid id)
         {
             var deletedUser = await _userBusiness.DeleteAsync(id);
             return Ok(deletedUser);
         }
 
         [HttpDelete]
-        public async Task<ActionResult<IEnumerable<User>>> DeleteUsers([FromBody] Guid[] ids)
+        public async Task<ActionResult<IEnumerable<UserEntity>>> DeleteUsers([FromBody] Guid[] ids)
         {
             var deletedUsers = await _userBusiness.DeleteAsync(ids);
             return Ok(deletedUsers);

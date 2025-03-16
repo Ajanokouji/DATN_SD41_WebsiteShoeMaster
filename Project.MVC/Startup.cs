@@ -1,4 +1,6 @@
 ﻿using Project.Business;
+using Project.DbManagement;
+using Microsoft.EntityFrameworkCore;
 
 namespace Project.MVC
 {
@@ -13,8 +15,21 @@ namespace Project.MVC
 
         public void ConfigureServices(IServiceCollection services)
         {
+            // Add DbContext configuration
+            services.AddDbContext<ProjectDbContext>(options =>
+                options.UseSqlServer(_configuration["DefaultConnection"]));
+
             services.AddControllersWithViews();
             services.RegisterServiceComponents(_configuration);
+
+            // Add session support
+            services.AddDistributedMemoryCache();
+            services.AddSession(options =>
+            {
+                options.IdleTimeout = TimeSpan.FromMinutes(30);
+                options.Cookie.HttpOnly = true;
+                options.Cookie.IsEssential = true;
+            });
         }
 
         public void Configure(IApplicationBuilder app, IWebHostEnvironment env)
@@ -29,6 +44,9 @@ namespace Project.MVC
             app.UseStaticFiles();
             app.UseRouting();
             app.UseAuthorization();
+            
+            // Enable session
+            app.UseSession();
 
             app.UseEndpoints(endpoints =>
             {

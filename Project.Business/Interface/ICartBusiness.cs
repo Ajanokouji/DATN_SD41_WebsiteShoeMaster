@@ -1,10 +1,8 @@
 ﻿using Project.Business.Model;
+using Project.Common;
 using Project.DbManagement.Entity;
 using SERP.Framework.Common;
-using System;
 using System.Collections.Generic;
-using System.Linq;
-using System.Text;
 using System.Threading.Tasks;
 
 namespace Project.Business.Interface
@@ -75,5 +73,12 @@ namespace Project.Business.Interface
         /// <param name="cart"></param>
         /// <returns></returns>
         Task<Cart> PatchAsync(Cart cart);
+        Task<ServiceResult<List<CartItemModel>>> GetCartItems(List<CartSession> cartSessions);
+        Task<ServiceResult<decimal>> CalculateCartTotal(List<CartItemModel> cartItems);
+        Task<ServiceResult<int>> GetCartCount(List<CartSession> cartSessions);
+        Task<ServiceResult<bool>> AddToCart(CartSession cartItem, List<CartSession> currentCart);
+        Task<ServiceResult<bool>> UpdateCartItem(CartSession cartItem, List<CartSession> currentCart);
+        Task<ServiceResult<bool>> RemoveFromCart(Guid productId, int size, List<CartSession> currentCart);
+        Task<ServiceResult<bool>> ClearCart();
     }
 }

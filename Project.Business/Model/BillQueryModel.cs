@@ -1,6 +1,9 @@
 ﻿using Project.Common;
 using Project.DbManagement.Entity;
 using SERP.Metadata.Models.Query;
+using SERP.Framework.Common;
+using System;
+using NetTopologySuite.Geometries;
 
 namespace Project.Business.Model;
 
@@ -26,4 +29,10 @@ public class BillQueryModel : BaseRequestModel, IListMetadataFilterQuery
     public DateTime last_modifi_on_date { get; set; }
     public string update_by { get; set; }
     public string? ghi_chu { get; set; }
+    public DateTime? ngay_tao { get; set; }
+    public DateTime? ngay_thanh_toan { get; set; }
+    public decimal? tong_tien_decimal { get; set; }
+    public DateTime? StartDate { get; set; }
+    public DateTime? EndDate { get; set; }
+    public int? Status { get; set; }
 }

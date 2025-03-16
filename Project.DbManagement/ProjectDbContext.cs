@@ -20,7 +20,7 @@ namespace Project.DbManagement
         public DbSet<CartDetails> CartDetails { get; set; }
         public DbSet<ProductEntity> Products { get; set; }
         public DbSet<CategoriesEntity> Categories { get; set; }
-        public DbSet<User> Users{ get; set; }
+        public DbSet<UserEntity> Users{ get; set; }
         public DbSet<Customers> Customers { get; set; }
 
         public DbSet<ProductCategoriesRelation> ProductCategoriesRelations { get; set; }
