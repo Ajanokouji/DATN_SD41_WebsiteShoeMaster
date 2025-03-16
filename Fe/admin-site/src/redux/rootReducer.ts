@@ -5,6 +5,7 @@ import productReducer from "../redux/apps/product/productSlice";
 import relationReducer from "../redux/apps/relation/relationSlice";
 import voucherReducer from "../redux/apps/voucher/voucherSlice";
 import contactReducer from "../redux/apps/contact/contactSlice";
+import billReducer from "../redux/apps/bill/billSlice";
 
 import messageReducer from "../redux/apps/message/messageSlice";
 
@@ -15,7 +16,8 @@ const rootReducer = combineReducers({
   relation: relationReducer,
   voucher: voucherReducer,
   contact: contactReducer,
-
+  bill: billReducer,
+  
   messages: messageReducer,
 });
 
