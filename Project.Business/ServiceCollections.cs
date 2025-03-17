@@ -5,6 +5,8 @@ using Microsoft.Extensions.DependencyInjection;
 using Project.Business.Implement;
 using Project.Business.Interface;
 using Project.Business.Interface.Repositories;
+using Project.Business.Interface.Services;
+using Project.Business.Services;
 using Project.DbManagement;
 using System;
 using System.Collections.Generic;
@@ -55,7 +57,9 @@ namespace Project.Business
             services.AddScoped<IBillDetailsBusiness, BillDetailsBusiness>();
             services.AddScoped<IProductCategoriesRelationBusiness, ProductCategoriesRelationBusiness>();
             services.AddScoped<ICategoriesBusiness, CategoriesBusiness>();
-    
+            services.AddScoped<IPaymentService, PaymentService>();
+
+
 
             // Configure CORS
             services.AddCors(options =>

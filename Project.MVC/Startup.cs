@@ -1,6 +1,8 @@
 ﻿using Project.Business;
 using Project.DbManagement;
 using Microsoft.EntityFrameworkCore;
+using Project.Business.Interface.Services;
+using Project.Business.Services;
 
 namespace Project.MVC
 {
@@ -21,6 +23,7 @@ namespace Project.MVC
 
             services.AddControllersWithViews();
             services.RegisterServiceComponents(_configuration);
+            services.AddScoped<IPaymentService, PaymentService>();
 
             // Add session support
             services.AddDistributedMemoryCache();

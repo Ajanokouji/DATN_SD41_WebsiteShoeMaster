@@ -29,7 +29,7 @@ const CreateCustomerModal: React.FC<CreateCustomerModalProps> = ({
   // Form state
   const [name, setName] = useState("");
   const [email, setEmail] = useState("");
-  const [phone, setPhone] = useState("");
+  const [phoneNumber, setPhoneNumber] = useState("");
   const [address, setAddress] = useState("");
   const [ttlhRelatedIds, setTtlhRelatedIds] = useState<string[]>([]);
   const [isSubmitting, setIsSubmitting] = useState(false);
@@ -38,7 +38,7 @@ const CreateCustomerModal: React.FC<CreateCustomerModalProps> = ({
   const resetForm = () => {
     setName("");
     setEmail("");
-    setPhone("");
+    setPhoneNumber("");
     setAddress("");
     setTtlhRelatedIds([]);
     setIsSubmitting(false);
@@ -124,8 +124,8 @@ const CreateCustomerModal: React.FC<CreateCustomerModalProps> = ({
               <Input
                 id="phoneNumber"
                 placeholder="Phone Number"
-                value={phone}
-                onChange={(e) => setPhone(e.target.value)}
+                value={phoneNumber}
+                onChange={(e) => setPhoneNumber(e.target.value)}
                 required
               />
             </div>

@@ -101,9 +101,9 @@ public class BillRepository : IBillRepository
                 query = query.Where(x => x.EmployeeId == queryModel.id_nhan_vien.Value);
             }
             
-            if (queryModel.id_khach_hang.HasValue)
+            if (queryModel.CustomerId.HasValue)
             {
-                query = query.Where(x => x.CustomerId == queryModel.id_khach_hang.Value);
+                query = query.Where(x => x.CustomerId == queryModel.CustomerId.Value);
             }
             
             if (queryModel.id_don_hang.HasValue)
@@ -116,9 +116,9 @@ public class BillRepository : IBillRepository
                 query = query.Where(x => x.PaymentMethodId == queryModel.id_phuong_thuc_thanh_toan.Value);
             }
             
-            if (!string.IsNullOrEmpty(queryModel.ma_hoa_don))
+            if (!string.IsNullOrEmpty(queryModel.BillCode))
             {
-                query = query.Where(x => x.BillCode==queryModel.ma_hoa_don);
+                query = query.Where(x => x.BillCode==queryModel.BillCode);
             }
             
             if (!string.IsNullOrEmpty(queryModel.ten_khach_nhan))
@@ -162,14 +162,14 @@ public class BillRepository : IBillRepository
                 query = query.Where(x => x.AmountToPay == queryModel.tong_tien_phai_thanh_toan);
             }
             
-            if (queryModel.trang_thai >= 0)
+            if (!string.IsNullOrEmpty(queryModel.Status) )
             {
-                query = query.Where(x => x.Status == queryModel.trang_thai);
+                query = query.Where(x => x.Status == queryModel.Status);
             }
             
-            if (queryModel.trang_thai_thanh_toan >= 0)
+            if (!string.IsNullOrEmpty(queryModel.PaymentStatus))
             {
-                query = query.Where(x => x.PaymentStatus == queryModel.trang_thai_thanh_toan);
+                query = query.Where(x => x.PaymentStatus == queryModel.PaymentStatus);
             }
             
             if (queryModel.create_on_date != null)

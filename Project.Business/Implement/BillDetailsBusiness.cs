@@ -6,6 +6,7 @@ using Project.Common;
 using Project.DbManagement;
 using SERP.Framework.Common;
 using Serilog;
+using Project.Common.Constants;
 
 namespace Project.Business.Implement;
 
@@ -153,7 +154,7 @@ public class BillDetailsBusiness : IBillDetailsBusiness
 
         if (exist == null)
         {
-            throw new ArgumentException(BillConstant.BillNotFound);
+            throw new ArgumentException(BillConstants.BillNotFound);
         }
 
         var update = new BillDetailsEntity()
@@ -335,12 +336,11 @@ public class BillDetailsBusiness : IBillDetailsBusiness
         }
     }
 
-    public async Task<ServiceResult<List<BillDetailModel>>> GetBillDetailsByBillId(long billId)
+    public async Task<ServiceResult<List<BillDetailModel>>> GetBillDetailsByBillId(Guid billId)
     {
         try
         {
-            var billGuid = Guid.Parse(billId.ToString());
-            var billDetails = await _billDetailsRepository.ListAllAsync(new BillDetailsQueryModel { BillId = billGuid });
+            var billDetails = await _billDetailsRepository.ListAllAsync(new BillDetailsQueryModel { BillId = billId });
             
             if (billDetails == null || !billDetails.Any())
             {
@@ -354,8 +354,8 @@ public class BillDetailsBusiness : IBillDetailsBusiness
 
             var result = billDetails.Select(d => new BillDetailModel
             {
-                Id = long.Parse(d.Id.ToString()),
-                BillId = long.Parse(d.BillId.ToString()),
+                Id = d.Id,
+                BillId = d.BillId.Value,
                 ProductId = d.ProductId ?? Guid.Empty,
                 ProductName = "", // Cần lấy thêm thông tin sản phẩm
                 ProductImage = "", // Cần lấy thêm thông tin sản phẩm
@@ -432,12 +432,12 @@ public class BillDetailsBusiness : IBillDetailsBusiness
         }
     }
 
-    public async Task<ServiceResult<bool>> UpdateBillDetailsStatus(long billDetailId, int status)
+    public async Task<ServiceResult<bool>> UpdateBillDetailsStatus(Guid billDetailId, int status)
     {
         try
         {
-            var billDetailGuid = Guid.Parse(billDetailId.ToString());
-            var billDetail = await FindAsync(billDetailGuid);
+
+            var billDetail = await FindAsync(billDetailId);
             
             if (billDetail == null)
             {
@@ -471,4 +471,7 @@ public class BillDetailsBusiness : IBillDetailsBusiness
             };
         }
     }
+
+
+
 }

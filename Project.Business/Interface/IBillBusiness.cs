@@ -28,12 +28,12 @@ public interface IBillBusiness
     Task<BillEntity> PatchAsync(BillEntity article);
 
     Task <BillModel> CreateBill(BillModel model);
-    Task <BillModel> GetBillById(long id);
+    Task <BillModel> GetBillById(Guid id);
     Task <BillModel> GetBillByCode(string code);
-    Task <List<BillModel>> GetBillsByUserId(long userId);
-    Task <bool> UpdateBillStatus(long billId, int status);
-    Task <bool> UpdatePaymentStatus(long billId, int paymentStatus);
-    Task <bool> UpdatePaymentMethod(long billId, string paymentMethod);
+    Task <List<BillModel>> GetBillsByUserId(Guid userId);
+    Task <bool> UpdateBillStatus(Guid billId, string status);
+    Task <bool> UpdatePaymentStatus(Guid billId, string paymentStatus);
+    Task <bool> UpdatePaymentMethod(Guid billId, string paymentMethod);
     Task <decimal> ApplyVoucher(string voucherCode, decimal totalAmount);
     Task <string> GenerateBillCode();
     Task <BillModel> CheckoutFromCart(

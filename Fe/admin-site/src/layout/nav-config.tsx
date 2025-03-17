@@ -61,6 +61,12 @@ const navConfig: NavConfigItem[] = [
     color: "#f59e0b",
   },
   {
+    title: "Bill",
+    path: "/bill",
+    icon: LuContact,
+    color: "#f59e0b",
+  },
+  {
     title: "Setting",
     path: "/setting",
     icon: LuSettings,

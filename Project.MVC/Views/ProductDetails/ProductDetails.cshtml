@@ -74,7 +74,25 @@
                                 <span class="inc qtybtn">+</span>
                             </div>
                         </div>
-                        <a href="javascript:void(0);" class="cart-btn" onclick="addToCart('@Model.Product.Id')">
+                        <a href="javascript:void(0);" class="cart-btn" 
+                           onclick="addToCart('@Model.Product.Id')"
+                           data-product-id="@Model.Product.Id"
+                           data-product-name="@Model.Product.Name"
+                           data-product-image="@Model.Product.ImageUrl"
+                           data-product-code="@Model.Product.Code"
+                           data-brand="@Model.Product.MetadataObj.GetMetadatavalue("Brand")"
+                           data-category="@Model.Product.MetadataObj.GetMetadatavalue("Category")"
+                           data-description="@Model.Product.Description"
+                           data-size="@Model.Product.MetadataObj.GetMetadatavalue("Size")"
+                           data-color="@Model.Product.MetadataObj.GetMetadatavalue("Color")"
+                           data-color-code="@Model.Product.MetadataObj.GetMetadatavalue("ColorCode")"
+                           data-price="@Model.Product.MetadataObj.GetMetadatavalue("MinPrice")"
+                           data-original-price="@Model.Product.MetadataObj.GetMetadatavalue("OriginalPrice")"
+                           data-discount-price="@Model.Product.MetadataObj.GetMetadatavalue("DiscountPrice")"
+                           data-discount-percent="@Model.Product.MetadataObj.GetMetadatavalue("DiscountPercent")"
+                           data-is-in-stock="@Model.Product.MetadataObj.GetMetadatavalue("IsInStock")"
+                           data-stock-quantity="@Model.Product.MetadataObj.GetMetadatavalue("StockQuantity")"
+                           data-sku="@Model.Product.MetadataObj.GetMetadatavalue("SKU")">
                             <span class="icon_bag_alt"></span> Thêm vào giỏ hàng
                         </a>
                         <ul>
@@ -263,14 +281,34 @@
 
         function addToCart(productId) {
             var quantity = $('#quantity').val();
+            var $cartBtn = $('.cart-btn');
+            
+            var productData = {
+                productId: $cartBtn.data('product-id'),
+                productName: $cartBtn.data('product-name'),
+                productImage: $cartBtn.data('product-image'),
+                productCode: $cartBtn.data('product-code'),
+                brand: $cartBtn.data('brand'),
+                category: $cartBtn.data('category'),
+                description: $cartBtn.data('description'),
+                size: parseInt($cartBtn.data('size')),
+                color: $cartBtn.data('color'),
+                colorCode: $cartBtn.data('color-code'),
+                quantity: parseInt(quantity),
+                price: parseFloat($cartBtn.data('price')),
+                originalPrice: parseFloat($cartBtn.data('original-price')),
+                discountPrice: parseFloat($cartBtn.data('discount-price')),
+                discountPercent: parseInt($cartBtn.data('discount-percent')),
+                isInStock: $cartBtn.data('is-in-stock') === 'true',
+                stockQuantity: parseInt($cartBtn.data('stock-quantity')),
+                sku: $cartBtn.data('sku'),
+                createdDate: new Date().toISOString()
+            };
             
             $.ajax({
                 url: '/Cart/AddToCart',
                 type: 'POST',
-                data: { 
-                    productId: productId,
-                    quantity: quantity
-                },
+                data: productData,
                 success: function(response) {
                     if(response.success) {
                         // Cập nhật số lượng giỏ hàng trên header
