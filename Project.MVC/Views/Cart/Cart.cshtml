@@ -3,6 +3,8 @@
     ViewData["Title"] = "Giỏ hàng";
     Layout = "~/Views/Shared/_Layout.cshtml";
 }
+
+<!-- Breadcrumb Begin -->
 <div class="breadcrumb-option">
     <div class="container">
         <div class="row">
@@ -39,38 +41,58 @@
                                     <th>Sản phẩm</th>
                                     <th>Giá</th>
                                     <th>Số lượng</th>
-                                    <th>Thành tiền</th>
+                                    <th>Tổng</th>
                                     <th></th>
                                 </tr>
                             </thead>
                             <tbody>
                                 @foreach (var item in Model)
                                 {
-                                    <tr data-id="@item.ProductId" data-size="@item.Size" data-color="@item.Color">
+                                    <tr data-id="@item.ProductId" 
+                                        data-size="@item.Size"
+                                        data-color="@item.Color"
+                                        data-product-code="@item.ProductCode"
+                                        data-brand="@item.Brand"
+                                        data-category="@item.Category"
+                                        data-description="@item.Description"
+                                        data-color-code="@item.ColorCode" 
+                                        data-original-price="@item.OriginalPrice"
+                                        data-discount-price="@item.DiscountPrice"
+                                        data-discount-percent="@item.DiscountPercent"
+                                        data-is-in-stock="@item.IsInStock"
+                                        data-stock-quantity="@item.StockQuantity"
+                                        data-sku="@item.ProductCode">
                                         <td class="cart__product__item">
                                             <img src="@item.ProductImage" alt="@item.ProductName" style="max-width: 90px;">
                                             <div class="cart__product__item__title">
                                                 <h6>@item.ProductName</h6>
-                                                <div class="cart__product__item__size">
-                                                    <span>Size: @item.Size</span>
-                                                    @if (!string.IsNullOrEmpty(item.Color))
-                                                    {
-                                                        <span>Màu: @item.Color</span>
-                                                    }
-                                                </div>
+                                                @if (item.DiscountPercent > 0)
+                                                {
+                                                    <p class="discount">Giảm giá: @item.DiscountPercent%</p>
+                                                }
                                             </div>
                                         </td>
-                                        <td class="cart__price">@item.Price.ToString("N0") VNĐ</td>
+                                        <td class="cart__price">
+                                            @if (item.DiscountPrice > 0)
+                                            {
+                                                <span class="original-price">@item.OriginalPrice.ToString("N0") VNĐ</span>
+                                                <span class="discount-price">@item.DiscountPrice.ToString("N0") VNĐ</span>
+                                            }
+                                            else
+                                            {
+                                                <span>@item.Price.ToString("N0") VNĐ</span>
+                                            }
+                                        </td>
                                         <td class="cart__quantity">
                                             <div class="pro-qty">
-                                                <span class="dec qtybtn">-</span>
-                                                <input type="text" value="@item.Quantity" class="quantity-input" readonly>
-                                                <span class="inc qtybtn">+</span>
+                                                <input type="number" class="quantity-input" value="@item.Quantity" min="1" max="@item.StockQuantity">
                                             </div>
                                         </td>
-                                        <td class="cart__total">@((item.Price * item.Quantity).ToString("N0")) VNĐ</td>
+                                        <td class="cart__total">@item.Total.ToString("N0") VNĐ</td>
                                         <td class="cart__close">
-                                            <span class="icon_close remove-item"></span>
+                                            <a href="#" class="remove-item" data-id="@item.ProductId">
+                                                <i class="fa fa-close"></i>
+                                            </a>
                                         </td>
                                     </tr>
                                 }
@@ -121,45 +143,48 @@
     <script>
         $(document).ready(function () {
             // Tăng số lượng
-            $('.inc').click(function () {
-                var $input = $(this).siblings('.quantity-input');
-                var currentVal = parseInt($input.val());
-                $input.val(currentVal + 1);
-                updateItemTotal($(this).closest('tr'));
-            });
-
-            // Giảm số lượng
-            $('.dec').click(function () {
-                var $input = $(this).siblings('.quantity-input');
-                var currentVal = parseInt($input.val());
-                if (currentVal > 1) {
-                    $input.val(currentVal - 1);
-                    updateItemTotal($(this).closest('tr'));
+            $('.pro-qty .qtybtn').on('click', function () {
+                var $button = $(this);
+                var $input = $button.parent().find('input');
+                var oldValue = $input.val();
+                var maxValue = parseInt($input.attr('max'));
+                
+                if ($button.hasClass('inc')) {
+                    if (oldValue < maxValue) {
+                        var newVal = parseFloat(oldValue) + 1;
+                        $input.val(newVal);
+                        updateItemTotal($button.closest('tr'));
+                    }
+                } else {
+                    if (oldValue > 1) {
+                        var newVal = parseFloat(oldValue) - 1;
+                        $input.val(newVal);
+                        updateItemTotal($button.closest('tr'));
+                    }
                 }
             });
 
-            // Xóa sản phẩm
-            $('.remove-item').click(function () {
+            // Xóa sản phẩm khỏi giỏ hàng
+            $('.remove-item').click(function (e) {
+                e.preventDefault();
+                var productId = $(this).data('id');
                 var $row = $(this).closest('tr');
-                var productId = $row.data('id');
-                var size = $row.data('size');
 
                 $.ajax({
                     url: '@Url.Action("RemoveFromCart", "Cart")',
                     type: 'POST',
-                    data: { productId: productId, size: size },
-                    success: function (response) {
-                        if (response.success) {
+                    data: { productId: productId },
+                    success: function (result) {
+                        if (result.success) {
                             $row.remove();
                             updateCartTotal();
-                            
-                            // Nếu giỏ hàng trống, reload trang
-                            if ($('.shop__cart__table tbody tr').length === 0) {
-                                location.reload();
-                            }
+                            alert('Xóa sản phẩm khỏi giỏ hàng thành công');
                         } else {
-                            alert(response.message);
+                            alert('Có lỗi xảy ra khi xóa sản phẩm');
                         }
+                    },
+                    error: function () {
+                        alert('Có lỗi xảy ra khi xóa sản phẩm');
                     }
                 });
             });
@@ -175,12 +200,34 @@
                     var size = $row.data('size');
                     var color = $row.data('color');
                     var quantity = parseInt($row.find('.quantity-input').val());
+                    var productCode = $row.data('product-code');
+                    var brand = $row.data('brand');
+                    var category = $row.data('category');
+                    var description = $row.data('description');
+                    var colorCode = $row.data('color-code');
+                    var originalPrice = parseFloat($row.data('original-price'));
+                    var discountPrice = parseFloat($row.data('discount-price'));
+                    var discountPercent = parseInt($row.data('discount-percent'));
+                    var isInStock = $row.data('is-in-stock');
+                    var stockQuantity = parseInt($row.data('stock-quantity'));
+                    var sku = $row.data('sku');
                     
                     updates.push({
                         productId: productId,
+                        productCode: productCode,
+                        brand: brand,
+                        category: category,
+                        description: description,
                         size: size,
                         color: color,
-                        quantity: quantity
+                        colorCode: colorCode,
+                        quantity: quantity,
+                        originalPrice: originalPrice,
+                        discountPrice: discountPrice,
+                        discountPercent: discountPercent,
+                        isInStock: isInStock,
+                        stockQuantity: stockQuantity,
+                        sku: sku
                     });
                 });
                 
@@ -190,12 +237,7 @@
                     var promise = $.ajax({
                         url: '@Url.Action("UpdateCart", "Cart")',
                         type: 'POST',
-                        data: {
-                            productId: item.productId,
-                            quantity: item.quantity,
-                            size: item.size,
-                            color: item.color
-                        }
+                        data: item
                     });
                     promises.push(promise);
                 });
@@ -235,58 +277,5 @@
 }
 
 <!-- Instagram Begin -->
-<div class="instagram">
-    <div class="container-fluid">
-        <div class="row">
-            <div class="col-lg-2 col-md-4 col-sm-4 p-0">
-                <div class="instagram__item set-bg" data-setbg="/assets/images/instagram/insta-1.jpg">
-                    <div class="instagram__text">
-                        <i class="fa fa-instagram"></i>
-                        <a href="#">ashion_shop</a>
-                    </div>
-                </div>
-            </div>
-            <div class="col-lg-2 col-md-4 col-sm-4 p-0">
-                <div class="instagram__item set-bg" data-setbg="/assets/images/instagram/insta-2.jpg">
-                    <div class="instagram__text">
-                        <i class="fa fa-instagram"></i>
-                        <a href="#">ashion_shop</a>
-                    </div>
-                </div>
-            </div>
-            <div class="col-lg-2 col-md-4 col-sm-4 p-0">
-                <div class="instagram__item set-bg" data-setbg="/assets/images/instagram/insta-3.jpg">
-                    <div class="instagram__text">
-                        <i class="fa fa-instagram"></i>
-                        <a href="#">ashion_shop</a>
-                    </div>
-                </div>
-            </div>
-            <div class="col-lg-2 col-md-4 col-sm-4 p-0">
-                <div class="instagram__item set-bg" data-setbg="/assets/images/instagram/insta-4.jpg">
-                    <div class="instagram__text">
-                        <i class="fa fa-instagram"></i>
-                        <a href="#">ashion_shop</a>
-                    </div>
-                </div>
-            </div>
-            <div class="col-lg-2 col-md-4 col-sm-4 p-0">
-                <div class="instagram__item set-bg" data-setbg="/assets/images/instagram/insta-5.jpg">
-                    <div class="instagram__text">
-                        <i class="fa fa-instagram"></i>
-                        <a href="#">ashion_shop</a>
-                    </div>
-                </div>
-            </div>
-            <div class="col-lg-2 col-md-4 col-sm-4 p-0">
-                <div class="instagram__item set-bg" data-setbg="/assets/images/instagram/insta-6.jpg">
-                    <div class="instagram__text">
-                        <i class="fa fa-instagram"></i>
-                        <a href="#">ashion_shop</a>
-                    </div>
-                </div>
-            </div>
-        </div>
-    </div>
-</div>
+@await Component.InvokeAsync("SocialMedial")
 <!-- Instagram End -->

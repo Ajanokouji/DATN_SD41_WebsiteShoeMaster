@@ -1,0 +1,250 @@
+using AutoMapper.Configuration;
+using Dapper;
+using Microsoft.Data.SqlClient;
+using Project.Business.Interface.Repositories;
+using Project.Business.Model;
+using Project.DbManagement.Entity;
+using SERP.FileManagementService.Business;
+using SERP.FileManagementService.Entities;
+using SERP.FileManagementService.Models;
+using SERP.Framework.Business;
+using SERP.Framework.Common;
+using SERP.Framework.Common.Extensions;
+using SERP.Framework.DB.Extensions;
+using SERP.Framework.Entities;
+using System;
+using System.Collections.Generic;
+using System.Data;
+using System.Data.Entity.Core.Common.CommandTrees;
+using System.Linq;
+using System.Threading.Tasks;
+using static System.Net.Mime.MediaTypeNames;
+
+namespace Project.Business.Implement
+{
+    public class ProductDapperRepository : IProductRepository
+    {
+        private readonly IDbConnection _dbConnection;
+
+        public ProductDapperRepository(IDbConnection dbConnection)
+        {
+            _dbConnection = dbConnection;
+        }
+
+        public async Task<ProductEntity> FindAsync(Guid id)
+        {
+            var query = "SELECT * FROM Products WHERE Id = @Id AND IsDeleted = 0";
+            var product = await _dbConnection.QueryFirstOrDefaultAsync<ProductEntity>(query, new { Id = id });
+            return product;
+        }
+
+        public async Task<IEnumerable<ProductEntity>> ListAllAsync(ProductQueryModel queryModel)
+        {
+            string sortExpression = BuildSortExpression(queryModel);
+
+            var baseIdEntities = await ListIdObjectsAsync(queryModel);
+            var res = await ListByIdsAsync( baseIdEntities.Select(x => x.Id));
+            res = res.AsQueryable().ApplySorting(sortExpression);
+            return res;
+        }
+        public virtual async Task<IEnumerable<ProductEntity>> ListIdObjectsAsync(ProductQueryModel query)
+        {
+            query.PageSize ??= 20;
+            query.CurrentPage ??= 1;
+
+            var conditionParameters = new Dictionary<string, object>();
+            var sqlConditions = await BuildQuery(query, conditionParameters);
+            string sortExpression = BuildSortExpression(query);
+            var table = $"ProductS n";
+
+            using (var conn =_dbConnection)
+            {
+                var listNodeObjectIds = await conn.GetListAsync<ProductEntity>(table,
+                    $"n.Id ",
+                    sqlConditions, conditionParameters,
+                    query.CurrentPage.Value, query.PageSize.Value, sortExpression);
+
+                return listNodeObjectIds;
+            }
+        }
+        public async Task<IEnumerable<ProductEntity>> ListByIdsAsync(IEnumerable<Guid> ids)
+        {
+            var query = "SELECT * FROM Products WHERE Id IN @Ids AND IsDeleted = 0";
+            var products = await _dbConnection.QueryAsync<ProductEntity>(query, new { Ids = ids });
+            return products;
+        }
+
+        public async Task<Pagination<ProductEntity>> GetAllAsync(ProductQueryModel queryModel)
+        {
+            var conditionParameters = new Dictionary<string, object>();
+            var sqlConditions = await BuildQuery(queryModel, conditionParameters);
+            string sortExpression = BuildSortExpression(queryModel);
+            var table = $"Products n";
+
+            using (var conn = _dbConnection)
+            {
+                var content = await conn.GetPagedAsync<ProductEntity>(table, $"*",
+                    sqlConditions, conditionParameters,
+                    queryModel.CurrentPage.Value, queryModel.PageSize.Value, sortExpression);
+
+                return content;
+            }
+
+       
+        }
+
+        protected virtual string BuildSortExpression(PaginationRequest queryModel)
+        {
+            string sortExpression;
+            if (string.IsNullOrWhiteSpace(queryModel.Sort))
+            {
+                sortExpression = $"-{nameof(NodeEntity.Name)}";
+            }
+            else
+            {
+                sortExpression = QueryUtils.FormatSortInput(queryModel.Sort);
+            }
+
+            return sortExpression;
+        }
+
+
+
+        private async Task<string> BuildQuery(ProductQueryModel queryModel,Dictionary<string,object> conditionParameters)
+        {
+            var query = "IsDeleted = 0";
+            if (queryModel.Id.HasValue)
+            {
+                query += " AND Id = @Id";
+                conditionParameters.TryAdd($"@Id", queryModel.Id);
+            }
+
+            if (queryModel.ListId != null && queryModel.ListId.Any())
+            {
+                query += " AND Id IN @ListId";
+                conditionParameters.TryAdd($"@ListId", queryModel.ListId);
+            }
+
+            if (queryModel.ListTextSearch != null && queryModel.ListTextSearch.Any())
+            {
+                var searchConditions = queryModel.ListTextSearch.Select(ts => $"(LOWER(Name) LIKE '%{ts.ToLower()}%' OR LOWER(Description) LIKE '%{ts.ToLower()}%')");
+                query += " AND (" + string.Join(" OR ", searchConditions) + ")";
+            }
+
+            if (!string.IsNullOrWhiteSpace(queryModel.FullTextSearch))
+            {
+                query += " AND LOWER(Name) LIKE '%@FullTextSearch%'";
+            }
+
+            if (!string.IsNullOrEmpty(queryModel.MaSanPham))
+            {
+                query += " AND Code = @MaSanPham";
+                conditionParameters.TryAdd($"@MaSanPham", queryModel.MaSanPham);
+            }
+
+            if (!string.IsNullOrEmpty(queryModel.WorkFlowStates))
+            {
+                query += " AND WorkFlowStates = @WorkFlowStates";
+                conditionParameters.TryAdd($"@WorkFlowStates", queryModel.WorkFlowStates);
+            }
+
+            if (queryModel.MainCategoryId.HasValue)
+            {
+                query += " AND MainCategoryId = @MainCategoryId";
+                conditionParameters.TryAdd($"@MainCategoryId", queryModel.MainCategoryId);
+            }
+
+            if (!string.IsNullOrEmpty(queryModel.Status))
+            {
+                query += " AND Status = @Status";
+                conditionParameters.TryAdd($"@Status", queryModel.Status);
+
+            }
+
+            if (!string.IsNullOrEmpty(queryModel.TenSanPham))
+            {
+                query += " AND Name LIKE '%@TenSanPham%'";
+                conditionParameters.TryAdd($"@TenSanPham", queryModel.TenSanPham);
+            }
+
+            if (!string.IsNullOrEmpty(queryModel.Description))
+            {
+                query += " AND Description LIKE '%@Description%'";
+                conditionParameters.TryAdd($"@Description", queryModel.Description);
+            }
+
+        //    if (queryModel.MetaDataQueries != null && queryModel.MetaDataQueries.Any())
+        //{
+        //    var metadataQuery = queryModel.BuildMetadataQuery<NodeEntity>(conditionParameters);
+        //    if (!string.IsNullOrEmpty(metadataQuery))
+        //            query += $" AND ({metadataQuery.Replace(nameof(MetadataEntity), MetadataEntityTableName)})";
+        //}
+            return query;
+        }
+
+        public async Task<int> GetCountAsync(ProductQueryModel queryModel)
+        {
+            var conditionParameters = new Dictionary<string, object>();
+            var query =  BuildQuery(queryModel, conditionParameters);
+            var count = await _dbConnection.ExecuteScalarAsync<int>($"SELECT COUNT(*) FROM ({query}) AS CountQuery");
+            return count;
+        }
+
+        public async Task<ProductEntity> SaveAsync(ProductEntity product)
+        {
+            var query = @"
+                IF EXISTS (SELECT 1 FROM Products WHERE Id = @Id)
+                BEGIN
+                    UPDATE Products
+                    SET Name = @Name,
+                        Code = @Code,
+                        MainCategoryId = @MainCategoryId,
+                        CompletePath = @CompletePath,
+                        CompleteName = @CompleteName,
+                        CompleteCode = @CompleteCode,
+                        CreatedByUserId = @CreatedByUserId,
+                        LastModifiedByUserId = @LastModifiedByUserId,
+                        RelatedObjectIds = @RelatedObjectIds,
+                        MetadataObj = @MetadataObj,
+                        SortOrder = @SortOrder,
+                        LabelsObjs = @LabelsObjs,
+                        CreatedOnDate = @CreatedOnDate,
+                        PublicOnDate = @PublicOnDate,
+                        Status = @Status,
+                        LastModifiedOnDate = @LastModifiedOnDate,
+                        WorkFlowStates = @WorkFlowStates,
+                        Description = @Description,
+                        ImageUrl = @ImageUrl
+                    WHERE Id = @Id
+                END
+                ELSE
+                BEGIN
+                    INSERT INTO Products (Id, Name, Code, MainCategoryId, CompletePath, CompleteName, CompleteCode, CreatedByUserId, LastModifiedByUserId, RelatedObjectIds, MetadataObj, SortOrder, LabelsObjs, CreatedOnDate, PublicOnDate, Status, LastModifiedOnDate, WorkFlowStates, Description, ImageUrl)
+                    VALUES (@Id, @Name, @Code, @MainCategoryId, @CompletePath, @CompleteName, @CompleteCode, @CreatedByUserId, @LastModifiedByUserId, @RelatedObjectIds, @MetadataObj, @SortOrder, @LabelsObjs, @CreatedOnDate, @PublicOnDate, @Status, @LastModifiedOnDate, @WorkFlowStates, @Description, @ImageUrl)
+                END";
+            await _dbConnection.ExecuteAsync(query, product);
+            return product;
+        }
+
+        public async Task<IEnumerable<ProductEntity>> SaveAsync(IEnumerable<ProductEntity> productEntities)
+        {
+            var tasks = productEntities.Select(product => SaveAsync(product));
+            var results = await Task.WhenAll(tasks);
+            return results;
+        }
+
+        public async Task<ProductEntity> DeleteAsync(Guid id)
+        {
+            var query = "UPDATE Products SET IsDeleted = 1 WHERE Id = @Id";
+            await _dbConnection.ExecuteAsync(query, new { Id = id });
+            return await FindAsync(id);
+        }
+
+        public async Task<IEnumerable<ProductEntity>> DeleteAsync(Guid[] deleteIds)
+        {
+            var query = "UPDATE Products SET IsDeleted = 1 WHERE Id IN @Ids";
+            await _dbConnection.ExecuteAsync(query, new { Ids = deleteIds });
+            return await ListByIdsAsync(deleteIds);
+        }
+    }
+}

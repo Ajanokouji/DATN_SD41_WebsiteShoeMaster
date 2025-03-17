@@ -11,12 +11,13 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
 using Project.DbManagement;
+using Project.Common.Constants;
 
 namespace Project.Business.Implement
 {
-    public class BillBusiness : IBillBusiness
-    {
-        private readonly IBillRepository _billRepository;
+public class BillBusiness : IBillBusiness
+{
+    private readonly IBillRepository _billRepository;
         private readonly IBillDetailsBusiness _billDetailsBusiness;
         private readonly IMemoryCache _cache;
         private readonly ILogger _logger;
@@ -24,196 +25,196 @@ namespace Project.Business.Implement
         private readonly MemoryCacheEntryOptions _cacheOptions;
 
         public BillBusiness(IBillRepository billRepository, IBillDetailsBusiness billDetailsBusiness, IMemoryCache cache)
-        {
-            _billRepository = billRepository;
+    {
+        _billRepository = billRepository;
             _billDetailsBusiness = billDetailsBusiness;
             _cache = cache;
             _logger = Log.ForContext<BillBusiness>();
             _cacheOptions = new MemoryCacheEntryOptions()
                 .SetSlidingExpiration(TimeSpan.FromMinutes(5))
                 .SetAbsoluteExpiration(TimeSpan.FromMinutes(30));
+    }
+
+    public async Task<BillEntity> DeleteAsync(Guid contentId)
+    {
+        return await _billRepository.DeleteAsync(contentId);
+    }
+
+    public async Task<IEnumerable<BillEntity>> DeleteAsync(Guid[] deleteIds)
+    {
+        return await _billRepository.DeleteAsync(deleteIds);
+    }
+
+    public async Task<BillEntity> FindAsync(Guid contentId)
+    {
+        return await _billRepository.FindAsync(contentId);
+    }
+
+    public async Task<Pagination<BillEntity>> GetAllAsync(BillQueryModel queryModel)
+    {
+        return await _billRepository.GetAllAsync(queryModel);
+    }
+
+    public async Task<int> GetCountAsync(BillQueryModel queryModel)
+    {
+        return await _billRepository.GetCountAsync(queryModel);
+    }
+
+    public async Task<IEnumerable<BillEntity>> ListAllAsync(BillQueryModel queryModel)
+    {
+        return await _billRepository.ListAllAsync(queryModel);
+    }
+
+    public async Task<IEnumerable<BillEntity>> ListByIdsAsync(IEnumerable<Guid> ids)
+    {
+        return await _billRepository.ListByIdsAsync(ids);
+    }
+
+    public async Task<BillEntity> PatchAsync(BillEntity model)
+    {
+        var exist = await _billRepository.FindAsync(model.Id);
+
+        if (exist == null)
+        {
+            throw new ArgumentException(BillConstants.BillNotFound);
         }
 
-        public async Task<BillEntity> DeleteAsync(Guid contentId)
+        var update = new BillEntity()
         {
-            return await _billRepository.DeleteAsync(contentId);
+            Id = exist.Id,
+            EmployeeId = exist.EmployeeId,
+            CustomerId = exist.CustomerId,
+            OrderId = exist.OrderId,
+            PaymentMethodId = exist.PaymentMethodId,
+            BillCode = exist.BillCode,
+            RecipientName = exist.RecipientName,
+            RecipientPhone = exist.RecipientPhone,
+            RecipientAddress = exist.RecipientAddress,
+            TotalAmount = exist.TotalAmount,
+            DiscountAmount = exist.DiscountAmount,
+            AmountAfterDiscount = exist.AmountAfterDiscount,
+            AmountToPay = exist.AmountToPay,
+            Status = exist.Status,
+            PaymentStatus = exist.PaymentStatus,
+            CreatedOnDate = exist.CreatedOnDate,
+            RecipientEmail = exist.RecipientEmail,
+            LastModifiedOnDate = exist.LastModifiedOnDate,
+            UpdateBy = exist.UpdateBy,
+            Notes = exist.Notes,
+            LastModifiedByUserId = exist.LastModifiedByUserId
+        };
+
+        if (!string.IsNullOrWhiteSpace(model.BillCode))
+        {
+            update.BillCode = model.BillCode;
         }
 
-        public async Task<IEnumerable<BillEntity>> DeleteAsync(Guid[] deleteIds)
+        if (model.EmployeeId != null)
         {
-            return await _billRepository.DeleteAsync(deleteIds);
+            update.EmployeeId = model.EmployeeId;
+        }
+        
+        if (model.CustomerId != null)
+        {
+            update.CustomerId = model.CustomerId;
+        }
+        
+        if (model.OrderId != null)
+        {
+            update.OrderId = model.OrderId;
+        }
+        
+        if (model.PaymentMethodId != null)
+        {
+            update.PaymentMethodId = model.PaymentMethodId;
         }
 
-        public async Task<BillEntity> FindAsync(Guid contentId)
+        if (!string.IsNullOrWhiteSpace(model.RecipientName))
         {
-            return await _billRepository.FindAsync(contentId);
+            update.RecipientName = model.RecipientName;
         }
 
-        public async Task<Pagination<BillEntity>> GetAllAsync(BillQueryModel queryModel)
+        if (!string.IsNullOrWhiteSpace(model.RecipientPhone))
         {
-            return await _billRepository.GetAllAsync(queryModel);
+            update.RecipientPhone = model.RecipientPhone;
         }
 
-        public async Task<int> GetCountAsync(BillQueryModel queryModel)
+        if (!string.IsNullOrWhiteSpace(model.RecipientEmail))
         {
-            return await _billRepository.GetCountAsync(queryModel);
+            update.RecipientEmail = model.RecipientEmail;
         }
 
-        public async Task<IEnumerable<BillEntity>> ListAllAsync(BillQueryModel queryModel)
+        if (!string.IsNullOrWhiteSpace(model.RecipientAddress))
         {
-            return await _billRepository.ListAllAsync(queryModel);
+            update.RecipientAddress = model.RecipientAddress;
         }
 
-        public async Task<IEnumerable<BillEntity>> ListByIdsAsync(IEnumerable<Guid> ids)
+        if (model.TotalAmount > 0)
         {
-            return await _billRepository.ListByIdsAsync(ids);
+            update.TotalAmount = model.TotalAmount;
         }
 
-        public async Task<BillEntity> PatchAsync(BillEntity model)
+        if (model.DiscountAmount > 0)
         {
-            var exist = await _billRepository.FindAsync(model.Id);
+            update.DiscountAmount = model.DiscountAmount;
+        }  
 
-            if (exist == null)
-            {
-                throw new ArgumentException(BillConstant.BillNotFound);
-            }
-
-            var update = new BillEntity()
-            {
-                Id = exist.Id,
-                EmployeeId = exist.EmployeeId,
-                CustomerId = exist.CustomerId,
-                OrderId = exist.OrderId,
-                PaymentMethodId = exist.PaymentMethodId,
-                BillCode = exist.BillCode,
-                RecipientName = exist.RecipientName,
-                RecipientPhone = exist.RecipientPhone,
-                RecipientAddress = exist.RecipientAddress,
-                TotalAmount = exist.TotalAmount,
-                DiscountAmount = exist.DiscountAmount,
-                AmountAfterDiscount = exist.AmountAfterDiscount,
-                AmountToPay = exist.AmountToPay,
-                Status = exist.Status,
-                PaymentStatus = exist.PaymentStatus,
-                CreatedOnDate = exist.CreatedOnDate,
-                RecipientEmail = exist.RecipientEmail,
-                LastModifiedOnDate = exist.LastModifiedOnDate,
-                UpdateBy = exist.UpdateBy,
-                Notes = exist.Notes,
-                LastModifiedByUserId = exist.LastModifiedByUserId
-            };
-
-            if (!string.IsNullOrWhiteSpace(model.BillCode))
-            {
-                update.BillCode = model.BillCode;
-            }
-
-            if (model.EmployeeId != null)
-            {
-                update.EmployeeId = model.EmployeeId;
-            }
-
-            if (model.CustomerId != null)
-            {
-                update.CustomerId = model.CustomerId;
-            }
-
-            if (model.OrderId != null)
-            {
-                update.OrderId = model.OrderId;
-            }
-
-            if (model.PaymentMethodId != null)
-            {
-                update.PaymentMethodId = model.PaymentMethodId;
-            }
-
-            if (!string.IsNullOrWhiteSpace(model.RecipientName))
-            {
-                update.RecipientName = model.RecipientName;
-            }
-
-            if (!string.IsNullOrWhiteSpace(model.RecipientPhone))
-            {
-                update.RecipientPhone = model.RecipientPhone;
-            }
-
-            if (!string.IsNullOrWhiteSpace(model.RecipientEmail))
-            {
-                update.RecipientEmail = model.RecipientEmail;
-            }
-
-            if (!string.IsNullOrWhiteSpace(model.RecipientAddress))
-            {
-                update.RecipientAddress = model.RecipientAddress;
-            }
-
-            if (model.TotalAmount > 0)
-            {
-                update.TotalAmount = model.TotalAmount;
-            }
-
-            if (model.DiscountAmount > 0)
-            {
-                update.DiscountAmount = model.DiscountAmount;
-            }
-
-            if (model.AmountAfterDiscount > 0)
-            {
-                update.AmountAfterDiscount = model.AmountAfterDiscount;
-            }
-
-            if (model.AmountAfterDiscount > 0)
-            {
-                update.AmountAfterDiscount = model.AmountAfterDiscount;
-            }
-
-            if (model.AmountToPay > 0)
-            {
-                update.AmountToPay = model.AmountToPay;
-            }
-
-            if (model.Status > 0)
-            {
-                update.Status = model.Status;
-            }
-
-            if (model.PaymentStatus > 0)
-            {
-                update.PaymentStatus = model.PaymentStatus;
-            }
-
-            if (model.CreatedOnDate != null)
-            {
-                update.CreatedOnDate = model.CreatedOnDate;
-            }
-
-            if (model.LastModifiedOnDate != null)
-            {
-                update.LastModifiedOnDate = model.LastModifiedOnDate;
-            }
-
-            if (!string.IsNullOrWhiteSpace(model.UpdateBy))
-            {
-                update.UpdateBy = model.UpdateBy;
-            }
-
-            if (!string.IsNullOrWhiteSpace(model.Notes))
-            {
-                update.Notes = model.Notes;
-            }
-
-            return await SaveAsync(update);
+        if (model.AmountAfterDiscount > 0)
+        {
+            update.AmountAfterDiscount = model.AmountAfterDiscount;
         }
 
-        public async Task<BillEntity> SaveAsync(BillEntity billEntity)
+        if (model.AmountAfterDiscount > 0)
         {
-            var res = await SaveAsync(new[] { billEntity });
+            update.AmountAfterDiscount = model.AmountAfterDiscount;
+        }
+        
+        if (model.AmountToPay > 0)
+        {
+            update.AmountToPay = model.AmountToPay;
+        }
+
+        if (!string.IsNullOrEmpty(model.Status))
+        {
+            update.Status = model.Status;
+        }
+
+        if (!string.IsNullOrEmpty(model.PaymentStatus))
+        {
+            update.PaymentStatus = model.PaymentStatus;
+        }
+
+        if (model.CreatedOnDate != null)
+        {
+            update.CreatedOnDate = model.CreatedOnDate;
+        }
+
+        if (model.LastModifiedOnDate != null)
+        {
+            update.LastModifiedOnDate = model.LastModifiedOnDate;
+        }
+
+        if (!string.IsNullOrWhiteSpace(model.UpdateBy))
+        {
+            update.UpdateBy = model.UpdateBy;
+        }
+
+        if (!string.IsNullOrWhiteSpace(model.Notes))
+        {
+            update.Notes = model.Notes;
+        }
+        
+        return await SaveAsync(update);
+    }
+
+    public async Task<BillEntity> SaveAsync(BillEntity billEntity)
+    {
+        var res = await SaveAsync(new[] { billEntity });
             return res.FirstOrDefault();
-        }
+    }
 
-        public async Task<IEnumerable<BillEntity>> SaveAsync(IEnumerable<BillEntity> billEntities)
-        {
+    public async Task<IEnumerable<BillEntity>> SaveAsync(IEnumerable<BillEntity> billEntities)
+    {
             return await _billRepository.SaveAsync(billEntities);
         }
         public async Task<BillModel> CreateBill(BillModel model)
@@ -222,23 +223,19 @@ namespace Project.Business.Implement
             {
                 if (model == null)
                 {
-                    return new ServiceResult<BillModel>
-                    {
-                        IsSuccess = false,
-                        Message = "Thông tin hóa đơn không được để trống",
-                        Data = null
-                    };
+                    return new BillModel();
+                  
                 }
 
                 var billEntity = new BillEntity
                 {
                     Id = Guid.NewGuid(),
-                    BillCode = model.BillCode ?? GenerateBillCode(),
-                    UserId = model.CustomerId != null ? Guid.Parse(model.CustomerId.ToString()) : null,
+                    BillCode = model.BillCode ?? await GenerateBillCode(),
+                    CustomerId = model.CustomerId != null ? Guid.Parse(model.CustomerId.ToString()) : null,
                     RecipientName = model.CustomerName,
-                    RecipientEmail = model.Email,
-                    RecipientPhone = model.PhoneNumber,
-                    RecipientAddress = model.Address,
+                    RecipientEmail = model.CustomerEmail,
+                    RecipientPhone = model.CustomerPhone,
+                    RecipientAddress = model.CustomerAddress,
                     TotalAmount = (double)model.TotalAmount,
                     DiscountAmount = (double)model.DiscountAmount,
                     FinalAmount = (double)model.FinalAmount,
@@ -259,13 +256,13 @@ namespace Project.Business.Implement
 
                 var result = new BillModel
                 {
-                    Id = long.Parse(savedBill.Id.ToString()),
+                    Id = savedBill.Id,
                     BillCode = savedBill.BillCode,
-                    CustomerId = savedBill.UserId != null ? long.Parse(savedBill.UserId.ToString()) : null,
+                    CustomerId = savedBill.CustomerId != null ? savedBill.CustomerId : null,
                     CustomerName = savedBill.RecipientName,
-                    PhoneNumber = savedBill.RecipientPhone,
-                    Email = savedBill.RecipientEmail,
-                    Address = savedBill.RecipientAddress,
+                    CustomerPhone = savedBill.RecipientPhone,
+                    CustomerEmail = savedBill.RecipientEmail,
+                    CustomerAddress = savedBill.RecipientAddress,
                     TotalAmount = (decimal)savedBill.TotalAmount,
                     DiscountAmount = (decimal)savedBill.DiscountAmount,
                     FinalAmount = (decimal)savedBill.FinalAmount,
@@ -274,30 +271,21 @@ namespace Project.Business.Implement
                     Status = savedBill.Status,
                     PaymentMethod = savedBill.PaymentMethod,
                     PaymentStatus = savedBill.PaymentStatus,
-                    CreatedDate = savedBill.CreatedOnDate,
+                    CreatedOnDate = savedBill.CreatedOnDate.Value,
                     UpdatedDate = savedBill.LastModifiedOnDate
                 };
 
-                return new ServiceResult<BillModel>
-                {
-                    IsSuccess = true,
-                    Message = "Tạo hóa đơn thành công",
-                    Data = result
-                };
+                return result;
+     
             }
             catch (Exception ex)
             {
                 _logger.Error(ex, "Lỗi khi tạo hóa đơn");
-                return new ServiceResult<BillModel>
-                {
-                    IsSuccess = false,
-                    Message = $"Lỗi khi tạo hóa đơn: {ex.Message}",
-                    Data = null
-                };
+                return null;
             }
         }
 
-        public async Task<BillModel> GetBillById(long id)
+        public async Task<BillModel> GetBillById(Guid id)
         {
             try
             {
@@ -306,25 +294,20 @@ namespace Project.Business.Implement
 
                 if (bill == null)
                 {
-                    return new ServiceResult<BillModel>
-                    {
-                        IsSuccess = false,
-                        Message = "Không tìm thấy hóa đơn",
-                        Data = null
-                    };
+                    return null;
                 }
 
                 var billDetails = await _billDetailsBusiness.GetBillDetailsByBillId(id);
 
                 var result = new BillModel
                 {
-                    Id = long.Parse(bill.Id.ToString()),
+                    Id = bill.Id,
                     BillCode = bill.BillCode,
-                    CustomerId = bill.UserId != null ? long.Parse(bill.UserId.ToString()) : null,
+                    CustomerId = bill.CustomerId != null ? bill.CustomerId : null,
                     CustomerName = bill.RecipientName,
-                    PhoneNumber = bill.RecipientPhone,
-                    Email = bill.RecipientEmail,
-                    Address = bill.RecipientAddress,
+                    CustomerPhone = bill.RecipientPhone,
+                    CustomerEmail = bill.RecipientEmail,
+                    CustomerAddress = bill.RecipientAddress,
                     TotalAmount = (decimal)bill.TotalAmount,
                     DiscountAmount = (decimal)bill.DiscountAmount,
                     FinalAmount = (decimal)bill.FinalAmount,
@@ -333,27 +316,17 @@ namespace Project.Business.Implement
                     Status = bill.Status,
                     PaymentMethod = bill.PaymentMethod,
                     PaymentStatus = bill.PaymentStatus,
-                    CreatedDate = bill.CreatedOnDate.Value,
+                    CreatedOnDate = bill.CreatedOnDate.Value,
                     UpdatedDate = bill.LastModifiedOnDate,
                     BillDetails = billDetails.Data
                 };
 
-                return new ServiceResult<BillModel>
-                {
-                    IsSuccess = true,
-                    Message = "Lấy thông tin hóa đơn thành công",
-                    Data = result
-                };
+                return result;
             }
             catch (Exception ex)
             {
                 _logger.Error(ex, "Lỗi khi lấy thông tin hóa đơn {BillId}", id);
-                return new ServiceResult<BillModel>
-                {
-                    IsSuccess = false,
-                    Message = $"Lỗi khi lấy thông tin hóa đơn: {ex.Message}",
-                    Data = null
-                };
+                return null;
             }
         }
 
@@ -363,12 +336,7 @@ namespace Project.Business.Implement
             {
                 if (string.IsNullOrEmpty(code))
                 {
-                    return new ServiceResult<BillModel>
-                    {
-                        IsSuccess = false,
-                        Message = "Mã hóa đơn không được để trống",
-                        Data = null
-                    };
+                    return null;
                 }
 
                 var bills = await _billRepository.ListAllAsync(new BillQueryModel { BillCode = code });
@@ -376,26 +344,21 @@ namespace Project.Business.Implement
 
                 if (bill == null)
                 {
-                    return new ServiceResult<BillModel>
-                    {
-                        IsSuccess = false,
-                        Message = "Không tìm thấy hóa đơn",
-                        Data = null
-                    };
+                    return null;
                 }
 
-                var billId = long.Parse(bill.Id.ToString());
-                var billDetails = await _billDetailsBusiness.GetBillDetailsByBillId(billId);
+  
+                var billDetails = await _billDetailsBusiness.GetBillDetailsByBillId(bill.Id);
 
                 var result = new BillModel
                 {
-                    Id = billId,
+                    Id = bill.Id,
                     BillCode = bill.BillCode,
-                    CustomerId = bill.UserId != null ? long.Parse(bill.UserId.ToString()) : null,
+                    CustomerId = bill.CustomerId != null ? bill.CustomerId: null,
                     CustomerName = bill.RecipientName,
-                    PhoneNumber = bill.RecipientPhone,
-                    Email = bill.RecipientEmail,
-                    Address = bill.RecipientAddress,
+                    CustomerPhone = bill.RecipientPhone,
+                    CustomerEmail = bill.RecipientEmail,
+                    CustomerAddress = bill.RecipientAddress,
                     TotalAmount = (decimal)bill.TotalAmount,
                     DiscountAmount = (decimal)bill.DiscountAmount,
                     FinalAmount = (decimal)bill.FinalAmount,
@@ -404,36 +367,26 @@ namespace Project.Business.Implement
                     Status = bill.Status,
                     PaymentMethod = bill.PaymentMethod,
                     PaymentStatus = bill.PaymentStatus,
-                    CreatedDate = bill.CreatedOnDate,
+                    CreatedOnDate = bill.CreatedOnDate.Value,
                     UpdatedDate = bill.LastModifiedOnDate,
                     BillDetails = billDetails.Data
                 };
 
-                return new ServiceResult<BillModel>
-                {
-                    IsSuccess = true,
-                    Message = "Lấy thông tin hóa đơn thành công",
-                    Data = result
-                };
+                return result;
             }
             catch (Exception ex)
             {
                 _logger.Error(ex, "Lỗi khi lấy thông tin hóa đơn theo mã {BillCode}", code);
-                return new ServiceResult<BillModel>
-                {
-                    IsSuccess = false,
-                    Message = $"Lỗi khi lấy thông tin hóa đơn: {ex.Message}",
-                    Data = null
-                };
+                return null;
             }
         }
 
-        public async Task <List<BillModel>> GetBillsByUserId(long userId)
+        public async Task <List<BillModel>> GetBillsByUserId(Guid userId)
         {
             try
             {
                 var userGuid = Guid.Parse(userId.ToString());
-                var bills = await _billRepository.ListAllAsync(new BillQueryModel { IdKhachHang = userGuid });
+                var bills = await _billRepository.ListAllAsync(new BillQueryModel { CustomerId= userGuid });
 
                 if (bills == null || !bills.Any())
                 {
@@ -443,13 +396,13 @@ namespace Project.Business.Implement
 
                 var result = bills.Select(bill => new BillModel
                 {
-                    Id = long.Parse(bill.Id.ToString()),
+                    Id = bill.Id,
                     BillCode = bill.BillCode,
-                    CustomerId = bill.CustomerId != null ? long.Parse(bill.CustomerId.ToString()) : null,
+                    CustomerId = bill.CustomerId != null ? bill.CustomerId : null,
                     CustomerName = bill.RecipientName,
-                    PhoneNumber = bill.RecipientPhone,
-                    Email = bill.RecipientEmail,
-                    Address = bill.RecipientAddress,
+                    CustomerPhone = bill.RecipientPhone,
+                    CustomerEmail = bill.RecipientEmail,
+                    CustomerAddress = bill.RecipientAddress,
                     TotalAmount = (decimal)bill.TotalAmount,
                     DiscountAmount = (decimal)bill.DiscountAmount,
                     FinalAmount = (decimal)bill.FinalAmount,
@@ -458,30 +411,20 @@ namespace Project.Business.Implement
                     Status = bill.Status,
                     PaymentMethod = bill.PaymentMethod,
                     PaymentStatus = bill.PaymentStatus,
-                    CreatedDate = bill.CreatedOnDate,
+                    CreatedOnDate = bill.CreatedOnDate.Value,
                     UpdatedDate = bill.LastModifiedOnDate
                 }).ToList();
 
-                return new ServiceResult<List<BillModel>>
-                {
-                    IsSuccess = true,
-                    Message = "Lấy danh sách hóa đơn thành công",
-                    Data = result
-                };
+                return result;
             }
             catch (Exception ex)
             {
                 _logger.Error(ex, "Lỗi khi lấy danh sách hóa đơn của người dùng {UserId}", userId);
-                return new ServiceResult<List<BillModel>>
-                {
-                    IsSuccess = false,
-                    Message = $"Lỗi khi lấy danh sách hóa đơn: {ex.Message}",
-                    Data = new List<BillModel>()
-                };
+                return null;
             }
         }
 
-        public async Task<bool> UpdateBillStatus(long billId, int status)
+        public async Task<bool> UpdateBillStatus(Guid billId, string status)
         {
             try
             {
@@ -490,38 +433,23 @@ namespace Project.Business.Implement
 
                 if (bill == null)
                 {
-                    return new ServiceResult<bool>
-                    {
-                        IsSuccess = false,
-                        Message = "Không tìm thấy hóa đơn",
-                        Data = false
-                    };
+                    return false;
                 }
 
                 bill.Status = status;
                 bill.LastModifiedOnDate = DateTime.Now;
                 await _billRepository.SaveAsync(bill);
 
-                return new ServiceResult<bool>
-                {
-                    IsSuccess = true,
-                    Message = "Cập nhật trạng thái hóa đơn thành công",
-                    Data = true
-                };
+                return true;
             }
             catch (Exception ex)
             {
                 _logger.Error(ex, "Lỗi khi cập nhật trạng thái hóa đơn {BillId}", billId);
-                return new ServiceResult<bool>
-                {
-                    IsSuccess = false,
-                    Message = $"Lỗi khi cập nhật trạng thái hóa đơn: {ex.Message}",
-                    Data = false
-                };
+                return false;
             }
         }
 
-        public async Task<bool> UpdatePaymentStatus(long billId, int paymentStatus)
+        public async Task<bool> UpdatePaymentStatus(Guid billId, string paymentStatus)
         {
             try
             {
@@ -530,38 +458,23 @@ namespace Project.Business.Implement
 
                 if (bill == null)
                 {
-                    return new ServiceResult<bool>
-                    {
-                        IsSuccess = false,
-                        Message = "Không tìm thấy hóa đơn",
-                        Data = false
-                    };
+                    return false;
                 }
 
                 bill.PaymentStatus = paymentStatus;
                 bill.LastModifiedOnDate = DateTime.Now;
                 await _billRepository.SaveAsync(bill);
 
-                return new ServiceResult<bool>
-                {
-                    IsSuccess = true,
-                    Message = "Cập nhật trạng thái thanh toán thành công",
-                    Data = true
-                };
+                return true;
             }
             catch (Exception ex)
             {
                 _logger.Error(ex, "Lỗi khi cập nhật trạng thái thanh toán hóa đơn {BillId}", billId);
-                return new ServiceResult<bool>
-                {
-                    IsSuccess = false,
-                    Message = $"Lỗi khi cập nhật trạng thái thanh toán: {ex.Message}",
-                    Data = false
-                };
+                return false;
             }
         }
 
-        public async Task <bool> UpdatePaymentMethod(long billId, string paymentMethod)
+        public async Task <bool> UpdatePaymentMethod(Guid billId, string paymentMethod)
         {
             try
             {
@@ -570,34 +483,19 @@ namespace Project.Business.Implement
 
                 if (bill == null)
                 {
-                    return new ServiceResult<bool>
-                    {
-                        IsSuccess = false,
-                        Message = "Không tìm thấy hóa đơn",
-                        Data = false
-                    };
+                    return false;
                 }
 
                 bill.PaymentMethod = paymentMethod;
                 bill.LastModifiedOnDate = DateTime.Now;
                 await _billRepository.SaveAsync(bill);
 
-                return new ServiceResult<bool>
-                {
-                    IsSuccess = true,
-                    Message = "Cập nhật phương thức thanh toán thành công",
-                    Data = true
-                };
+                return true;
             }
             catch (Exception ex)
             {
                 _logger.Error(ex, "Lỗi khi cập nhật phương thức thanh toán hóa đơn {BillId}", billId);
-                return new ServiceResult<bool>
-                {
-                    IsSuccess = false,
-                    Message = $"Lỗi khi cập nhật phương thức thanh toán: {ex.Message}",
-                    Data = false
-                };
+                return false;
             }
         }
 
@@ -607,12 +505,7 @@ namespace Project.Business.Implement
             {
                 if (string.IsNullOrEmpty(voucherCode))
                 {
-                    return new ServiceResult<decimal>
-                    {
-                        IsSuccess = false,
-                        Message = "Mã giảm giá không được để trống",
-                        Data = 0
-                    };
+                    return 0;
                 }
 
                 // Giả lập logic áp dụng voucher
@@ -637,30 +530,15 @@ namespace Project.Business.Implement
                 }
                 else
                 {
-                    return new ServiceResult<decimal>
-                    {
-                        IsSuccess = false,
-                        Message = "Mã giảm giá không hợp lệ hoặc đã hết hạn",
-                        Data = 0
-                    };
+                    return 0;
                 }
 
-                return new ServiceResult<decimal>
-                {
-                    IsSuccess = true,
-                    Message = "Áp dụng mã giảm giá thành công",
-                    Data = discountAmount
-                };
+                return discountAmount;
             }
             catch (Exception ex)
             {
                 _logger.Error(ex, "Lỗi khi áp dụng mã giảm giá {VoucherCode}", voucherCode);
-                return new ServiceResult<decimal>
-                {
-                    IsSuccess = false,
-                    Message = $"Lỗi khi áp dụng mã giảm giá: {ex.Message}",
-                    Data = 0
-                };
+                return 0;
             }
         }
 
@@ -677,22 +555,12 @@ namespace Project.Business.Implement
             {
                 if (cartItems == null || !cartItems.Any())
                 {
-                    return new ServiceResult<BillModel>
-                    {
-                        IsSuccess = false,
-                        Message = "Giỏ hàng trống",
-                        Data = null
-                    };
+                    return null;
                 }
 
                 if (customerInfo == null)
                 {
-                    return new ServiceResult<BillModel>
-                    {
-                        IsSuccess = false,
-                        Message = "Thông tin khách hàng không được để trống",
-                        Data = null
-                    };
+                    return null;
                 }
 
                 // Tính tổng tiền
@@ -702,10 +570,10 @@ namespace Project.Business.Implement
                 decimal discountAmount = 0;
                 if (!string.IsNullOrEmpty(voucherCode))
                 {
-                    var voucherResult = ApplyVoucher(voucherCode, totalAmount);
-                    if (voucherResult.IsSuccess)
+                    var voucherResult = await ApplyVoucher(voucherCode, totalAmount);
+                    if (voucherResult!=0)
                     {
-                        discountAmount = voucherResult.Data;
+                        discountAmount = voucherResult;
                     }
                 }
 
@@ -729,17 +597,17 @@ namespace Project.Business.Implement
                 {
                     BillCode = await GenerateBillCode(),
                     CustomerName = customerInfo.FullName,
-                    PhoneNumber = customerInfo.PhoneNumber,
-                    Email = customerInfo.Email,
-                    Address = customerInfo.Address,
+                    CustomerPhone = customerInfo.PhoneNumber,
+                    CustomerEmail = customerInfo.Email,
+                    CustomerAddress = customerInfo.Address,
                     TotalAmount = totalAmount,
                     DiscountAmount = discountAmount,
                     FinalAmount = finalAmount,
                     VoucherCode = voucherCode,
                     Note = customerInfo.Notes,
-                    Status = BillConstant.StatusPending,
+                    Status = BillConstants.StatusPending,
                     PaymentMethod = "COD", // Mặc định là COD, có thể thay đổi sau
-                    PaymentStatus = BillConstant.PaymentStatusUnpaid,
+                    PaymentStatus = BillConstants.PaymentStatusUnpaid,
                     BillDetails = billDetails
                 };
 
@@ -749,13 +617,9 @@ namespace Project.Business.Implement
             catch (Exception ex)
             {
                 _logger.Error(ex, "Lỗi khi thanh toán giỏ hàng");
-                return new ServiceResult<BillModel>
-                {
-                    IsSuccess = false,
-                    Message = $"Lỗi khi thanh toán: {ex.Message}",
-                    Data = null
-                };
+                return null;
             }
         }
+
     }
-} 
+}

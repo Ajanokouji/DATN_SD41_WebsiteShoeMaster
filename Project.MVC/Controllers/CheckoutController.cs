@@ -1,10 +1,16 @@
 ﻿using Microsoft.AspNetCore.Mvc;
 using Newtonsoft.Json;
 using Project.Business.Interface;
+using Project.Business.Interface.Services;
 using Project.Business.Model;
 using Project.Common;
+using Project.Common.Constants;
 using Project.MVC.Models;
 using Project.Project.Business.Model;
+using System;
+using System.Collections.Generic;
+using System.Linq;
+using System.Threading.Tasks;
 
 namespace Project.MVC.Controllers
 {
@@ -12,102 +18,149 @@ namespace Project.MVC.Controllers
     {
         private readonly IBillBusiness _billBusiness;
         private readonly ICartBusiness _cartBusiness;
+        private readonly IPaymentService _paymentService;
         private const string CartSessionKey = "CartSession";
 
-        public CheckoutController(IBillBusiness billBusiness, ICartBusiness cartBusiness)
+        public CheckoutController(
+            IBillBusiness billBusiness,
+            ICartBusiness cartBusiness,
+            IPaymentService paymentService)
         {
             _billBusiness = billBusiness;
             _cartBusiness = cartBusiness;
+            _paymentService = paymentService;
         }
 
         [HttpGet]
         public async Task<IActionResult> Index()
         {
-            // Lấy giỏ hàng từ session
-            var cartSessionJson = HttpContext.Session.GetString(CartConstants.CartSessionKey);
-            if (string.IsNullOrEmpty(cartSessionJson))
+            var cartSession = HttpContext.Session.GetString(CartSessionKey);
+            if (string.IsNullOrEmpty(cartSession))
             {
-                return RedirectToAction("Cart", "Cart");
+                return RedirectToAction("Index", "Cart");
             }
 
-            var cartSessions = JsonConvert.DeserializeObject<List<CartSession>>(cartSessionJson);
-            if (cartSessions == null || !cartSessions.Any())
-            {
-                return RedirectToAction("Cart", "Cart");
-            }
-
-            // Chuyển đổi từ CartSession sang CartItemModel
+            var cartSessions = JsonConvert.DeserializeObject<List<CartSession>>(cartSession);
             var cartItemsResult = await _cartBusiness.GetCartItems(cartSessions);
-            if (!cartItemsResult.IsSuccess)
+            if (!cartItemsResult.IsSuccess || cartItemsResult.Data == null || !cartItemsResult.Data.Any())
             {
-                return RedirectToAction("Cart", "Cart");
+                return RedirectToAction("Index", "Cart");
             }
 
-            var cartItems = cartItemsResult.Data;
-            var totalAmountResult = await _cartBusiness.CalculateCartTotal(cartItems);
-            var totalAmount = totalAmountResult.IsSuccess ? totalAmountResult.Data : cartSessions.Sum(item => item.Total);
-
-            var checkoutViewModel = new CheckoutViewModel
+            var model = new CheckoutViewModel
             {
-                CartItems = cartItems,
-                CustomerInfo = new CustomerInfoModel(),
-                TotalAmount = totalAmount
+                CartItems = cartItemsResult.Data,
+                CustomerInfo = new CustomerInfoModel()
             };
 
-            return View(checkoutViewModel);
+            return View(model);
         }
 
         [HttpPost]
-        public async Task<IActionResult> ProcessCheckout(CheckoutViewModel model)
+        public async Task<IActionResult> PlaceOrder(CheckoutViewModel model, List<Guid> CartItemIds)
         {
-            if (!ModelState.IsValid)
+            try
             {
-                return View("Index", model);
+
+                var cartSession = HttpContext.Session.GetString(CartSessionKey);
+                if (string.IsNullOrEmpty(cartSession))
+                {
+                    return Json(new { success = false, message = "Giỏ hàng trống" });
+                }
+
+                var cartSessions = JsonConvert.DeserializeObject<List<CartSession>>(cartSession);
+                var cartItemsResult = await _cartBusiness.GetCartItems(cartSessions);
+                if (!cartItemsResult.IsSuccess || cartItemsResult.Data == null || !cartItemsResult.Data.Any())
+                {
+                    return Json(new { success = false, message = "Giỏ hàng trống" });
+                }
+
+                // Lọc các item trong giỏ hàng theo danh sách CartItemIds
+                var selectedCartItems = cartItemsResult.Data.Where(item => CartItemIds.Contains(item.ProductId)).ToList();
+
+                // Tạo đơn hàng
+                var bill = await _billBusiness.CreateBill(new BillModel
+                {
+                    CustomerName = model.CustomerInfo.FullName,
+                    CustomerPhone = model.CustomerInfo.PhoneNumber,
+                    CustomerEmail = model.CustomerInfo.Email,
+                    CustomerAddress = $"{model.CustomerInfo.Address}, {model.CustomerInfo.District}, {model.CustomerInfo.City}",
+                    Note = model.CustomerInfo.Notes,
+                    PaymentMethod = model.PaymentMethod,
+                    Status = BillConstants.StatusPending,
+                    PaymentStatus = BillConstants.PaymentStatusUnpaid,
+                    BillDetails = selectedCartItems.Select(item => new BillDetailModel
+                    {
+                        ProductId = item.ProductId,
+                        Quantity = item.Quantity,
+                        Price = item.Price,
+                        TotalPrice = item.Total
+                    }).ToList()
+                });
+
+                if (bill == null)
+                {
+                    return Json(new { success = false, message = "Không thể tạo đơn hàng" });
+                }
+
+                // Xử lý thanh toán
+                if (model.PaymentMethod == "VNPay")
+                {
+                    var paymentUrl = await _paymentService.CreateVNPayPaymentUrl(new PaymentViewModel
+                    {
+                        BillId = bill.Id.Value,
+                        TotalAmount = model.Total
+                    }, HttpContext.Connection.RemoteIpAddress.ToString());
+                    return Json(new { success = true, paymentUrl = paymentUrl.Data });
+                }
+                else // COD
+                {
+                    // Xóa dữ liệu của cart session
+                    HttpContext.Session.Remove(CartSessionKey);
+                    return RedirectToAction("ThankYou", new { orderId = bill.Id });
+                }
+            }
+            catch (Exception ex)
+            {
+                return Json(new { success = false, message = "Có lỗi xảy ra khi đặt hàng" });
+            }
+        }
+
+
+        public async Task<IActionResult> ThankYou(string orderId)
+        {
+            if (string.IsNullOrEmpty(orderId))
+            {
+                return RedirectToAction("Index", "Home");
             }
 
-            // Lấy giỏ hàng từ session
-            var cartSessionJson = HttpContext.Session.GetString(CartConstants.CartSessionKey);
-            if (string.IsNullOrEmpty(cartSessionJson))
+            var bill = await _billBusiness.GetBillById(Guid.Parse(orderId));
+            if (bill == null)
             {
-                return RedirectToAction("Cart", "Cart");
+                return RedirectToAction("Index", "Home");
             }
 
-            var cartSessions = JsonConvert.DeserializeObject<List<CartSession>>(cartSessionJson);
-            if (cartSessions == null || !cartSessions.Any())
-            {
-                return RedirectToAction("Cart", "Cart");
-            }
+            return View(bill);
+        }
 
-            // Chuyển đổi từ CartSession sang CartItemModel
-            var cartItemsResult = await _cartBusiness.GetCartItems(cartSessions);
-            if (!cartItemsResult.IsSuccess)
-            {
-                return RedirectToAction("Cart", "Cart");
-            }
+        public async Task<IActionResult> VNPayReturn()
+        {
+            var queryString = Request.QueryString.ToString();
+            //var result = await _paymentService.ProcessVNPayReturn(queryString);
 
-            var cartItems = cartItemsResult.Data;
+            //if (result.IsSuccess)
+            //{
+            //    return RedirectToAction("ThankYou", new { orderId = result.Data });
+            //}
 
-            // Xử lý đặt hàng
-            var result = await _billBusiness.CheckoutFromCart(cartItems, model.CustomerInfo, model.VoucherCode);
-            if (!result.IsSuccess)
-            {
-                ModelState.AddModelError("", result.Message);
-                model.CartItems = cartItems;
-                return View("Index", model);
-            }
-
-            // Lưu ID hóa đơn vào session để xử lý thanh toán
-            HttpContext.Session.SetString("PendingBillId", result.Data.Id.ToString());
-
-            // Chuyển đến trang chọn phương thức thanh toán
-            return RedirectToAction("PaymentMethod", new { billId = result.Data.Id });
+            return RedirectToAction("Index", "Cart");
         }
 
         [HttpGet]
-        public async Task<IActionResult> PaymentMethod(long billId)
+        public async Task<IActionResult> PaymentMethod(Guid billId)
         {
             var bill = await _billBusiness.GetBillById(billId);
-            if (!bill.IsSuccess)
+            if (bill == null)
             {
                 return RedirectToAction("Index", "Home");
             }
@@ -115,7 +168,7 @@ namespace Project.MVC.Controllers
             var paymentViewModel = new PaymentViewModel
             {
                 BillId = billId,
-                TotalAmount = bill.Data.FinalAmount,
+                TotalAmount = bill.FinalAmount,
                 PaymentMethods = new List<PaymentMethodModel>
                 {
                     new PaymentMethodModel { Code = "COD", Name = "Thanh toán khi nhận hàng" },
@@ -137,9 +190,9 @@ namespace Project.MVC.Controllers
 
             // Cập nhật phương thức thanh toán
             var updateResult = await _billBusiness.UpdatePaymentMethod(model.BillId, model.SelectedPaymentMethod);
-            if (!updateResult.IsSuccess)
+            if (!updateResult)
             {
-                ModelState.AddModelError("", updateResult.Message);
+                ModelState.AddModelError("", "Không thể cập nhật phương thức thanh toán");
                 return View("PaymentMethod", model);
             }
 
@@ -148,7 +201,7 @@ namespace Project.MVC.Controllers
             {
                 case "COD":
                     // Cập nhật trạng thái đơn hàng
-                    await _billBusiness.UpdateBillStatus(model.BillId, 1); // Confirmed
+                    await _billBusiness.UpdateBillStatus(model.BillId, BillConstants.StatusConfirmed); // Confirmed
                     // Xóa giỏ hàng
                     HttpContext.Session.Remove(CartConstants.CartSessionKey);
                     HttpContext.Session.Remove(CartConstants.CartCountKey);
@@ -169,22 +222,22 @@ namespace Project.MVC.Controllers
         }
 
         [HttpGet]
-        public async Task<IActionResult> OrderSuccess(long billId)
+        public async Task<IActionResult> OrderSuccess(Guid billId)
         {
             var bill = await _billBusiness.GetBillById(billId);
-            if (!bill.IsSuccess)
+            if (bill == null)
             {
                 return RedirectToAction("Index", "Home");
             }
 
-            return View(bill.Data);
+            return View(bill);
         }
 
         [HttpGet]
-        public async Task<IActionResult> BankingInfo(long billId)
+        public async Task<IActionResult> BankingInfo(Guid billId)
         {
             var bill = await _billBusiness.GetBillById(billId);
-            if (!bill.IsSuccess)
+            if (bill == null)
             {
                 return RedirectToAction("Index", "Home");
             }
@@ -192,8 +245,8 @@ namespace Project.MVC.Controllers
             var bankingInfo = new BankingInfoViewModel
             {
                 BillId = billId,
-                BillCode = bill.Data.BillCode,
-                Amount = bill.Data.FinalAmount,
+                BillCode = bill.BillCode,
+                Amount = bill.FinalAmount,
                 BankAccount = "1234567890", // Thay bằng thông tin tài khoản thật
                 BankName = "VietcomBank",
                 AccountName = "SHOP GIAY ABC"
@@ -211,10 +264,10 @@ namespace Project.MVC.Controllers
             }
 
             var result = await _billBusiness.ApplyVoucher(voucherCode, totalAmount);
-            return Json(new { 
-                isSuccess = result.IsSuccess, 
-                message = result.Message, 
-                data = result.IsSuccess ? result.Data : 0 
+            return Json(new
+            {
+                isSuccess = result != 0,
+                data = result != 0
             });
         }
     }

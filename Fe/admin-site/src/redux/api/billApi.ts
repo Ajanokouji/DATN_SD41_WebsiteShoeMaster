@@ -1,0 +1,100 @@
+import httpClient from "./agent";
+import { PaginatedResponse } from "@/types/common/pagination";
+import { BillDetailResDto, BillFilterParams, BillReqDto } from "@/types/bill/bill";
+
+class BillService {
+  private static instance: BillService;
+
+  private readonly endpoints = {
+    bills: "/Bill",
+  };
+
+  private constructor() {
+    this.getBills = this.getBills.bind(this);
+    this.getBillById = this.getBillById.bind(this);
+    this.createBillReq = this.createBillReq.bind(this);
+    this.updateBillReq = this.updateBillReq.bind(this);
+    this.deleteBillReq = this.deleteBillReq.bind(this);
+  }
+
+  static getInstance(): BillService {
+    if (!BillService.instance) {
+      BillService.instance = new BillService();
+    }
+    return BillService.instance;
+  }
+
+  // 🟢 Lấy danh sách hóa đơn có phân trang
+  async getBills(
+    params: BillFilterParams
+  ): Promise<PaginatedResponse<BillDetailResDto>> {
+    try {
+      const response = await httpClient.post<PaginatedResponse<BillDetailResDto>>(
+        `${this.endpoints.bills}/filter`,
+        {},
+        { params }
+      );
+      return response;
+    } catch (error) {
+      console.error("Fetch bills error:", error);
+      throw new Error(`Fetch bills failed: ${error}`);
+    }
+  }
+
+  // 🔵 Lấy hóa đơn theo ID
+  async getBillById(id: string): Promise<BillDetailResDto> {
+    try {
+      const response = await httpClient.get<{ data: BillDetailResDto }>(
+        `${this.endpoints.bills}/${id}`
+      );
+      return response.data;
+    } catch (error) {
+      console.error("Get bill by ID error:", error);
+      throw new Error(`Get bill by ID failed: ${error}`);
+    }
+  }
+
+  // 🟠 Tạo mới hóa đơn
+  async createBillReq(formData: BillReqDto): Promise<BillDetailResDto> {
+    try {
+      const response = await httpClient.post<{ data: BillDetailResDto }>(
+        this.endpoints.bills,
+        formData
+      );
+      return response.data;
+    } catch (error) {
+      console.error("Create bill error:", error);
+      throw new Error(`Create bill failed: ${error}`);
+    }
+  }
+
+  // 🟡 Cập nhật hóa đơn
+  async updateBillReq(
+    id: string,
+    formData: Partial<BillReqDto>
+  ): Promise<BillDetailResDto> {
+    try {
+      const response = await httpClient.patch<{ data: BillDetailResDto }>(
+        `${this.endpoints.bills}/${id}`,
+        formData
+      );
+      return response.data;
+    } catch (error) {
+      console.error("Update bill error:", error);
+      throw new Error(`Update bill failed: ${error}`);
+    }
+  }
+
+  // 🔴 Xóa hóa đơn theo ID
+  async deleteBillReq(id: string): Promise<void> {
+    try {
+      await httpClient.delete(`${this.endpoints.bills}/${id}`);
+    } catch (error) {
+      console.error("Delete bill error:", error);
+      throw new Error(`Delete bill failed: ${error}`);
+    }
+  }
+}
+
+const billService = BillService.getInstance();
+export default billService;

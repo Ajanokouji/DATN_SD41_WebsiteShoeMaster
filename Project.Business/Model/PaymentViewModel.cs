@@ -5,7 +5,7 @@ namespace Project.Business.Model
 {
     public class PaymentViewModel
     {
-        public long BillId { get; set; }
+        public Guid BillId { get; set; }
         public decimal TotalAmount { get; set; }
         public string VoucherCode { get; set; }
         public decimal DiscountAmount { get; set; }

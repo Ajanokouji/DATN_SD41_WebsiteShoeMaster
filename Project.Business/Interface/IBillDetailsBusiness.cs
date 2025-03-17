@@ -38,9 +38,9 @@ public interface IBillDetailsBusiness
 
     Task<Dictionary<Guid?, int>> GetTopSellingProductsAsync(DateTime startDate, DateTime endDate, int topCount = 10);
 
-    Task<ServiceResult<List<BillDetailModel>>> GetBillDetailsByBillId(long billId);
+    Task<ServiceResult<List<BillDetailModel>>> GetBillDetailsByBillId(Guid billId);
 
     Task<ServiceResult<bool>> CreateBillDetails(List<BillDetailModel> billDetails, Guid billId);
 
-    Task<ServiceResult<bool>> UpdateBillDetailsStatus(long billDetailId, int status);
+    Task<ServiceResult<bool>> UpdateBillDetailsStatus(Guid billDetailId, int status);
 }
