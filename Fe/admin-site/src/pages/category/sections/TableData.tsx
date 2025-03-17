@@ -18,6 +18,7 @@ import {
 } from "@/redux/apps/category/categorySlice";
 import { CategoryResDto } from "@/types/category/category";
 import DetailCategorySheet from "./UpdateDetail/DetailCategorySheet";
+import { formatVietnamTime } from "@/utils/format";
 
 const CategoryTable = <T extends { id: string }>({
   headers,
@@ -61,6 +62,11 @@ const CategoriesTable: React.FC = () => {
     setSelectedCategoryId(id);
   };
 
+  const renderCreatedDate = (value: string) => {
+    return formatVietnamTime(value);
+  };
+
+
   const headers = [
     { label: "Code", className: "text-center" },
     { label: "Name" },
@@ -73,6 +79,8 @@ const CategoriesTable: React.FC = () => {
     key?: keyof CategoryResDto;
     className?: string;
     isActionColumn?: boolean;
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    render?: (value: any) => React.ReactNode;
     action?: (data: CategoryResDto) => void;
     deleteAction?: (id: string) => void;
     updateAction?: (id: string) => void;
@@ -80,7 +88,10 @@ const CategoriesTable: React.FC = () => {
     { key: "code", className: "text-center" },
     { key: "name" },
     { key: "description" },
-    { key: "createdOnDate" },
+    { 
+      key: "createdOnDate", 
+      render: renderCreatedDate 
+    },
     {
       isActionColumn: true,
       className: "text-center",

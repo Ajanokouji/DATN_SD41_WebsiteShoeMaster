@@ -7,6 +7,7 @@ import { MdAttachMoney } from "react-icons/md";
 import { LuSettings } from "react-icons/lu";
 import { LuContact } from "react-icons/lu";
 import { TbCirclesRelation } from "react-icons/tb";
+import { FaFileInvoiceDollar } from "react-icons/fa6";
 
 interface NavConfigItem {
   title: string;
@@ -63,8 +64,8 @@ const navConfig: NavConfigItem[] = [
   {
     title: "Bill",
     path: "/bill",
-    icon: LuContact,
-    color: "#f59e0b",
+    icon: FaFileInvoiceDollar,
+    color: "#EF4444",
   },
   {
     title: "Setting",
