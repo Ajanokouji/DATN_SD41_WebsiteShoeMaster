@@ -12,6 +12,7 @@ export const ProductPage = lazy(() => import("@/pages/product"));
 export const RelationPage = lazy(() => import("@/pages/relation"));
 export const VoucherPage = lazy(() => import("@/pages/voucher"));
 export const ContactPage = lazy(() => import("@/pages/contact"));
+export const BillPage = lazy(() => import("@/pages/bill"));
 
 export const CustomerPage = lazy(() => import("@/pages/customer"));
 // export const LoginPage = lazy(() => import("../pages/auth/Login"));
@@ -72,7 +73,11 @@ export default function Router() {
         {
           path: "customer",
           element: <CustomerPage />,
-        }
+        },
+        {
+          path: "bill",
+          element: <BillPage />,
+        },
       ],
     },
     // {
