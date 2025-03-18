@@ -9,6 +9,8 @@ using Microsoft.AspNetCore.Mvc.Filters;
 using Microsoft.AspNetCore.Mvc;
 using SERP.Framework.ApiUtils.Utils;
 using SERP.Framework.ApiUtils.Middlewares;
+using Microsoft.EntityFrameworkCore;
+using Project.DbManagement;
 namespace Project.Api
 {
     public class Startup
@@ -43,6 +45,9 @@ namespace Project.Api
                 x.EnableEndpointRouting = false;
             });
             services.AddAuthorization();
+
+            services.AddDbContext<ProjectDbContext>(options =>
+    options.UseSqlServer(Configuration["DefaultConnection"]));
 
             services.RegisterServiceComponents(Configuration);
             services.AddControllers();

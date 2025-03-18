@@ -1,4 +1,8 @@
-﻿@using  Project.MvcModule;
+﻿@using Project.Common
+@using Project.MvcModule;
+@{
+    var cartCount = Context.Session.GetInt32(CartConstants.CartCountKey) ?? 0;
+}
 <!DOCTYPE html>
 <html lang="zxx">
 
@@ -8,7 +12,7 @@
     <meta name="keywords" content="Ashion, unica, creative, html">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <meta http-equiv="X-UA-Compatible" content="ie=edge">
-    <title>Ashion | Template</title>
+    <title>@ViewData["Title"] - ShoeMaster</title>
 
     <!-- Google Font -->
     <link href="https://fonts.googleapis.com/css2?family=Cookie&display=swap" rel="stylesheet">
@@ -24,6 +28,7 @@
     <link rel="stylesheet" href="~/assets/styles/owl.carousel.min.css" type="text/css">
     <link rel="stylesheet" href="~/assets/styles/slicknav.min.css" type="text/css">
     <link rel="stylesheet" href="~/assets/styles/style.css" type="text/css">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/sweetalert2@11/dist/sweetalert2.min.css">
 </head>
 
 <body>
@@ -41,13 +46,13 @@
             <li>
                 <a href="#">
                     <span class="icon_heart_alt"></span>
-                    <div class="tip">2</div>
+                    <div class="tip">0</div>
                 </a>
             </li>
             <li>
-                <a href="#">
+                <a asp-controller="Cart" asp-action="Cart">
                     <span class="icon_bag_alt"></span>
-                    <div class="tip">2</div>
+                    <div class="tip cart-count">@cartCount</div>
                 </a>
             </li>
         </ul>
@@ -99,13 +104,13 @@
                             <li>
                                 <a href="#">
                                     <span class="icon_heart_alt"></span>
-                                    <div class="tip">2</div>
+                                    <div class="tip">0</div>
                                 </a>
                             </li>
                             <li>
-                                <a href="#">
+                                <a asp-controller="Cart" asp-action="Cart">
                                     <span class="icon_bag_alt"></span>
-                                    <div class="tip">2</div>
+                                    <div class="tip cart-count">@cartCount</div>
                                 </a>
                             </li>
                         </ul>
@@ -213,6 +218,8 @@
     <script src="~/assets/js/owl.carousel.min.js"></script>
     <script src="~/assets/js/jquery.nicescroll.min.js"></script>
     <script src="~/assets/js/main.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+    @await RenderSectionAsync("Scripts", required: false)
 </body>
 
 </html>

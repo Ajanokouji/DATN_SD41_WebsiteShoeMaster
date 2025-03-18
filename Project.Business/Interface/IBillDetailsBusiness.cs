@@ -1,6 +1,10 @@
 ﻿using Project.Business.Model;
+using Project.Common;
 using Project.DbManagement;
 using SERP.Framework.Common;
+using System;
+using System.Collections.Generic;
+using System.Threading.Tasks;
 
 namespace Project.Business.Interface;
 
@@ -25,4 +29,18 @@ public interface IBillDetailsBusiness
     Task<IEnumerable<BillDetailsEntity>> SaveAsync(IEnumerable<BillDetailsEntity> article);
 
     Task<BillDetailsEntity> PatchAsync(BillDetailsEntity article);
+
+    Task<BillDetailsEntity> UpdateBillDetailsAsync(BillDetailsEntity billDetails);
+
+    Task<decimal> GetBillTotalAsync(Guid billId);
+
+    Task<IEnumerable<BillDetailsEntity>> GetBillDetailsByDateRangeAsync(DateTime startDate, DateTime endDate);
+
+    Task<Dictionary<Guid?, int>> GetTopSellingProductsAsync(DateTime startDate, DateTime endDate, int topCount = 10);
+
+    Task<ServiceResult<List<BillDetailModel>>> GetBillDetailsByBillId(Guid billId);
+
+    Task<ServiceResult<bool>> CreateBillDetails(List<BillDetailModel> billDetails, Guid billId);
+
+    Task<ServiceResult<bool>> UpdateBillDetailsStatus(Guid billDetailId, int status);
 }

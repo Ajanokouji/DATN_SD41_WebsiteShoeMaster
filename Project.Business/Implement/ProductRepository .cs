@@ -63,6 +63,35 @@ namespace Project.Business.Implement
                 sortExpression = queryModel.Sort;
             }
 
+            //select columns
+            if (queryModel.IsSelectMetadata) {
+                queryable.Select(x => new
+                {
+                    x.Id,
+                    x.Code,
+                    x.Name,
+                    x.Status,
+                    x.ImageUrl,
+                    x.SortOrder,
+                    x.Description,
+                    x.MainCategoryId,
+                    x.RelatedObjectIds,
+                    x.RelatedIds,
+                    x.WorkFlowStates,
+                    x.PublicOnDate,
+                    x.CompleteName,
+                    x.CompleteCode,
+                    x.CompletePath,
+                    x.LabelsJson,
+                    x.LabelsObjs,
+                    x.CreatedByUserId,
+                    x.CreatedOnDate,
+                    x.LastModifiedByUserId,
+                    x.LastModifiedOnDate
+                }
+                );
+            }
+
             return await queryable.GetPagedOrderAsync(queryModel.CurrentPage.Value, queryModel.PageSize.Value, sortExpression);
         }
 
@@ -109,9 +138,9 @@ namespace Project.Business.Implement
                 query = query.Where(x => x.WorkFlowStates==queryModel.WorkFlowStates);
             }
 
-            if (queryModel.DanhMucId.HasValue)
+            if (queryModel.MainCategoryId.HasValue)
             {
-                query = query.Where(x => x.MainCategoryId == queryModel.DanhMucId.Value);
+                query = query.Where(x => x.MainCategoryId == queryModel.MainCategoryId.Value);
             }
 
             if (!string.IsNullOrEmpty(queryModel.Status))

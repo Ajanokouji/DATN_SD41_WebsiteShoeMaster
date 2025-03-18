@@ -1,179 +1,303 @@
-﻿using Project.Business.Interface;
+﻿using Microsoft.Extensions.Caching.Memory;
+using Project.Business.Interface;
 using Project.Business.Interface.Repositories;
 using Project.Business.Model;
 using Project.Common;
 using Project.DbManagement.Entity;
-using SERP.FileManagementService.Business;
+using Serilog;
 using SERP.Framework.Common;
 using System;
+using System.Collections.Generic;
+using System.Linq;
+using System.Threading.Tasks;
+using System.Transactions;
 
 namespace Project.Business.Implement
 {
-
- 
     public class ProductBusiness : IProductBusiness
     {
         private readonly IProductRepository _productRepository;
+        private readonly IMemoryCache _cache;
+        private readonly ILogger _logger;
+        private const string ProductListCacheKey = "ProductList";
+        private readonly MemoryCacheEntryOptions _cacheOptions;
 
-        public ProductBusiness(IProductRepository productRepository)
+        public ProductBusiness(IProductRepository productRepository, IMemoryCache cache)
         {
-            _productRepository = productRepository;
+            _productRepository = productRepository ?? throw new ArgumentNullException(nameof(productRepository));
+            _cache = cache ?? throw new ArgumentNullException(nameof(cache));
+            _logger = Log.ForContext<ProductBusiness>();
+            _cacheOptions = new MemoryCacheEntryOptions()
+                .SetSlidingExpiration(TimeSpan.FromMinutes(10))
+                .SetAbsoluteExpiration(TimeSpan.FromHours(1));
         }
 
         public async Task<ProductEntity> DeleteAsync(Guid contentId)
         {
-            return await _productRepository.DeleteAsync(contentId);
+            try
+            {
+                if (contentId == Guid.Empty)
+                {
+                    throw new ArgumentException("Invalid product ID", nameof(contentId));
+                }
+
+                var result = await _productRepository.DeleteAsync(contentId);
+                if (result != null)
+                {
+                    _cache.Remove(ProductListCacheKey);
+                    _logger.Information("Product {ProductId} deleted successfully", contentId);
+                }
+                else
+                {
+                    _logger.Warning("Product {ProductId} not found for deletion", contentId);
+                }
+                return result;
+            }
+            catch (Exception ex)
+            {
+                _logger.Error(ex, "Error deleting product {ProductId}", contentId);
+                throw;
+            }
         }
 
         public async Task<IEnumerable<ProductEntity>> DeleteAsync(Guid[] deleteIds)
         {
-            return await _productRepository.DeleteAsync(deleteIds);
+            try
+            {
+                if (deleteIds == null || !deleteIds.Any())
+                {
+                    throw new ArgumentException("Delete IDs cannot be null or empty", nameof(deleteIds));
+                }
+
+                var result = await _productRepository.DeleteAsync(deleteIds);
+                if (result != null && result.Any())
+                {
+                    _cache.Remove(ProductListCacheKey);
+                    _logger.Information("Multiple products deleted successfully: {ProductIds}", string.Join(", ", deleteIds));
+                }
+                return result;
+            }
+            catch (Exception ex)
+            {
+                _logger.Error(ex, "Error deleting multiple products: {ProductIds}", string.Join(", ", deleteIds));
+                throw;
+            }
         }
 
         public async Task<ProductEntity> FindAsync(Guid contentId)
         {
-            return await _productRepository.FindAsync(contentId);
+            try
+            {
+                if (contentId == Guid.Empty)
+                {
+                    throw new ArgumentException("Invalid product ID", nameof(contentId));
+                }
+
+                var product = await _productRepository.FindAsync(contentId);
+                if (product == null)
+                {
+                    _logger.Warning("Product {ProductId} not found", contentId);
+                }
+                return product;
+            }
+            catch (Exception ex)
+            {
+                _logger.Error(ex, "Error finding product {ProductId}", contentId);
+                throw;
+            }
         }
 
         public async Task<Pagination<ProductEntity>> GetAllAsync(ProductQueryModel queryModel)
         {
-            return await _productRepository.GetAllAsync(queryModel);
+            try
+            {
+                if (queryModel == null)
+                {
+                    throw new ArgumentNullException(nameof(queryModel));
+                }
+
+                if (_cache.TryGetValue(ProductListCacheKey+(queryModel.ParentId??Guid.Empty).ToString(), out Pagination<ProductEntity> cachedProducts))
+                {
+                    _logger.Debug("Retrieved products from cache");
+                    return cachedProducts;
+                }
+
+                var products = await _productRepository.GetAllAsync(queryModel);
+                _cache.Set(ProductListCacheKey, products, _cacheOptions);
+                _logger.Debug("Products cached successfully");
+                return products;
+            }
+            catch (Exception ex)
+            {
+                _logger.Error(ex, "Error getting all products");
+                throw;
+            }
         }
 
         public async Task<int> GetCountAsync(ProductQueryModel queryModel)
         {
-            return await _productRepository.GetCountAsync(queryModel);
+            try
+            {
+                if (queryModel == null)
+                {
+                    throw new ArgumentNullException(nameof(queryModel));
+                }
+
+                return await _productRepository.GetCountAsync(queryModel);
+            }
+            catch (Exception ex)
+            {
+                _logger.Error(ex, "Error getting product count");
+                throw;
+            }
         }
 
         public async Task<IEnumerable<ProductEntity>> ListAllAsync(ProductQueryModel queryModel)
         {
-            return await _productRepository.ListAllAsync(queryModel);
+            try
+            {
+                if (queryModel == null)
+                {
+                    throw new ArgumentNullException(nameof(queryModel));
+                }
+
+                return await _productRepository.ListAllAsync(queryModel);
+            }
+            catch (Exception ex)
+            {
+                _logger.Error(ex, "Error listing all products");
+                throw;
+            }
         }
 
         public async Task<IEnumerable<ProductEntity>> ListByIdsAsync(IEnumerable<Guid> ids)
         {
-            return await _productRepository.ListByIdsAsync(ids);
+            try
+            {
+                if (ids == null || !ids.Any())
+                {
+                    throw new ArgumentException("IDs cannot be null or empty", nameof(ids));
+                }
+
+                return await _productRepository.ListByIdsAsync(ids);
+            }
+            catch (Exception ex)
+            {
+                _logger.Error(ex, "Error listing products by ids: {ProductIds}", string.Join(", ", ids));
+                throw;
+            }
         }
 
         public async Task<ProductEntity> PatchAsync(ProductEntity model)
         {
-            var exist = await _productRepository.FindAsync(model.Id);
+            try
+            {
+                if (model == null)
+                {
+                    throw new ArgumentNullException(nameof(model));
+                }
 
-            if (exist == null)
-            {
-                throw new ArgumentException(ProductConstant.ProductNotFound);
-            }
-            var update = new ProductEntity
-            {
-                Id = exist.Id,
-                MainCategoryId = exist.MainCategoryId,
-                CompleteCode = exist.CompleteCode,
-                CompleteName = exist.CompleteName,
-                CompletePath = exist.CompletePath,
-                CreatedByUserId = exist.CreatedByUserId,
-                CreatedOnDate = exist.CreatedOnDate,
-                Description = exist.Description,
-                ImageUrl = exist.ImageUrl,
-                Isdeleted = exist.Isdeleted,
-                LabelsJson = exist.LabelsJson,
-                LabelsObjs = exist.LabelsObjs,
-                LastModifiedByUserId = exist.LastModifiedByUserId,
-                LastModifiedOnDate = exist.LastModifiedOnDate,
-                Code = exist.Code,
-                MetadataObj = exist.MetadataObj,
-                PublicOnDate = exist.PublicOnDate,
-                RelatedIds = exist.RelatedIds,
-                RelatedObjectIds = exist.RelatedObjectIds,
-                SortOrder = exist.SortOrder,
-                Status = exist.Status,
-                Name = exist.Name,
-                WorkFlowStates = exist.WorkFlowStates
-            };
+                var exist = await _productRepository.FindAsync(model.Id);
+                if (exist == null)
+                {
+                    _logger.Warning("Product {ProductId} not found for update", model.Id);
+                    throw new ArgumentException(ProductConstant.ProductNotFound);
+                }
 
-            if (!string.IsNullOrWhiteSpace(model.Code))
-            {
-                update.Code = model.Code;
+                using (var scope = new TransactionScope(TransactionScopeAsyncFlowOption.Enabled))
+                {
+                    var update = new ProductEntity
+                    {
+                        Id = exist.Id,
+                        MainCategoryId = model.MainCategoryId ?? exist.MainCategoryId,
+                        CompleteCode = model.CompleteCode ?? exist.CompleteCode,
+                        CompleteName = model.CompleteName ?? exist.CompleteName,
+                        CompletePath = model.CompletePath ?? exist.CompletePath,
+                        CreatedByUserId = exist.CreatedByUserId,
+                        CreatedOnDate = exist.CreatedOnDate,
+                        Description = model.Description ?? exist.Description,
+                        ImageUrl = model.ImageUrl ?? exist.ImageUrl,
+                        Isdeleted = exist.Isdeleted,
+                        LabelsJson = model.LabelsJson ?? exist.LabelsJson,
+                        LabelsObjs = model.LabelsObjs ?? exist.LabelsObjs,
+                        LastModifiedByUserId = exist.LastModifiedByUserId,
+                        LastModifiedOnDate = DateTime.UtcNow,
+                        Code = model.Code ?? exist.Code,
+                        MetadataObj = model.MetadataObj ?? exist.MetadataObj,
+                        PublicOnDate = model.PublicOnDate ?? exist.PublicOnDate,
+                        RelatedIds = model.RelatedIds ?? exist.RelatedIds,
+                        RelatedObjectIds = model.RelatedObjectIds ?? exist.RelatedObjectIds,
+                        SortOrder = model.SortOrder ?? exist.SortOrder,
+                        Status = model.Status ?? exist.Status,
+                        Name = model.Name ?? exist.Name,
+                        WorkFlowStates = model.WorkFlowStates ?? exist.WorkFlowStates
+                    };
+
+                    var result = await SaveAsync(update);
+                    if (result != null)
+                    {
+                        _cache.Remove(ProductListCacheKey);
+                        _logger.Information("Product {ProductId} updated successfully", model.Id);
+                    }
+
+                    scope.Complete();
+                    return result;
+                }
             }
-            if (!string.IsNullOrWhiteSpace(model.Name))
+            catch (Exception ex)
             {
-                update.Name = model.Name;
+                _logger.Error(ex, "Error updating product {ProductId}", model?.Id);
+                throw;
             }
-            if (!string.IsNullOrWhiteSpace(model.Status))
-            {
-                update.Status = model.Status;
-            }
-            if (!string.IsNullOrWhiteSpace(model.ImageUrl))
-            {
-                update.ImageUrl = model.ImageUrl;
-            }
-            if (!string.IsNullOrWhiteSpace(model.SortOrder))
-            {
-                update.SortOrder = model.SortOrder;
-            }
-            if (!string.IsNullOrWhiteSpace(model.Description))
-            {
-                update.Description = model.Description;
-            }
-            if (model.MainCategoryId.HasValue)
-            {
-                update.MainCategoryId = model.MainCategoryId;
-            }
-            if (model.RelatedObjectIds != null && model.RelatedObjectIds.Any())
-            {
-                update.RelatedObjectIds = model.RelatedObjectIds;
-            }
-            if (!string.IsNullOrWhiteSpace(model.RelatedIds))
-            {
-                update.RelatedIds = model.RelatedIds;
-            }
-            if (!string.IsNullOrWhiteSpace(model.WorkFlowStates))
-            {
-                update.WorkFlowStates = model.WorkFlowStates;
-            }
-            if (model.PublicOnDate.HasValue)
-            {
-                update.PublicOnDate = model.PublicOnDate;
-            }
-            if (model.MetadataObj != null && model.MetadataObj.Any())
-            {
-                update.MetadataObj = model.MetadataObj;
-            }
-            if (!string.IsNullOrWhiteSpace(model.MetadataJson))
-            {
-                update.MetadataJson = model.MetadataJson;
-            }
-            if (!string.IsNullOrWhiteSpace(model.CompleteName))
-            {
-                update.CompleteName = model.CompleteName;
-            }
-            if (!string.IsNullOrWhiteSpace(model.CompletePath))
-            {
-                update.CompletePath = model.CompletePath;
-            }
-            if (!string.IsNullOrWhiteSpace(model.CompleteCode))
-            {
-                update.CompleteCode = model.CompleteCode;
-            }
-            if (model.LabelsObjs != null && model.LabelsObjs.Any())
-            {
-                update.LabelsObjs = model.LabelsObjs;
-            }
-            if (!string.IsNullOrWhiteSpace(model.LabelsJson))
-            {
-                update.LabelsJson = model.LabelsJson;
-            }
-            return await SaveAsync(update);
         }
 
         public async Task<ProductEntity> SaveAsync(ProductEntity productEntity)
         {
-            var res = await SaveAsync(new[] { productEntity });
-            return res.FirstOrDefault();
+            try
+            {
+                if (productEntity == null)
+                {
+                    throw new ArgumentNullException(nameof(productEntity));
+                }
+
+                var result = await SaveAsync(new[] { productEntity });
+                return result.FirstOrDefault();
+            }
+            catch (Exception ex)
+            {
+                _logger.Error(ex, "Error saving product {ProductId}", productEntity?.Id);
+                throw;
+            }
         }
 
         public async Task<IEnumerable<ProductEntity>> SaveAsync(IEnumerable<ProductEntity> productEntities)
         {
-            return await _productRepository.SaveAsync(productEntities);
+            try
+            {
+                if (productEntities == null || !productEntities.Any())
+                {
+                    throw new ArgumentException("Product entities cannot be null or empty", nameof(productEntities));
+                }
+
+                using (var scope = new TransactionScope(TransactionScopeAsyncFlowOption.Enabled))
+                {
+                    var result = await _productRepository.SaveAsync(productEntities);
+                    if (result != null && result.Any())
+                    {
+                        _cache.Remove(ProductListCacheKey);
+                        _logger.Information("Multiple products saved successfully: {ProductIds}", 
+                            string.Join(", ", result.Select(p => p.Id)));
+                    }
+
+                    scope.Complete();
+                    return result;
+                }
+            }
+            catch (Exception ex)
+            {
+                _logger.Error(ex, "Error saving multiple products");
+                throw;
+            }
         }
     }
 }

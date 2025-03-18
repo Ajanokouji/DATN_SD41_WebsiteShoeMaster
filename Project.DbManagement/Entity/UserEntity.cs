@@ -11,7 +11,7 @@ using System.Threading.Tasks;
 
 namespace Project.DbManagement.Entity
 {
-    public class User:BaseEntity
+    public class UserEntity:BaseEntity
     {
         [Key]
         public Guid Id { get; set; }
@@ -19,11 +19,12 @@ namespace Project.DbManagement.Entity
         public string Username { get; set; }
         public string Name { get; set; }
         public string PhoneNumber { get; set; }
-
+        public string Address { get; set; } 
         public string Email { get; set; }
         public string AvartarUrl { get; set; }
         public string Password { get; set; }    
-        public string UserDetailJson { get; set; }
+        public string? UserDetailJson { get; set; }
+        public bool? IsActive { get; set; } = true;
 
         [NotMapped]
         public virtual List<MetaField> MetadataObj { get; set; }

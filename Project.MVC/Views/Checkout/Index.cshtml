@@ -1,0 +1,144 @@
+@model Project.Business.Model.CheckoutViewModel
+
+@{
+    ViewData["Title"] = "Thanh toán";
+}
+
+<!-- Breadcrumb Begin -->
+<div class="breadcrumb-option">
+    <div class="container">
+        <div class="row">
+            <div class="col-lg-12">
+                <div class="breadcrumb__links">
+                    <a asp-controller="Home" asp-action="Index"><i class="fa fa-home"></i>Trang chủ</a>
+                    <a asp-controller="Cart" asp-action="Cart">Giỏ hàng</a>
+                    <span>Thanh toán</span>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+<!-- Breadcrumb End -->
+<!-- Checkout Section Begin -->
+<section class="checkout spad">
+    <div class="container">
+        <div class="row">
+            <div class="col-lg-12">
+                <h5>Thông tin đặt hàng</h5>
+                <div class="checkout__form">
+                    <form asp-action="PlaceOrder" method="post">
+                        <div class="row">
+                            <div class="col-lg-8">
+                                <div asp-validation-summary="ModelOnly" class="text-danger"></div>
+                                <h5>Thông tin khách hàng</h5>
+                                <div class="checkout__form__input">
+                                    <p>Họ tên <span>*</span></p>
+                                    <input type="text" asp-for="CustomerInfo.FullName" placeholder="Nhập họ tên">
+                                    <span asp-validation-for="CustomerInfo.FullName" class="text-danger"></span>
+                                </div>
+                                <div class="checkout__form__input">
+                                    <p>Số điện thoại <span>*</span></p>
+                                    <input type="text" asp-for="CustomerInfo.PhoneNumber" placeholder="Nhập số điện thoại">
+                                    <span asp-validation-for="CustomerInfo.PhoneNumber" class="text-danger"></span>
+                                </div>
+                                <div class="checkout__form__input">
+                                    <p>Email <span>*</span></p>
+                                    <input type="email" asp-for="CustomerInfo.Email" placeholder="Nhập email">
+                                    <span asp-validation-for="CustomerInfo.Email" class="text-danger"></span>
+                                </div>
+                                <div class="checkout__form__input">
+                                    <p>Địa chỉ <span>*</span></p>
+                                    <input type="text" asp-for="CustomerInfo.Address" placeholder="Nhập địa chỉ">
+                                    <span asp-validation-for="CustomerInfo.Address" class="text-danger"></span>
+                                </div>
+                                <div class="checkout__form__input">
+                                    <p>Thành phố <span>*</span></p>
+                                    <input type="text" asp-for="CustomerInfo.City" placeholder="Nhập thành phố">
+                                    <span asp-validation-for="CustomerInfo.City" class="text-danger"></span>
+                                </div>
+                                <div class="checkout__form__input">
+                                    <p>Quận/Huyện <span>*</span></p>
+                                    <input type="text" asp-for="CustomerInfo.District" placeholder="Nhập quận/huyện">
+                                    <span asp-validation-for="CustomerInfo.District" class="text-danger"></span>
+                                </div>
+                            </div>
+                            <div class="col-lg-4">
+                                <div class="checkout__order">
+                                    <h5>Đơn hàng của bạn</h5>
+                                    <div class="checkout__order__product">
+                                        <ul>
+                                            <li>
+                                                <span class="top__text">Sản phẩm</span>
+                                                <span class="top__text__right">Thành tiền</span>
+                                            </li>
+                                            @foreach (var item in Model.CartItems)
+                                            {
+                                                <li>@item.ProductName x @item.Quantity <span>@((item.Price * item.Quantity).ToString("N0")) VNĐ</span></li>
+                                                <input type="hidden" name="CartItemIds" value="@item.ProductId" />
+                                            }
+                                        </ul>
+                                    </div>
+                                    <div class="checkout__order__total">
+                                        <ul>
+                                            <li>Tổng tiền <span id="totalAmount">@Model.Total.ToString("N0") VNĐ</span></li>
+                                            @* <li>Giảm giá <span id="discountAmount">@Model.DiscountAmount.ToString("N0") VNĐ</span></li>
+                                            <li>Thành tiền <span id="finalAmount">@Model.FinalAmount.ToString("N0") VNĐ</span></li> *@
+                                        </ul>
+                                    </div>
+                                    <div class="checkout__order__voucher">
+                                        <div class="input-group mb-3">
+                                            <input type="text" id="voucherCode" name="VoucherCode" class="form-control" placeholder="Mã giảm giá">
+                                            <div class="input-group-append">
+                                                <button class="btn btn-outline-secondary" type="button" id="applyVoucher">Áp dụng</button>
+                                            </div>
+                                        </div>
+                                        <div id="voucherMessage"></div>
+                                    </div>
+                                    <button type="submit" class="site-btn">Đặt hàng</button>
+                                </div>
+                            </div>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+<!-- Checkout Section End -->
+@section Scripts {
+    @{
+        await Html.RenderPartialAsync("_ValidationScriptsPartial");
+    }
+    <script>
+        $(document).ready(function () {
+            $("#applyVoucher").click(function () {
+                var voucherCode = $("#voucherCode").val();
+                var totalAmount = @Model.Total;
+
+                if (!voucherCode) {
+                    $("#voucherMessage").html('<div class="alert alert-danger">Vui lòng nhập mã giảm giá</div>');
+                    return;
+                }
+
+                $.ajax({
+                    url: '@Url.Action("ApplyVoucher", "Checkout")',
+                    type: 'POST',
+                    data: { voucherCode: voucherCode, totalAmount: totalAmount },
+                    success: function (response) {
+                        if (response.isSuccess) {
+                            $("#voucherMessage").html('<div class="alert alert-success">' + response.message + '</div>');
+                            $("#discountAmount").text(response.data.toLocaleString() + ' VNĐ');
+                            var finalAmount = totalAmount - response.data;
+                            $("#finalAmount").text(finalAmount.toLocaleString() + ' VNĐ');
+                        } else {
+                            $("#voucherMessage").html('<div class="alert alert-danger">' + response.message + '</div>');
+                        }
+                    },
+                    error: function () {
+                        $("#voucherMessage").html('<div class="alert alert-danger">Có lỗi xảy ra khi áp dụng mã giảm giá</div>');
+                    }
+                });
+            });
+        });
+    </script>
+}

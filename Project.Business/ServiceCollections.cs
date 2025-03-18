@@ -5,6 +5,8 @@ using Microsoft.Extensions.DependencyInjection;
 using Project.Business.Implement;
 using Project.Business.Interface;
 using Project.Business.Interface.Repositories;
+using Project.Business.Interface.Services;
+using Project.Business.Services;
 using Project.DbManagement;
 using System;
 using System.Collections.Generic;
@@ -16,56 +18,61 @@ namespace Project.Business
 {
     public static class ServiceCollections
     {
-        public static IServiceCollection RegisterServiceComponents(this IServiceCollection services,
-       IConfiguration configuration)
+        public static void RegisterServiceComponents(this IServiceCollection services, IConfiguration configuration)
         {
-          var connectionString = configuration["DefaultConnection"];
+            // Register DbContext
             services.AddDbContext<ProjectDbContext>(options =>
-            {
-                options.UseSqlServer(connectionString,b=>b.MigrationsAssembly("Project.DbManagement"));
-            });
+                options.UseSqlServer(configuration.GetConnectionString("DefaultConnection")));
 
-            services.AddScoped<IProductBusiness, ProductBusiness>();
+            // Register Memory Cache
+            services.AddMemoryCache();
+
+            // Register Repositories
             services.AddScoped<IProductRepository, ProductRepository>();
-
-            services.AddScoped<IProductCategoriesRelationBusiness, ProductCategoriesRelationBusiness>();
-            services.AddScoped<IProductCategoriesRelationRepository, ProductCategoriesRelationRepository>();
-
-            services.AddScoped<IBillBusiness, BillBusiness>();
-            services.AddScoped<IBillRepository, BillRepository>();
-
-            services.AddScoped<IBillDetailsBusiness, BillDetailsBusiness>();
-            services.AddScoped<IBillDetailsRepository, BillDetailsRepository>();
-
-            services.AddScoped<ICartBusiness, CartBusiness>();
             services.AddScoped<ICartRepository, CartRepository>();
-
-            services.AddScoped<ICartDetailsBusiness, CartDetailsBusiness>();
-            services.AddScoped<ICartDetailsRepository, CartDetailsRepository>();
-
-            services.AddScoped<IContactBusiness, ContactBusiness>();
-            services.AddScoped<IContactRepository, ContactRepository>();
-
-            services.AddScoped<ICustomerBusiness, CustomerBusiness>();
-            services.AddScoped<ICustomerRepository, CustomerRepository>();
-
-            services.AddScoped<IPaymentMethodsBusiness, PaymentMethodsBusiness>();
+            services.AddScoped<IBillRepository, BillRepository>();
             services.AddScoped<IPaymentMethodsRepository, PaymentMethodsRepository>();
-
-            services.AddScoped<IUserBusiness, UserBusiness>();
             services.AddScoped<IUserRepository, UserRepository>();
-
-            services.AddScoped<IVoucherBusiness, VoucherBusiness>();
+            services.AddScoped<ICustomerRepository, CustomerRepository>();
+            services.AddScoped<IContactRepository, ContactRepository>();
             services.AddScoped<IVoucherRepository, VoucherRepository>();
-
-            services.AddScoped<IVoucherDetailsBusiness, VoucherDetailsBusiness>();
             services.AddScoped<IVoucherDetailsRepository, VoucherDetailsRepository>();
-
-            services.AddScoped<ICategoriesBusiness, CategoriesBusiness>();
+            services.AddScoped<ICartDetailsRepository, CartDetailsRepository>();
+            services.AddScoped<IBillDetailsRepository, BillDetailsRepository>();
+            services.AddScoped<IProductCategoriesRelationRepository, ProductCategoriesRelationRepository>();
             services.AddScoped<ICategoriesRepository, CategoriesRepository>();
 
+            // Register Business Services
 
-            return services;
+            services.AddScoped<IProductBusiness, ProductBusiness>();
+            services.AddScoped<ICartBusiness, CartBusiness>();
+            services.AddScoped<IBillBusiness, BillBusiness>();
+            services.AddScoped<IPaymentMethodsBusiness, PaymentMethodsBusiness>();
+            services.AddScoped<IUserBusiness, UserBusiness>();
+            services.AddScoped<ICustomerBusiness, CustomerBusiness>();
+            services.AddScoped<IContactBusiness, ContactBusiness>();
+            services.AddScoped<IVoucherBusiness, VoucherBusiness>();
+            services.AddScoped<IVoucherDetailsBusiness, VoucherDetailsBusiness>();
+            services.AddScoped<ICartDetailsBusiness, CartDetailsBusiness>();
+            services.AddScoped<IBillDetailsBusiness, BillDetailsBusiness>();
+            services.AddScoped<IProductCategoriesRelationBusiness, ProductCategoriesRelationBusiness>();
+            services.AddScoped<ICategoriesBusiness, CategoriesBusiness>();
+            services.AddScoped<IPaymentService, PaymentService>();
+
+
+
+            // Configure CORS
+            services.AddCors(options =>
+            {
+                options.AddPolicy("AllowAll",
+                    builder =>
+                    {
+                        builder
+                            .AllowAnyOrigin()
+                            .AllowAnyMethod()
+                            .AllowAnyHeader();
+                    });
+            });
         }
     }
 }

@@ -7,6 +7,19 @@
     </PropertyGroup>
 
     <ItemGroup>
+      <Compile Remove="wwwroot\assets\images\topcategories\A_simple_flat_lay_image_featuring_a_pastel_blue_background_with_a_stylish_pair_of_trendy_men_s_sneakers_prominently_displayed_on_the_right_half_of_the_image_The_sneakers_should_be_larger_in_size_taking_up_a_signifi.jpg\**" />
+      <Compile Remove="wwwroot\assets\images\topcategories\A_simple_flat_lay_image_featuring_a_pastel_purple_background_with_only_a_stylish_pair_of_sports_shoes_prominently_displayed_in_the_center_The_shoes_should_be_the_focal_point_of_the_image_with_no_other_objects_aroun.png\**" />
+      <Content Remove="wwwroot\assets\images\topcategories\A_simple_flat_lay_image_featuring_a_pastel_blue_background_with_a_stylish_pair_of_trendy_men_s_sneakers_prominently_displayed_on_the_right_half_of_the_image_The_sneakers_should_be_larger_in_size_taking_up_a_signifi.jpg\**" />
+      <Content Remove="wwwroot\assets\images\topcategories\A_simple_flat_lay_image_featuring_a_pastel_purple_background_with_only_a_stylish_pair_of_sports_shoes_prominently_displayed_in_the_center_The_shoes_should_be_the_focal_point_of_the_image_with_no_other_objects_aroun.png\**" />
+      <EmbeddedResource Remove="wwwroot\assets\images\topcategories\A_simple_flat_lay_image_featuring_a_pastel_blue_background_with_a_stylish_pair_of_trendy_men_s_sneakers_prominently_displayed_on_the_right_half_of_the_image_The_sneakers_should_be_larger_in_size_taking_up_a_signifi.jpg\**" />
+      <EmbeddedResource Remove="wwwroot\assets\images\topcategories\A_simple_flat_lay_image_featuring_a_pastel_purple_background_with_only_a_stylish_pair_of_sports_shoes_prominently_displayed_in_the_center_The_shoes_should_be_the_focal_point_of_the_image_with_no_other_objects_aroun.png\**" />
+      <EntityDeploy Remove="wwwroot\assets\images\topcategories\A_simple_flat_lay_image_featuring_a_pastel_blue_background_with_a_stylish_pair_of_trendy_men_s_sneakers_prominently_displayed_on_the_right_half_of_the_image_The_sneakers_should_be_larger_in_size_taking_up_a_signifi.jpg\**" />
+      <EntityDeploy Remove="wwwroot\assets\images\topcategories\A_simple_flat_lay_image_featuring_a_pastel_purple_background_with_only_a_stylish_pair_of_sports_shoes_prominently_displayed_in_the_center_The_shoes_should_be_the_focal_point_of_the_image_with_no_other_objects_aroun.png\**" />
+      <None Remove="wwwroot\assets\images\topcategories\A_simple_flat_lay_image_featuring_a_pastel_blue_background_with_a_stylish_pair_of_trendy_men_s_sneakers_prominently_displayed_on_the_right_half_of_the_image_The_sneakers_should_be_larger_in_size_taking_up_a_signifi.jpg\**" />
+      <None Remove="wwwroot\assets\images\topcategories\A_simple_flat_lay_image_featuring_a_pastel_purple_background_with_only_a_stylish_pair_of_sports_shoes_prominently_displayed_in_the_center_The_shoes_should_be_the_focal_point_of_the_image_with_no_other_objects_aroun.png\**" />
+    </ItemGroup>
+
+    <ItemGroup>
       <Folder Include="Areas\" />
       <Folder Include="wwwroot\addminAssets\" />
       <Folder Include="wwwroot\assets\dist\" />
@@ -43,10 +56,12 @@
       <None Include="wwwroot\assets\images\blog\sidebar\fp-1.jpg" />
       <None Include="wwwroot\assets\images\blog\sidebar\fp-2.jpg" />
       <None Include="wwwroot\assets\images\blog\sidebar\fp-3.jpg" />
-      <None Include="wwwroot\assets\images\categories\category-2.jpg" />
-      <None Include="wwwroot\assets\images\categories\category-3.jpg" />
-      <None Include="wwwroot\assets\images\categories\category-4.jpg" />
-      <None Include="wwwroot\assets\images\categories\category-5.jpg" />
+      <None Include="wwwroot\assets\images\topcategories\category-3.jpg">
+        <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+      </None>
+      <None Include="wwwroot\assets\images\topcategories\category-4.jpg">
+        <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+      </None>
       <None Include="wwwroot\assets\images\discount.jpg" />
       <None Include="wwwroot\assets\images\instagram\insta-1.jpg" />
       <None Include="wwwroot\assets\images\instagram\insta-2.jpg" />
@@ -154,7 +169,10 @@
       <Content Update="Views\Home\Index.cshtml">
         <CopyToOutputDirectory>Always</CopyToOutputDirectory>
       </Content>
-      <Content Update="wwwroot\assets\images\categories\category-1.jpg">
+      <Content Update="wwwroot\assets\images\topcategories\category-1.jpg">
+        <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+      </Content>
+      <Content Update="wwwroot\assets\images\topcategories\category-2.jpg">
         <CopyToOutputDirectory>Always</CopyToOutputDirectory>
       </Content>
     </ItemGroup>

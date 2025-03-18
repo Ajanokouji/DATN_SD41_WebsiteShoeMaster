@@ -14,5 +14,7 @@ namespace Project.Business.Interface.Repositories
         protected const string MessageNoTFound = "cart details not found";
         Task<CartDetails> SaveAsync(CartDetails article);
         Task<IEnumerable<CartDetails>> SaveAsync(IEnumerable<CartDetails> cartDetailses);
+        Task<CartDetails> GetByCartAndProduct( Guid CartID, Guid ProductID);
+        Task<IEnumerable<CartDetails>> GetByCartId(Guid cartId);
     }
 }

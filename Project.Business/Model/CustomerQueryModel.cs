@@ -6,12 +6,13 @@ using System.ComponentModel.DataAnnotations.Schema;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+using SERP.Framework.Common;
 
-namespace Project.Business.Model 
+namespace Project.Business.Model
 {
-    public class CustomerQueryModel : BaseRequestModel, IListMetadataFilterQuery
+    public class CustomerQueryModel : PaginationRequest, IListMetadataFilterQuery
     {
-        public Guid? Id { get; set; }
+        public new Guid? Id { get; set; }
         public string? Code { get; set; }
         public Guid? TTTHIDMain { get; set; }
         public List<Guid>? TTLHRelatedIds { get; set; }
@@ -21,5 +22,6 @@ namespace Project.Business.Model
         public string? DiaChi { get; set; }
         public string? Description { get; set; }
         public string? UserNameTaiKhoan { get; set; }
+        public List<MetadataFilterQuery> MetaDataQueries { get; set; } = new List<MetadataFilterQuery>();
     }
 }

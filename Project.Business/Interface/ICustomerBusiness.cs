@@ -10,6 +10,7 @@ namespace Project.Business.Interface
 {
     public interface ICustomerBusiness
     {
+      
         Task<Pagination<Customers>> GetAllAsync(CustomerQueryModel queryModel);
 
         /// <summary>

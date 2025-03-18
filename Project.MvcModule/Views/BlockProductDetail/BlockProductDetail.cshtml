@@ -11,7 +11,7 @@
         </ul>
     </div>
     <div class="product__item__text">
-        <h6><a href="#">@Model.Name</a></h6>
+        <h6><a asp-controller="ProductDetails" asp-action="ProductDetails" asp-route-id="@Model.Id">@Model.Name</a></h6>
         <div class="rating">
             <i class="fa fa-star"></i>
             <i class="fa fa-star"></i>
@@ -19,6 +19,6 @@
             <i class="fa fa-star"></i>
             <i class="fa fa-star"></i>
         </div>
-        <div class="product__price"> <span>@Model.MetadataObj.FindMetadatavalue("MaxPrice")</span></div>
+        <div class="product__price"> <span>@Model.MetadataObj.GetMetadatavalue("MaxPrice")</span></div>
     </div>
 </div>

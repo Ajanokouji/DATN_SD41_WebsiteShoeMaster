@@ -15,5 +15,6 @@ namespace Project.Business.Interface
         protected const string MessageNotFound = "Voucher not found";
         Task<Voucher> SaveAsync(Voucher article);
         Task<IEnumerable<Voucher>> SaveAsync(IEnumerable<Voucher> vouchers);
+        Task<Voucher> FindByCodeAsync(string code);
     }
 }

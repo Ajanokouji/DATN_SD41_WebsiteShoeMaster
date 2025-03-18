@@ -17,10 +17,10 @@ namespace Project.DbManagement.Migrations
         {
 #pragma warning disable 612, 618
             modelBuilder
-                .HasAnnotation("ProductVersion", "6.0.19")
+                .HasAnnotation("ProductVersion", "8.0.0")
                 .HasAnnotation("Relational:MaxIdentifierLength", 128);
 
-            SqlServerModelBuilderExtensions.UseIdentityColumns(modelBuilder, 1L, 1);
+            SqlServerModelBuilderExtensions.UseIdentityColumns(modelBuilder);
 
             modelBuilder.Entity("Project.DbManagement.BillDetailsEntity", b =>
                 {
@@ -80,14 +80,13 @@ namespace Project.DbManagement.Migrations
                         .ValueGeneratedOnAdd()
                         .HasColumnType("uniqueidentifier");
 
-                    b.Property<double>("AmountAfterDiscount")
+                    b.Property<double?>("AmountAfterDiscount")
                         .HasColumnType("float");
 
-                    b.Property<double>("AmountToPay")
+                    b.Property<double?>("AmountToPay")
                         .HasColumnType("float");
 
                     b.Property<string>("BillCode")
-                        .IsRequired()
                         .HasColumnType("nvarchar(max)");
 
                     b.Property<Guid?>("CreatedByUserId")
@@ -99,11 +98,14 @@ namespace Project.DbManagement.Migrations
                     b.Property<Guid?>("CustomerId")
                         .HasColumnType("uniqueidentifier");
 
-                    b.Property<double>("DiscountAmount")
+                    b.Property<double?>("DiscountAmount")
                         .HasColumnType("float");
 
                     b.Property<Guid?>("EmployeeId")
                         .HasColumnType("uniqueidentifier");
+
+                    b.Property<double?>("FinalAmount")
+                        .HasColumnType("float");
 
                     b.Property<bool?>("Isdeleted")
                         .HasColumnType("bit");
@@ -120,36 +122,37 @@ namespace Project.DbManagement.Migrations
                     b.Property<Guid?>("OrderId")
                         .HasColumnType("uniqueidentifier");
 
+                    b.Property<string>("PaymentMethod")
+                        .HasColumnType("nvarchar(max)");
+
                     b.Property<Guid?>("PaymentMethodId")
                         .HasColumnType("uniqueidentifier");
 
-                    b.Property<int>("PaymentStatus")
-                        .HasColumnType("int");
+                    b.Property<string>("PaymentStatus")
+                        .HasColumnType("nvarchar(max)");
 
                     b.Property<string>("RecipientAddress")
-                        .IsRequired()
                         .HasColumnType("nvarchar(max)");
 
                     b.Property<string>("RecipientEmail")
-                        .IsRequired()
                         .HasColumnType("nvarchar(max)");
 
                     b.Property<string>("RecipientName")
-                        .IsRequired()
                         .HasColumnType("nvarchar(max)");
 
                     b.Property<string>("RecipientPhone")
-                        .IsRequired()
                         .HasColumnType("nvarchar(max)");
 
-                    b.Property<int>("Status")
-                        .HasColumnType("int");
+                    b.Property<string>("Status")
+                        .HasColumnType("nvarchar(max)");
 
-                    b.Property<double>("TotalAmount")
+                    b.Property<double?>("TotalAmount")
                         .HasColumnType("float");
 
                     b.Property<string>("UpdateBy")
-                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<string>("VoucherCode")
                         .HasColumnType("nvarchar(max)");
 
                     b.Property<Guid?>("VoucherId")
@@ -532,6 +535,9 @@ namespace Project.DbManagement.Migrations
                     b.Property<Guid?>("MainCategoryId")
                         .HasColumnType("uniqueidentifier");
 
+                    b.Property<string>("MediasJson")
+                        .HasColumnType("nvarchar(max)");
+
                     b.Property<string>("MetadataJson")
                         .IsRequired()
                         .HasColumnType("nvarchar(max)");
@@ -551,6 +557,9 @@ namespace Project.DbManagement.Migrations
                     b.Property<string>("Status")
                         .HasColumnType("nvarchar(max)");
 
+                    b.Property<string>("VariantJson")
+                        .HasColumnType("nvarchar(max)");
+
                     b.Property<string>("WorkFlowStates")
                         .HasColumnType("nvarchar(max)");
 
@@ -559,11 +568,15 @@ namespace Project.DbManagement.Migrations
                     b.ToTable("Products");
                 });
 
-            modelBuilder.Entity("Project.DbManagement.Entity.User", b =>
+            modelBuilder.Entity("Project.DbManagement.Entity.UserEntity", b =>
                 {
                     b.Property<Guid>("Id")
                         .ValueGeneratedOnAdd()
                         .HasColumnType("uniqueidentifier");
+
+                    b.Property<string>("Address")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
 
                     b.Property<string>("AvartarUrl")
                         .IsRequired()
@@ -578,6 +591,9 @@ namespace Project.DbManagement.Migrations
                     b.Property<string>("Email")
                         .IsRequired()
                         .HasColumnType("nvarchar(max)");
+
+                    b.Property<bool?>("IsActive")
+                        .HasColumnType("bit");
 
                     b.Property<bool?>("Isdeleted")
                         .HasColumnType("bit");
@@ -609,7 +625,6 @@ namespace Project.DbManagement.Migrations
                         .HasColumnType("nvarchar(max)");
 
                     b.Property<string>("UserDetailJson")
-                        .IsRequired()
                         .HasColumnType("nvarchar(max)");
 
                     b.Property<string>("Username")
@@ -672,13 +687,25 @@ namespace Project.DbManagement.Migrations
                         .ValueGeneratedOnAdd()
                         .HasColumnType("uniqueidentifier");
 
+                    b.Property<string>("Code")
+                        .HasColumnType("nvarchar(max)");
+
                     b.Property<Guid?>("CreatedByUserId")
                         .HasColumnType("uniqueidentifier");
 
                     b.Property<DateTime?>("CreatedOnDate")
                         .HasColumnType("datetime2");
 
-                    b.Property<DateTime>("EndDate")
+                    b.Property<string>("Description")
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<int?>("DiscountAmount")
+                        .HasColumnType("int");
+
+                    b.Property<decimal?>("DiscountPercentage")
+                        .HasColumnType("decimal(18,2)");
+
+                    b.Property<DateTime?>("EndDate")
                         .HasColumnType("datetime2");
 
                     b.Property<bool?>("Isdeleted")
@@ -690,17 +717,20 @@ namespace Project.DbManagement.Migrations
                     b.Property<DateTime?>("LastModifiedOnDate")
                         .HasColumnType("datetime2");
 
-                    b.Property<DateTime>("StartDate")
+                    b.Property<int?>("MinimumOrderAmount")
+                        .HasColumnType("int");
+
+                    b.Property<DateTime?>("StartDate")
                         .HasColumnType("datetime2");
 
-                    b.Property<int>("Status")
+                    b.Property<int?>("Status")
                         .HasColumnType("int");
 
                     b.Property<string>("VoucherName")
                         .IsRequired()
                         .HasColumnType("nvarchar(max)");
 
-                    b.Property<int>("VoucherType")
+                    b.Property<int?>("VoucherType")
                         .HasColumnType("int");
 
                     b.HasKey("Id");

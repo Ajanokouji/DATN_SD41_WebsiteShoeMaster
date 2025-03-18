@@ -47,5 +47,12 @@ namespace Project.DbManagement
         public string? Address { get; set; }
         public string? Description { get; set; }
         public string? UserName { get; set; }
+
+        [NotMapped]
+        public int TotalOrders { get; set; }
+        [NotMapped]
+        public decimal TotalSpent { get; set; }
+        [NotMapped]
+        public DateTime? LastOrderDate { get; set; }
     }
 }

@@ -7,4 +7,11 @@
       "commandName": "Docker"
     }
   }
+    {
+      "profiles": {
+        "CrawlDataV2": {
+          "commandName": "Project"
+        }
+      }
+    }
 }

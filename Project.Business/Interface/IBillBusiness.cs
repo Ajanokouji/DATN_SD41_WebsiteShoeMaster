@@ -1,4 +1,5 @@
 ﻿using Project.Business.Model;
+using Project.Common;
 using Project.DbManagement;
 using SERP.Framework.Common;
 
@@ -25,4 +26,18 @@ public interface IBillBusiness
     Task<IEnumerable<BillEntity>> SaveAsync(IEnumerable<BillEntity> article);
 
     Task<BillEntity> PatchAsync(BillEntity article);
+
+    Task <BillModel> CreateBill(BillModel model);
+    Task <BillModel> GetBillById(Guid id);
+    Task <BillModel> GetBillByCode(string code);
+    Task <List<BillModel>> GetBillsByUserId(Guid userId);
+    Task <bool> UpdateBillStatus(Guid billId, string status);
+    Task <bool> UpdatePaymentStatus(Guid billId, string paymentStatus);
+    Task <bool> UpdatePaymentMethod(Guid billId, string paymentMethod);
+    Task <decimal> ApplyVoucher(string voucherCode, decimal totalAmount);
+    Task <string> GenerateBillCode();
+    Task <BillModel> CheckoutFromCart(
+        List<CartItemModel> cartItems, 
+        CustomerInfoModel customerInfo, 
+        string voucherCode);
 }

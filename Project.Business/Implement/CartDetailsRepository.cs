@@ -14,6 +14,7 @@ using SERP.Framework.DB.Extensions;
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Threading.Tasks;
 using System.Xml;
 using static System.Net.Mime.MediaTypeNames;
 
@@ -206,5 +207,21 @@ namespace Project.Business.Implement
         {
             throw new NotImplementedException();
         }
+
+        public async Task<CartDetails> GetByCartAndProduct(Guid cartId, Guid productId)
+        {
+            return await _context.CartDetails
+                .Where(x => x.IdCart == cartId && x.IdProduct == productId && x.Isdeleted != true)
+                .FirstOrDefaultAsync();
+        }
+
+        public async Task<IEnumerable<CartDetails>> GetByCartId(Guid cartId)
+        {
+            return await _context.CartDetails
+                .Where(x => x.IdCart == cartId && !x.Isdeleted.Value)
+                .ToListAsync();
+        }
+
+
     }
 }

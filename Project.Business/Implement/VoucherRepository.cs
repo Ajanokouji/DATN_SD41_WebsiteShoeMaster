@@ -154,9 +154,6 @@ namespace Project.Business.Implement
             return query;
         }
 
-
-
-
         public async Task<Voucher> SaveAsync(Voucher Vouchers)
         {
             var res = await SaveAsync(new[] { Vouchers });
@@ -226,6 +223,11 @@ namespace Project.Business.Implement
             var query = BuildQuery(queryModel);
             var res = await query.CountAsync();
             return res;
+        }
+
+        public Task<Voucher> FindByCodeAsync(string code)
+        {
+            throw new NotImplementedException();
         }
     }
 }

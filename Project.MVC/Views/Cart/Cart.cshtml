@@ -1,224 +1,281 @@
-﻿@{
-    ViewData["Title"] = "Cart";
+﻿@model List<Project.Business.Model.CartItemModel>
+@{
+    ViewData["Title"] = "Giỏ hàng";
     Layout = "~/Views/Shared/_Layout.cshtml";
 }
-<div class="breadcrumb-option">
-        <div class="container">
-            <div class="row">
-                <div class="col-lg-12">
-                    <div class="breadcrumb__links">
-                        <a asp-controller="Home" asp-action="Index"><i class="fa fa-home"></i>Trang Chủ</a>
-                        <span>Giỏ Hàng</span>
-                    </div>
-                </div>
-            </div>
-        </div>
-    </div>
-    <!-- Breadcrumb End -->
 
-    <!-- Shop Cart Section Begin -->
-    <section class="shop-cart spad">
-        <div class="container">
-            <div class="row">
-                <div class="col-lg-12">
-                    <div class="shop__cart__table">
-                        <table>
-                            <thead>
-                                <tr>
-                                    <th>Sản Phẩm</th>
-                                    <th>Giá</th>
-                                    <th>Số Lượng</th>
-                                    <th>Tổng</th>
-                                    <th></th>
-                                </tr>
-                            </thead>
-                            <tbody>
-                                <tr>
-                                    <td class="cart__product__item">
-                                        <img src="~/assets/images/shop-cart/cp-1.jpg" alt="">
-                                        <div class="cart__product__item__title">
-                                            <h6>Chain bucket bag</h6>
-                                            <div class="rating">
-                                                <i class="fa fa-star"></i>
-                                                <i class="fa fa-star"></i>
-                                                <i class="fa fa-star"></i>
-                                                <i class="fa fa-star"></i>
-                                                <i class="fa fa-star"></i>
-                                            </div>
-                                        </div>
-                                    </td>
-                                    <td class="cart__price">$ 150.0</td>
-                                    <td class="cart__quantity">
-                                        <div class="pro-qty">
-                                            <input type="text" value="1">
-                                        </div>
-                                    </td>
-                                    <td class="cart__total">$ 300.0</td>
-                                    <td class="cart__close"><span class="icon_close"></span></td>
-                                </tr>
-                                <tr>
-                                    <td class="cart__product__item">
-                                        <img src="~/assets/images/shop-cart/cp-2.jpg" alt="">
-                                        <div class="cart__product__item__title">
-                                            <h6>Zip-pockets pebbled tote briefcase</h6>
-                                            <div class="rating">
-                                                <i class="fa fa-star"></i>
-                                                <i class="fa fa-star"></i>
-                                                <i class="fa fa-star"></i>
-                                                <i class="fa fa-star"></i>
-                                                <i class="fa fa-star"></i>
-                                            </div>
-                                        </div>
-                                    </td>
-                                    <td class="cart__price">$ 170.0</td>
-                                    <td class="cart__quantity">
-                                        <div class="pro-qty">
-                                            <input type="text" value="1">
-                                        </div>
-                                    </td>
-                                    <td class="cart__total">$ 170.0</td>
-                                    <td class="cart__close"><span class="icon_close"></span></td>
-                                </tr>
-                                <tr>
-                                    <td class="cart__product__item">
-                                        <img src="~/assets/images/shop-cart/cp-3.jpg" alt="">
-                                        <div class="cart__product__item__title">
-                                            <h6>Black jean</h6>
-                                            <div class="rating">
-                                                <i class="fa fa-star"></i>
-                                                <i class="fa fa-star"></i>
-                                                <i class="fa fa-star"></i>
-                                                <i class="fa fa-star"></i>
-                                                <i class="fa fa-star"></i>
-                                            </div>
-                                        </div>
-                                    </td>
-                                    <td class="cart__price">$ 85.0</td>
-                                    <td class="cart__quantity">
-                                        <div class="pro-qty">
-                                            <input type="text" value="1">
-                                        </div>
-                                    </td>
-                                    <td class="cart__total">$ 170.0</td>
-                                    <td class="cart__close"><span class="icon_close"></span></td>
-                                </tr>
-                                <tr>
-                                    <td class="cart__product__item">
-                                        <img src="~/assets/images/shop-cart/cp-4.jpg" alt="">
-                                        <div class="cart__product__item__title">
-                                            <h6>Cotton Shirt</h6>
-                                            <div class="rating">
-                                                <i class="fa fa-star"></i>
-                                                <i class="fa fa-star"></i>
-                                                <i class="fa fa-star"></i>
-                                                <i class="fa fa-star"></i>
-                                                <i class="fa fa-star"></i>
-                                            </div>
-                                        </div>
-                                    </td>
-                                    <td class="cart__price">$ 55.0</td>
-                                    <td class="cart__quantity">
-                                        <div class="pro-qty">
-                                            <input type="text" value="1">
-                                        </div>
-                                    </td>
-                                    <td class="cart__total">$ 110.0</td>
-                                    <td class="cart__close"><span class="icon_close"></span></td>
-                                </tr>
-                            </tbody>
-                        </table>
-                    </div>
-                </div>
-            </div>
-            <div class="row">
-                <div class="col-lg-6 col-md-6 col-sm-6">
-                    <div class="cart__btn">
-                        <a href="#">Tiếp Tục Mua</a>
-                    </div>
-                </div>
-                <div class="col-lg-6 col-md-6 col-sm-6">
-                    <div class="cart__btn update__btn">
-                        <a href="#"><span class="icon_loading"></span> Cập Nhật Giỏ Hàng</a>
-                    </div>
-                </div>
-            </div>
-            <div class="row">
-                <div class="col-lg-6">
-                    <div class="discount__content">
-                        <h6>Mã giảm Giá</h6>
-                        <form action="#">
-                            <input type="text" placeholder="Enter your coupon code">
-                            <button type="submit" class="site-btn">Áp dụng</button>
-                        </form>
-                    </div>
-                </div>
-                <div class="col-lg-4 offset-lg-2">
-                    <div class="cart__total__procced">
-                    <h6>Tổng số giỏ hàng</h6>
-                        <ul>
-                            <li>Subtotal <span>$ 750.0</span></li>
-                            <li>Tổng cộng <span>$ 750.0</span></li>
-                        </ul>
-                    <a href="#" class="primary-btn">Tiến hành thanh toán</a>
-                    </div>
-                </div>
-            </div>
-        </div>
-    </section>
-    <!-- Shop Cart Section End -->
-<!-- Instagram Begin -->
-<div class="instagram">
-    <div class="container-fluid">
+<!-- Breadcrumb Begin -->
+<div class="breadcrumb-option">
+    <div class="container">
         <div class="row">
-            <div class="col-lg-2 col-md-4 col-sm-4 p-0">
-                <div class="instagram__item set-bg" data-setbg="/assets/images/instagram/insta-1.jpg">
-                    <div class="instagram__text">
-                        <i class="fa fa-instagram"></i>
-                        <a href="#">ashion_shop</a>
-                    </div>
-                </div>
-            </div>
-            <div class="col-lg-2 col-md-4 col-sm-4 p-0">
-                <div class="instagram__item set-bg" data-setbg="/assets/images/instagram/insta-2.jpg">
-                    <div class="instagram__text">
-                        <i class="fa fa-instagram"></i>
-                        <a href="#">ashion_shop</a>
-                    </div>
-                </div>
-            </div>
-            <div class="col-lg-2 col-md-4 col-sm-4 p-0">
-                <div class="instagram__item set-bg" data-setbg="/assets/images/instagram/insta-3.jpg">
-                    <div class="instagram__text">
-                        <i class="fa fa-instagram"></i>
-                        <a href="#">ashion_shop</a>
-                    </div>
-                </div>
-            </div>
-            <div class="col-lg-2 col-md-4 col-sm-4 p-0">
-                <div class="instagram__item set-bg" data-setbg="/assets/images/instagram/insta-4.jpg">
-                    <div class="instagram__text">
-                        <i class="fa fa-instagram"></i>
-                        <a href="#">ashion_shop</a>
-                    </div>
-                </div>
-            </div>
-            <div class="col-lg-2 col-md-4 col-sm-4 p-0">
-                <div class="instagram__item set-bg" data-setbg="/assets/images/instagram/insta-5.jpg">
-                    <div class="instagram__text">
-                        <i class="fa fa-instagram"></i>
-                        <a href="#">ashion_shop</a>
-                    </div>
-                </div>
-            </div>
-            <div class="col-lg-2 col-md-4 col-sm-4 p-0">
-                <div class="instagram__item set-bg" data-setbg="/assets/images/instagram/insta-6.jpg">
-                    <div class="instagram__text">
-                        <i class="fa fa-instagram"></i>
-                        <a href="#">ashion_shop</a>
-                    </div>
+            <div class="col-lg-12">
+                <div class="breadcrumb__links">
+                    <a asp-controller="Home" asp-action="Index"><i class="fa fa-home"></i>Trang chủ</a>
+                    <span>Giỏ hàng</span>
                 </div>
             </div>
         </div>
     </div>
 </div>
+<!-- Breadcrumb End -->
+
+<!-- Shop Cart Section Begin -->
+<section class="shop-cart spad">
+    <div class="container">
+        <div class="row">
+            <div class="col-lg-12">
+                @if (Model == null || !Model.Any())
+                {
+                    <div class="text-center">
+                        <h3>Giỏ hàng của bạn đang trống</h3>
+                        <p>Hãy thêm sản phẩm vào giỏ hàng để tiếp tục mua sắm</p>
+                        <a asp-controller="Home" asp-action="Index" class="site-btn mt-4">Tiếp tục mua sắm</a>
+                    </div>
+                }
+                else
+                {
+                    <div class="shop__cart__table">
+                        <table>
+                            <thead>
+                                <tr>
+                                    <th>Sản phẩm</th>
+                                    <th>Giá</th>
+                                    <th>Số lượng</th>
+                                    <th>Tổng</th>
+                                    <th></th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                @foreach (var item in Model)
+                                {
+                                    <tr data-id="@item.ProductId" 
+                                        data-size="@item.Size"
+                                        data-color="@item.Color"
+                                        data-product-code="@item.ProductCode"
+                                        data-brand="@item.Brand"
+                                        data-category="@item.Category"
+                                        data-description="@item.Description"
+                                        data-color-code="@item.ColorCode" 
+                                        data-original-price="@item.OriginalPrice"
+                                        data-discount-price="@item.DiscountPrice"
+                                        data-discount-percent="@item.DiscountPercent"
+                                        data-is-in-stock="@item.IsInStock"
+                                        data-stock-quantity="@item.StockQuantity"
+                                        data-sku="@item.ProductCode">
+                                        <td class="cart__product__item">
+                                            <img src="@item.ProductImage" alt="@item.ProductName" style="max-width: 90px;">
+                                            <div class="cart__product__item__title">
+                                                <h6>@item.ProductName</h6>
+                                                @if (item.DiscountPercent > 0)
+                                                {
+                                                    <p class="discount">Giảm giá: @item.DiscountPercent%</p>
+                                                }
+                                            </div>
+                                        </td>
+                                        <td class="cart__price">
+                                            @if (item.DiscountPrice > 0)
+                                            {
+                                                <span class="original-price">@item.OriginalPrice.ToString("N0") VNĐ</span>
+                                                <span class="discount-price">@item.DiscountPrice.ToString("N0") VNĐ</span>
+                                            }
+                                            else
+                                            {
+                                                <span>@item.Price.ToString("N0") VNĐ</span>
+                                            }
+                                        </td>
+                                        <td class="cart__quantity">
+                                            <div class="pro-qty">
+                                                <input type="number" class="quantity-input" value="@item.Quantity" min="1" max="@item.StockQuantity">
+                                            </div>
+                                        </td>
+                                        <td class="cart__total">@item.Total.ToString("N0") VNĐ</td>
+                                        <td class="cart__close">
+                                            <a href="#" class="remove-item" data-id="@item.ProductId">
+                                                <i class="fa fa-close"></i>
+                                            </a>
+                                        </td>
+                                    </tr>
+                                }
+                            </tbody>
+                        </table>
+                    </div>
+                    <div class="row">
+                        <div class="col-lg-6 col-md-6 col-sm-6">
+                            <div class="cart__btn">
+                                <a asp-controller="Home" asp-action="Index">Tiếp tục mua sắm</a>
+                            </div>
+                        </div>
+                        <div class="col-lg-6 col-md-6 col-sm-6">
+                            <div class="cart__btn update__btn">
+                                <a href="#" id="updateCart"><span class="icon_loading"></span> Cập nhật giỏ hàng</a>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="row">
+                        <div class="col-lg-6">
+                            <div class="discount__content">
+                                <h6>Mã giảm giá</h6>
+                                <form action="#">
+                                    <input type="text" placeholder="Nhập mã giảm giá">
+                                    <button type="submit" class="site-btn">Áp dụng</button>
+                                </form>
+                            </div>
+                        </div>
+                        <div class="col-lg-4 offset-lg-2">
+                            <div class="cart__total__procced">
+                                <h6>Tổng giỏ hàng</h6>
+                                <ul>
+                                    <li>Tạm tính <span id="subtotal">@Model.Sum(x => x.Price * x.Quantity).ToString("N0") VNĐ</span></li>
+                                    <li>Tổng tiền <span id="total">@Model.Sum(x => x.Price * x.Quantity).ToString("N0") VNĐ</span></li>
+                                </ul>
+                                <a asp-controller="Checkout" asp-action="Index" class="primary-btn">Tiến hành thanh toán</a>
+                            </div>
+                        </div>
+                    </div>
+                }
+            </div>
+        </div>
+    </div>
+</section>
+<!-- Shop Cart Section End -->
+
+@section Scripts {
+    <script>
+        $(document).ready(function () {
+            // Tăng số lượng
+            $('.pro-qty .qtybtn').on('click', function () {
+                var $button = $(this);
+                var $input = $button.parent().find('input');
+                var oldValue = $input.val();
+                var maxValue = parseInt($input.attr('max'));
+                
+                if ($button.hasClass('inc')) {
+                    if (oldValue < maxValue) {
+                        var newVal = parseFloat(oldValue) + 1;
+                        $input.val(newVal);
+                        updateItemTotal($button.closest('tr'));
+                    }
+                } else {
+                    if (oldValue > 1) {
+                        var newVal = parseFloat(oldValue) - 1;
+                        $input.val(newVal);
+                        updateItemTotal($button.closest('tr'));
+                    }
+                }
+            });
+
+            // Xóa sản phẩm khỏi giỏ hàng
+            $('.remove-item').click(function (e) {
+                e.preventDefault();
+                var productId = $(this).data('id');
+                var $row = $(this).closest('tr');
+
+                $.ajax({
+                    url: '@Url.Action("RemoveFromCart", "Cart")',
+                    type: 'POST',
+                    data: { productId: productId },
+                    success: function (result) {
+                        if (result.success) {
+                            $row.remove();
+                            updateCartTotal();
+                            alert('Xóa sản phẩm khỏi giỏ hàng thành công');
+                        } else {
+                            alert('Có lỗi xảy ra khi xóa sản phẩm');
+                        }
+                    },
+                    error: function () {
+                        alert('Có lỗi xảy ra khi xóa sản phẩm');
+                    }
+                });
+            });
+
+            // Cập nhật giỏ hàng
+            $('#updateCart').click(function (e) {
+                e.preventDefault();
+                
+                var updates = [];
+                $('.shop__cart__table tbody tr').each(function () {
+                    var $row = $(this);
+                    var productId = $row.data('id');
+                    var size = $row.data('size');
+                    var color = $row.data('color');
+                    var quantity = parseInt($row.find('.quantity-input').val());
+                    var productCode = $row.data('product-code');
+                    var brand = $row.data('brand');
+                    var category = $row.data('category');
+                    var description = $row.data('description');
+                    var colorCode = $row.data('color-code');
+                    var originalPrice = parseFloat($row.data('original-price'));
+                    var discountPrice = parseFloat($row.data('discount-price'));
+                    var discountPercent = parseInt($row.data('discount-percent'));
+                    var isInStock = $row.data('is-in-stock');
+                    var stockQuantity = parseInt($row.data('stock-quantity'));
+                    var sku = $row.data('sku');
+                    
+                    updates.push({
+                        productId: productId,
+                        productCode: productCode,
+                        brand: brand,
+                        category: category,
+                        description: description,
+                        size: size,
+                        color: color,
+                        colorCode: colorCode,
+                        quantity: quantity,
+                        originalPrice: originalPrice,
+                        discountPrice: discountPrice,
+                        discountPercent: discountPercent,
+                        isInStock: isInStock,
+                        stockQuantity: stockQuantity,
+                        sku: sku
+                    });
+                });
+                
+                // Cập nhật từng sản phẩm
+                var promises = [];
+                updates.forEach(function (item) {
+                    var promise = $.ajax({
+                        url: '@Url.Action("UpdateCart", "Cart")',
+                        type: 'POST',
+                        data: item
+                    });
+                    promises.push(promise);
+                });
+                
+                // Khi tất cả các request hoàn thành
+                $.when.apply($, promises).done(function () {
+                    updateCartTotal();
+                    alert('Cập nhật giỏ hàng thành công');
+                });
+            });
+
+            // Cập nhật tổng tiền của một sản phẩm
+            function updateItemTotal($row) {
+                var price = parseFloat($row.find('.cart__price').text().replace(/[^\d]/g, ''));
+                var quantity = parseInt($row.find('.quantity-input').val());
+                var total = price * quantity;
+                $row.find('.cart__total').text(formatCurrency(total) + ' VNĐ');
+                updateCartTotal();
+            }
+
+            // Cập nhật tổng tiền giỏ hàng
+            function updateCartTotal() {
+                var total = 0;
+                $('.cart__total').each(function () {
+                    total += parseFloat($(this).text().replace(/[^\d]/g, ''));
+                });
+                $('#subtotal').text(formatCurrency(total) + ' VNĐ');
+                $('#total').text(formatCurrency(total) + ' VNĐ');
+            }
+
+            // Format số tiền
+            function formatCurrency(number) {
+                return number.toString().replace(/\B(?=(\d{3})+(?!\d))/g, ".");
+            }
+        });
+    </script>
+}
+
+<!-- Instagram Begin -->
+@await Component.InvokeAsync("SocialMedial")
 <!-- Instagram End -->

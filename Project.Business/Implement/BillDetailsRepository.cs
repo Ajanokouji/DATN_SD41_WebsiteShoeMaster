@@ -88,9 +88,9 @@ public class BillDetailsRepository : IBillDetailsRepository
                 query = query.Where(x => x.Id == queryModel.id_hoa_don_chi_tiet.Value);
             }
             
-            if (queryModel.id_hoa_don.HasValue)
+            if (queryModel.BillId.HasValue)
             {
-                query = query.Where(x => x.BillId == queryModel.id_hoa_don.Value);
+                query = query.Where(x => x.BillId == queryModel.BillId.Value);
             }
             
             if (queryModel.id_san_pham_chi_tiet.HasValue)
