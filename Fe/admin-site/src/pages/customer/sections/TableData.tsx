@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from "react";
+import React, { useEffect } from "react";
 import Pagination from "@/components/Pagination";
 import TableHeaderComponent from "@/components/TableHeader";
 import TableRowComponent from "@/components/TableRow";
@@ -6,17 +6,21 @@ import { Table, TableBody } from "@/components/ui/table";
 import TableProps from "@/types/common/table";
 import { useAppDispatch } from "@/hooks/use-app-dispatch";
 import { useAppSelector } from "@/hooks/use-app-selector";
-import { selectBills, selectPagination } from "@/redux/apps/bill/billSelector";
-import { BillResDto } from "@/types/bill/bill";
+
+import { formatVietnamTime } from "@/utils/format";
 import {
-  deleteBill,
-  fetchBills,
+  selectCustomers,
+  selectPagination,
+} from "@/redux/apps/customer/customerSelector";
+import { CustomerResDto } from "@/types/customer/customer";
+import {
+  deleteCustomer,
+  fetchCustomers,
   setPage,
   setPageSize,
-} from "@/redux/apps/bill/billSlice";
-import { formatVietnamTime } from "@/utils/format";
+} from "@/redux/apps/customer/customerSlice";
 
-const BillTable = <T extends { id: string }>({
+const CustomerTable = <T extends { id: string }>({
   headers,
   data,
   columns,
@@ -46,55 +50,44 @@ const BillTable = <T extends { id: string }>({
   </div>
 );
 
-const BillsTable: React.FC = () => {
+const CustomersTable: React.FC = () => {
   const dispatch = useAppDispatch();
-  const bills = useAppSelector(selectBills);
+  const customers = useAppSelector(selectCustomers);
   const pagination = useAppSelector(selectPagination);
-  const [isOpenUpdate, setIsOpenUpdate] = useState(false);
-  const [selectedBillId, setSelectedBillId] = useState<string | null>(null);
 
-  const handleOpenDialogUpdate = (id: string) => {
-    setIsOpenUpdate(true);
-    setSelectedBillId(id);
+  const renderDate = (value: string) => {
+    return formatVietnamTime(value);
   };
-
-  const renderCreatedDate = (value: string) => {
-      return formatVietnamTime(value);
-    };
 
   const headers = [
     { label: "Code", className: "text-center" },
-    { label: "Recipient Name" },
-    { label: "Recipient Phone" },
-    { label: "Total Amount" },
-    { label: "Discount Amount" },
-    { label: "AmountToPay" },
-    { label: "Status" },
+    { label: "Customer name" },
+    { label: "Email" },
+    { label: "Phone" },
+    { label: "Address" },
+    { label: "Description" },
     { label: "Create At" },
     { label: " " },
   ];
 
   const columns: {
-    key?: keyof BillResDto;
+    key?: keyof CustomerResDto;
     className?: string;
     isActionColumn?: boolean;
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
     render?: (value: any) => React.ReactNode;
-    action?: (data: BillResDto) => void;
+    action?: (data: CustomerResDto) => void;
     deleteAction?: (id: string) => void;
-    updateAction?: (id: string) => void;
   }[] = [
-    { key: "billCode", className: "text-center" },
-    { key: "recipientName" },
-    { key: "recipientPhone" },
-    { key: "totalAmount" },
-    { key: "discountAmount" },
-    { key: "amountToPay" },
-    { key: "status" },
-    
-    { 
-      key: "createdOnDate", 
-      render: renderCreatedDate 
+    { key: "code", className: "text-center" },
+    { key: "name" },
+    { key: "email" },
+    { key: "phoneNumber" },
+    { key: "address" },
+    { key: "description" },
+    {
+      key: "createdOnDate",
+      render: renderDate,
     },
     {
       isActionColumn: true,
@@ -103,17 +96,14 @@ const BillsTable: React.FC = () => {
         console.log("Performing action for:", category);
       },
       deleteAction: (id: string) => {
-        dispatch(deleteBill(id));
-      },
-      updateAction: (id: string) => {
-        handleOpenDialogUpdate(id);
+        dispatch(deleteCustomer(id));
       },
     },
   ];
 
   useEffect(() => {
     dispatch(
-      fetchBills({
+      fetchCustomers({
         CurrentPage: pagination.currentPage,
         PageSize: pagination.pageSize,
       })
@@ -132,7 +122,11 @@ const BillsTable: React.FC = () => {
 
   return (
     <section className="mt-10">
-      <BillTable<BillResDto> headers={headers} data={bills} columns={columns} />
+      <CustomerTable<CustomerResDto>
+        headers={headers}
+        data={customers}
+        columns={columns}
+      />
       <Pagination
         currentPage={pagination.currentPage}
         totalPages={pagination.totalPages}
@@ -141,15 +135,8 @@ const BillsTable: React.FC = () => {
         onPageChange={handlePageChange}
         onPageSizeChange={handlePageSizeChange}
       />
-      {isOpenUpdate && selectedBillId && (
-        <DetailBillSheet
-          categoryId={selectedBillId}
-          isOpen={isOpenUpdate}
-          onClose={() => setIsOpenUpdate(false)}
-        />
-      )}
     </section>
   );
 };
 
-export default BillsTable;
+export default CustomersTable;

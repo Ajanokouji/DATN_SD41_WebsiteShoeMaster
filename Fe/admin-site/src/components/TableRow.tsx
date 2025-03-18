@@ -17,15 +17,37 @@ type TableRowProps<T> = {
   }[];
 };
 
-const TableRowComponent = <T extends { id: string },>({ data, columns }: TableRowProps<T>) => {
+const TableRowComponent = <
+  T extends {
+    id: string;
+    name?: string;
+    code?: string;
+    voucherName?: string;
+    fullName?: string;
+    billCode?: string;
+  }
+>({
+  data,
+  columns,
+}: TableRowProps<T>) => {
   const [isModalDeleteOpen, setModalDeleteOpen] = useState(false);
 
   const handleDelete = () => {
     if (data) {
-      const deleteColumn = columns.find(col => col.deleteAction);
+      const deleteColumn = columns.find((col) => col.deleteAction);
       deleteColumn?.deleteAction?.(data.id);
     }
     setModalDeleteOpen(false);
+  };
+
+  const getDisplayName = () => {
+    if (!data) return "";
+    if (data.fullName) return data.fullName;
+    if (data.name) return data.name;
+    if (data.code) return data.code;
+    if (data.voucherName) return data.voucherName;
+    if (data.billCode) return data.billCode;
+    return data.id;
   };
 
   return (
@@ -39,7 +61,11 @@ const TableRowComponent = <T extends { id: string },>({ data, columns }: TableRo
             {column.isActionColumn ? (
               data ? (
                 <div className="flex flex-grow gap-2">
-                  <button onClick={() => column.updateAction && column.updateAction(data.id)}>
+                  <button
+                    onClick={() =>
+                      column.updateAction && column.updateAction(data.id)
+                    }
+                  >
                     <LuSquarePen className="text-indigo-600" size={20} />
                   </button>
                   <button onClick={() => setModalDeleteOpen(true)}>
@@ -71,7 +97,7 @@ const TableRowComponent = <T extends { id: string },>({ data, columns }: TableRo
           isOpen={isModalDeleteOpen}
           onClose={() => setModalDeleteOpen(false)}
           onConfirm={handleDelete}
-          itemName={data.id}
+          itemName={getDisplayName()}
         />
       )}
     </>

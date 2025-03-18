@@ -1,13 +1,20 @@
 import React from "react";
-import CustomerList from "./sections/CustomerList";
+import { Helmet } from "react-helmet-async";
+import ActionHeader from "./sections/Action";
+import CustomersTable from "./sections/TableData";
 
-
-const CustomerPage: React.FC = () => {
-    return (
-        <div>
-            <CustomerList />
-        </div>
-    );
+const Customer: React.FC = () => {
+  return (
+    <>
+      <Helmet>
+        <title> Customer </title>
+      </Helmet>
+      <section className="px-10">
+        <ActionHeader />
+        <CustomersTable />
+      </section>
+    </>
+  );
 };
 
-export default CustomerPage;
+export default Customer;

@@ -6,10 +6,19 @@ import { Table, TableBody } from "@/components/ui/table";
 import TableProps from "@/types/common/table";
 import { useAppDispatch } from "@/hooks/use-app-dispatch";
 import { useAppSelector } from "@/hooks/use-app-selector";
-import { selectContacts, selectPagination } from "@/redux/apps/contact/contactSelector";
+import {
+  selectContacts,
+  selectPagination,
+} from "@/redux/apps/contact/contactSelector";
 import { ContactResDto } from "@/types/contact/contact";
-import { deleteContact, fetchContacts, setPage, setPageSize } from "@/redux/apps/contact/contactSlice";
-
+import {
+  deleteContact,
+  fetchContacts,
+  setPage,
+  setPageSize,
+} from "@/redux/apps/contact/contactSlice";
+import DetailContactSheet from "./UpdateDetail/DetailContactSheet";
+import { formatVietnamTime } from "@/utils/format";
 
 const ContactTable = <T extends { id: string }>({
   headers,
@@ -46,11 +55,17 @@ const ContactsTable: React.FC = () => {
   const contacts = useAppSelector(selectContacts);
   const pagination = useAppSelector(selectPagination);
   const [isOpenUpdate, setIsOpenUpdate] = useState(false);
-  const [selectedContactId, setSelectedContactId] = useState<string | null>(null);
+  const [selectedContactId, setSelectedContactId] = useState<string | null>(
+    null
+  );
 
   const handleOpenDialogUpdate = (id: string) => {
     setIsOpenUpdate(true);
     setSelectedContactId(id);
+  };
+
+  const renderDate = (value: string) => {
+    return formatVietnamTime(value);
   };
 
   const headers = [
@@ -70,6 +85,8 @@ const ContactsTable: React.FC = () => {
     key?: keyof ContactResDto;
     className?: string;
     isActionColumn?: boolean;
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    render?: (value: any) => React.ReactNode;
     action?: (data: ContactResDto) => void;
     deleteAction?: (id: string) => void;
     updateAction?: (id: string) => void;
@@ -77,12 +94,18 @@ const ContactsTable: React.FC = () => {
     { key: "name", className: "text-center" },
     { key: "fullName" },
     { key: "address" },
-    { key: "dateOfBirth" },
+    {
+      key: "dateOfBirth",
+      render: renderDate,
+    },
     { key: "imageUrl" },
     { key: "email" },
     { key: "phoneNumber" },
     { key: "content" },
-    { key: "createdOnDate" },
+    {
+      key: "createdOnDate",
+      render: renderDate,
+    },
     {
       isActionColumn: true,
       className: "text-center",
@@ -134,7 +157,7 @@ const ContactsTable: React.FC = () => {
       />
       {isOpenUpdate && selectedContactId && (
         <DetailContactSheet
-          categoryId={selectedContactId}
+          contactId={selectedContactId}
           isOpen={isOpenUpdate}
           onClose={() => setIsOpenUpdate(false)}
         />
