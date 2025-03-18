@@ -1,18 +1,12 @@
-﻿using Microsoft.CodeAnalysis.CSharp.Syntax;
+﻿using Microsoft.Data.SqlClient;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Project.Business.Implement;
 using Project.Business.Interface;
 using Project.Business.Interface.Repositories;
-using Project.Business.Interface.Services;
-using Project.Business.Services;
 using Project.DbManagement;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
+using System.Data;
 
 namespace Project.Business
 {
@@ -21,8 +15,9 @@ namespace Project.Business
         public static void RegisterServiceComponents(this IServiceCollection services, IConfiguration configuration)
         {
             // Register DbContext
+            var x = configuration["DefaultConnection"];
             services.AddDbContext<ProjectDbContext>(options =>
-                options.UseSqlServer(configuration.GetConnectionString("DefaultConnection")));
+                options.UseSqlServer(x));
 
             // Register Memory Cache
             services.AddMemoryCache();
@@ -57,8 +52,14 @@ namespace Project.Business
             services.AddScoped<IBillDetailsBusiness, BillDetailsBusiness>();
             services.AddScoped<IProductCategoriesRelationBusiness, ProductCategoriesRelationBusiness>();
             services.AddScoped<ICategoriesBusiness, CategoriesBusiness>();
-            services.AddScoped<IPaymentService, PaymentService>();
-
+         
+            services.AddTransient<IDbConnection>(sp =>
+            {
+                var configuration = sp.GetRequiredService<IConfiguration>();
+                var connectionString = configuration["DefaultConnection"];
+                return new SqlConnection(connectionString);
+            });
+            services.AddScoped<IProductRepository, ProductDapperRepository>();
 
 
             // Configure CORS

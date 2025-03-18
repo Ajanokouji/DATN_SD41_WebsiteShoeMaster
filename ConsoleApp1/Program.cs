@@ -1,5 +1,6 @@
 ﻿using Microsoft.Data.SqlClient;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.Extensions.Caching.Memory;
 using Microsoft.Extensions.DependencyInjection;
 using Newtonsoft.Json;
 using Project.Business.Implement;
@@ -31,10 +32,11 @@ class Program
     static async Task Main()
     {
         var serviceProvider = new ServiceCollection()
-            .AddDbContext<ProjectDbContext>(options => options.UseSqlServer(constr))
-            .AddSingleton<IProductRepository, ProductRepository>()
-            .AddSingleton<IProductBusiness, ProductBusiness>()
-            .BuildServiceProvider();
+    .AddDbContext<ProjectDbContext>(options => options.UseSqlServer(constr))
+    .AddSingleton<IProductRepository, ProductRepository>()
+    .AddMemoryCache() // Đăng ký đúng
+    .AddSingleton<IProductBusiness, ProductBusiness>()
+    .BuildServiceProvider();
         var productBusiness = serviceProvider.GetService<IProductBusiness>();
         using (var conn = new SqlConnection(constr))
         {
@@ -101,17 +103,19 @@ class Program
             FieldValues=respone.SecondaryCategory??string.Empty
         });
 
-        if ((respone.Gallery360!=null&&respone.Gallery360.Count>0)||(respone.Gallery!=null&&respone.Gallery.Count>0)) {
-            foreach (var item in (respone.Gallery360?.Count > 0 ? respone.Gallery360 : respone.Gallery360))
+        if ((respone.gallery_360!=null&&respone.gallery_360.Count>0)||(respone.Gallery!=null&&respone.Gallery.Count>0)) {
+            entity.MediaObjs = new List<string>();
+            foreach (var item in (respone.gallery_360?.Count > 0 ? respone.gallery_360 : respone.gallery_360))
             {
                 entity.MediaObjs?.Add(item);
             }
             ;
         }
         entity.VariantObjs = new List<Project.DbManagement.Entity.Variant>();
-        if (respone.Variants!=null &&respone.Variants.Count > 0)
+        if (respone.variants!=null &&respone.variants.Count > 0)
         {
-            foreach (var variant in respone.Variants)
+            
+            foreach (var variant in respone.variants)
             {
                 entity.VariantObjs.Add(new Project.DbManagement.Entity.Variant()
                 {
@@ -153,14 +157,14 @@ public class ProductData
     public string Category { get; set; }
     public string SecondaryCategory { get; set; }
     public List<string> Gallery { get; set; }
-    public List<string> Gallery360 { get; set; }
+    public List<string> gallery_360 { get; set; }
     public decimal MinPrice { get; set; }
     public decimal AvgPrice { get; set; }
     public decimal MaxPrice { get; set; }
     public int Rank { get; set; }
     public int WeeklyOrders { get; set; }
     public List<Trait> Traits { get; set; }
-    public List<Variant> Variants { get; set; }
+    public List<Variant> variants { get; set; }
 }
 
 public class MarketData

@@ -1,10 +1,14 @@
 import { PaginationParams } from "../common/pagination";
 
 export default interface ContactReqDto {
-  voucherName: string;
-  voucherType: number;
-  startDate: string;
-  endDate: string;
+  name: string;
+  fullName: string;
+  address: string;
+  dateOfBirth: string;
+  imageUrl: string;
+  email: string;
+  phoneNumber: string;
+  content: string;
   createdByUserId: string;
   lastModifiedByUserId: string;
   lastModifiedOnDate: string;
@@ -30,5 +34,6 @@ export interface ContactResDto {
 }
 
 export interface ContactFilterParams extends PaginationParams {
-  ten_giam_gia?: string;
+  name?: string;
+  fullName?: string;
 }

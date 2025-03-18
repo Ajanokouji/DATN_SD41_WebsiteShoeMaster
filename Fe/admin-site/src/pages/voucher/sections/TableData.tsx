@@ -7,10 +7,18 @@ import TableProps from "@/types/common/table";
 import { useAppDispatch } from "@/hooks/use-app-dispatch";
 import { useAppSelector } from "@/hooks/use-app-selector";
 import { VoucherResDto } from "@/types/voucher/voucher";
-import { deleteVoucher, fetchVouchers, setPage, setPageSize } from "@/redux/apps/voucher/voucherSlice";
-import { selectPagination, selectVouchers } from "@/redux/apps/voucher/voucherSelector";
+import {
+  deleteVoucher,
+  fetchVouchers,
+  setPage,
+  setPageSize,
+} from "@/redux/apps/voucher/voucherSlice";
+import {
+  selectPagination,
+  selectVouchers,
+} from "@/redux/apps/voucher/voucherSelector";
 import DetailVoucherSheet from "./UpdateDetail/DetailVoucherSheet";
-
+import { formatVietnamTime } from "@/utils/format";
 
 const VoucherTable = <T extends { id: string }>({
   headers,
@@ -47,11 +55,17 @@ const VouchersTable: React.FC = () => {
   const vouchers = useAppSelector(selectVouchers);
   const pagination = useAppSelector(selectPagination);
   const [isOpenUpdate, setIsOpenUpdate] = useState(false);
-  const [selectedVoucherId, setSelectedVoucherId] = useState<string | null>(null);
+  const [selectedVoucherId, setSelectedVoucherId] = useState<string | null>(
+    null
+  );
 
   const handleOpenDialogUpdate = (id: string) => {
     setIsOpenUpdate(true);
     setSelectedVoucherId(id);
+  };
+
+  const renderDate = (value: string) => {
+    return formatVietnamTime(value);
   };
 
   const headers = [
@@ -66,14 +80,25 @@ const VouchersTable: React.FC = () => {
     key?: keyof VoucherResDto;
     className?: string;
     isActionColumn?: boolean;
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    render?: (value: any) => React.ReactNode;
     action?: (data: VoucherResDto) => void;
     deleteAction?: (id: string) => void;
     updateAction?: (id: string) => void;
   }[] = [
     { key: "voucherName", className: "text-center" },
-    { key: "startDate" },
-    { key: "endDate" },
-    { key: "createdOnDate" },
+    {
+      key: "startDate",
+      render: renderDate,
+    },
+    {
+      key: "endDate",
+      render: renderDate,
+    },
+    {
+      key: "createdOnDate",
+      render: renderDate,
+    },
     {
       isActionColumn: true,
       className: "text-center",

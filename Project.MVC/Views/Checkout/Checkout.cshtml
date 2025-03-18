@@ -69,10 +69,10 @@
                                 </div>
                             </div>
                         </div>
-         @*                <div class="checkout__input">
+                        <div class="checkout__input">
                             <p>Ghi chú đơn hàng</p>
                             <input type="text" asp-for="CustomerInfo.Notes" placeholder="Ghi chú về đơn hàng của bạn">
-                        </div> *@
+                        </div>
                     </div>
                     <div class="col-lg-4 col-md-6">
                         <div class="checkout__order">
@@ -164,14 +164,14 @@
                 $.ajax({
                     url: '/Checkout/ApplyVoucher',
                     type: 'POST',
-                    data: { voucherCode: voucherCode },
+                    data: { voucherCode: voucherCode, totalAmount: @Model.Total },
                     success: function (result) {
-                        if (result.success) {
-                            alert(result.message);
+                        if (result.isSuccess) {
+                            alert('Áp dụng mã giảm giá thành công');
                             // Cập nhật tổng tiền sau khi áp dụng mã giảm giá
                             location.reload();
                         } else {
-                            alert(result.message);
+                            alert('Mã giảm giá không hợp lệ hoặc đã hết hạn');
                         }
                     },
                     error: function () {
@@ -185,6 +185,7 @@
                 e.preventDefault();
                 
                 var formData = $(this).serialize();
+                var paymentMethod = $("input[name='PaymentMethod']:checked").val();
                 
                 $.ajax({
                     url: $(this).attr('action'),
@@ -192,11 +193,18 @@
                     data: formData,
                     success: function (result) {
                         if (result.success) {
-                            if (result.paymentUrl) {
-                                // Nếu thanh toán qua VNPay, chuyển hướng đến trang thanh toán
-                                window.location.href = result.paymentUrl;
+                            if (paymentMethod === "VNPay") {
+                                // Chuyển hướng đến trang xử lý thanh toán VNPay
+                                var paymentModel = {
+                                    BillId: result.orderId,
+                                    TotalAmount: @Model.Total,
+                                    SelectedPaymentMethod: "VNPay"
+                                };
+                                
+                                // Tạo URL thanh toán VNPay
+                                window.location.href = "/VNPay/CreatePayment?billId=" + result.orderId + "&totalAmount=" + @Model.Total;
                             } else {
-                                // Nếu thanh toán COD, chuyển hướng đến trang cảm ơn
+                                // Chuyển hướng đến trang cảm ơn
                                 window.location.href = '/Checkout/ThankYou?orderId=' + result.orderId;
                             }
                         } else {

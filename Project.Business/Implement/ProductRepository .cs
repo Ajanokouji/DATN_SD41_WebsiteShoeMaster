@@ -1,21 +1,14 @@
-﻿using AutoMapper.Configuration;
-using LinqKit;
+﻿using LinqKit;
 using Microsoft.EntityFrameworkCore;
 using Project.Business.Interface.Repositories;
 using Project.Business.Model;
 using Project.DbManagement;
 using Project.DbManagement.Entity;
-using SERP.FileManagementService.Business;
-using SERP.FileManagementService.Entities;
 using SERP.Framework.Business;
 using SERP.Framework.Common;
 using SERP.Framework.Common.Extensions;
 using SERP.Framework.DB.Extensions;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Xml;
-using static System.Net.Mime.MediaTypeNames;
+using Microsoft.EntityFrameworkCore.SqlServer;
 
 namespace Project.Business.Implement
 {
@@ -158,6 +151,11 @@ namespace Project.Business.Implement
                 query = query.Where(x => x.Description.Contains(queryModel.Description));
             }
 
+            if (true)
+            {
+                query =  query.Where(x => x.MetadataObj != null && x.MetadataObj.Any(m => m.FieldName == "Brand" && m.FieldValues == "Nike"));
+            }
+
             //if (queryModel.MetaDataQueries != null && queryModel.MetaDataQueries.Any())
             //{
             //    string text = queryModel.BuildMetadataQuery<NodeEntity>(conditionParameters);
@@ -239,6 +237,10 @@ namespace Project.Business.Implement
                         exist.WorkFlowStates=product.WorkFlowStates;
                         exist.CreatedOnDate=product.CreatedOnDate;
                         exist.Description = product.Description;
+                        exist.MediaObjs=product.MediaObjs;
+                        exist.MediasJson=product.MediasJson;
+                        exist.VariantJson=product.VariantJson;
+                        exist.VariantObjs=product.VariantObjs;
 
                         product.UpdateTracking(product.Id);
                         _context.Products.Update(exist);

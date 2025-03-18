@@ -8,9 +8,18 @@ import { useAppDispatch } from "@/hooks/use-app-dispatch";
 import { useAppSelector } from "@/hooks/use-app-selector";
 
 import { ProductResDto } from "@/types/product/product";
-import { deleteProduct, fetchProducts, setPage, setPageSize } from "@/redux/apps/product/productSlice";
-import { selectPagination, selectProducts } from "@/redux/apps/product/productSelector";
+import {
+  deleteProduct,
+  fetchProducts,
+  setPage,
+  setPageSize,
+} from "@/redux/apps/product/productSlice";
+import {
+  selectPagination,
+  selectProducts,
+} from "@/redux/apps/product/productSelector";
 import DetailProductSheet from "./UpdateDetail/DetailProductSheet";
+import { formatVietnamTime } from "@/utils/format";
 
 const ProductTable = <T extends { id: string }>({
   headers,
@@ -47,11 +56,17 @@ const ProductsTable: React.FC = () => {
   const products = useAppSelector(selectProducts);
   const pagination = useAppSelector(selectPagination);
   const [isOpenUpdate, setIsOpenUpdate] = useState(false);
-  const [selectedProductId, setSelectedProductId] = useState<string | null>(null);
-    
+  const [selectedProductId, setSelectedProductId] = useState<string | null>(
+    null
+  );
+
   const handleOpenDialogUpdate = (id: string) => {
     setIsOpenUpdate(true);
     setSelectedProductId(id);
+  };
+
+  const renderCreatedDate = (value: string) => {
+    return formatVietnamTime(value);
   };
   const headers = [
     { label: "Code", className: "text-center" },
@@ -67,6 +82,8 @@ const ProductsTable: React.FC = () => {
     key?: keyof ProductResDto;
     className?: string;
     isActionColumn?: boolean;
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    render?: (value: any) => React.ReactNode;
     action?: (data: ProductResDto) => void;
     deleteAction?: (id: string) => void;
     updateAction?: (id: string) => void;
@@ -76,7 +93,10 @@ const ProductsTable: React.FC = () => {
     { key: "imageUrl" },
     { key: "description" },
     { key: "status" },
-    { key: "createdOnDate" },
+    {
+      key: "createdOnDate",
+      render: renderCreatedDate,
+    },
     {
       isActionColumn: true,
       className: "text-center",
