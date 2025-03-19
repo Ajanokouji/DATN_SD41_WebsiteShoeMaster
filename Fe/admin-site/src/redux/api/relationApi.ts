@@ -1,4 +1,4 @@
-import RelationReqDto, { RelationDetailResDto, RelationFilterParams, RelationResDto } from "@/types/category/relation";
+import RelationReqDto, { RelationFilterParams, RelationResDto } from "@/types/category/relation";
 import httpClient from "./agent";
 import { PaginatedResponse } from "@/types/common/pagination";
 
@@ -40,9 +40,9 @@ class RelationService {
     }
   }
 
-  async getRelationById(id: string): Promise<RelationDetailResDto> {
+  async getRelationById(id: string): Promise<RelationResDto> {
     try {
-      const response = await httpClient.get<{ data: RelationDetailResDto }>(
+      const response = await httpClient.get<{ data: RelationResDto }>(
         `${this.endpoints.relations}/${id}`
       );
       return response.data;

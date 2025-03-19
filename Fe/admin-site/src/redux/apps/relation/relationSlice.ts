@@ -1,14 +1,14 @@
 import { createSlice, PayloadAction } from "@reduxjs/toolkit";
 import { addLoadingCases } from "@/utils/redux.utils";
 import { createAppThunk } from "@/utils/createThunk";
-import RelationReqDto, { RelationDetailResDto, RelationFilterParams, RelationResDto } from "@/types/category/relation";
+import RelationReqDto, { RelationFilterParams, RelationResDto } from "@/types/category/relation";
 import { RELATION_MESSAGES } from "@/constants/relation.constants";
 import relationService from "@/redux/api/relationApi";
 
 export interface InitState {
   loading: boolean;
   error: string | null;
-  relation: RelationDetailResDto | null;
+  relation: RelationResDto | null;
   relations: RelationResDto[];
   pagination: {
     currentPage: number;
