@@ -1,4 +1,5 @@
-using Project.Project.Business.Model;
+using System;
+using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
 
 namespace Project.Business.Model
@@ -6,14 +7,19 @@ namespace Project.Business.Model
     public class PaymentViewModel
     {
         public Guid BillId { get; set; }
+        
+        [Display(Name = "Số tiền thanh toán")]
         public decimal TotalAmount { get; set; }
-        public string VoucherCode { get; set; }
-        public decimal DiscountAmount { get; set; }
-        public decimal FinalAmount { get; set; }
-        public string PaymentMethod { get; set; }
-
+        
+        [Display(Name = "Phương thức thanh toán")]
         public string SelectedPaymentMethod { get; set; }
+        
         public List<PaymentMethodModel> PaymentMethods { get; set; }
-        public CustomerInfoModel CustomerInfo { get; set; }
+    }
+
+    public class PaymentMethodModel
+    {
+        public string Code { get; set; }
+        public string Name { get; set; }
     }
 } 

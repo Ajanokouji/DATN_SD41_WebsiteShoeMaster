@@ -28,26 +28,40 @@
         <div class="row">
             <div class="col-lg-6">
                 <div class="product__details__pic">
+                    @{
+                        var mediaObjs = Model.Product.MediaObjs;
+                        var count = mediaObjs.Count;
+                        var selectedMediaObjs = new List<string>();
+
+                        if (count >= 4)
+                        {
+                            var step = count / 4;
+                            for (int i = 0; i < count; i += step)
+                            {
+                                selectedMediaObjs.Add(mediaObjs[i]);
+                            }
+                        }
+                        else
+                        {
+                            selectedMediaObjs.Add(Model.Product.ImageUrl);
+                        }
+                    }
+
                     <div class="product__details__pic__left product__thumb nice-scroll">
-                        <a class="pt active" href="#product-1">
-                            <img src="~/assets/images/product/details/thumb-1.jpg" alt="">
-                        </a>
-                        <a class="pt" href="#product-2">
-                            <img src="~/assets/images/product/details/thumb-2.jpg" alt="">
-                        </a>
-                        <a class="pt" href="#product-3">
-                            <img src="~/assets/images/product/details/thumb-3.jpg" alt="">
-                        </a>
-                        <a class="pt" href="#product-4">
-                            <img src="~/assets/images/product/details/thumb-4.jpg" alt="">
-                        </a>
+                        @for (int i = 0; i < selectedMediaObjs.Count; i++)
+                        {
+                            <a class="pt @(i == 0 ? "active" : "")" href="#product-1">
+                                <img src="@selectedMediaObjs[i]" alt="">
+                            </a>
+                        }
+
                     </div>
                     <div class="product__details__slider__content">
                         <div class="product__details__pic__slider owl-carousel">
-                            <img data-hash="product-1" class="product__big__img" src="~/assets/images/product/details/product-1.jpg" alt="">
-                            <img data-hash="product-2" class="product__big__img" src="~/assets/images/product/details/product-2.jpg" alt="">
-                            <img data-hash="product-3" class="product__big__img" src="~/assets/images/product/details/product-3.jpg" alt="">
-                            <img data-hash="product-4" class="product__big__img" src="~/assets/images/product/details/product-4.jpg" alt="">
+                            @foreach(var imgUrl in selectedMediaObjs)
+                            {
+                                <img data-hash="product-1" class="product__big__img" src="@imgUrl" alt="">
+                            }
                         </div>
                     </div>
                 </div>
