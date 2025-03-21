@@ -1,6 +1,6 @@
 import httpClient from "./agent";
 import { PaginatedResponse } from "@/types/common/pagination";
-import { BillDetailResDto, BillFilterParams, BillReqDto } from "@/types/bill/bill";
+import { BillDetailResDto, BillFilterParams, BillReqDto, BillResDto } from "@/types/bill/bill";
 
 class BillService {
   private static instance: BillService;
@@ -27,9 +27,9 @@ class BillService {
   // 🟢 Lấy danh sách hóa đơn có phân trang
   async getBills(
     params: BillFilterParams
-  ): Promise<PaginatedResponse<BillDetailResDto>> {
+  ): Promise<PaginatedResponse<BillResDto>> {
     try {
-      const response = await httpClient.post<PaginatedResponse<BillDetailResDto>>(
+      const response = await httpClient.post<PaginatedResponse<BillResDto>>(
         `${this.endpoints.bills}/filter`,
         {},
         { params }
@@ -55,9 +55,9 @@ class BillService {
   }
 
   // 🟠 Tạo mới hóa đơn
-  async createBillReq(formData: BillReqDto): Promise<BillDetailResDto> {
+  async createBillReq(formData: BillReqDto): Promise<BillResDto> {
     try {
-      const response = await httpClient.post<{ data: BillDetailResDto }>(
+      const response = await httpClient.post<{ data: BillResDto }>(
         this.endpoints.bills,
         formData
       );

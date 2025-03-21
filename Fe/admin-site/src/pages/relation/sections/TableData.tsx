@@ -1,52 +1,26 @@
 import React, { useEffect } from "react";
 import Pagination from "@/components/Pagination";
-import TableHeaderComponent from "@/components/TableHeader";
-import TableRowComponent from "@/components/TableRow";
-import { Table, TableBody } from "@/components/ui/table";
-import TableProps from "@/types/common/table";
 import { useAppDispatch } from "@/hooks/use-app-dispatch";
 import { useAppSelector } from "@/hooks/use-app-selector";
-import { RelationResDto } from "@/types/category/relation";
 import {
+  createRelation,
   deleteRelation,
   fetchRelations,
-  setPage,
-  setPageSize,
 } from "@/redux/apps/relation/relationSlice";
+import { selectRelations } from "@/redux/apps/relation/relationSelector";
 import {
   selectPagination,
-  selectRelations,
-} from "@/redux/apps/relation/relationSelector";
-
-const RelationTable = <T extends { id: string }>({
-  headers,
-  data,
-  columns,
-}: TableProps<T>) => (
-  <div className="border border-gray-300 rounded-t-xl overflow-hidden">
-    {/* <Table className="w-full">
-      <TableHeaderComponent headers={headers} />
-    </Table> */}
-    <div className="max-h-[58vh] max-w-full overflow-x-auto overflow-y-auto">
-      <Table className="w-full">
-        <TableHeaderComponent headers={headers} className="text-center" />
-        <TableBody>
-          {data.length ? (
-            data.map((row, index) => (
-              <TableRowComponent key={index} data={row} columns={columns} />
-            ))
-          ) : (
-            <TableRowComponent
-              key="empty-row"
-              columns={columns}
-              data={undefined}
-            />
-          )}
-        </TableBody>
-      </Table>
-    </div>
-  </div>
-);
+  selectProducts,
+} from "@/redux/apps/product/productSelector";
+import { ProductResDto } from "@/types/product/product";
+import { formatVietnamTime } from "@/utils/format";
+import {
+  fetchProducts,
+  setPage,
+  setPageSize,
+} from "@/redux/apps/product/productSlice";
+import RelationTable from "./RelationTable";
+import RelationReqDto from "@/types/category/relation";
 
 interface RelationsTableProps {
   selectedCategoryId: string | null;
@@ -56,28 +30,95 @@ const RelationsTable: React.FC<RelationsTableProps> = ({
   selectedCategoryId,
 }) => {
   const dispatch = useAppDispatch();
-  const categories = useAppSelector(selectRelations);
+  const relations = useAppSelector(selectRelations);
+  const products = useAppSelector(selectProducts);
   const pagination = useAppSelector(selectPagination);
 
+  const renderCreatedDate = (value: string) => {
+    return formatVietnamTime(value);
+  };
+
+  const handleToggleRelation = (productId: string) => {
+    if (!selectedCategoryId) return;
+   
+    const existingRelation = relations.find(
+      (relation) => relation.idProduct === productId && relation.categoriesId === selectedCategoryId
+    );
+
+    if (existingRelation) {
+      dispatch(deleteRelation(existingRelation.id));
+    } else {
+      const productToRelate = products.find(
+        (product) => product.id === productId
+      );
+
+      if (productToRelate) {
+        const relationData: RelationReqDto = {
+          categoriesId: selectedCategoryId,
+          idProduct: productId,
+          productName: productToRelate.name,
+          categoryName: "",
+          description: "",
+          relationType: "default",
+          status: "active",
+          createdByUserId: "3fa85f64-5717-4562-b3fc-2c963f66afa6",
+          createdOnDate: new Date().toISOString(),
+          lastModifiedByUserId: "3fa85f64-5717-4562-b3fc-2c963f66afa6",
+          lastModifiedOnDate: new Date().toISOString(),
+          isdeleted: false,
+          isPublish: true,
+          order: 0,
+        };
+
+        dispatch(createRelation(relationData));
+      }
+    }
+  };
+
   const headers = [
-    { label: "Category Name", className: "text-center" },
-    { label: "Product Name" },
+    { label: "Select", className: "text-center" },
+    { label: "Code", className: "text-center" },
+    { label: "Name" },
+    { label: "Image" },
     { label: "Description" },
+    { label: "Status" },
     { label: "Create At" },
     { label: " " },
   ];
 
   const columns: {
-    key?: keyof RelationResDto;
+    key?: keyof ProductResDto;
     className?: string;
     isActionColumn?: boolean;
-    action?: (data: RelationResDto) => void;
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    render?: (value: any, data: ProductResDto) => React.ReactNode;
+    action?: (data: ProductResDto) => void;
     deleteAction?: (id: string) => void;
   }[] = [
-    { key: "categoryName", className: "text-center" },
-    { key: "productName" },
+    {
+      key: "id",
+      render: (_, product) => {
+        return (
+          <input
+            type="checkbox"
+            checked={relations.some(
+              (relation) => relation.idProduct === product.id
+            )}
+            onChange={() => handleToggleRelation(product.id)}
+          />
+        );
+      },
+      className: "text-center",
+    },
+    { key: "code", className: "text-center" },
+    { key: "name" },
+    { key: "imageUrl" },
     { key: "description" },
-    { key: "createdOnDate" },
+    { key: "status" },
+    {
+      key: "createdOnDate",
+      render: renderCreatedDate,
+    },
     {
       isActionColumn: true,
       className: "text-center",
@@ -99,13 +140,6 @@ const RelationsTable: React.FC<RelationsTableProps> = ({
           PageSize: pagination.pageSize,
         })
       );
-    } else {
-      dispatch(
-        fetchRelations({
-          CurrentPage: pagination.currentPage,
-          PageSize: pagination.pageSize,
-        })
-      );
     }
   }, [
     dispatch,
@@ -113,6 +147,15 @@ const RelationsTable: React.FC<RelationsTableProps> = ({
     pagination.pageSize,
     selectedCategoryId,
   ]);
+
+  useEffect(() => {
+    dispatch(
+      fetchProducts({
+        CurrentPage: pagination.currentPage,
+        PageSize: pagination.pageSize,
+      })
+    );
+  }, [dispatch, pagination.currentPage, pagination.pageSize]);
 
   // Xử lý khi thay đổi trang
   const handlePageChange = (newPage: number) => {
@@ -126,9 +169,9 @@ const RelationsTable: React.FC<RelationsTableProps> = ({
 
   return (
     <section className="mt-10">
-      <RelationTable<RelationResDto>
+      <RelationTable<ProductResDto>
         headers={headers}
-        data={categories}
+        data={products}
         columns={columns}
       />
       <Pagination

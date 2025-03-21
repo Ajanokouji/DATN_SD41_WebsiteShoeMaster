@@ -61,16 +61,21 @@ const TableRowComponent = <
             {column.isActionColumn ? (
               data ? (
                 <div className="flex flex-grow gap-2">
-                  <button
+                  {column.updateAction && (
+                    <button
                     onClick={() =>
                       column.updateAction && column.updateAction(data.id)
                     }
                   >
                     <LuSquarePen className="text-indigo-600" size={20} />
                   </button>
-                  <button onClick={() => setModalDeleteOpen(true)}>
+                  )}
+                  {column.deleteAction && (
+                    <button onClick={() => setModalDeleteOpen(true)}>
                     <RiDeleteBin3Line className="text-red-600" size={20} />
                   </button>
+                  )}
+                  
                 </div>
               ) : null
             ) : column.render && data ? (
@@ -84,7 +89,7 @@ const TableRowComponent = <
                   className="h-12 w-12 object-cover rounded"
                 />
               ) : (
-                String(data[column.key])
+                String(data[column.key] ?? "-")
               )
             ) : (
               "-"
