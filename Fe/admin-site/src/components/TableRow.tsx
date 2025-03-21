@@ -1,4 +1,5 @@
 import { LuSquarePen } from "react-icons/lu";
+import { IoEye } from "react-icons/io5";
 import { RiDeleteBin3Line } from "react-icons/ri";
 import { TableCell, TableRow } from "./ui/table";
 import { useState } from "react";
@@ -14,6 +15,7 @@ type TableRowProps<T> = {
     action?: (data: T) => void;
     deleteAction?: (id: string) => void;
     updateAction?: (id: string) => void;
+    detailAction?: (id: string) => void;
   }[];
 };
 
@@ -68,6 +70,15 @@ const TableRowComponent = <
                     }
                   >
                     <LuSquarePen className="text-indigo-600" size={20} />
+                  </button>
+                  )}
+                  {column.detailAction && (
+                    <button
+                    onClick={() =>
+                      column.detailAction && column.detailAction(data.id)
+                    }
+                  >
+                    <IoEye className="text-amber-500" size={20} />
                   </button>
                   )}
                   {column.deleteAction && (

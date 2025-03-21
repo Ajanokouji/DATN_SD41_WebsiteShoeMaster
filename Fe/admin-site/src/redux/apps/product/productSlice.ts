@@ -1,9 +1,9 @@
 import { createSlice, PayloadAction } from "@reduxjs/toolkit";
 import { addLoadingCases } from "@/utils/redux.utils";
 import { createAppThunk } from "@/utils/createThunk";
-import { PaginationParams } from "@/types/common/pagination";
 import ProductReqDto, {
   ProductDetailResDto,
+  ProductFilterParams,
   ProductResDto,
 } from "@/types/product/product";
 import productService from "@/redux/api/productApi";
@@ -37,7 +37,7 @@ const initialState: InitState = {
 
 export const fetchProducts = createAppThunk(
   "products/fetch",
-  async (params: PaginationParams) => {
+  async (params: ProductFilterParams) => {
     const response = await productService.getProducts(params);
     return response;
   }

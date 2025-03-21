@@ -19,6 +19,7 @@ import { createProduct } from "@/redux/apps/product/productSlice";
 import { LabelsSection } from "./LabelsSection";
 import { ImageField } from "./ImageFieldComponent";
 import VariantSection from "./VariantSection";
+import { MultipleImageField } from "./MultipleImageField";
 
 interface AddProductSheetProps {
   isOpen: boolean;
@@ -39,8 +40,10 @@ const AddProductSheet: React.FC<AddProductSheetProps> = ({
       name: "",
       description: "",
       imageUrl: "",
+      mediaObjs: [],
       metadataObj: [],
       labelsObjs: [],
+      variantObjs: [],
       sortOrder: "0",
       lastModifiedDate: new Date().toISOString(),
       createdOnDate: new Date().toISOString(),
@@ -66,6 +69,7 @@ const AddProductSheet: React.FC<AddProductSheetProps> = ({
         publicOnDate: values.createdOnDate || new Date().toISOString(),
         metadataObj: values.metadataObj || [],
         labelsObjs: values.labelsObjs || [],
+        variantObjs: values.variantObjs || [],
       };
 
       await dispatch(createProduct(productData));
@@ -95,6 +99,7 @@ const AddProductSheet: React.FC<AddProductSheetProps> = ({
           >
             <BasicInfoFields control={form.control} />
             <ImageField control={form.control} />
+            <MultipleImageField control={form.control} />
             <MetadataSection form={form} />
             <LabelsSection form={form} />
             <VariantSection form={form} />

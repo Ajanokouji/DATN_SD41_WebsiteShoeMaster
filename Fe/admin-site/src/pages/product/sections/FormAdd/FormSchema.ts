@@ -9,6 +9,7 @@ export const productFormSchema = z.object({
   mainCategoryId: z.string(),
   status: z.string(),
   imageUrl: z.string().url("URL hình ảnh không hợp lệ"),
+  mediaObjs: z.array(z.string()).default([]),
   completeCode: z.string(),
   completeName: z.string(),
   completePath: z.string(),

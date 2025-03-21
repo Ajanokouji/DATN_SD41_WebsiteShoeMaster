@@ -81,7 +81,7 @@ const BillsTable: React.FC = () => {
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
     render?: (value: any) => React.ReactNode;
     action?: (data: BillResDto) => void;
-    updateAction?: (id: string) => void;
+    detailAction?: (id: string) => void;
   }[] = [
     { key: "billCode", className: "text-center" },
     { key: "recipientName" },
@@ -102,7 +102,7 @@ const BillsTable: React.FC = () => {
         console.log("Performing action for:", category);
       },
       
-      updateAction: (id: string) => {
+      detailAction: (id: string) => {
         handleOpenDialogUpdate(id);
       },
     },

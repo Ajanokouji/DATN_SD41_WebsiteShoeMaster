@@ -1,9 +1,12 @@
+import { PaginationParams } from "../common/pagination";
+
 export default interface ProductReqDto {
   code: string;
   name: string;
   description: string;
   status: string;
   imageUrl: string;
+  mediaObjs: string[];
   createdByUserId: string;
   lastModifiedByUserId: string;
   lastModifiedDate: string;
@@ -17,6 +20,7 @@ export default interface ProductReqDto {
   mainCategoryId: string;
   metadataObj: MetadataObj[];
   labelsObjs: LabelsObjs[];
+  variantObjs: VariantObjs[];
 }
 
 export interface MetadataObj {
@@ -42,6 +46,13 @@ export interface LabelsObjs {
   objectName: string;
   color: string;
 }
+export interface VariantObjs {
+  id: string;
+  productId: string;
+  size: string;
+  sizeType: string;
+  lowestAsk: number;
+}
 export interface ProductResDto {
   id: string;
   code: string;
@@ -55,19 +66,12 @@ export interface ProductResDto {
   lastModifiedOnDate: string;
 }
 
-export interface ProductDetailResDto {
-  id: string;
-  code: string;
-  name: string;
-  description: string;
-  status: string;
-  imageUrl: string;
+export interface ProductDetailResDto extends ProductResDto {
+  mediaObjs: string[];
   createdByUserId: string;
   lastModifiedByUserId: string;
   lastModifiedDate: string;
-  createdOnDate: string;
   publicOnDate: string;
-  sortOrder: string;
   workFlowStates: string;
   completeName: string;
   completePath: string;
@@ -75,4 +79,13 @@ export interface ProductDetailResDto {
   mainCategoryId: string;
   metadataObj: MetadataObj[];
   labelsObjs: LabelsObjs[];
+  variantObjs: VariantObjs[];
+
+}
+
+export interface ProductFilterParams extends PaginationParams {
+  tenSanPham?: string;
+  maSanPham?: string;
+  status?: string;
+  description?: string;
 }
