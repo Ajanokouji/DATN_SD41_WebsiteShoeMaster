@@ -1,6 +1,6 @@
-import ProductReqDto, { ProductDetailResDto, ProductResDto } from "@/types/product/product";
+import ProductReqDto, { ProductDetailResDto, ProductFilterParams, ProductResDto } from "@/types/product/product";
 import httpClient from "./agent";
-import { PaginatedResponse, PaginationParams } from "@/types/common/pagination";
+import { PaginatedResponse } from "@/types/common/pagination";
 
 class ProductService {
   private static instance: ProductService;
@@ -25,7 +25,7 @@ class ProductService {
   }
 
   async getProducts(
-    params: PaginationParams
+    params: ProductFilterParams
   ): Promise<PaginatedResponse<ProductResDto>> {
     try {
       const response = await httpClient.post<PaginatedResponse<ProductResDto>>(

@@ -23,3 +23,9 @@ export interface PaginationProps {
   onPageChange: (page: number) => void;
   onPageSizeChange: (size: number) => void;
 }
+
+export interface FilterItem {
+  key: string;
+  value: string;
+  label: string;
+}

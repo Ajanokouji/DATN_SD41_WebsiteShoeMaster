@@ -1,4 +1,5 @@
 import { LuSquarePen } from "react-icons/lu";
+import { IoEye } from "react-icons/io5";
 import { RiDeleteBin3Line } from "react-icons/ri";
 import { TableCell, TableRow } from "./ui/table";
 import { useState } from "react";
@@ -14,6 +15,7 @@ type TableRowProps<T> = {
     action?: (data: T) => void;
     deleteAction?: (id: string) => void;
     updateAction?: (id: string) => void;
+    detailAction?: (id: string) => void;
   }[];
 };
 
@@ -61,16 +63,30 @@ const TableRowComponent = <
             {column.isActionColumn ? (
               data ? (
                 <div className="flex flex-grow gap-2">
-                  <button
+                  {column.updateAction && (
+                    <button
                     onClick={() =>
                       column.updateAction && column.updateAction(data.id)
                     }
                   >
                     <LuSquarePen className="text-indigo-600" size={20} />
                   </button>
-                  <button onClick={() => setModalDeleteOpen(true)}>
+                  )}
+                  {column.detailAction && (
+                    <button
+                    onClick={() =>
+                      column.detailAction && column.detailAction(data.id)
+                    }
+                  >
+                    <IoEye className="text-amber-500" size={20} />
+                  </button>
+                  )}
+                  {column.deleteAction && (
+                    <button onClick={() => setModalDeleteOpen(true)}>
                     <RiDeleteBin3Line className="text-red-600" size={20} />
                   </button>
+                  )}
+                  
                 </div>
               ) : null
             ) : column.render && data ? (
@@ -84,7 +100,7 @@ const TableRowComponent = <
                   className="h-12 w-12 object-cover rounded"
                 />
               ) : (
-                String(data[column.key])
+                String(data[column.key] ?? "-")
               )
             ) : (
               "-"

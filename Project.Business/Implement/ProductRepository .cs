@@ -192,7 +192,7 @@ namespace Project.Business.Implement
 
         }
 
-        public virtual virtual async Task<IEnumerable<ProductEntity>> SaveAsync( IEnumerable<ProductEntity>  productEntities)
+        public virtual async Task<IEnumerable<ProductEntity>> SaveAsync( IEnumerable<ProductEntity>  productEntities)
         {
             var updated = new List<ProductEntity>();
        try

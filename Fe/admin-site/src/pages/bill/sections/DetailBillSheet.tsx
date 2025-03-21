@@ -1,0 +1,243 @@
+import React, { useEffect } from "react";
+import {
+  Sheet,
+  SheetContent,
+  SheetHeader,
+} from "@/components/ui/sheet";
+import { useAppSelector } from "@/hooks/use-app-selector";
+import { selectBill } from "@/redux/apps/bill/billSelector";
+import { useAppDispatch } from "@/hooks/use-app-dispatch";
+import { fetchBillById } from "@/redux/apps/bill/billSlice";
+import { Badge } from "@/components/ui/badge";
+import { Separator } from "@/components/ui/separator";
+import { Button } from "@/components/ui/button";
+import { Printer, Download, FileText } from "lucide-react";
+import { formatVietnamTime } from "@/utils/format";
+
+interface DetailBillSheetProps {
+  billId: string;
+  isOpen: boolean;
+  onClose: () => void;
+}
+
+const DetailBillSheet: React.FC<DetailBillSheetProps> = ({
+  billId,
+  isOpen,
+  onClose,
+}) => {
+  const dispatch = useAppDispatch();
+  const bill = useAppSelector(selectBill);
+
+  useEffect(() => {
+    dispatch(fetchBillById(billId));
+  }, [dispatch, billId]);
+
+  const formatCurrency = (amount: number | null) => {
+    if (amount === null) return "N/A";
+    return new Intl.NumberFormat("en-US", {
+      style: "currency",
+      currency: "USD",
+    }).format(amount);
+  };
+
+  
+  if (!bill) {
+    return (
+      <Sheet open={isOpen} onOpenChange={onClose}>
+        <SheetContent className="w-full sm:max-w-lg">
+          <div className="flex items-center justify-center h-full">
+            <p>Loading bill details...</p>
+          </div>
+        </SheetContent>
+      </Sheet>
+    );
+  }
+
+  return (
+    <Sheet open={isOpen} onOpenChange={onClose}>
+      <SheetContent className="w-[90%] sm:max-w-[60vw] max-w-none h-screen overflow-y-auto p-0">
+        <div className="bg-white min-h-screen flex flex-col">
+          {/* Invoice Header */}
+          <div className="bg-primary text-white p-6">
+            <SheetHeader className="mb-4 flex justify-between items-start">
+              <div>
+                <h1 className="text-2xl font-bold mb-2">INVOICE</h1>
+                <p className="text-sm opacity-90">Bill No: {bill.billCode}</p>
+                <div className="flex gap-2 mt-1">
+                  <Badge variant="outline" className="text-white border-white">
+                    Status: {bill.status === "0" ? "Pending" : bill.status === "1" ? "Completed" : "Cancelled"}
+                  </Badge>
+                  <Badge variant="outline" className="text-white border-white">
+                    Payment: {bill.paymentStatus === "0" ? "Pending" : bill.paymentStatus === "1" ? "Paid" : "Failed"}
+                  </Badge>
+                </div>
+              </div>
+              <div className="flex gap-2">
+                <Button
+                  variant="secondary"
+                  size="sm"
+                  className="flex items-center gap-1"
+                >
+                  <Printer className="h-4 w-4" />
+                  <span>Print</span>
+                </Button>
+                <Button
+                  variant="secondary"
+                  size="sm"
+                  className="flex items-center gap-1"
+                >
+                  <Download className="h-4 w-4" />
+                  <span>Download</span>
+                </Button>
+              </div>
+            </SheetHeader>
+          </div>
+
+          {/* Company & Invoice Info */}
+          <div className="p-6 bg-white">
+            <div className="grid grid-cols-2 gap-6 mb-8">
+              <div>
+                <h2 className="text-lg font-semibold mb-1">From</h2>
+                <div className="text-gray-800">
+                  <p className="font-medium">Your Company Name</p>
+                  <p className="text-sm text-gray-600">
+                    123 Business Street<br />
+                    Business City, 12345<br />
+                    contact@yourcompany.com<br />
+                    +1 (555) 123-4567
+                  </p>
+                </div>
+              </div>
+              
+              <div>
+                <h2 className="text-lg font-semibold mb-1">Bill To</h2>
+                <div className="text-gray-800">
+                  <p className="font-medium">{bill.recipientName}</p>
+                  <p className="text-sm text-gray-600">
+                    {bill.recipientAddress}<br />
+                    {bill.recipientEmail}<br />
+                    {bill.recipientPhone}
+                  </p>
+                </div>
+              </div>
+            </div>
+            
+            <div className="grid grid-cols-2 sm:grid-cols-4 gap-4 mb-8 bg-gray-50 p-4 rounded-lg">
+              <div>
+                <p className="text-sm text-gray-500">Invoice Number</p>
+                <p className="font-medium">{bill.billCode}</p>
+              </div>
+              <div>
+                <p className="text-sm text-gray-500">Issue Date</p>
+                <p className="font-medium">{formatVietnamTime(bill.createdOnDate)?.split(' ')[0]}</p>
+              </div>
+              <div>
+                <p className="text-sm text-gray-500">Payment Method</p>
+                <p className="font-medium">{bill.paymentMethod || "Not specified"}</p>
+              </div>
+              <div>
+                <p className="text-sm text-gray-500">Order ID</p>
+                <p className="font-medium text-primary">{bill.orderId?.substring(0, 8)}</p>
+              </div>
+            </div>
+
+            {/* Bill Items (Assuming there would be items) */}
+            <div className="mb-8">
+              <h2 className="text-lg font-semibold mb-3">Order Details</h2>
+              <div className="overflow-x-auto">
+                <table className="w-full border-collapse">
+                  <thead className="bg-gray-50">
+                    <tr>
+                      <th className="py-3 px-4 text-left text-sm font-semibold text-gray-700 border-b">Item</th>
+                      <th className="py-3 px-4 text-right text-sm font-semibold text-gray-700 border-b">Quantity</th>
+                      <th className="py-3 px-4 text-right text-sm font-semibold text-gray-700 border-b">Unit Price</th>
+                      <th className="py-3 px-4 text-right text-sm font-semibold text-gray-700 border-b">Amount</th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    {/* Placeholder for items - you would map through actual order items here */}
+                    <tr>
+                      <td className="py-3 px-4 text-left border-b text-gray-800">Order Items</td>
+                      <td className="py-3 px-4 text-right border-b text-gray-800">-</td>
+                      <td className="py-3 px-4 text-right border-b text-gray-800">-</td>
+                      <td className="py-3 px-4 text-right border-b text-gray-800">{formatCurrency(bill.totalAmount)}</td>
+                    </tr>
+                  </tbody>
+                </table>
+              </div>
+            </div>
+
+            {/* Payment Summary */}
+            <div className="mb-8 bg-gray-50 p-4 rounded-lg">
+              <h2 className="text-lg font-semibold mb-3">Payment Summary</h2>
+              <div className="space-y-2">
+                <div className="flex justify-between">
+                  <span className="text-gray-600">Subtotal:</span>
+                  <span>{formatCurrency(bill.totalAmount)}</span>
+                </div>
+                <div className="flex justify-between">
+                  <span className="text-gray-600">Discount:</span>
+                  <span>-{formatCurrency(bill.discountAmount || 0)}</span>
+                </div>
+                {bill.voucherCode && (
+                  <div className="flex justify-between">
+                    <span className="text-gray-600">Voucher ({bill.voucherCode}):</span>
+                    <span>Applied</span>
+                  </div>
+                )}
+                <Separator className="my-2" />
+                <div className="flex justify-between font-semibold text-lg">
+                  <span>Total</span>
+                  <span className="text-primary">{formatCurrency(bill.amountToPay)}</span>
+                </div>
+                {bill.finalAmount !== null && bill.finalAmount !== bill.amountToPay && (
+                  <div className="flex justify-between font-bold text-lg">
+                    <span>Final Amount</span>
+                    <span className="text-primary">{formatCurrency(bill.finalAmount)}</span>
+                  </div>
+                )}
+              </div>
+            </div>
+
+            {/* Notes */}
+            {bill.notes && (
+              <div className="mb-8">
+                <h2 className="text-lg font-semibold mb-2">Notes</h2>
+                <div className="p-3 bg-gray-50 rounded-lg text-gray-700">
+                  {bill.notes}
+                </div>
+              </div>
+            )}
+
+            {/* Thank You Note */}
+            <div className="text-center mb-6">
+              <div className="inline-block p-4 border-t border-gray-200">
+                <FileText className="h-8 w-8 text-primary mx-auto mb-2" />
+                <p className="font-medium text-gray-800">Thank you for your business!</p>
+                <p className="text-sm text-gray-600 mt-1">If you have any questions, please contact our support team.</p>
+              </div>
+            </div>
+
+            {/* Action Buttons */}
+            <div className="mt-6 flex gap-3 justify-end border-t pt-4">
+              <Button variant="outline" onClick={onClose}>
+                Close
+              </Button>
+              {bill.status === "0" && (
+                <>
+                  <Button variant="destructive">Cancel Bill</Button>
+                  <Button>Mark as Completed</Button>
+                </>
+              )}
+              {bill.paymentStatus === "0" && bill.status !== "2" && (
+                <Button variant="default">Mark as Paid</Button>
+              )}
+            </div>
+          </div>
+        </div>
+      </SheetContent>
+    </Sheet>
+  );
+};
+
+export default DetailBillSheet;

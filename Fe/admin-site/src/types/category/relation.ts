@@ -1,37 +1,29 @@
 import { PaginationParams } from "../common/pagination";
 
 export default interface RelationReqDto {
-  code: string;
-  name: string;
+  idProduct: string;
+  categoriesId: string;
+  productName: string;
+  categoryName: string;
+  relationType: string;
+  status: string;
   description: string;
-  type: string;
-  completeCode: string;
-  completeName: string;
-  completePath: string;
-  parentPath: string;
-  metadataObj: MetadataObj[];
   createdByUserId: string;
   lastModifiedByUserId: string;
   lastModifiedOnDate: string;
   createdOnDate: string;
-  sortOrder: number;
-}
-
-export interface MetadataObj {
-  fieldName: string;
-  fieldDisplayName: string;
-  fieldType: number;
-  fieldValues: string;
-  fieldValueTexts: string;
-  fieldValueType: string;
-  fieldSelectionValues: FieldSelectionValues[];
-}
-
-export interface FieldSelectionValues {
-  key: string;
-  code: string;
-  value: string;
   order: number;
+  isdeleted: boolean;
+  isPublish: boolean;
+  relatedObj?: RelatedObj[];
+}
+
+export interface RelatedObj {
+  objectCode: string;
+  objectName: string;
+  objectType: number;
+  objectKeyword: string;
+  objectContent: string;
 }
 
 export interface RelationResDto {
@@ -44,24 +36,6 @@ export interface RelationResDto {
   description: string | null;
   createdOnDate: string;
   lastModifiedOnDate: string;
-}
-
-export interface RelationDetailResDto {
-  id: string;
-  code: string;
-  name: string;
-  description: string;
-  type: string;
-  completeCode: string;
-  completeName: string;
-  completePath: string;
-  parentPath: string;
-  metadataObj: MetadataObj[];
-  createdByUserId: string;
-  lastModifiedByUserId: string;
-  lastModifiedOnDate: string;
-  createdOnDate: string;
-  sortOrder: number;
 }
 
 export interface RelationFilterParams extends PaginationParams {

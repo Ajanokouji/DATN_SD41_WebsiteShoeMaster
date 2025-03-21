@@ -43,20 +43,6 @@ export const LabelCard: React.FC<LabelCardProps> = ({
         <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
           <FormField
             control={form.control}
-            name={`labelsObjs.${index}.objectId`}
-            render={({ field }) => (
-              <FormItem>
-                <FormLabel>ID</FormLabel>
-                <FormControl>
-                  <Input placeholder="Label ID" {...field} />
-                </FormControl>
-                <FormMessage />
-              </FormItem>
-            )}
-          />
-
-          <FormField
-            control={form.control}
             name={`labelsObjs.${index}.objectCode`}
             render={({ field }) => (
               <FormItem>
@@ -87,7 +73,7 @@ export const LabelCard: React.FC<LabelCardProps> = ({
             control={form.control}
             name={`labelsObjs.${index}.color`}
             render={({ field }) => (
-              <FormItem>
+              <FormItem className="col-span-2">
                 <FormLabel>Color</FormLabel>
                 <div className="flex items-center gap-2">
                   <FormControl>

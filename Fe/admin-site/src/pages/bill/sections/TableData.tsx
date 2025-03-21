@@ -9,12 +9,12 @@ import { useAppSelector } from "@/hooks/use-app-selector";
 import { selectBills, selectPagination } from "@/redux/apps/bill/billSelector";
 import { BillResDto } from "@/types/bill/bill";
 import {
-  deleteBill,
   fetchBills,
   setPage,
   setPageSize,
 } from "@/redux/apps/bill/billSlice";
 import { formatVietnamTime } from "@/utils/format";
+import DetailBillSheet from "./DetailBillSheet";
 
 const BillTable = <T extends { id: string }>({
   headers,
@@ -81,8 +81,7 @@ const BillsTable: React.FC = () => {
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
     render?: (value: any) => React.ReactNode;
     action?: (data: BillResDto) => void;
-    deleteAction?: (id: string) => void;
-    updateAction?: (id: string) => void;
+    detailAction?: (id: string) => void;
   }[] = [
     { key: "billCode", className: "text-center" },
     { key: "recipientName" },
@@ -102,10 +101,8 @@ const BillsTable: React.FC = () => {
       action: (category) => {
         console.log("Performing action for:", category);
       },
-      deleteAction: (id: string) => {
-        dispatch(deleteBill(id));
-      },
-      updateAction: (id: string) => {
+      
+      detailAction: (id: string) => {
         handleOpenDialogUpdate(id);
       },
     },
@@ -143,7 +140,7 @@ const BillsTable: React.FC = () => {
       />
       {isOpenUpdate && selectedBillId && (
         <DetailBillSheet
-          categoryId={selectedBillId}
+          billId={selectedBillId}
           isOpen={isOpenUpdate}
           onClose={() => setIsOpenUpdate(false)}
         />

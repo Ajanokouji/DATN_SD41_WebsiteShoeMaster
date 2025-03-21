@@ -18,8 +18,10 @@ import {
   selectPagination,
   selectProducts,
 } from "@/redux/apps/product/productSelector";
-import DetailProductSheet from "./UpdateDetail/DetailProductSheet";
+import UpdateProductSheet from "./UpdateDetail/DetailProductSheet";
 import { formatVietnamTime } from "@/utils/format";
+import { useLocation } from "react-router-dom";
+import DetailProductSheet from "./DetailProductSheet";
 
 const ProductTable = <T extends { id: string }>({
   headers,
@@ -55,6 +57,11 @@ const ProductsTable: React.FC = () => {
   const dispatch = useAppDispatch();
   const products = useAppSelector(selectProducts);
   const pagination = useAppSelector(selectPagination);
+  const location = useLocation();
+  const [isOpenDetail, setIsOpenDetail] = useState(false);
+  const [selectedDetailId, setSelectedDetailId] = useState<string | null>(
+    null
+  );
   const [isOpenUpdate, setIsOpenUpdate] = useState(false);
   const [selectedProductId, setSelectedProductId] = useState<string | null>(
     null
@@ -63,6 +70,10 @@ const ProductsTable: React.FC = () => {
   const handleOpenDialogUpdate = (id: string) => {
     setIsOpenUpdate(true);
     setSelectedProductId(id);
+  };
+  const handleOpenDetail = (id: string) => {
+    setIsOpenDetail(true);
+    setSelectedDetailId(id);
   };
 
   const renderCreatedDate = (value: string) => {
@@ -87,6 +98,7 @@ const ProductsTable: React.FC = () => {
     action?: (data: ProductResDto) => void;
     deleteAction?: (id: string) => void;
     updateAction?: (id: string) => void;
+    detailAction?: (id: string) => void;
   }[] = [
     { key: "code", className: "text-center" },
     { key: "name" },
@@ -109,17 +121,24 @@ const ProductsTable: React.FC = () => {
       updateAction: (id: string) => {
         handleOpenDialogUpdate(id);
       },
+      detailAction: (id: string) => {
+        handleOpenDetail(id);
+      },
     },
   ];
 
   useEffect(() => {
-    dispatch(
-      fetchProducts({
-        CurrentPage: pagination.currentPage,
-        PageSize: pagination.pageSize,
-      })
-    );
-  }, [dispatch, pagination.currentPage, pagination.pageSize]);
+    const params = new URLSearchParams(location.search);
+    const filters = {
+      CurrentPage: pagination.currentPage,
+      PageSize: pagination.pageSize,
+      tenSanPham: params.get("tenSanPham") || "",
+      maSanPham: params.get("maSanPham") || "",
+      status: params.get("status") || "",
+      description: params.get("description") || "",
+    };
+    dispatch(fetchProducts(filters));
+  }, [dispatch, location.search, pagination.currentPage, pagination.pageSize]);
 
   // Xử lý khi thay đổi trang
   const handlePageChange = (newPage: number) => {
@@ -147,10 +166,17 @@ const ProductsTable: React.FC = () => {
         onPageSizeChange={handlePageSizeChange}
       />
       {isOpenUpdate && selectedProductId && (
-        <DetailProductSheet
-          categoryId={selectedProductId}
+        <UpdateProductSheet
+          productId={selectedProductId}
           isOpen={isOpenUpdate}
           onClose={() => setIsOpenUpdate(false)}
+        />
+      )}
+      {isOpenDetail && selectedDetailId && (
+        <DetailProductSheet
+          productId={selectedDetailId}
+          isOpen={isOpenDetail}
+          onClose={() => setIsOpenDetail(false)}
         />
       )}
     </section>
