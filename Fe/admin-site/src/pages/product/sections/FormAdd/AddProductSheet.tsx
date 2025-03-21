@@ -18,6 +18,7 @@ import ProductReqDto from "@/types/product/product";
 import { createProduct } from "@/redux/apps/product/productSlice";
 import { LabelsSection } from "./LabelsSection";
 import { ImageField } from "./ImageFieldComponent";
+import VariantSection from "./VariantSection";
 
 interface AddProductSheetProps {
   isOpen: boolean;
@@ -96,9 +97,9 @@ const AddProductSheet: React.FC<AddProductSheetProps> = ({
             <ImageField control={form.control} />
             <MetadataSection form={form} />
             <LabelsSection form={form} />
-
+            <VariantSection form={form} />
             <div className="flex justify-end gap-2 pt-4">
-            {/* <pre>{JSON.stringify(form.formState.errors, null, 2)}</pre> */}
+              {/* <pre>{JSON.stringify(form.formState.errors, null, 2)}</pre> */}
               <Button type="submit" disabled={isSubmitting}>
                 {isSubmitting ? "Creating..." : "Add new product"}
               </Button>

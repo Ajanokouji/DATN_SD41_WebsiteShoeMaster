@@ -1,17 +1,26 @@
 import * as z from "zod";
 
 export const productFormSchema = z.object({
-  code: z.string().min(3, "Mã sản phẩm phải có ít nhất 3 ký tự" ),
-  name: z.string().min(2, "Tên sản phẩm phải có ít nhất 2 ký tự" ),
+  code: z.string().min(3, "Mã sản phẩm phải có ít nhất 3 ký tự"),
+  name: z.string().min(2, "Tên sản phẩm phải có ít nhất 2 ký tự"),
   description: z
     .string()
-    .min(10, "Mô tả phải có ít nhất 10 ký tự" ),
+    .min(10, "Mô tả phải có ít nhất 10 ký tự"),
   mainCategoryId: z.string(),
   status: z.string(),
-  imageUrl: z.string().url( "URL hình ảnh không hợp lệ" ),
+  imageUrl: z.string().url("URL hình ảnh không hợp lệ"),
   completeCode: z.string(),
   completeName: z.string(),
   completePath: z.string(),
+  variantObjs: z.array(
+    z.object({
+      id: z.string(),
+      productId: z.string(),
+      size: z.string(),
+      sizeType: z.string(),
+      lowestAsk: z.number(),
+    })
+  ),
   metadataObj: z.array(
     z.object({
       fieldName: z.string().min(1, "Field name is required"),

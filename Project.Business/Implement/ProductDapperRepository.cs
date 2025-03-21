@@ -178,49 +178,6 @@ namespace Project.Business.Implement
             return count;
         }
 
-        public async Task<ProductEntity> SaveAsync(ProductEntity product)
-        {
-            var query = @"
-                IF EXISTS (SELECT 1 FROM Products WHERE Id = @Id)
-                BEGIN
-                    UPDATE Products
-                    SET Name = @Name,
-                        Code = @Code,
-                        MainCategoryId = @MainCategoryId,
-                        CompletePath = @CompletePath,
-                        CompleteName = @CompleteName,
-                        CompleteCode = @CompleteCode,
-                        CreatedByUserId = @CreatedByUserId,
-                        LastModifiedByUserId = @LastModifiedByUserId,
-                        RelatedObjectIds = @RelatedObjectIds,
-                        MetadataObj = @MetadataObj,
-                        SortOrder = @SortOrder,
-                        LabelsObjs = @LabelsObjs,
-                        CreatedOnDate = @CreatedOnDate,
-                        PublicOnDate = @PublicOnDate,
-                        Status = @Status,
-                        LastModifiedOnDate = @LastModifiedOnDate,
-                        WorkFlowStates = @WorkFlowStates,
-                        Description = @Description,
-                        ImageUrl = @ImageUrl,
-                        MediasJson = @MediasJson
-                    WHERE Id = @Id
-                END
-                ELSE
-                BEGIN
-                    INSERT INTO Products (Id, Name, Code, MainCategoryId, CompletePath, CompleteName, CompleteCode, CreatedByUserId, LastModifiedByUserId, RelatedObjectIds, MetadataObj, SortOrder, LabelsObjs, CreatedOnDate, PublicOnDate, Status, LastModifiedOnDate, WorkFlowStates, Description, ImageUrl,MediasJson)
-                    VALUES (@Id, @Name, @Code, @MainCategoryId, @CompletePath, @CompleteName, @CompleteCode, @CreatedByUserId, @LastModifiedByUserId, @RelatedObjectIds, @MetadataObj, @SortOrder, @LabelsObjs, @CreatedOnDate, @PublicOnDate, @Status, @LastModifiedOnDate, @WorkFlowStates, @Description, @ImageUrl.@MediasJson)
-                END";
-            await _dbConnection.ExecuteAsync(query, product);
-            return product;
-        }
-
-        public async Task<IEnumerable<ProductEntity>> SaveAsync(IEnumerable<ProductEntity> productEntities)
-        {
-            var tasks = productEntities.Select(product => SaveAsync(product));
-            var results = await Task.WhenAll(tasks);
-            return results;
-        }
 
         public override async Task<ProductEntity> DeleteAsync(Guid id)
         {
