@@ -20,12 +20,12 @@ namespace Project.Business.Implement
         {
             _context=context;
         }
-        public async Task<ProductEntity> FindAsync(Guid id)
+        public virtual async Task<ProductEntity> FindAsync(Guid id)
         {
             var res = await _context.Products.AsNoTracking().FirstOrDefaultAsync(x=>x.Id==id);
             return res;
         }
-        public async Task<IEnumerable<ProductEntity>> ListAllAsync(ProductQueryModel queryModel)
+        public virtual async Task<IEnumerable<ProductEntity>> ListAllAsync(ProductQueryModel queryModel)
         {
             var query = BuildQuery( queryModel);
             var resId = await query.Select(x => x.Id).ToListAsync();
@@ -33,13 +33,13 @@ namespace Project.Business.Implement
             return res;
         }
 
-        public async Task<IEnumerable<ProductEntity>> ListByIdsAsync(IEnumerable<Guid> ids)
+        public virtual async Task<IEnumerable<ProductEntity>> ListByIdsAsync(IEnumerable<Guid> ids)
         {
             var res = await _context.Products.Where(x => ids.Contains(x.Id)).ToListAsync();
             return res;
         }
 
-        public async Task<Pagination<ProductEntity>> GetAllAsync(ProductQueryModel queryModel)
+        public virtual async Task<Pagination<ProductEntity>> GetAllAsync(ProductQueryModel queryModel)
         {
             ProductQueryModel productQueryModel = queryModel;
 
@@ -178,21 +178,21 @@ namespace Project.Business.Implement
             return query;
         }
 
-        public async Task<int> GetCountAsync(ProductQueryModel queryModel)
+        public virtual async Task<int> GetCountAsync(ProductQueryModel queryModel)
         {
             var query = BuildQuery(queryModel);
             var res = await query.CountAsync();
             return res;
         }
 
-        public async Task<ProductEntity> SaveAsync(ProductEntity product)
+        public virtual async Task<ProductEntity> SaveAsync(ProductEntity product)
         {
             var res = await SaveAsync(new [] { product });
             return res.FirstOrDefault();
 
         }
 
-        public virtual async Task<IEnumerable<ProductEntity>> SaveAsync( IEnumerable<ProductEntity>  productEntities)
+        public virtual virtual async Task<IEnumerable<ProductEntity>> SaveAsync( IEnumerable<ProductEntity>  productEntities)
         {
             var updated = new List<ProductEntity>();
        try
@@ -258,7 +258,7 @@ namespace Project.Business.Implement
 
 
 
-        public async Task<ProductEntity> DeleteAsync(Guid Id)
+        public virtual async Task<ProductEntity> DeleteAsync(Guid Id)
         {
             var exist = await FindAsync(Id);
             if (exist==null) throw new Exception(IProductRepository.MessageNoTFound);
@@ -268,7 +268,7 @@ namespace Project.Business.Implement
             return exist;
         }
 
-        public Task<IEnumerable<ProductEntity>> DeleteAsync(Guid[] deleteIds)
+        public virtual Task<IEnumerable<ProductEntity>> DeleteAsync(Guid[] deleteIds)
         {
             throw new NotImplementedException();
         }
