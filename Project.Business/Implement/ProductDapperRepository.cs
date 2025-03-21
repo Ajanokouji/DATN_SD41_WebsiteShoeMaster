@@ -1,24 +1,15 @@
-using AutoMapper.Configuration;
-using Dapper;
+﻿using Dapper;
 using Microsoft.Data.SqlClient;
 using Project.Business.Interface.Repositories;
 using Project.Business.Model;
 using Project.DbManagement.Entity;
-using SERP.FileManagementService.Business;
 using SERP.FileManagementService.Entities;
-using SERP.FileManagementService.Models;
 using SERP.Framework.Business;
 using SERP.Framework.Common;
 using SERP.Framework.Common.Extensions;
 using SERP.Framework.DB.Extensions;
-using SERP.Framework.Entities;
-using System;
-using System.Collections.Generic;
 using System.Data;
-using System.Data.Entity.Core.Common.CommandTrees;
-using System.Linq;
-using System.Threading.Tasks;
-using static System.Net.Mime.MediaTypeNames;
+
 
 namespace Project.Business.Implement
 {
@@ -79,18 +70,14 @@ namespace Project.Business.Implement
             var conditionParameters = new Dictionary<string, object>();
             var sqlConditions = await BuildQuery(queryModel, conditionParameters);
             string sortExpression = BuildSortExpression(queryModel);
-            var table = $"Products n";
+            var table = "Products n";
 
-            using (var conn = _dbConnection)
-            {
-                var content = await conn.GetPagedAsync<ProductEntity>(table, $"*",
-                    sqlConditions, conditionParameters,
-                    queryModel.CurrentPage.Value, queryModel.PageSize.Value, sortExpression);
+            var content = await _dbConnection.GetPagedAsync<ProductEntity>(
+                table, "*", sqlConditions, conditionParameters,
+                queryModel.CurrentPage.Value, queryModel.PageSize.Value, sortExpression
+            );
 
-                return content;
-            }
-
-       
+            return content;
         }
 
         protected virtual string BuildSortExpression(PaginationRequest queryModel)
@@ -214,13 +201,14 @@ namespace Project.Business.Implement
                         LastModifiedOnDate = @LastModifiedOnDate,
                         WorkFlowStates = @WorkFlowStates,
                         Description = @Description,
-                        ImageUrl = @ImageUrl
+                        ImageUrl = @ImageUrl,
+                        MediasJson = @MediasJson
                     WHERE Id = @Id
                 END
                 ELSE
                 BEGIN
-                    INSERT INTO Products (Id, Name, Code, MainCategoryId, CompletePath, CompleteName, CompleteCode, CreatedByUserId, LastModifiedByUserId, RelatedObjectIds, MetadataObj, SortOrder, LabelsObjs, CreatedOnDate, PublicOnDate, Status, LastModifiedOnDate, WorkFlowStates, Description, ImageUrl)
-                    VALUES (@Id, @Name, @Code, @MainCategoryId, @CompletePath, @CompleteName, @CompleteCode, @CreatedByUserId, @LastModifiedByUserId, @RelatedObjectIds, @MetadataObj, @SortOrder, @LabelsObjs, @CreatedOnDate, @PublicOnDate, @Status, @LastModifiedOnDate, @WorkFlowStates, @Description, @ImageUrl)
+                    INSERT INTO Products (Id, Name, Code, MainCategoryId, CompletePath, CompleteName, CompleteCode, CreatedByUserId, LastModifiedByUserId, RelatedObjectIds, MetadataObj, SortOrder, LabelsObjs, CreatedOnDate, PublicOnDate, Status, LastModifiedOnDate, WorkFlowStates, Description, ImageUrl,MediasJson)
+                    VALUES (@Id, @Name, @Code, @MainCategoryId, @CompletePath, @CompleteName, @CompleteCode, @CreatedByUserId, @LastModifiedByUserId, @RelatedObjectIds, @MetadataObj, @SortOrder, @LabelsObjs, @CreatedOnDate, @PublicOnDate, @Status, @LastModifiedOnDate, @WorkFlowStates, @Description, @ImageUrl.@MediasJson)
                 END";
             await _dbConnection.ExecuteAsync(query, product);
             return product;

@@ -26,6 +26,7 @@ namespace Project.Api.Controllers
         }
 
         [HttpGet("{id}")]
+        [ProducesResponseType(typeof(ResponseObject<ProductEntity>),StatusCodes.Status200OK)]
         public async Task<IActionResult> GetProduct(Guid id)
         {
             return await ExecuteFunction(async () =>
@@ -35,6 +36,7 @@ namespace Project.Api.Controllers
             });
         }
         [HttpPost("filter")]
+        [ProducesResponseType(typeof(ResponsePagination<ProductEntity>), StatusCodes.Status200OK)]
         public async Task<IActionResult> GetProducts([FromQuery] ProductQueryModel queryModel)
         {
             return await ExecuteFunction(async () =>
@@ -46,6 +48,7 @@ namespace Project.Api.Controllers
         }
 
         [HttpPost("count")]
+        [ProducesResponseType(typeof(ResponseObject<int>), StatusCodes.Status200OK)]
         public async Task<IActionResult> GetProductCount([FromQuery] ProductQueryModel queryModel)
         {
             return await ExecuteFunction(async () =>
@@ -56,6 +59,7 @@ namespace Project.Api.Controllers
         }
 
         [HttpPost]
+        [ProducesResponseType(typeof(ResponseObject<ProductEntity>), StatusCodes.Status200OK)]
         public async Task<IActionResult> CreateProduct([FromBody] ProductEntity productEntity)
         {
             return await ExecuteFunction(async () =>
@@ -80,6 +84,7 @@ namespace Project.Api.Controllers
         }
 
         [HttpDelete("{id}")]
+        [ProducesResponseType(typeof(ResponsePagination<ProductEntity>), StatusCodes.Status200OK)]
         public async Task<ActionResult<ProductEntity>> DeleteProduct(Guid id)
         {
             var deletedProduct = await _productBusiness.DeleteAsync(id);
@@ -87,6 +92,7 @@ namespace Project.Api.Controllers
         }
 
         [HttpDelete]
+        [ProducesResponseType(typeof(ResponseList<ProductEntity>), StatusCodes.Status200OK)]
         public async Task<ActionResult<IEnumerable<ProductEntity>>> DeleteProducts([FromBody] Guid[] ids)
         {
             var deletedProducts = await _productBusiness.DeleteAsync(ids);
