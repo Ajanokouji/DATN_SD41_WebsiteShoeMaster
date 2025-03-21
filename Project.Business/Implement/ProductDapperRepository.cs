@@ -2,6 +2,7 @@
 using Microsoft.Data.SqlClient;
 using Project.Business.Interface.Repositories;
 using Project.Business.Model;
+using Project.DbManagement;
 using Project.DbManagement.Entity;
 using SERP.FileManagementService.Entities;
 using SERP.Framework.Business;
@@ -13,23 +14,23 @@ using System.Data;
 
 namespace Project.Business.Implement
 {
-    public class ProductDapperRepository : IProductRepository
+    public class ProductDapperRepository : ProductRepository,IProductRepository
     {
         private readonly IDbConnection _dbConnection;
 
-        public ProductDapperRepository(IDbConnection dbConnection)
+        public ProductDapperRepository(IDbConnection dbConnection,ProjectDbContext context) : base(context)
         {
-            _dbConnection = dbConnection;
+            _dbConnection=dbConnection;
         }
 
-        public async Task<ProductEntity> FindAsync(Guid id)
+        public override async Task<ProductEntity> FindAsync(Guid id)
         {
             var query = "SELECT * FROM Products WHERE Id = @Id AND IsDeleted = 0";
             var product = await _dbConnection.QueryFirstOrDefaultAsync<ProductEntity>(query, new { Id = id });
             return product;
         }
 
-        public async Task<IEnumerable<ProductEntity>> ListAllAsync(ProductQueryModel queryModel)
+        public override async Task<IEnumerable<ProductEntity>> ListAllAsync(ProductQueryModel queryModel)
         {
             string sortExpression = BuildSortExpression(queryModel);
 
@@ -38,7 +39,7 @@ namespace Project.Business.Implement
             res = res.AsQueryable().ApplySorting(sortExpression);
             return res;
         }
-        public virtual async Task<IEnumerable<ProductEntity>> ListIdObjectsAsync(ProductQueryModel query)
+        public async Task<IEnumerable<ProductEntity>> ListIdObjectsAsync(ProductQueryModel query)
         {
             query.PageSize ??= 20;
             query.CurrentPage ??= 1;
@@ -58,14 +59,14 @@ namespace Project.Business.Implement
                 return listNodeObjectIds;
             }
         }
-        public async Task<IEnumerable<ProductEntity>> ListByIdsAsync(IEnumerable<Guid> ids)
+        public override async Task<IEnumerable<ProductEntity>> ListByIdsAsync(IEnumerable<Guid> ids)
         {
             var query = "SELECT * FROM Products WHERE Id IN @Ids AND IsDeleted = 0";
             var products = await _dbConnection.QueryAsync<ProductEntity>(query, new { Ids = ids });
             return products;
         }
 
-        public async Task<Pagination<ProductEntity>> GetAllAsync(ProductQueryModel queryModel)
+        public override async Task<Pagination<ProductEntity>> GetAllAsync(ProductQueryModel queryModel)
         {
             var conditionParameters = new Dictionary<string, object>();
             var sqlConditions = await BuildQuery(queryModel, conditionParameters);
@@ -80,7 +81,7 @@ namespace Project.Business.Implement
             return content;
         }
 
-        protected virtual string BuildSortExpression(PaginationRequest queryModel)
+        protected  string BuildSortExpression(PaginationRequest queryModel)
         {
             string sortExpression;
             if (string.IsNullOrWhiteSpace(queryModel.Sort))
@@ -169,7 +170,7 @@ namespace Project.Business.Implement
             return query;
         }
 
-        public async Task<int> GetCountAsync(ProductQueryModel queryModel)
+        public override async Task<int> GetCountAsync(ProductQueryModel queryModel)
         {
             var conditionParameters = new Dictionary<string, object>();
             var query =  BuildQuery(queryModel, conditionParameters);
@@ -221,7 +222,7 @@ namespace Project.Business.Implement
             return results;
         }
 
-        public async Task<ProductEntity> DeleteAsync(Guid id)
+        public override async Task<ProductEntity> DeleteAsync(Guid id)
         {
             var query = "UPDATE Products SET IsDeleted = 1 WHERE Id = @Id";
             await _dbConnection.ExecuteAsync(query, new { Id = id });
