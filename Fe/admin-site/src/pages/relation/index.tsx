@@ -15,7 +15,7 @@ const Relation: React.FC = () => {
       <Helmet>
         <title> Relation </title>
       </Helmet>
-      <section className="px-10">
+      <section className="px-8">
         <ActionHeader onCategorySelect={handleCategorySelect}/>
         <RelationsTable selectedCategoryId={selectedCategoryId} />
       </section>

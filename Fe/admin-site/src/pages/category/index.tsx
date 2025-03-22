@@ -10,7 +10,7 @@ const Category: React.FC = () => {
       <Helmet>
         <title> Category </title>
       </Helmet>
-      <section className="px-10">
+      <section className="px-8">
         <Stat />
         <ActionHeader />
         <CategoriesTable />

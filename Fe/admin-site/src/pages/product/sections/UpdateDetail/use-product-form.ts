@@ -6,7 +6,7 @@ import {
   fetchProductById,
   updateProduct,
 } from "@/redux/apps/product/productSlice";
-import { MetadataObj } from "@/types/product/product";
+import { MetadataObj, VariantObjs } from "@/types/product/product";
 
 export const useProductForm = (
   productId: string,
@@ -16,7 +16,11 @@ export const useProductForm = (
 ) => {
   const dispatch = useAppDispatch();
   const [isEditing, setIsEditing] = useState(false);
-  const [fieldSelectionValues, setFieldSelectionValues] = useState<FieldSelectionValue[]>([]);
+  const [fieldSelectionValues, setFieldSelectionValues] = useState<
+    FieldSelectionValue[]
+  >([]);
+  const [variantObjs, setVariantObjs] = useState<VariantObjs[]>([]);
+  const [mediaObjs, setMediaObjs] = useState<string[]>([]);
 
   const methods = useForm<FormData>();
   const { setValue } = methods;
@@ -39,6 +43,9 @@ export const useProductForm = (
       setValue("completeCode", product.completeCode || "");
       setValue("completeName", product.completeName || "");
       setValue("completePath", product.completePath || "");
+
+      setVariantObjs(product.variantObjs || []);
+      setMediaObjs(product.mediaObjs || []);
 
       product.metadataObj?.forEach((meta: MetadataObj) => {
         setValue(meta.fieldName, meta.fieldValues || "");
@@ -82,6 +89,48 @@ export const useProductForm = (
     const newValues = [...fieldSelectionValues];
     newValues.splice(index, 1);
     setFieldSelectionValues(newValues);
+  };
+
+  const handleVariantChange = (
+    index: number,
+    field: string,
+    value: string | number
+  ) => {
+    const newVariants = [...variantObjs];
+    newVariants[index] = {
+      ...newVariants[index],
+      [field]: value,
+    };
+    setVariantObjs(newVariants);
+  };
+
+  const handleAddVariant = () => {
+    setVariantObjs([
+      ...variantObjs,
+      {
+        id: "",
+        productId: productId || "",
+        size: "",
+        sizeType: "",
+        lowestAsk: 0,
+      },
+    ]);
+  };
+  const handleRemoveVariant = (index: number) => {
+    const newVariants = [...variantObjs];
+    newVariants.splice(index, 1);
+    setVariantObjs(newVariants);
+  };
+
+  // Media Objects Handlers
+  const handleAddMedia = (mediaUrl: string) => {
+    setMediaObjs([...mediaObjs, mediaUrl]);
+  };
+
+  const handleRemoveMedia = (index: number) => {
+    const newMedia = [...mediaObjs];
+    newMedia.splice(index, 1);
+    setMediaObjs(newMedia);
   };
 
   const handleSubmit = (value: FormData) => {
@@ -141,6 +190,8 @@ export const useProductForm = (
       ...product,
       ...value,
       metadataObj: mergedMetadata,
+      variantObjs: variantObjs,
+      mediaObjs: mediaObjs,
     };
 
     dispatch(updateProduct({ id: productId, data: updatedProduct }));
@@ -156,6 +207,13 @@ export const useProductForm = (
     handleFieldSelectionValueChange,
     handleAddFieldSelectionValue,
     handleRemoveFieldSelectionValue,
+    variantObjs,
+    handleVariantChange,
+    handleAddVariant,
+    handleRemoveVariant,
+    mediaObjs,
+    handleAddMedia,
+    handleRemoveMedia,
     handleSubmit,
   };
 };

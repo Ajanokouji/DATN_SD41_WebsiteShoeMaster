@@ -12,19 +12,21 @@ import { FieldSelectionValuesList } from "./FieldSelectionValuesList";
 import { ProductForm } from "./ProductForm";
 import { useProductForm } from "./use-product-form";
 import { selectProduct } from "@/redux/apps/product/productSelector";
+import { VariantList } from "./VariantList";
+import { MediaList } from "./MediaList";
 
-interface DetailProductSheetProps {
-  categoryId: string;
+interface UpdateProductSheetProps {
+  productId: string;
   isOpen: boolean;
   onClose: () => void;
 }
 
-const DetailProductSheet: React.FC<DetailProductSheetProps> = ({
-  categoryId,
+const UpdateProductSheet: React.FC<UpdateProductSheetProps> = ({
+  productId,
   isOpen,
   onClose,
 }) => {
-  const category = useAppSelector(selectProduct);
+  const product = useAppSelector(selectProduct);
   const {
     isEditing,
     setIsEditing,
@@ -33,15 +35,22 @@ const DetailProductSheet: React.FC<DetailProductSheetProps> = ({
     handleFieldSelectionValueChange,
     handleAddFieldSelectionValue,
     handleRemoveFieldSelectionValue,
+    variantObjs,
+    handleVariantChange,
+    handleAddVariant,
+    handleRemoveVariant,
+    mediaObjs,
+    handleAddMedia,
+    handleRemoveMedia,
     handleSubmit,
-  } = useProductForm(categoryId, category, onClose);
+  } = useProductForm(productId, product, onClose);
 
   return (
     <Sheet open={isOpen} onOpenChange={onClose}>
       <SheetContent className="w-[90%] sm:max-w-[80vw] max-w-none h-screen overflow-y-auto">
         <SheetHeader>
           <SheetTitle className="text-xl font-semibold text-gray-700">
-            Detail Product: {category?.name}
+            Detail Product: {product?.name}
           </SheetTitle>
           <SheetDescription />
         </SheetHeader>
@@ -59,16 +68,31 @@ const DetailProductSheet: React.FC<DetailProductSheetProps> = ({
             onRemove={handleRemoveFieldSelectionValue}
           />
 
+          <VariantList
+            variants={variantObjs}
+            isEditing={isEditing}
+            onValueChange={handleVariantChange}
+            onAdd={handleAddVariant}
+            onRemove={handleRemoveVariant}
+          />
+
+          <MediaList
+            mediaUrls={mediaObjs}
+            isEditing={isEditing}
+            onAdd={handleAddMedia}
+            onRemove={handleRemoveMedia}
+          />
+
           {!isEditing ? (
             <Button
-              className="flex absolute bottom-3 left-7"
+              className="flex items-end justify-end"
               type="button"
               onClick={() => setIsEditing(true)}
             >
               Chỉnh sửa
             </Button>
           ) : (
-            <div className="flex absolute bottom-3 left-7 space-x-2">
+            <div className="flex items-end justify-end space-x-2">
               <Button type="submit">Lưu</Button>
               <Button
                 type="button"
@@ -85,4 +109,4 @@ const DetailProductSheet: React.FC<DetailProductSheetProps> = ({
   );
 };
 
-export default DetailProductSheet;
+export default UpdateProductSheet;
