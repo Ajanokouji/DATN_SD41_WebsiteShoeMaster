@@ -1,0 +1,162 @@
+body {
+    font-family: Arial, sans-serif;
+    background-color: #f8f9fa;
+    color: #333;
+    padding: 20px;
+}
+
+.container {
+    max-width: 600px;
+    margin: auto;
+    background: white;
+    padding: 15px;
+    border-radius: 8px;
+    box-shadow: 0px 0px 10px rgba(0, 0, 0, 0.1);
+}
+
+.invoice-tabs {
+    display: flex;
+    gap: 5px;
+    margin-bottom: 10px;
+}
+
+.invoice-tabs button {
+    padding: 8px 12px;
+    border: 1px solid #ccc;
+    cursor: pointer;
+    background-color: white;
+}
+
+.invoice-tabs button.active {
+    background-color: #007bff;
+    color: white;
+}
+
+.invoice-tabs .close-btn {
+    margin-left: 5px;
+    color: red;
+    cursor: pointer;
+}
+
+#add-invoice {
+    padding: 10px;
+    margin-bottom: 10px;
+}
+
+.invoice-content {
+    border: 1px solid #ccc;
+    padding: 10px;
+    display: none;
+}
+
+.invoice-content.active {
+    display: block;
+}
+
+.product-table {
+    width: 100%;
+    border-collapse: collapse;
+    margin-top: 10px;
+}
+
+.product-table th,
+.product-table td {
+    border: 1px solid #ddd;
+    padding: 5px;
+    text-align: center;
+}
+
+.add-product {
+    margin-top: 10px;
+}
+
+.btnClose {
+    background-color: red;
+    margin-top: 20px;
+    margin-left: 93%;
+    padding: 5px 10px;
+    color: white;
+    border: none;
+    border-radius: 5px;
+}
+
+.left-body {
+    width: 70%;
+    height: 900px;
+    border: 1px solid rgb(201, 198, 198);
+    border-radius: 10px;
+}
+
+.right-body {
+    margin-left: 0.5%;
+    width: 29.5%;
+    height: 900px;
+    border: 1px solid rgb(201, 198, 198);
+    border-radius: 10px;
+}
+
+.label-input {
+    display: flex;
+    margin-top: 30px;
+}
+
+.label-input label {
+    margin-left: 5px;
+    margin-right: 5px;
+    margin-top: 8px;
+}
+
+.label-input input{
+    height: 25px;
+    width: 400px;
+    border: 1px solid;
+    border-radius: 5px;
+}
+
+.btn-pay{
+    margin-top: 30px;
+    height: 50px;
+    width: 150px;
+    background-color: #007bff;
+    border: 1px solid #007bff;
+    border-radius: 5px;
+}
+
+/* Popup chọn sản phẩm */
+.popup {
+    display: none;
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background: rgba(0, 0, 0, 0.5);
+    justify-content: center;
+    align-items: center;
+}
+
+/* Popup thông báo */
+#notification-popup {
+    display: none;
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background: rgba(0, 0, 0, 0.5);
+    justify-content: center;
+    align-items: center;
+}
+
+.popup-content {
+    background: white;
+    padding: 20px;
+    border-radius: 8px;
+    width: 400px;
+}
+
+.popup-content input {
+    width: 100%;
+    padding: 5px;
+    margin-bottom: 10px;
+}
