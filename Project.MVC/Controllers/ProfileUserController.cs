@@ -4,7 +4,7 @@ namespace Project.MVC.Controllers
 {
     public class ProfileUserController : Controller
     {
-        public IActionResult Index()
+        public IActionResult ProfileUser()
         {
             return View();
         }

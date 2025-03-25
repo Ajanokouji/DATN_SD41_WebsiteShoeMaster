@@ -1,0 +1,89 @@
+﻿
+@{
+    ViewData["Title"] = "Index";
+    Layout = "~/ProfileUser/Shared/_Layout.cshtml";
+}
+<div class="profile-container">
+    <div class="sidebar">
+        <div class="profile-header">
+            <img src="/assets/img/avt.jpg" alt="Profile Picture">
+            <div>
+                <h3>KangHy</h3>
+                <a href="#">Sửa Hồ Sơ</a>
+            </div>
+        </div>
+        <ul>
+
+            <li>
+                <a href="#" class="active">Tài Khoản Của Tôi</a>
+                <ul class="submenu">
+                </ul>
+            </li>
+        </ul>
+    </div>
+
+    <div class="content">
+        <h2>Hồ Sơ Của Tôi</h2>
+        <p>Quản lý thông tin hồ sơ để bảo mật tài khoản</p>
+        <br>
+        <div class="form-and-picture">
+            <div class="form-section">
+                <div class="form-group">
+                    <label for="username">Tên đăng nhập</label>
+                    <input type="text" id="username" value="KangHy" disabled>
+                </div>
+
+                <div class="form-group">
+                    <label for="name">Tên</label>
+                    <input type="text" id="name">
+                </div>
+
+                <div class="form-group">
+                    <label for="email">Email</label>
+                    <input type="email" id="email" value="Ka*******.com">
+                </div>
+
+                <div class="form-group">
+                    <label for="phone">Số điện thoại</label>
+                    <input type="text" id="phone" value="********45">
+                </div>
+                <div class="form-group">
+                    <label for="phone">Địa chỉ</label>
+                    <input type="text" id="phone" value="Hà Nội">
+                </div>
+                <div class="form-group">
+                    <label>Giới tính</label>
+                    <div class="form-row">
+                        <label><input type="radio" name="gender" value="male"> Nam</label>
+                        <label><input type="radio" name="gender" value="female"> Nữ</label>
+                        <label><input type="radio" name="gender" value="other"> Khác</label>
+                    </div>
+                </div>
+
+                <div class="form-group">
+                    <label for="birthdate">Ngày sinh</label>
+                    <div class="form-row1">
+                        <select id="day">
+                            <option>Ngày</option>
+                        </select>
+                        <select id="month">
+                            <option>Tháng</option>
+                        </select>
+                        <select id="year">
+                            <option>Năm</option>
+                        </select>
+                    </div>
+                </div>
+
+                <button class="save-button">Lưu</button>
+            </div>
+
+            <div class="profile-picture">
+                <img src="/assets/img/avt.jpg" alt="Profile Picture">
+                <button class="save-button1">Chọn Ảnh</button>
+                <p>Dung lượng file tối đa 1 MB. Định dạng: JPEG, PNG</p>
+            </div>
+        </div>
+
+    </div>
+</div>
