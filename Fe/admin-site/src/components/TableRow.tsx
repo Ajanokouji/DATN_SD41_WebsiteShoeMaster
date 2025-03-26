@@ -58,49 +58,60 @@ const TableRowComponent = <
         {columns.map((column, index) => (
           <TableCell
             key={index}
-            className={`${column.className || ""} py-4 text-center`}
+            className={`${
+              column.className || ""
+            } py-4 text-center whitespace-nowrap overflow-hidden text-ellipsis`}
           >
             {column.isActionColumn ? (
               data ? (
                 <div className="flex flex-grow gap-2">
                   {column.updateAction && (
                     <button
-                    onClick={() =>
-                      column.updateAction && column.updateAction(data.id)
-                    }
-                  >
-                    <LuSquarePen className="text-indigo-600" size={20} />
-                  </button>
+                      onClick={() =>
+                        column.updateAction && column.updateAction(data.id)
+                      }
+                    >
+                      <LuSquarePen className="text-indigo-600" size={20} />
+                    </button>
                   )}
                   {column.detailAction && (
                     <button
-                    onClick={() =>
-                      column.detailAction && column.detailAction(data.id)
-                    }
-                  >
-                    <IoEye className="text-amber-500" size={20} />
-                  </button>
+                      onClick={() =>
+                        column.detailAction && column.detailAction(data.id)
+                      }
+                    >
+                      <IoEye className="text-amber-500" size={20} />
+                    </button>
                   )}
                   {column.deleteAction && (
                     <button onClick={() => setModalDeleteOpen(true)}>
-                    <RiDeleteBin3Line className="text-red-600" size={20} />
-                  </button>
+                      <RiDeleteBin3Line className="text-red-600" size={20} />
+                    </button>
                   )}
-                  
                 </div>
               ) : null
             ) : column.render && data ? (
-              column.render(data[column.key!], data)
+              <div className="overflow-hidden text-ellipsis">
+                {column.render(data[column.key!], data)}
+              </div>
             ) : data && column.key ? (
+              column.key === "imageUrl" &&
               typeof data[column.key] === "string" &&
               (data[column.key] as string).startsWith("http") ? (
-                <img
-                  src={data[column.key] as string}
-                  alt="Product"
-                  className="h-12 w-12 object-cover rounded"
-                />
+                <div className="flex justify-center">
+                  <img
+                    src={data[column.key] as string}
+                    alt="Product"
+                    className="h-12 w-12 object-cover rounded"
+                  />
+                </div>
               ) : (
-                String(data[column.key] ?? "-")
+                <div
+                  className="overflow-hidden text-ellipsis max-w-xs truncate"
+                  title={String(data[column.key] ?? "-")}
+                >
+                  {String(data[column.key] ?? "-")}
+                </div>
               )
             ) : (
               "-"

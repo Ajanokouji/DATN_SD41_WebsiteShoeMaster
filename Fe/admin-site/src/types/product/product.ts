@@ -38,7 +38,6 @@ export interface FieldSelectionValues {
   code: string;
   value: string;
   order: number;
-
 }
 export interface LabelsObjs {
   objectId: string;
@@ -59,7 +58,7 @@ export interface ProductResDto {
   name: string;
   status: string;
   imageUrl: string;
-  sortOrder: number | null;
+  sortOrder: string;
   description: string | null;
   mainCategoryId: string;
   createdOnDate: string;
@@ -80,7 +79,6 @@ export interface ProductDetailResDto extends ProductResDto {
   metadataObj: MetadataObj[];
   labelsObjs: LabelsObjs[];
   variantObjs: VariantObjs[];
-
 }
 
 export interface ProductFilterParams extends PaginationParams {

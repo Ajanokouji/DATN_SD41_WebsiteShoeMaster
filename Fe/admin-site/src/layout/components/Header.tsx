@@ -27,7 +27,7 @@ const Header: React.FC<HeaderProps> = ({ title }) => {
 
   return (
     <section>
-      <div className="mt-3 pb-3 px-10 border-b border-gray-200">
+      <div className="mt-3 pb-3 px-8 border-b border-gray-200">
         <div className="grid grid-cols-2 justify-between">
           <div className="flex gap-2 items-center">
             <TbLayoutDashboard className="text-gray-700 text-3xl" />

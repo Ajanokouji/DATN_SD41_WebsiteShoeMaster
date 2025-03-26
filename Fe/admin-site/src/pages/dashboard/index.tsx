@@ -12,7 +12,7 @@ const Dashboard: React.FC = () => {
       <Helmet>
         <title> Dashboard </title>
       </Helmet>
-      <section className="px-10">
+      <section className="px-8">
         <StatDashboard />
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-8 pb-16">
           <SalesOverviewChart />

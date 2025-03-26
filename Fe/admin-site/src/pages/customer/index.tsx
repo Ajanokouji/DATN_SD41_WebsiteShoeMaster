@@ -9,7 +9,7 @@ const Customer: React.FC = () => {
       <Helmet>
         <title> Customer </title>
       </Helmet>
-      <section className="px-10">
+      <section className="px-8">
         <ActionHeader />
         <CustomersTable />
       </section>

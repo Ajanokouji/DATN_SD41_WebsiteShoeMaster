@@ -9,7 +9,7 @@ const Product: React.FC = () => {
       <Helmet>
         <title> Product </title>
       </Helmet>
-      <section className="px-10">
+      <section className="px-8">
         <ActionHeader />
         <CategoriesTable />
       </section>

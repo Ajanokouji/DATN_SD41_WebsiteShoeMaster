@@ -9,7 +9,7 @@ const Contact: React.FC = () => {
       <Helmet>
         <title> Contact </title>
       </Helmet>
-      <section className="px-10">
+      <section className="px-8">
         <ActionHeader />
         <ContactsTable />
       </section>
