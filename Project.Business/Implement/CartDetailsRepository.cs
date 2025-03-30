@@ -181,7 +181,7 @@ namespace Project.Business.Implement
 
                     cartDetails.UpdateTracking(cartDetails.Id);
                     _context.CartDetails.Update(exist);
-                    updated.Add(cartDetails);
+                    updated.Add(exist);
                 }
             }
             await _context.SaveChangesAsync();
