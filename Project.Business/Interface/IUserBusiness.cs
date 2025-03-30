@@ -93,6 +93,8 @@ namespace Project.Business.Interface
         /// <param name="customerInfo">Thông tin khách hàng mới</param>
         /// <returns>Kết quả cập nhật</returns>
         Task<ServiceResult<bool>> UpdateUserInfo(Guid userId, CustomerInfoModel customerInfo);
+
+        Task<IEnumerable<UserEntity>> LocUserTheoNhieuDK(UserQueryModel queryModel);
     }
 }
 

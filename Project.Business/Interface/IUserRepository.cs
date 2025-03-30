@@ -8,5 +8,6 @@ namespace Project.Business.Interface
         protected const string MessageNoTFound = "User not found";
         Task<UserEntity> SaveAsync(UserEntity article);
         Task<IEnumerable<UserEntity>> SaveAsync(IEnumerable<UserEntity> userEntities);
+        Task<IEnumerable<UserEntity>> LocUserTheoNhieuDK(UserQueryModel userQueryModel);
     }
 }

@@ -80,5 +80,12 @@ namespace Project.Business.Interface
         Task<ServiceResult<bool>> UpdateCartItem(CartSession cartItem, List<CartSession> currentCart);
         Task<ServiceResult<bool>> RemoveFromCart(Guid productId, int size, List<CartSession> currentCart);
         Task<ServiceResult<bool>> ClearCart();
+
+        Task<ServiceResult<bool>> AddCartSessionToCartDb(UserEntity user, List<CartItemModel> lstCartItemModel);
+        Task<ServiceResult<bool>> AddToCartDb(UserEntity user, List<CartDetails> lstCartDetails);
+        Task<ServiceResult<int>> GetCartDbCount(UserEntity user);
+        Task<ServiceResult<bool>> UpdateCartDb(UserEntity user, List<CartDetails> lstCartDetails);
+        Task<ServiceResult<bool>> RemoveFromCartDb(UserEntity user, Guid productId);
+        Task<IEnumerable<Cart>> LocCartTheoNhieuDK(CartQueryModel cartQueryModel);
     }
 }

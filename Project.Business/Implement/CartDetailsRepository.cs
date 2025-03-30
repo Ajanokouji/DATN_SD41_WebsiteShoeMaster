@@ -160,7 +160,6 @@ namespace Project.Business.Implement
             foreach (var cartDetails in cartDetailses)
             {
                 var exist = await _context.CartDetails
-                    .AsNoTracking()
                     .FirstOrDefaultAsync(x =>
                             x.Id == cartDetails.Id
                     );
@@ -174,7 +173,6 @@ namespace Project.Business.Implement
                 }
                 else
                 {
-                    _context.Entry(exist).State = EntityState.Detached;
                     exist.IdCart = cartDetails.IdCart;
                     exist.IdProduct = cartDetails.IdProduct;
                     exist.Quantity = cartDetails.Quantity;
@@ -183,7 +181,7 @@ namespace Project.Business.Implement
 
                     cartDetails.UpdateTracking(cartDetails.Id);
                     _context.CartDetails.Update(exist);
-                    updated.Add(exist);
+                    updated.Add(cartDetails);
                 }
             }
             await _context.SaveChangesAsync();
