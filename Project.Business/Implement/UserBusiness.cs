@@ -260,5 +260,10 @@ namespace Project.Business.Implement
                 };
             }
         }
+
+        public async Task<IEnumerable<UserEntity>> LocUserTheoNhieuDK(UserQueryModel queryModel)
+        {
+            return await _userRepository.LocUserTheoNhieuDK(queryModel);
+        }
     }
 }

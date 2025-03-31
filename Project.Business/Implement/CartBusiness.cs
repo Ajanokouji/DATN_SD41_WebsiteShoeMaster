@@ -17,14 +17,19 @@ namespace Project.Business.Implement
     public class CartBusiness : ICartBusiness
     {
         private readonly ICartRepository _cartRepository;
+        private readonly ICartDetailsRepository _cartDetailsRepository;
+        private readonly IContactRepository _contactRepository;
         private readonly IMemoryCache _cache;
         private readonly ILogger _logger;
         private const string CartListCacheKey = "CartList";
         private readonly MemoryCacheEntryOptions _cacheOptions;
 
-        public CartBusiness(ICartRepository cartRepository, IMemoryCache cache)
+        public CartBusiness(ICartRepository cartRepository, 
+            ICartDetailsRepository cartDetailsRepository, IContactRepository contactRepository, IMemoryCache cache)
         {
             _cartRepository = cartRepository ?? throw new ArgumentNullException(nameof(cartRepository));
+            _cartDetailsRepository = cartDetailsRepository ?? throw new ArgumentNullException(nameof(cartDetailsRepository));
+            _contactRepository = contactRepository ?? throw new ArgumentNullException(nameof(contactRepository));
             _cache = cache ?? throw new ArgumentNullException(nameof(cache));
             _logger = Log.ForContext<CartBusiness>();
             _cacheOptions = new MemoryCacheEntryOptions()
@@ -657,5 +662,724 @@ namespace Project.Business.Implement
                 };
             }
         }
+
+        public async Task<ServiceResult<bool>> AddCartSessionToCartDb(UserEntity user, List<CartItemModel> lstCartItemModel)
+        {
+            //Tìm cart dựa vào userID
+            Cart cart = new Cart();
+            try
+            {
+                cart = _cartRepository.GetCartByUserId(user.Id).Result;
+            }
+            catch (Exception ex)
+            {
+                return new ServiceResult<bool>
+                {
+                    IsSuccess = false,
+                    Message = $"Lỗi: {ex.Message}",
+                    Data = false
+                };
+            }
+
+            //Nếu không tìm thấy cart
+            if (cart == null)
+            {
+                //Tạo contact cho user
+                Contacts newContact = new Contacts
+                {
+                    Id = Guid.NewGuid(),
+                    Name = user.Name,
+                    FullName = null,
+                    Address = user.Address,
+                    DateOfBirth = null,
+                    ImageUrl = null,
+                    Email = user.Email,
+                    PhoneNumber = user.PhoneNumber,
+                    Content = null,
+                    CreatedByUserId = user.Id,
+                    CreatedOnDate = DateTime.Now,
+                    LastModifiedByUserId = user.Id,
+                    LastModifiedOnDate = DateTime.Now,
+                    Isdeleted = false
+                };
+
+                //Tạo mới cart cho user
+                Cart newCart = new Cart
+                {
+                    Id = Guid.NewGuid(),
+                    IdUser = user.Id,
+                    IdContact = newContact.Id,
+                    Status = 1,
+                    Description = "string.Empty",
+                    CreatedByUserId = user.Id,
+                    CreatedOnDate = DateTime.Now,
+                    LastModifiedByUserId = user.Id,
+                    LastModifiedOnDate = DateTime.Now,
+                    Isdeleted = false
+                };
+
+                try
+                {
+                    await _contactRepository.SaveAsync(newContact);
+                }
+                catch (Exception ex)
+                {
+                    return new ServiceResult<bool>
+                    {
+                        IsSuccess = false,
+                        Message = $"Lỗi khi thêm thông tin contact cho người dùng: {ex.Message}",
+                        Data = false
+                    };
+                }
+
+                try
+                {
+                    await _cartRepository.SaveAsync(newCart);
+                }
+                catch (Exception ex)
+                {
+                    return new ServiceResult<bool>
+                    {
+                        IsSuccess = false,
+                        Message = $"Lỗi khi tạo mới giỏ hàng cho người dùng: {ex.Message}",
+                        Data = false
+                    };
+                }
+
+                cart = newCart;
+            }
+
+            //Chuyển đổi từ CartItemModel sang CartDetails
+            List<CartDetails> lstCartDtsNeedAdd = lstCartItemModel.Select(x => new CartDetails
+            {
+                Id = Guid.NewGuid(),
+                IdCart = cart.Id,
+                IdProduct = x.ProductId,
+                Quantity = x.Quantity,
+                Code = x.ProductCode,
+                CreatedByUserId = user.Id,
+                IsOnSale = false, //Để tạm là false
+                CreatedOnDate = DateTime.Now,
+                LastModifiedByUserId = user.Id,
+                LastModifiedOnDate = DateTime.Now,
+                Isdeleted = false
+            }).ToList();
+
+            //Tìm các cartDetail
+            List<CartDetails> lstCartDetailFound = _cartDetailsRepository.GetByCartId(cart.Id).Result.ToList();
+
+            //Nếu không tìm thấy cartDetail nào
+            if (lstCartDetailFound == null || !lstCartDetailFound.Any())
+            {
+                //Thêm các cartDetail mới vào db
+                try
+                {
+                    await _cartDetailsRepository.SaveAsync(lstCartDtsNeedAdd);
+                }
+                catch (Exception ex)
+                {
+                    return new ServiceResult<bool>
+                    {
+                        IsSuccess = false,
+                        Message = $"Lỗi khi thêm cart session item vào giỏ hàng người dùng: {ex.Message}",
+                        Data = false
+                    };
+                }
+
+                return new ServiceResult<bool>
+                {
+                    IsSuccess = true,
+                    Message = $"Thêm cart session vào cart user thành công",
+                    Data = false
+                };
+            }
+            else //Nếu tìm thấy
+            {
+                foreach (var cartDetail in lstCartDtsNeedAdd)
+                {
+                    //Check xem cartDetail đã tồn tại trong cart của user hay chưa
+                    bool cartDetailExist = lstCartDetailFound.Any(x => x.IdProduct == cartDetail.IdProduct);
+
+                    //Nếu cartDetail chưa tồn tại
+                    if (!cartDetailExist)
+                    {
+                        try
+                        {
+                            //Thêm cartDetail vào db
+                            await _cartDetailsRepository.SaveAsync(cartDetail);
+                        }
+                        catch (Exception ex)
+                        {
+                            return new ServiceResult<bool>
+                            {
+                                IsSuccess = false,
+                                Message = $"Lỗi khi tiến hành thêm CartDetail: {ex.Message}",
+                                Data = false
+                            };
+                        }
+                    }
+                    else //Nếu cartDetail đã tồn tại
+                    {
+                        //Cộng số lượng rồi update cartDetail
+                        var cartDetailFound = lstCartDetailFound.FirstOrDefault(x => x.IdProduct == cartDetail.IdProduct);
+                        cartDetailFound.Quantity += cartDetail.Quantity;
+                        cartDetailFound.LastModifiedByUserId = user.Id;
+                        cartDetailFound.LastModifiedOnDate = DateTime.Now;
+
+                        try
+                        {
+                            //update
+                            await _cartDetailsRepository.SaveAsync(cartDetailFound);
+                        }
+                        catch (Exception ex)
+                        {
+                            return new ServiceResult<bool>
+                            {
+                                IsSuccess = false,
+                                Message = $"Lỗi khi tiến hành thêm CartDetail: {ex.Message}",
+                                Data = false
+                            };
+                        }
+                    }
+                }
+
+                return new ServiceResult<bool>
+                {
+                    IsSuccess = true,
+                    Message = $"Thêm cart session vào cart user thành công",
+                    Data = false
+                };
+            }
+        }
+
+        public async Task<ServiceResult<bool>> AddToCartDb(UserEntity user, List<CartDetails> lstCartDetails)
+        {
+            //Tìm cart dựa vào userID
+            Cart cart = new Cart();
+            try
+            {
+                cart = _cartRepository.GetCartByUserId(user.Id).Result;
+            }
+            catch (Exception ex)
+            {
+                return new ServiceResult<bool>
+                {
+                    IsSuccess = false,
+                    Message = $"Lỗi: {ex.Message}",
+                    Data = false
+                };
+            }
+
+            //Nếu không tìm thấy cart
+            if (cart == null)
+            {
+                //Tạo contact cho user
+                Contacts newContact = new Contacts
+                {
+                    Id = Guid.NewGuid(),
+                    Name = user.Name,
+                    FullName = null,
+                    Address = user.Address,
+                    DateOfBirth = null,
+                    ImageUrl = null,
+                    Email = user.Email,
+                    PhoneNumber = user.PhoneNumber,
+                    Content = null,
+                    CreatedByUserId = user.Id,
+                    CreatedOnDate = DateTime.Now,
+                    LastModifiedByUserId = user.Id,
+                    LastModifiedOnDate = DateTime.Now,
+                    Isdeleted = false
+                };
+
+                //Tạo mới cart cho user
+                Cart newCart = new Cart
+                {
+                    Id = Guid.NewGuid(),
+                    IdUser = user.Id,
+                    IdContact = newContact.Id,
+                    Status = 1,
+                    Description = "string.Empty",
+                    CreatedByUserId = user.Id,
+                    CreatedOnDate = DateTime.Now,
+                    LastModifiedByUserId = user.Id,
+                    LastModifiedOnDate = DateTime.Now,
+                    Isdeleted = false
+                };
+
+                try
+                {
+                    await _contactRepository.SaveAsync(newContact);
+                }
+                catch (Exception ex)
+                {
+                    return new ServiceResult<bool>
+                    {
+                        IsSuccess = false,
+                        Message = $"Lỗi khi thêm thông tin contact cho người dùng: {ex.Message}",
+                        Data = false
+                    };
+                }
+
+                try
+                {
+                    await _cartRepository.SaveAsync(newCart);
+                }
+                catch (Exception ex)
+                {
+                    return new ServiceResult<bool>
+                    {
+                        IsSuccess = false,
+                        Message = $"Lỗi khi tạo mới giỏ hàng cho người dùng: {ex.Message}",
+                        Data = false
+                    };
+                }
+
+                cart = newCart;
+            }
+
+            List<CartDetails> lstCartDtsNeedAdd = lstCartDetails;
+            foreach (var cartDetails in lstCartDetails)
+            {
+                cartDetails.Id = Guid.NewGuid();
+                cartDetails.IdCart = cart.Id;
+            }
+
+            //Tìm các cartDetail
+            List<CartDetails> lstCartDetailFound = _cartDetailsRepository.GetByCartId(cart.Id).Result.ToList();
+
+            //Nếu không tìm thấy cartDetail nào
+            if (lstCartDetailFound == null || !lstCartDetailFound.Any())
+            {
+                //Thêm các cartDetail mới vào db
+                try
+                {
+                    await _cartDetailsRepository.SaveAsync(lstCartDtsNeedAdd);
+                }
+                catch (Exception ex)
+                {
+                    return new ServiceResult<bool>
+                    {
+                        IsSuccess = false,
+                        Message = $"Lỗi khi thêm sản phẩm vào giỏ hàng người dùng: {ex.Message}",
+                        Data = false
+                    };
+                }
+
+                return new ServiceResult<bool>
+                {
+                    IsSuccess = true,
+                    Message = $"Thêm sản phẩm vào giỏ hàng người dùng thành công",
+                    Data = false
+                };
+            }
+            else //Nếu tìm thấy
+            {
+                foreach (var cartDetail in lstCartDtsNeedAdd)
+                {
+                    //Check xem cartDetail đã tồn tại trong cart của user hay chưa
+                    bool cartDetailExist = lstCartDetailFound.Any(x => x.IdProduct == cartDetail.IdProduct);
+
+                    //Nếu cartDetail chưa tồn tại
+                    if (!cartDetailExist)
+                    {
+                        try
+                        {
+                            //Thêm cartDetail vào db
+                            await _cartDetailsRepository.SaveAsync(cartDetail);
+                        }
+                        catch (Exception ex)
+                        {
+                            return new ServiceResult<bool>
+                            {
+                                IsSuccess = false,
+                                Message = $"Lỗi khi tiến hành thêm sản phẩm vào giỏ hàng người dùng: {ex.Message}",
+                                Data = false
+                            };
+                        }
+                    }
+                    else //Nếu cartDetail đã tồn tại
+                    {
+                        //Cộng số lượng rồi update cartDetail
+                        var cartDetailFound = lstCartDetailFound.FirstOrDefault(x => x.IdProduct == cartDetail.IdProduct);
+                        cartDetailFound.Quantity += cartDetail.Quantity;
+                        cartDetailFound.LastModifiedByUserId = user.Id;
+                        cartDetailFound.LastModifiedOnDate = DateTime.Now;
+
+                        try
+                        {
+                            //update
+                            await _cartDetailsRepository.SaveAsync(cartDetailFound);
+                        }
+                        catch (Exception ex)
+                        {
+                            return new ServiceResult<bool>
+                            {
+                                IsSuccess = false,
+                                Message = $"Lỗi khi tiến hành thêm sản phẩm vào giỏ hàng người dùng: {ex.Message}",
+                                Data = false
+                            };
+                        }
+                    }
+                }
+
+                return new ServiceResult<bool>
+                {
+                    IsSuccess = true,
+                    Message = $"Thêm sản phẩm vào giỏ hàng người dùng thành công",
+                    Data = false
+                };
+            }
+        }
+
+        public async Task<ServiceResult<int>> GetCartDbCount(UserEntity user)
+        {
+            //Tìm cart dựa vào userID
+            Cart cart = new Cart();
+            try
+            {
+                cart = _cartRepository.GetCartByUserId(user.Id).Result;
+            }
+            catch (Exception ex)
+            {
+                return new ServiceResult<int>
+                {
+                    IsSuccess = false,
+                    Message = $"Lỗi: {ex.Message}",
+                    Data = 0
+                };
+            }
+
+            //Nếu không tìm thấy cart
+            if (cart == null)
+            {
+                return new ServiceResult<int>
+                {
+                    IsSuccess = true,
+                    Message = "Giỏ hàng trống",
+                    Data = 0
+                };
+            }
+
+            //Tìm các cartDetail
+            List<CartDetails> lstCartDetailFound = new List<CartDetails>();
+            try
+            {
+                lstCartDetailFound = _cartDetailsRepository.GetByCartId(cart.Id).Result.ToList();
+            }
+            catch (Exception ex)
+            {
+                return new ServiceResult<int>
+                {
+                    IsSuccess = false,
+                    Message = $"Lỗi: {ex.Message}",
+                    Data = 0
+                };
+            }
+
+            //Nếu không tìm thấy cartDetail nào
+            if (lstCartDetailFound == null || !lstCartDetailFound.Any())
+            {
+                return new ServiceResult<int>
+                {
+                    IsSuccess = true,
+                    Message = "Giỏ hàng trống",
+                    Data = 0
+                };
+            }
+
+            int tong = 0;
+            foreach (var cartDetail in lstCartDetailFound)
+            {
+                if (cartDetail.Quantity != null)
+                {
+                    tong += cartDetail.Quantity.Value;
+                }
+            }
+
+            return new ServiceResult<int>
+            {
+                IsSuccess = true,
+                Message = "Lấy số lượng sản phẩm trong giỏ hàng thành công",
+                Data = tong
+            };
+        }
+
+        public async Task<ServiceResult<bool>> UpdateCartDb(UserEntity user, List<CartDetails> lstCartDetails)
+        {
+            //Tìm cart dựa vào userID
+            Cart cart = new Cart();
+            try
+            {
+                cart = _cartRepository.GetCartByUserId(user.Id).Result;
+            }
+            catch (Exception ex)
+            {
+                return new ServiceResult<bool>
+                {
+                    IsSuccess = false,
+                    Message = $"Lỗi: {ex.Message}",
+                    Data = false
+                };
+            }
+
+            //Nếu không tìm thấy cart
+            if (cart == null)
+            {
+                //Tạo contact cho user
+                Contacts newContact = new Contacts
+                {
+                    Id = Guid.NewGuid(),
+                    Name = user.Name,
+                    FullName = null,
+                    Address = user.Address,
+                    DateOfBirth = null,
+                    ImageUrl = null,
+                    Email = user.Email,
+                    PhoneNumber = user.PhoneNumber,
+                    Content = null,
+                    CreatedByUserId = user.Id,
+                    CreatedOnDate = DateTime.Now,
+                    LastModifiedByUserId = user.Id,
+                    LastModifiedOnDate = DateTime.Now,
+                    Isdeleted = false
+                };
+
+                //Tạo mới cart cho user
+                Cart newCart = new Cart
+                {
+                    Id = Guid.NewGuid(),
+                    IdUser = user.Id,
+                    IdContact = newContact.Id,
+                    Status = 1,
+                    Description = "string.Empty",
+                    CreatedByUserId = user.Id,
+                    CreatedOnDate = DateTime.Now,
+                    LastModifiedByUserId = user.Id,
+                    LastModifiedOnDate = DateTime.Now,
+                    Isdeleted = false
+                };
+
+                try
+                {
+                    await _contactRepository.SaveAsync(newContact);
+                }
+                catch (Exception ex)
+                {
+                    return new ServiceResult<bool>
+                    {
+                        IsSuccess = false,
+                        Message = $"Lỗi khi thêm thông tin contact cho người dùng: {ex.Message}",
+                        Data = false
+                    };
+                }
+
+                try
+                {
+                    await _cartRepository.SaveAsync(newCart);
+                }
+                catch (Exception ex)
+                {
+                    return new ServiceResult<bool>
+                    {
+                        IsSuccess = false,
+                        Message = $"Lỗi khi tạo mới giỏ hàng cho người dùng: {ex.Message}",
+                        Data = false
+                    };
+                }
+
+                cart = newCart;
+            }
+
+            //update lần lượt từng cartDetail
+            foreach (var cartDetails in lstCartDetails)
+            {
+                //Tìm cartDetail cần update
+                CartDetails cartDetailFound = new CartDetails();
+                try
+                {
+                    cartDetailFound = _cartDetailsRepository.GetByCartAndProduct(cart.Id, cartDetails.IdProduct).Result;
+                }
+                catch (Exception ex)
+                {
+                    return new ServiceResult<bool>
+                    {
+                        IsSuccess = false,
+                        Message = $"Lỗi khi thêm sản phẩm vào giỏ hàng của người dùng: {ex.Message}",
+                        Data = false
+                    };
+                }
+
+                //Đã tìm thấy
+                if (cartDetailFound != null)
+                {
+                    cartDetailFound.Quantity = cartDetails.Quantity;
+
+                    //update db
+                    try
+                    {
+                        await _cartDetailsRepository.SaveAsync(cartDetailFound);
+                    }
+                    catch (Exception ex)
+                    {
+                        return new ServiceResult<bool>
+                        {
+                            IsSuccess = false,
+                            Message = $"Lỗi khi thêm sản phẩm vào giỏ hàng của người dùng: {ex.Message}",
+                            Data = false
+                        };
+                    }
+                }
+            }
+
+            return new ServiceResult<bool>
+            {
+                IsSuccess = true,
+                Message = $"Thêm sản phẩm vào giỏ hàng của người dùng thành công",
+                Data = true
+            };
+        }
+
+        public async Task<ServiceResult<bool>> RemoveFromCartDb(UserEntity user, Guid productId)
+        {
+            //Tìm cart dựa vào userID
+            Cart cart = new Cart();
+            try
+            {
+                cart = _cartRepository.GetCartByUserId(user.Id).Result;
+            }
+            catch (Exception ex)
+            {
+                return new ServiceResult<bool>
+                {
+                    IsSuccess = false,
+                    Message = $"Lỗi: {ex.Message}",
+                    Data = false
+                };
+            }
+
+            //Nếu không tìm thấy cart
+            if (cart == null)
+            {
+                //Tạo contact cho user
+                Contacts newContact = new Contacts
+                {
+                    Id = Guid.NewGuid(),
+                    Name = user.Name,
+                    FullName = null,
+                    Address = user.Address,
+                    DateOfBirth = null,
+                    ImageUrl = null,
+                    Email = user.Email,
+                    PhoneNumber = user.PhoneNumber,
+                    Content = null,
+                    CreatedByUserId = user.Id,
+                    CreatedOnDate = DateTime.Now,
+                    LastModifiedByUserId = user.Id,
+                    LastModifiedOnDate = DateTime.Now,
+                    Isdeleted = false
+                };
+
+                //Tạo mới cart cho user
+                Cart newCart = new Cart
+                {
+                    Id = Guid.NewGuid(),
+                    IdUser = user.Id,
+                    IdContact = newContact.Id,
+                    Status = 1,
+                    Description = "string.Empty",
+                    CreatedByUserId = user.Id,
+                    CreatedOnDate = DateTime.Now,
+                    LastModifiedByUserId = user.Id,
+                    LastModifiedOnDate = DateTime.Now,
+                    Isdeleted = false
+                };
+
+                try
+                {
+                    await _contactRepository.SaveAsync(newContact);
+                }
+                catch (Exception ex)
+                {
+                    return new ServiceResult<bool>
+                    {
+                        IsSuccess = false,
+                        Message = $"Lỗi khi thêm thông tin contact cho người dùng: {ex.Message}",
+                        Data = false
+                    };
+                }
+
+                try
+                {
+                    await _cartRepository.SaveAsync(newCart);
+                }
+                catch (Exception ex)
+                {
+                    return new ServiceResult<bool>
+                    {
+                        IsSuccess = false,
+                        Message = $"Lỗi khi tạo mới giỏ hàng cho người dùng: {ex.Message}",
+                        Data = false
+                    };
+                }
+
+                cart = newCart;
+            }
+
+            //Tìm cartDetail cần xóa
+            CartDetails cartDetailFound = new CartDetails();
+            try
+            {
+                cartDetailFound = _cartDetailsRepository.GetByCartAndProduct(cart.Id, productId).Result;
+            }
+            catch (Exception ex)
+            {
+                return new ServiceResult<bool>
+                {
+                    IsSuccess = false,
+                    Message = $"Lỗi khi xóa sản phẩm trong giỏ hàng của người dùng: {ex.Message}",
+                    Data = false
+                };
+            }
+
+            //Nếu không tìm thấy cartDetail
+            if (cartDetailFound == null)
+            {
+                return new ServiceResult<bool>
+                {
+                    IsSuccess = false,
+                    Message = $"Không tìm thấy sản phẩm trong giỏ hàng",
+                    Data = false
+                };
+            }
+
+            //Xóa cartDetail
+            try
+            {
+                await _cartDetailsRepository.DeleteAsync(cartDetailFound.Id);
+            }
+            catch (Exception ex)
+            {
+                return new ServiceResult<bool>
+                {
+                    IsSuccess = false,
+                    Message = $"Lỗi khi xóa sản phẩm trong giỏ hàng của người dùng: {ex.Message}",
+                    Data = false
+                };
+            }
+
+            return new ServiceResult<bool>
+            {
+                IsSuccess = true,
+                Message = $"Xóa sản phẩm khỏi giỏ hàng thành công",
+                Data = true
+            };
+        }
+
+        public async Task<IEnumerable<Cart>> LocCartTheoNhieuDK(CartQueryModel queryModel)
+        {
+            return await _cartRepository.LocCartTheoNhieuDK(queryModel);
+        }
+
     }
 }

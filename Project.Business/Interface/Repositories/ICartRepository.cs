@@ -16,5 +16,6 @@ namespace Project.Business.Interface.Repositories
         Task<IEnumerable<Cart>> SaveAsync(IEnumerable<Cart> cart);
 
         Task<Cart> GetCartByUserId(Guid userId);
+        Task<IEnumerable<Cart>> LocCartTheoNhieuDK(CartQueryModel cartQueryModel);
     }
 }

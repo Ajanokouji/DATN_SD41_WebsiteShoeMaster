@@ -199,5 +199,32 @@ namespace Project.Business.Implement
                 .OrderByDescending(x => x.LastModifiedOnDate)
                 .FirstOrDefaultAsync();
         }
+
+        public async Task<IEnumerable<Cart>> LocCartTheoNhieuDK(CartQueryModel cartQueryModel)
+        {
+            var query = _context.Carts.AsQueryable();
+
+            if (cartQueryModel.IdTaiKhoan.HasValue)
+            {
+                query = query.Where(c => c.IdUser == cartQueryModel.IdTaiKhoan);
+            }
+
+            if (cartQueryModel.IdThongTinLienHe.HasValue)
+            {
+                query = query.Where(c => c.IdContact == cartQueryModel.IdThongTinLienHe);
+            }
+
+            if (cartQueryModel.Status != null)
+            {
+                query = query.Where(c => c.Status == cartQueryModel.Status);
+            }
+
+            if (!string.IsNullOrWhiteSpace(cartQueryModel.Description))
+            {
+                query = query.Where(c => c.Description.Contains(cartQueryModel.Description));
+            }
+
+            return await query.ToListAsync();
+        }
     }
 }
