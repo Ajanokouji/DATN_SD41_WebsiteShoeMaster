@@ -7,6 +7,8 @@ using Project.DbManagement;
 using SERP.Framework.Common;
 using Serilog;
 using Project.Common.Constants;
+using Project.Business.ModelFactory;
+using System.Net.WebSockets;
 
 namespace Project.Business.Implement;
 
@@ -15,30 +17,37 @@ public class BillDetailsBusiness : IBillDetailsBusiness
     private readonly IBillDetailsRepository _billDetailsRepository;
     private readonly IMemoryCache _cache;
     private readonly ILogger _logger;
+    private readonly IBillDetailModelFactory _billDetailModelFactory;
     private const string BillDetailsListCacheKey = "BillDetailsList";
     private readonly MemoryCacheEntryOptions _cacheOptions;
 
-    public BillDetailsBusiness(IBillDetailsRepository billDetailsRepository, IMemoryCache cache)
+    public BillDetailsBusiness(
+        IBillDetailModelFactory billDetailModelFactory,
+        IBillDetailsRepository billDetailsRepository, 
+        IMemoryCache cache)
     {
         _billDetailsRepository = billDetailsRepository;
         _cache = cache;
+        _billDetailModelFactory = billDetailModelFactory;
         _logger = Log.ForContext<BillDetailsBusiness>();
         _cacheOptions = new MemoryCacheEntryOptions()
             .SetSlidingExpiration(TimeSpan.FromMinutes(5))
             .SetAbsoluteExpiration(TimeSpan.FromMinutes(30));
     }
 
-    public async Task<BillDetailsEntity> DeleteAsync(Guid contentId)
+    public async Task<BillDetailModel> DeleteAsync(Guid contentId)
     {
         try
         {
-            var result = await _billDetailsRepository.DeleteAsync(contentId);
-            if (result != null)
+            var billDetail = await _billDetailsRepository.DeleteAsync(contentId);
+       
+            if (billDetail != null)
             {
                 _cache.Remove(BillDetailsListCacheKey);
                 _logger.Information("Bill details {BillDetailsId} deleted successfully", contentId);
             }
-            return result;
+            var res = await _billDetailModelFactory.CreateModel(billDetail);
+            return res;
         }
         catch (Exception ex)
         {
@@ -47,17 +56,18 @@ public class BillDetailsBusiness : IBillDetailsBusiness
         }
     }
 
-    public async Task<IEnumerable<BillDetailsEntity>> DeleteAsync(Guid[] deleteIds)
+    public async Task<IEnumerable<BillDetailModel>> DeleteAsync(Guid[] deleteIds)
     {
         try
         {
-            var result = await _billDetailsRepository.DeleteAsync(deleteIds);
-            if (result != null && result.Any())
+            var billDetails = await _billDetailsRepository.DeleteAsync(deleteIds);
+            if (billDetails != null && billDetails.Any())
             {
                 _cache.Remove(BillDetailsListCacheKey);
                 _logger.Information("Multiple bill details deleted successfully: {BillDetailsIds}", string.Join(", ", deleteIds));
             }
-            return result;
+            var res = await _billDetailModelFactory.CreateModels(billDetails);
+            return res;
         }
         catch (Exception ex)
         {
@@ -66,16 +76,17 @@ public class BillDetailsBusiness : IBillDetailsBusiness
         }
     }
 
-    public async Task<BillDetailsEntity> FindAsync(Guid contentId)
+    public async Task<BillDetailModel> FindAsync(Guid contentId)
     {
         try
         {
-            var billDetails = await _billDetailsRepository.FindAsync(contentId);
-            if (billDetails == null)
+            var billDetail = await _billDetailsRepository.FindAsync(contentId);
+            if (billDetail == null)
             {
                 _logger.Warning("Bill details {BillDetailsId} not found", contentId);
             }
-            return billDetails;
+            var res = await _billDetailModelFactory.CreateModel(billDetail);
+            return res;
         }
         catch (Exception ex)
         {
@@ -84,23 +95,24 @@ public class BillDetailsBusiness : IBillDetailsBusiness
         }
     }
 
-    public async Task<Pagination<BillDetailsEntity>> GetAllAsync(BillDetailsQueryModel queryModel)
+    public async Task<Pagination<BillDetailModel>> GetAllAsync(BillDetailsQueryModel queryModel)
     {
         try
         {
-            if (queryModel.PageSize == 0 && queryModel.CurrentPage == 0)
+      
+
+            var billDetails = await _billDetailsRepository.GetAllAsync(queryModel);
+            var res = new Pagination<BillDetailModel>
             {
-                if (_cache.TryGetValue(BillDetailsListCacheKey, out Pagination<BillDetailsEntity> cachedBillDetails))
-                {
-                    return cachedBillDetails;
-                }
-
-                var billDetails = await _billDetailsRepository.GetAllAsync(queryModel);
-                _cache.Set(BillDetailsListCacheKey, billDetails, _cacheOptions);
-                return billDetails;
-            }
-
-            return await _billDetailsRepository.GetAllAsync(queryModel);
+                Content = await _billDetailModelFactory.CreateModels(billDetails.Content),
+                PageSize = billDetails.PageSize,
+                CurrentPage= billDetails.CurrentPage,
+                TotalPages = billDetails.TotalPages,
+                TotalRecords=   billDetails.TotalRecords,
+                NumberOfRecords = billDetails.NumberOfRecords
+            };
+       
+            return res;
         }
         catch (Exception ex)
         {
@@ -122,11 +134,13 @@ public class BillDetailsBusiness : IBillDetailsBusiness
         }
     }
 
-    public async Task<IEnumerable<BillDetailsEntity>> ListAllAsync(BillDetailsQueryModel queryModel)
+    public async Task<IEnumerable<BillDetailModel>> ListAllAsync(BillDetailsQueryModel queryModel)
     {
         try
         {
-            return await _billDetailsRepository.ListAllAsync(queryModel);
+            var billDetails =  await _billDetailsRepository.ListAllAsync(queryModel);
+            var res = await _billDetailModelFactory.CreateModels(billDetails);
+            return res;
         }
         catch (Exception ex)
         {
@@ -135,11 +149,13 @@ public class BillDetailsBusiness : IBillDetailsBusiness
         }
     }
 
-    public async Task<IEnumerable<BillDetailsEntity>> ListByIdsAsync(IEnumerable<Guid> ids)
+    public async Task<IEnumerable<BillDetailModel>> ListByIdsAsync(IEnumerable<Guid> ids)
     {
         try
         {
-            return await _billDetailsRepository.ListByIdsAsync(ids);
+            var billdetails = await _billDetailsRepository.ListByIdsAsync(ids);
+            var res = await _billDetailModelFactory.CreateModels(billdetails);
+            return res;
         }
         catch (Exception ex)
         {
@@ -148,7 +164,7 @@ public class BillDetailsBusiness : IBillDetailsBusiness
         }
     }
 
-    public async Task<BillDetailsEntity> PatchAsync(BillDetailsEntity model)
+    public async Task<BillDetailModel> PatchAsync(BillDetailsEntity model)
     {
         var exist = await _billDetailsRepository.FindAsync(model.Id);
 
@@ -207,17 +223,18 @@ public class BillDetailsBusiness : IBillDetailsBusiness
         return await SaveAsync(update);
     }
 
-    public async Task<BillDetailsEntity> SaveAsync(BillDetailsEntity billDetails)
+    public async Task<BillDetailModel> SaveAsync(BillDetailsEntity billDetails)
     {
         try
         {
-            var result = await _billDetailsRepository.SaveAsync(billDetails);
-            if (result != null)
+            var bildetail = await _billDetailsRepository.SaveAsync(billDetails);
+            var res = await _billDetailModelFactory.CreateModel(bildetail);
+            if (bildetail != null)
             {
                 _cache.Remove(BillDetailsListCacheKey);
                 _logger.Information("Bill details {BillDetailsId} saved successfully", billDetails.Id);
             }
-            return result;
+            return res;
         }
         catch (Exception ex)
         {
@@ -226,17 +243,18 @@ public class BillDetailsBusiness : IBillDetailsBusiness
         }
     }
 
-    public async Task<IEnumerable<BillDetailsEntity>> SaveAsync(IEnumerable<BillDetailsEntity> billDetailsEntities)
+    public async Task<IEnumerable<BillDetailModel>> SaveAsync(IEnumerable<BillDetailsEntity> billDetailsEntities)
     {
         try
         {
-            var result = await _billDetailsRepository.SaveAsync(billDetailsEntities);
-            if (result != null && result.Any())
+            var billDetails  = await _billDetailsRepository.SaveAsync(billDetailsEntities);
+            var res = await _billDetailModelFactory.CreateModels(billDetails);
+            if (billDetails != null && billDetails.Any())
             {
                 _cache.Remove(BillDetailsListCacheKey);
                 _logger.Information("Multiple bill details saved successfully");
             }
-            return result;
+            return res;
         }
         catch (Exception ex)
         {
@@ -245,7 +263,7 @@ public class BillDetailsBusiness : IBillDetailsBusiness
         }
     }
 
-    public async Task<BillDetailsEntity> UpdateBillDetailsAsync(BillDetailsEntity billDetails)
+    public async Task<BillDetailModel> UpdateBillDetailsAsync(BillDetailsEntity billDetails)
     {
         try
         {
@@ -291,7 +309,7 @@ public class BillDetailsBusiness : IBillDetailsBusiness
         }
     }
 
-    public async Task<IEnumerable<BillDetailsEntity>> GetBillDetailsByDateRangeAsync(DateTime startDate, DateTime endDate)
+    public async Task<IEnumerable<BillDetailModel>> GetBillDetailsByDateRangeAsync(DateTime startDate, DateTime endDate)
     {
         try
         {
@@ -301,8 +319,9 @@ public class BillDetailsBusiness : IBillDetailsBusiness
                 EndDate = endDate
             });
             
+            var res=  await _billDetailModelFactory.CreateModels(billDetails);
             _logger.Information("Retrieved bill details for period {StartDate} to {EndDate}", startDate, endDate);
-            return billDetails;
+            return res;
         }
         catch (Exception ex)
         {
@@ -336,67 +355,28 @@ public class BillDetailsBusiness : IBillDetailsBusiness
         }
     }
 
-    public async Task<ServiceResult<List<BillDetailModel>>> GetBillDetailsByBillId(Guid billId)
+    public async Task<List<BillDetailModel>> GetBillDetailsByBillId(Guid billId)
     {
         try
         {
             var billDetails = await _billDetailsRepository.ListAllAsync(new BillDetailsQueryModel { BillId = billId });
-            
-            if (billDetails == null || !billDetails.Any())
-            {
-                return new ServiceResult<List<BillDetailModel>>
-                {
-                    IsSuccess = false,
-                    Message = "Không tìm thấy chi tiết hóa đơn",
-                    Data = new List<BillDetailModel>()
-                };
-            }
-
-            var result = billDetails.Select(d => new BillDetailModel
-            {
-                Id = d.Id,
-                BillId = d.BillId.Value,
-                ProductId = d.ProductId ?? Guid.Empty,
-                ProductName = "", // Cần lấy thêm thông tin sản phẩm
-                ProductImage = "", // Cần lấy thêm thông tin sản phẩm
-                Size = 0, // Không có thông tin size
-                Color = "", // Không có thông tin màu
-                Quantity = d.Quantity,
-                Price = (decimal)d.Price,
-                TotalPrice = (decimal)(d.Price * d.Quantity)
-            }).ToList();
-
-            return new ServiceResult<List<BillDetailModel>>
-            {
-                IsSuccess = true,
-                Data = result,
-                Message = "Lấy chi tiết hóa đơn thành công"
-            };
+            var res = await _billDetailModelFactory.CreateModels(billDetails);
+            return res.ToList();
         }
         catch (Exception ex)
         {
             _logger.Error(ex, "Error getting bill details for bill {BillId}", billId);
-            return new ServiceResult<List<BillDetailModel>>
-            {
-                IsSuccess = false,
-                Message = $"Lỗi khi lấy chi tiết hóa đơn: {ex.Message}",
-                Data = new List<BillDetailModel>()
-            };
-        }
+            throw new Exception("Error getting bill details for bill");
+        } 
     }
 
-    public async Task<ServiceResult<bool>> CreateBillDetails(List<BillDetailModel> billDetails, Guid billId)
+    public async Task<bool> CreateBillDetails(List<BillDetailsEntity> billDetails, Guid billId)
     {
         try
         {
             if (billDetails == null || !billDetails.Any())
             {
-                return new ServiceResult<bool>
-                {
-                    IsSuccess = false,
-                    Message = "Không có chi tiết hóa đơn để tạo",
-                    Data = false
-                };
+                return false;
             }
 
             var entities = billDetails.Select(detail => new BillDetailsEntity
@@ -406,33 +386,24 @@ public class BillDetailsBusiness : IBillDetailsBusiness
                 ProductId = detail.ProductId,
                 BillDetailCode = $"{billId}-{detail.ProductId}",
                 Quantity = detail.Quantity,
-                Price = (double)detail.Price,
+                Price = detail.Price,
                 Status = 0, // Pending
                 CreatedOnDate = DateTime.Now
             }).ToList();
 
             await SaveAsync(entities);
 
-            return new ServiceResult<bool>
-            {
-                IsSuccess = true,
-                Data = true,
-                Message = "Tạo chi tiết hóa đơn thành công"
-            };
+            return true;
         }
         catch (Exception ex)
         {
             _logger.Error(ex, "Error creating bill details for bill {BillId}", billId);
-            return new ServiceResult<bool>
-            {
-                IsSuccess = false,
-                Message = $"Lỗi khi tạo chi tiết hóa đơn: {ex.Message}",
-                Data = false
-            };
+            return false;
+            
         }
     }
 
-    public async Task<ServiceResult<bool>> UpdateBillDetailsStatus(Guid billDetailId, int status)
+    public async Task<bool> UpdateBillDetailsStatus(Guid billDetailId, int status)
     {
         try
         {
@@ -441,37 +412,22 @@ public class BillDetailsBusiness : IBillDetailsBusiness
             
             if (billDetail == null)
             {
-                return new ServiceResult<bool>
-                {
-                    IsSuccess = false,
-                    Message = "Không tìm thấy chi tiết hóa đơn",
-                    Data = false
-                };
+                return false;
             }
 
             billDetail.Status = status;
             billDetail.LastModifiedOnDate = DateTime.Now;
-            await SaveAsync(billDetail);
+            await SaveAsync(await _billDetailModelFactory.ConvertEntity(billDetail));
 
-            return new ServiceResult<bool>
-            {
-                IsSuccess = true,
-                Data = true,
-                Message = "Cập nhật trạng thái chi tiết hóa đơn thành công"
-            };
+            return true;
         }
         catch (Exception ex)
         {
             _logger.Error(ex, "Error updating bill detail status for bill detail {BillDetailId}", billDetailId);
-            return new ServiceResult<bool>
-            {
-                IsSuccess = false,
-                Message = $"Lỗi khi cập nhật trạng thái chi tiết hóa đơn: {ex.Message}",
-                Data = false
-            };
+            return false;
         }
     }
 
 
-
+  
 }

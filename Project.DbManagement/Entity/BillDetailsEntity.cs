@@ -20,9 +20,14 @@ namespace Project.DbManagement
         [ForeignKey("ProductEntity")]
         public Guid? ProductId { get; set; }
         public virtual ProductEntity?  ProductEntity { get; set; }
-        public int Status { get; set; }
+        public string? ProductName { get; set; }
+        public string? ProductImage { get; set; }
+        public int Size { get; set; }
+        public string? Color { get; set; }
         public int Quantity { get; set; }
-        public double Price { get; set; }
+        public decimal Price { get; set; }
+        public decimal TotalPrice { get; set; }
+        public int Status { get; set; }
         public string? Notes { get; set; }
     }
 }

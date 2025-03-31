@@ -24,6 +24,19 @@ export interface BillReqDto {
   notes?: string;
 }
 
+export interface BillDetailDto {
+  id: string;
+  billId: string;
+  productId: string;
+  productName: string;
+  productImage: string;
+  size: number;
+  color: string;
+  quantity: number;
+  price: number;
+  totalPrice: number;
+}
+
 export interface BillResDto {
   id: string;
   employeeId: string;
@@ -49,6 +62,15 @@ export interface BillResDto {
   lastModifiedOnDate: string;
   createdOnDate: string;
   isdeleted: boolean;
+  customerName: string;
+  customerPhone: string;
+  customerEmail: string;
+  customerAddress: string;
+  finalAmount: number;
+  voucherCode: string;
+  paymentMethod: string;
+  updatedDate: string;
+  billDetails: BillDetailDto[];
 }
 
 export interface BillDetailResDto extends BillResDto {
@@ -66,12 +88,13 @@ export interface BillDetailItem {
   id: string;
   billId: string;
   productId: string;
+  productName: string;
+  productImage: string;
+  size: number;
+  color: string;
   quantity: number;
-  unitPrice: number;
-  discountAmount: number;
-  totalAmount: number;
-  note: string | null;
-  product?: ProductResDto;
+  price: number;
+  totalPrice: number;
 }
 
 export interface BillFilterParams extends PaginationParams {

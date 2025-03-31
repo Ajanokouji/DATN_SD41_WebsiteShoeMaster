@@ -192,5 +192,41 @@ namespace Project.Business.Implement
             throw new NotImplementedException();
         }
 
+        public async Task<IEnumerable<UserEntity>> LocUserTheoNhieuDK(UserQueryModel userQueryModel)
+        {
+            var query = _context.Users.AsQueryable();
+
+            if (!string.IsNullOrWhiteSpace(userQueryModel.Username))
+            {
+                query = query.Where(u => u.Username == userQueryModel.Username);
+            }
+
+            if (!string.IsNullOrWhiteSpace(userQueryModel.Name))
+            {
+                query = query.Where(u => u.Name.Contains(userQueryModel.Name));
+            }
+
+            if (!string.IsNullOrWhiteSpace(userQueryModel.Email))
+            {
+                query = query.Where(u => u.Email == userQueryModel.Email);
+            }
+
+            if (!string.IsNullOrWhiteSpace(userQueryModel.AvartarUrl))
+            {
+                query = query.Where(u => u.AvartarUrl.Contains(userQueryModel.AvartarUrl));
+            }
+
+            if (!string.IsNullOrWhiteSpace(userQueryModel.PhoneNumber))
+            {
+                query = query.Where(u => u.PhoneNumber == userQueryModel.PhoneNumber);
+            }
+
+            if (!string.IsNullOrWhiteSpace(userQueryModel.Type))
+            {
+                query = query.Where(u => u.Type == userQueryModel.Type);
+            }
+
+            return await query.ToListAsync();
+        }
     }
 }

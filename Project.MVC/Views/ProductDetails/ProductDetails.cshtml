@@ -30,15 +30,23 @@
                 <div class="product__details__pic">
                     @{
                         var mediaObjs = Model.Product.MediaObjs;
-                        var count = mediaObjs.Count;
                         var selectedMediaObjs = new List<string>();
 
-                        if (count >= 4)
+                        if (mediaObjs != null && mediaObjs.Count > 0)
                         {
-                            var step = count / 4;
-                            for (int i = 0; i < count; i += step)
+                            var count = mediaObjs.Count;
+
+                            if (count >= 4)
                             {
-                                selectedMediaObjs.Add(mediaObjs[i]);
+                                var step = count / 4;
+                                for (int i = 0; i < count; i += step)
+                                {
+                                    selectedMediaObjs.Add(mediaObjs[i]);
+                                }
+                            }
+                            else
+                            {
+                                selectedMediaObjs.Add(Model.Product.ImageUrl);
                             }
                         }
                         else
@@ -80,14 +88,12 @@
                     <div class="product__details__price">@Model.Product.MetadataObj.GetMetadatavalue("MinPrice") đ</div>
                     <p>@Model.Product.Description</p>
                     <div class="product__details__button">
-                        <div class="quantity">
-                            <span>Số lượng:</span>
-                            <div class="pro-qty">
-                                <span class="dec qtybtn">-</span>
-                                <input type="text" id="quantity" value="1" readonly>
-                                <span class="inc qtybtn">+</span>
-                            </div>
+                        <div class="d-flex align-items-center gap-2">
+                            <button id="t-btn-minus" class="btn  p-2" type="button">-</button>
+                            <input id="t-pro-quantity-input" type="number" value="1" min="1" class="form-control text-center" style="width: 50px;">
+                            <button id="t-btn-plus" class="btn  p-2" type="button">+</button>
                         </div>
+
                         <a href="javascript:void(0);" class="cart-btn" 
                            onclick="addToCart('@Model.Product.Id')"
                            data-product-id="@Model.Product.Id"
@@ -272,29 +278,26 @@
 
 @section Scripts {
     <script>
-        $(document).ready(function() {
-            // Xử lý nút tăng giảm số lượng
-            $('.qtybtn').on('click', function () {
-                var $button = $(this);
-                var $input = $button.parent().find('input');
-                var oldValue = parseInt($input.val());
-                
-                if ($button.hasClass('inc')) {
-                    var newVal = oldValue + 1;
-                } else {
-                    if (oldValue > 1) {
-                        var newVal = oldValue - 1;
-                    } else {
-                        newVal = 1;
-                    }
-                }
-                
-                $input.val(newVal);
-            });
+               $('#t-btn-minus').click(function() {
+            var currentValue = parseInt($('#t-pro-quantity-input').val());
+
+            // Giảm giá trị nếu lớn hơn 1
+            if (currentValue > 1) {
+                $('#t-pro-quantity-input').val(currentValue - 1);
+            }
+        });
+
+        // Khi nhấn vào nút +
+        $('#t-btn-plus').click(function() {
+            var currentValue = parseInt($('#t-pro-quantity-input').val());
+
+            // Tăng giá trị
+            $('#t-pro-quantity-input').val(currentValue + 1);
         });
 
         function addToCart(productId) {
-            var quantity = $('#quantity').val();
+            debugger
+             var quantity = $('#t-pro-quantity-input').val();
             var $cartBtn = $('.cart-btn');
             
             var productData = {

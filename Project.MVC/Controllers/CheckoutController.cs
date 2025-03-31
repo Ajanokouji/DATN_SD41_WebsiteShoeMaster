@@ -4,7 +4,10 @@ using Project.Business.Interface;
 using Project.Business.Model;
 using Project.Common;
 using Project.Common.Constants;
+using Project.DbManagement.Entity;
 using Project.MVC.Models;
+using SERP.Framework.Constants.Constants;
+using StackExchange.Redis;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -17,16 +20,19 @@ namespace Project.MVC.Controllers
         private readonly IBillBusiness _billBusiness;
         private readonly ICartBusiness _cartBusiness;
         private readonly IBillDetailsBusiness _billDetailsBusiness;
+        private readonly IUserBusiness _userBusiness;
         private const string CartSessionKey = "CartSession";
 
         public CheckoutController(
             IBillBusiness billBusiness,
             ICartBusiness cartBusiness,
-            IBillDetailsBusiness billDetailsBusiness)
+            IBillDetailsBusiness billDetailsBusiness,
+            IUserBusiness userBusiness)
         {
             _billBusiness = billBusiness;
             _cartBusiness = cartBusiness;
             _billDetailsBusiness = billDetailsBusiness;
+            _userBusiness=userBusiness;
         }
 
         [HttpGet]
@@ -88,7 +94,7 @@ namespace Project.MVC.Controllers
                     CustomerAddress = $"{model.CustomerInfo.Address}, {model.CustomerInfo.District}, {model.CustomerInfo.City}",
                     Note = model.CustomerInfo.Notes,
                     PaymentMethod = model.PaymentMethod,
-                    Status = BillConstants.StatusPending,
+                    Status = BillConstants.PendingConfirmation,
                     PaymentStatus = BillConstants.PaymentStatusUnpaid,
                     BillDetails = cartItemsResult.Data.Select(item => new BillDetailModel
                     {
@@ -106,6 +112,10 @@ namespace Project.MVC.Controllers
 
                 var bill = await _billBusiness.CreateBill(billModel);
 
+
+
+                await _userBusiness.CreateUserFromCustomerInfo(model.CustomerInfo);
+
                 if (bill == null || bill.Id == null)
                 {
                     return Json(new { success = false, message = "Không thể tạo đơn hàng" });
@@ -115,12 +125,12 @@ namespace Project.MVC.Controllers
                 if (model.PaymentMethod == "COD")
                 {
                     // Cập nhật trạng thái đơn hàng
-                    await _billBusiness.UpdateBillStatus(bill.Id.Value, BillConstants.StatusConfirmed);
+                   // await _billBusiness.UpdateBillStatus(bill.Id.Value, BillConstants.StatusConfirmed);
                     
                     // Xóa giỏ hàng
                     HttpContext.Session.Remove(CartSessionKey);
-                    
-                    return Json(new { success = true, orderId = bill.Id });
+
+                    return RedirectToAction("ThankYou",new { orderId  = bill.Id });
                 }
                 // Nếu thanh toán VNPay, trả về orderId để client tạo URL thanh toán
                 else if (model.PaymentMethod == "VNPay")
@@ -154,9 +164,9 @@ namespace Project.MVC.Controllers
 
             // Lấy chi tiết đơn hàng
             var billDetails = await _billDetailsBusiness.GetBillDetailsByBillId(billId);
-            if (billDetails.IsSuccess)
+            if (billDetails !=null)
             {
-                bill.BillDetails = billDetails.Data;
+                bill.BillDetails = billDetails;
             }
 
             return View(bill);
@@ -192,8 +202,7 @@ namespace Project.MVC.Controllers
                 if (responseCode == "00")
                 {
                     // Cập nhật trạng thái đơn hàng thành công
-                    await _billBusiness.UpdatePaymentStatus(billId, BillConstants.PaymentStatusPaid);
-                    await _billBusiness.UpdateBillStatus(billId, BillConstants.StatusConfirmed);
+                    await _billBusiness.UpdateBillStatus(billId, BillConstants.Paid);
                     
                     // Xóa giỏ hàng
                     HttpContext.Session.Remove(CartSessionKey);

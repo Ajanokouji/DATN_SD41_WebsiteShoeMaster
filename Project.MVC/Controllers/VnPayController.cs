@@ -113,7 +113,7 @@ namespace Project.MVC.Controllers
                     
                     // Cập nhật trạng thái đơn hàng
                     await _billBusiness.UpdatePaymentStatus(billId, BillConstants.PaymentStatusPaid);
-                    await _billBusiness.UpdateBillStatus(billId, BillConstants.StatusConfirmed);
+                    //await _billBusiness.UpdateBillStatus(billId, BillConstants.StatusConfirmed);
                     
                     // Xóa giỏ hàng
                     HttpContext.Session.Remove(CartSessionKey);

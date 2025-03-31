@@ -7,7 +7,7 @@ namespace Project.Business.Interface;
 
 public interface IBillBusiness
 {
-    Task<Pagination<BillEntity>> GetAllAsync(BillQueryModel queryModel);
+    Task<Pagination<BillModel>> GetAllAsync(BillQueryModel queryModel);
 
     Task<IEnumerable<BillEntity>> ListAllAsync(BillQueryModel queryModel);
 
