@@ -1,4 +1,5 @@
 ﻿using Microsoft.Extensions.Caching.Memory;
+using Microsoft.Extensions.Configuration;
 using Project.Business.Interface;
 using Project.Business.Interface.Repositories;
 using Project.Business.Model;
@@ -19,17 +20,21 @@ namespace Project.Business.Implement
         private readonly IProductRepository _productRepository;
         private readonly IMemoryCache _cache;
         private readonly ILogger _logger;
+        private readonly IConfiguration _configuration;
         private const string ProductListCacheKey = "ProductList";
         private readonly MemoryCacheEntryOptions _cacheOptions;
+        private readonly bool _useCache;
 
-        public ProductBusiness(IProductRepository productRepository, IMemoryCache cache)
+        public ProductBusiness(IProductRepository productRepository, IMemoryCache cache, IConfiguration configuration)
         {
             _productRepository = productRepository ?? throw new ArgumentNullException(nameof(productRepository));
             _cache = cache ?? throw new ArgumentNullException(nameof(cache));
             _logger = Log.ForContext<ProductBusiness>();
+            _configuration = configuration ?? throw new ArgumentNullException(nameof(configuration));
             _cacheOptions = new MemoryCacheEntryOptions()
                 .SetSlidingExpiration(TimeSpan.FromMinutes(10))
                 .SetAbsoluteExpiration(TimeSpan.FromHours(1));
+            _useCache = _configuration.GetValue<bool>("CacheSettings:UseCache");
         }
 
         public async Task<ProductEntity> DeleteAsync(Guid contentId)
@@ -44,7 +49,10 @@ namespace Project.Business.Implement
                 var result = await _productRepository.DeleteAsync(contentId);
                 if (result != null)
                 {
-                    _cache.Remove(ProductListCacheKey);
+                    if (_useCache)
+                    {
+                        _cache.Remove(ProductListCacheKey);
+                    }
                     _logger.Information("Product {ProductId} deleted successfully", contentId);
                 }
                 else
@@ -72,7 +80,10 @@ namespace Project.Business.Implement
                 var result = await _productRepository.DeleteAsync(deleteIds);
                 if (result != null && result.Any())
                 {
-                    _cache.Remove(ProductListCacheKey);
+                    if (_useCache)
+                    {
+                        _cache.Remove(ProductListCacheKey);
+                    }
                     _logger.Information("Multiple products deleted successfully: {ProductIds}", string.Join(", ", deleteIds));
                 }
                 return result;
@@ -116,15 +127,18 @@ namespace Project.Business.Implement
                     throw new ArgumentNullException(nameof(queryModel));
                 }
 
-                if (_cache.TryGetValue(ProductListCacheKey+(queryModel.ParentId??Guid.Empty).ToString(), out Pagination<ProductEntity> cachedProducts))
+                if (_useCache && _cache.TryGetValue(ProductListCacheKey + (queryModel.ParentId ?? Guid.Empty).ToString(), out Pagination<ProductEntity> cachedProducts))
                 {
                     _logger.Debug("Retrieved products from cache");
                     return cachedProducts;
                 }
 
                 var products = await _productRepository.GetAllAsync(queryModel);
-                _cache.Set(ProductListCacheKey, products, _cacheOptions);
-                _logger.Debug("Products cached successfully");
+                if (_useCache)
+                {
+                    _cache.Set(ProductListCacheKey, products, _cacheOptions);
+                    _logger.Debug("Products cached successfully");
+                }
                 return products;
             }
             catch (Exception ex)
@@ -236,7 +250,10 @@ namespace Project.Business.Implement
                     var result = await SaveAsync(update);
                     if (result != null)
                     {
-                        _cache.Remove(ProductListCacheKey);
+                        if (_useCache)
+                        {
+                            _cache.Remove(ProductListCacheKey);
+                        }
                         _logger.Information("Product {ProductId} updated successfully", model.Id);
                     }
 
@@ -284,8 +301,11 @@ namespace Project.Business.Implement
                     var result = await _productRepository.SaveAsync(productEntities);
                     if (result != null && result.Any())
                     {
-                        _cache.Remove(ProductListCacheKey);
-                        _logger.Information("Multiple products saved successfully: {ProductIds}", 
+                        if (_useCache)
+                        {
+                            _cache.Remove(ProductListCacheKey);
+                        }
+                        _logger.Information("Multiple products saved successfully: {ProductIds}",
                             string.Join(", ", result.Select(p => p.Id)));
                     }
 

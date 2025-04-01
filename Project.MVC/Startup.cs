@@ -56,6 +56,7 @@ namespace Project.MVC
                     "default",
                     "{controller=Home}/{action=Index}/{id?}"
                 );
+                
             });
         }
     }

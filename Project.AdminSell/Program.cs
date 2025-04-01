@@ -8,6 +8,15 @@ namespace Project.AdminSell
 
             // Add services to the container.
             builder.Services.AddControllersWithViews();
+            
+            // Session
+            builder.Services.AddSession(options =>
+            {
+                options.IdleTimeout = TimeSpan.FromMinutes(60); // Thời gian tồn tại của session
+                options.Cookie.HttpOnly = true; // Bảo mật cookie
+                options.Cookie.IsEssential = true; // Đảm bảo cookie không bị chặn
+            });
+            builder.Services.AddDistributedMemoryCache(); // Thêm để Session hoạt động
 
             var app = builder.Build();
 
@@ -19,7 +28,10 @@ namespace Project.AdminSell
                 app.UseHsts();
             }
 
+            app.UseSession();
+
             app.UseHttpsRedirection();
+            
             app.UseStaticFiles();
 
             app.UseRouting();
@@ -28,7 +40,7 @@ namespace Project.AdminSell
 
             app.MapControllerRoute(
                 name: "default",
-                pattern: "{controller=SellOff}/{action=SellOff}/{id?}");
+                pattern: "{controller=SellOff}/{action=Sell}/{id?}");
 
             app.Run();
         }

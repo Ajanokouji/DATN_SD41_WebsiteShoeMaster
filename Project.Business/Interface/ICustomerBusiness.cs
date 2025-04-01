@@ -11,14 +11,14 @@ namespace Project.Business.Interface
     public interface ICustomerBusiness
     {
       
-        Task<Pagination<Customers>> GetAllAsync(CustomerQueryModel queryModel);
+        Task<Pagination<CustomersEntity>> GetAllAsync(CustomerQueryModel queryModel);
 
         /// <summary>
         /// Gets list of customers.
         /// </summary>
         /// <param name="queryModel">The query model.</param>
         /// <returns>The list of customers.</returns>
-        Task<IEnumerable<Customers>> ListAllAsync(CustomerQueryModel queryModel);
+        Task<IEnumerable<CustomersEntity>> ListAllAsync(CustomerQueryModel queryModel);
 
         /// <summary>
         /// Count the number of customers by query model.
@@ -32,48 +32,55 @@ namespace Project.Business.Interface
         /// </summary>
         /// <param name="ids">The list of ids.</param>
         /// <returns>The list of customers.</returns>
-        Task<IEnumerable<Customers>> ListByIdsAsync(IEnumerable<Guid> ids);
+        Task<IEnumerable<CustomersEntity>> ListByIdsAsync(IEnumerable<Guid> ids);
 
         /// <summary>
         /// Gets a customer.
         /// </summary>
         /// <param name="customerId">The customer id.</param>
         /// <returns>The customer.</returns>
-        Task<Customers> FindAsync(Guid customerId);
+        Task<CustomersEntity> FindAsync(Guid customerId);
+
+        /// <summary>
+        /// Gets a customer by phone number.
+        /// </summary>
+        /// <param name="customerId"></param>
+        /// <returns></returns>
+        Task<CustomersEntity> FindByPhoneNumberAsync(string phoneNumber);
 
         /// <summary>
         /// Deletes a customer.
         /// </summary>
         /// <param name="customerId">The customer id.</param>
         /// <returns>The deleted customer.</returns>
-        Task<Customers> DeleteAsync(Guid customerId);
+        Task<CustomersEntity> DeleteAsync(Guid customerId);
 
         /// <summary>
         /// Deletes a list of customers.
         /// </summary>
         /// <param name="deleteIds">The list of customer ids.</param>
         /// <returns>The deleted customers.</returns>
-        Task<IEnumerable<Customers>> DeleteAsync(Guid[] deleteIds);
+        Task<IEnumerable<CustomersEntity>> DeleteAsync(Guid[] deleteIds);
 
         /// <summary>
         /// Saves a customer.
         /// </summary>
         /// <param name="Customers"></param>
         /// <returns></returns>
-        Task<Customers> SaveAsync(Customers Customers);
+        Task<CustomersEntity> SaveAsync(CustomersEntity Customers);
 
         /// <summary>
         /// Saves customers.
         /// </summary>
         /// <param name="customerEntities"></param>
         /// <returns></returns>
-        Task<IEnumerable<Customers>> SaveAsync(IEnumerable<Customers> customerEntities);
+        Task<IEnumerable<CustomersEntity>> SaveAsync(IEnumerable<CustomersEntity> customerEntities);
 
         /// <summary>
         /// Updates a customer.
         /// </summary>
         /// <param name="Customers"></param>
         /// <returns></returns>
-        Task<Customers> PatchAsync(Customers Customers);
+        Task<CustomersEntity> PatchAsync(CustomersEntity Customers);
     }
 }
