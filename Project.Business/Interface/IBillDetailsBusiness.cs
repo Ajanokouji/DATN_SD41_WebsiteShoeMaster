@@ -10,37 +10,37 @@ namespace Project.Business.Interface;
 
 public interface IBillDetailsBusiness
 {
-    Task<Pagination<BillDetailsEntity>> GetAllAsync(BillDetailsQueryModel queryModel);
+    Task<Pagination<BillDetailModel>> GetAllAsync(BillDetailsQueryModel queryModel);
 
-    Task<IEnumerable<BillDetailsEntity>> ListAllAsync(BillDetailsQueryModel queryModel);
+    Task<IEnumerable<BillDetailModel>> ListAllAsync(BillDetailsQueryModel queryModel);
 
     Task<int> GetCountAsync(BillDetailsQueryModel queryModel);
 
-    Task<IEnumerable<BillDetailsEntity>> ListByIdsAsync(IEnumerable<Guid> ids);
+    Task<IEnumerable<BillDetailModel>> ListByIdsAsync(IEnumerable<Guid> ids);
 
-    Task<BillDetailsEntity> FindAsync(Guid contentId);
+    Task<BillDetailModel> FindAsync(Guid contentId);
 
-    Task<BillDetailsEntity> DeleteAsync(Guid contentId);
+    Task<BillDetailModel> DeleteAsync(Guid contentId);
     
-    Task<IEnumerable<BillDetailsEntity>> DeleteAsync(Guid[] deleteIds);
+    Task<IEnumerable<BillDetailModel>> DeleteAsync(Guid[] deleteIds);
 
-    Task<BillDetailsEntity> SaveAsync(BillDetailsEntity article);
+    Task<BillDetailModel> SaveAsync(BillDetailsEntity article);
 
-    Task<IEnumerable<BillDetailsEntity>> SaveAsync(IEnumerable<BillDetailsEntity> article);
+    Task<IEnumerable<BillDetailModel>> SaveAsync(IEnumerable<BillDetailsEntity> article);
 
-    Task<BillDetailsEntity> PatchAsync(BillDetailsEntity article);
+    Task<BillDetailModel> PatchAsync(BillDetailsEntity article);
 
-    Task<BillDetailsEntity> UpdateBillDetailsAsync(BillDetailsEntity billDetails);
+    Task<BillDetailModel> UpdateBillDetailsAsync(BillDetailsEntity billDetails);
 
     Task<decimal> GetBillTotalAsync(Guid billId);
 
-    Task<IEnumerable<BillDetailsEntity>> GetBillDetailsByDateRangeAsync(DateTime startDate, DateTime endDate);
+    Task<IEnumerable<BillDetailModel>> GetBillDetailsByDateRangeAsync(DateTime startDate, DateTime endDate);
 
     Task<Dictionary<Guid?, int>> GetTopSellingProductsAsync(DateTime startDate, DateTime endDate, int topCount = 10);
 
-    Task<ServiceResult<List<BillDetailModel>>> GetBillDetailsByBillId(Guid billId);
+    Task<List<BillDetailModel>> GetBillDetailsByBillId(Guid billId);
 
-    Task<ServiceResult<bool>> CreateBillDetails(List<BillDetailModel> billDetails, Guid billId);
+    Task<bool> CreateBillDetails(List<BillDetailsEntity> billDetails, Guid billId);
 
-    Task<ServiceResult<bool>> UpdateBillDetailsStatus(Guid billDetailId, int status);
+    Task<bool> UpdateBillDetailsStatus(Guid billDetailId, int status);
 }

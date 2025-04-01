@@ -1,33 +1,25 @@
+using Project.DbManagement;
+using Project.DbManagement.Entity;
 using System;
 using System.Collections.Generic;
+using System.ComponentModel.DataAnnotations.Schema;
 
 namespace Project.Business.Model
 {
-    public class BillModel
+    public class BillModel: BillEntity
     {
-        public Guid? Id { get; set; }
-        public string? BillCode { get; set; }
-        public Guid? CustomerId { get; set; }
         public string? CustomerName { get; set; }
         public string? CustomerPhone { get; set; }
         public string? CustomerEmail { get; set; }
         public string? CustomerAddress { get; set; }
-        public decimal TotalAmount { get; set; }
-        public decimal DiscountAmount { get; set; }
-        public decimal FinalAmount { get; set; }
-        public string? VoucherCode { get; set; }
-        public string? Note { get; set; }
-        public string Status { get; set; } // 0: Pending, 1: Confirmed, 2: Shipping, 3: Completed, 4: Cancelled
-        public string? PaymentMethod { get; set; } // COD, Banking, VNPay
-        public string? PaymentStatus { get; set; } // 0: Unpaid, 1: Paid
-        public DateTime CreatedOnDate { get; set; }
-        public DateTime? UpdatedDate { get; set; }
+
         public List<BillDetailModel> BillDetails { get; set; } = new List<BillDetailModel>();
     }
 
-    public class BillDetailModel
+    public class BillDetailModel  :BaseEntity
     {
-        public Guid? Id { get; set; }
+        public Guid Id { get; set; }
+        public string BillDetailCode { get; set; }
         public Guid? BillId { get; set; }
         public Guid? ProductId { get; set; }
         public string? ProductName { get; set; }
@@ -37,5 +29,7 @@ namespace Project.Business.Model
         public int Quantity { get; set; }
         public decimal Price { get; set; }
         public decimal TotalPrice { get; set; }
+        public int Status { get; set; }
+        public string? Notes { get; set; }
     }
 } 

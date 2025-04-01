@@ -3,6 +3,7 @@ using System;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using Project.DbManagement;
 
@@ -11,9 +12,11 @@ using Project.DbManagement;
 namespace Project.DbManagement.Migrations
 {
     [DbContext(typeof(ProjectDbContext))]
-    partial class ProjectDbContextModelSnapshot : ModelSnapshot
+    [Migration("20250326122050_fix_user")]
+    partial class fix_user
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -35,9 +38,6 @@ namespace Project.DbManagement.Migrations
                     b.Property<Guid?>("BillId")
                         .HasColumnType("uniqueidentifier");
 
-                    b.Property<string>("Color")
-                        .HasColumnType("nvarchar(max)");
-
                     b.Property<Guid?>("CreatedByUserId")
                         .HasColumnType("uniqueidentifier");
 
@@ -56,29 +56,17 @@ namespace Project.DbManagement.Migrations
                     b.Property<string>("Notes")
                         .HasColumnType("nvarchar(max)");
 
-                    b.Property<decimal>("Price")
-                        .HasColumnType("decimal(18,2)");
+                    b.Property<double>("Price")
+                        .HasColumnType("float");
 
                     b.Property<Guid?>("ProductId")
                         .HasColumnType("uniqueidentifier");
 
-                    b.Property<string>("ProductImage")
-                        .HasColumnType("nvarchar(max)");
-
-                    b.Property<string>("ProductName")
-                        .HasColumnType("nvarchar(max)");
-
                     b.Property<int>("Quantity")
-                        .HasColumnType("int");
-
-                    b.Property<int>("Size")
                         .HasColumnType("int");
 
                     b.Property<int>("Status")
                         .HasColumnType("int");
-
-                    b.Property<decimal>("TotalPrice")
-                        .HasColumnType("decimal(18,2)");
 
                     b.HasKey("Id");
 
@@ -95,11 +83,11 @@ namespace Project.DbManagement.Migrations
                         .ValueGeneratedOnAdd()
                         .HasColumnType("uniqueidentifier");
 
-                    b.Property<decimal?>("AmountAfterDiscount")
-                        .HasColumnType("decimal(18,2)");
+                    b.Property<double?>("AmountAfterDiscount")
+                        .HasColumnType("float");
 
-                    b.Property<decimal?>("AmountToPay")
-                        .HasColumnType("decimal(18,2)");
+                    b.Property<double?>("AmountToPay")
+                        .HasColumnType("float");
 
                     b.Property<string>("BillCode")
                         .HasColumnType("nvarchar(max)");
@@ -113,14 +101,14 @@ namespace Project.DbManagement.Migrations
                     b.Property<Guid?>("CustomerId")
                         .HasColumnType("uniqueidentifier");
 
-                    b.Property<decimal?>("DiscountAmount")
-                        .HasColumnType("decimal(18,2)");
+                    b.Property<double?>("DiscountAmount")
+                        .HasColumnType("float");
 
                     b.Property<Guid?>("EmployeeId")
                         .HasColumnType("uniqueidentifier");
 
-                    b.Property<decimal?>("FinalAmount")
-                        .HasColumnType("decimal(18,2)");
+                    b.Property<double?>("FinalAmount")
+                        .HasColumnType("float");
 
                     b.Property<bool?>("Isdeleted")
                         .HasColumnType("bit");
@@ -130,9 +118,6 @@ namespace Project.DbManagement.Migrations
 
                     b.Property<DateTime?>("LastModifiedOnDate")
                         .HasColumnType("datetime2");
-
-                    b.Property<string>("Note")
-                        .HasColumnType("nvarchar(max)");
 
                     b.Property<string>("Notes")
                         .HasColumnType("nvarchar(max)");
@@ -164,8 +149,8 @@ namespace Project.DbManagement.Migrations
                     b.Property<string>("Status")
                         .HasColumnType("nvarchar(max)");
 
-                    b.Property<decimal?>("TotalAmount")
-                        .HasColumnType("decimal(18,2)");
+                    b.Property<double?>("TotalAmount")
+                        .HasColumnType("float");
 
                     b.Property<string>("UpdateBy")
                         .HasColumnType("nvarchar(max)");

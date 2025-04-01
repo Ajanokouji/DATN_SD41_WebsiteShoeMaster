@@ -19,10 +19,10 @@ public class BillQueryModel : BaseRequestModel, IListMetadataFilterQuery
     public string? email_khach_nhan { get; set; }
     public string? so_dien_thoai_khach_nhan { get; set; }
     public string? dia_chi_nhan { get; set; }
-    public double? tong_tien { get; set; }
-    public double? tong_tien_khuyen_mai { get; set; }
-    public double? tong_tien_sau_khuyen_mai { get; set; }
-    public double? tong_tien_phai_thanh_toan { get; set; }
+    public decimal? tong_tien { get; set; }
+    public decimal? tong_tien_khuyen_mai { get; set; }
+    public decimal? tong_tien_sau_khuyen_mai { get; set; }
+    public decimal? tong_tien_phai_thanh_toan { get; set; }
     public string? Status { get; set; }
     public string? PaymentStatus { get; set; }
     public DateTime? create_on_date { get; set; }

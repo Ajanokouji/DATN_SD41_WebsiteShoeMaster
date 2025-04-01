@@ -2,6 +2,8 @@ using Microsoft.AspNetCore.Mvc;
 using Project.Business.Interface;
 using Project.Business.Model;
 using Project.DbManagement;
+using Project.DbManagement.Entity;
+using SERP.Framework.ApiUtils.Responses;
 using SERP.Framework.ApiUtils.Utils;
 
 namespace Project.Api.Controllers
@@ -17,12 +19,13 @@ namespace Project.Api.Controllers
             _billBusiness = billBusiness;
         }
 
+        [ProducesResponseType(typeof(ResponseObject<BillModel>), StatusCodes.Status200OK)]
         [HttpGet("{id}")]
         public async Task<IActionResult> GetBillById(Guid id)
         {
             return await ExecuteFunction(async () =>
             {
-                var bill = await _billBusiness.FindAsync(id);
+                var bill = await _billBusiness.GetBillById(id);
                 if (bill == null)
                 {
                     throw new ArgumentException("Not Found");
@@ -31,6 +34,7 @@ namespace Project.Api.Controllers
             });
         }
 
+        [ProducesResponseType(typeof(ResponsePagination<BillModel>), StatusCodes.Status200OK)]
         [HttpPost("filter")]
         public async Task<IActionResult> GetAllBills([FromQuery] BillQueryModel queryModel)
         {

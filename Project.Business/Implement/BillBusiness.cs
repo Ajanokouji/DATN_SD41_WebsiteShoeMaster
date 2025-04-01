@@ -2,219 +2,253 @@
 using Project.Business.Interface;
 using Project.Business.Interface.Repositories;
 using Project.Business.Model;
-using Project.Common;
-using Project.DbManagement.Entity;
 using SERP.Framework.Common;
 using Serilog;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Threading.Tasks;
 using Project.DbManagement;
 using Project.Common.Constants;
+using Project.Business.ModelFactory;
 
 namespace Project.Business.Implement
 {
-public class BillBusiness : IBillBusiness
-{
-    private readonly IBillRepository _billRepository;
+    public class BillBusiness : IBillBusiness
+    {
+        private readonly IBillRepository _billRepository;
         private readonly IBillDetailsBusiness _billDetailsBusiness;
+        private readonly IBillDetailModelFactory _billDetailModelFactory;
         private readonly IMemoryCache _cache;
         private readonly ILogger _logger;
         private const string BillListCacheKey = "BillList";
         private readonly MemoryCacheEntryOptions _cacheOptions;
 
-        public BillBusiness(IBillRepository billRepository, IBillDetailsBusiness billDetailsBusiness, IMemoryCache cache)
-    {
-        _billRepository = billRepository;
+        public BillBusiness(
+            IBillDetailModelFactory billDetailModelFactory,
+            IBillRepository billRepository, 
+            IBillDetailsBusiness billDetailsBusiness, 
+            IMemoryCache cache)
+        {
+            _billDetailModelFactory = billDetailModelFactory;
+            _billRepository = billRepository;
             _billDetailsBusiness = billDetailsBusiness;
             _cache = cache;
             _logger = Log.ForContext<BillBusiness>();
             _cacheOptions = new MemoryCacheEntryOptions()
                 .SetSlidingExpiration(TimeSpan.FromMinutes(5))
                 .SetAbsoluteExpiration(TimeSpan.FromMinutes(30));
-    }
-
-    public async Task<BillEntity> DeleteAsync(Guid contentId)
-    {
-        return await _billRepository.DeleteAsync(contentId);
-    }
-
-    public async Task<IEnumerable<BillEntity>> DeleteAsync(Guid[] deleteIds)
-    {
-        return await _billRepository.DeleteAsync(deleteIds);
-    }
-
-    public async Task<BillEntity> FindAsync(Guid contentId)
-    {
-        return await _billRepository.FindAsync(contentId);
-    }
-
-    public async Task<Pagination<BillEntity>> GetAllAsync(BillQueryModel queryModel)
-    {
-        return await _billRepository.GetAllAsync(queryModel);
-    }
-
-    public async Task<int> GetCountAsync(BillQueryModel queryModel)
-    {
-        return await _billRepository.GetCountAsync(queryModel);
-    }
-
-    public async Task<IEnumerable<BillEntity>> ListAllAsync(BillQueryModel queryModel)
-    {
-        return await _billRepository.ListAllAsync(queryModel);
-    }
-
-    public async Task<IEnumerable<BillEntity>> ListByIdsAsync(IEnumerable<Guid> ids)
-    {
-        return await _billRepository.ListByIdsAsync(ids);
-    }
-
-    public async Task<BillEntity> PatchAsync(BillEntity model)
-    {
-        var exist = await _billRepository.FindAsync(model.Id);
-
-        if (exist == null)
-        {
-            throw new ArgumentException(BillConstants.BillNotFound);
         }
 
-        var update = new BillEntity()
+        public async Task<BillEntity> DeleteAsync(Guid contentId)
         {
-            Id = exist.Id,
-            EmployeeId = exist.EmployeeId,
-            CustomerId = exist.CustomerId,
-            OrderId = exist.OrderId,
-            PaymentMethodId = exist.PaymentMethodId,
-            BillCode = exist.BillCode,
-            RecipientName = exist.RecipientName,
-            RecipientPhone = exist.RecipientPhone,
-            RecipientAddress = exist.RecipientAddress,
-            TotalAmount = exist.TotalAmount,
-            DiscountAmount = exist.DiscountAmount,
-            AmountAfterDiscount = exist.AmountAfterDiscount,
-            AmountToPay = exist.AmountToPay,
-            Status = exist.Status,
-            PaymentStatus = exist.PaymentStatus,
-            CreatedOnDate = exist.CreatedOnDate,
-            RecipientEmail = exist.RecipientEmail,
-            LastModifiedOnDate = exist.LastModifiedOnDate,
-            UpdateBy = exist.UpdateBy,
-            Notes = exist.Notes,
-            LastModifiedByUserId = exist.LastModifiedByUserId
-        };
-
-        if (!string.IsNullOrWhiteSpace(model.BillCode))
-        {
-            update.BillCode = model.BillCode;
+            return await _billRepository.DeleteAsync(contentId);
         }
 
-        if (model.EmployeeId != null)
+        public async Task<IEnumerable<BillEntity>> DeleteAsync(Guid[] deleteIds)
         {
-            update.EmployeeId = model.EmployeeId;
-        }
-        
-        if (model.CustomerId != null)
-        {
-            update.CustomerId = model.CustomerId;
-        }
-        
-        if (model.OrderId != null)
-        {
-            update.OrderId = model.OrderId;
-        }
-        
-        if (model.PaymentMethodId != null)
-        {
-            update.PaymentMethodId = model.PaymentMethodId;
+            return await _billRepository.DeleteAsync(deleteIds);
         }
 
-        if (!string.IsNullOrWhiteSpace(model.RecipientName))
+        public async Task<BillEntity> FindAsync(Guid contentId)
         {
-            update.RecipientName = model.RecipientName;
+            return await _billRepository.FindAsync(contentId);
         }
 
-        if (!string.IsNullOrWhiteSpace(model.RecipientPhone))
+        public async Task<Pagination<BillModel>> GetAllAsync(BillQueryModel queryModel)
         {
-            update.RecipientPhone = model.RecipientPhone;
+            var res = new Pagination<BillModel>();
+            var bill = await _billRepository.GetAllAsync(queryModel);
+            if (bill != null)
+            {
+                var billDetail = await _billDetailsBusiness.GetAllAsync(new BillDetailsQueryModel()
+                {
+                    BillIds = bill.Content.Select(x => x.Id).ToList()
+                });
+
+                res.Content = bill.Content.Select(x => new BillModel()
+                {
+                    Id = x.Id,
+                    BillCode = x.BillCode,
+                    CustomerId = x.CustomerId,
+                    RecipientName = x.RecipientName,
+                    RecipientPhone = x.RecipientPhone,
+                    RecipientEmail = x.RecipientEmail,
+                    RecipientAddress = x.RecipientAddress,
+                    TotalAmount = x.TotalAmount,
+                    DiscountAmount = x.DiscountAmount,
+                    AmountAfterDiscount = x.AmountAfterDiscount,
+                    AmountToPay = x.AmountToPay,
+                    Status = x.Status,
+                    PaymentStatus = x.PaymentStatus,
+                    CreatedOnDate = x.CreatedOnDate,
+                    LastModifiedOnDate = x.LastModifiedOnDate,
+                    UpdateBy = x.UpdateBy,
+                    Notes = x.Notes,
+                    LastModifiedByUserId = x.LastModifiedByUserId,
+                    BillDetails = billDetail?.Content?.Where(y => y.BillId == x.Id).ToList() ?? new List<BillDetailModel>()
+                }).ToList();
+            }
+
+            return res;
         }
 
-        if (!string.IsNullOrWhiteSpace(model.RecipientEmail))
+        public async Task<int> GetCountAsync(BillQueryModel queryModel)
         {
-            update.RecipientEmail = model.RecipientEmail;
+            return await _billRepository.GetCountAsync(queryModel);
         }
 
-        if (!string.IsNullOrWhiteSpace(model.RecipientAddress))
+        public async Task<IEnumerable<BillEntity>> ListAllAsync(BillQueryModel queryModel)
         {
-            update.RecipientAddress = model.RecipientAddress;
+            return await _billRepository.ListAllAsync(queryModel);
         }
 
-        if (model.TotalAmount > 0)
+        public async Task<IEnumerable<BillEntity>> ListByIdsAsync(IEnumerable<Guid> ids)
         {
-            update.TotalAmount = model.TotalAmount;
+            return await _billRepository.ListByIdsAsync(ids);
         }
 
-        if (model.DiscountAmount > 0)
+        public async Task<BillEntity> PatchAsync(BillEntity model)
         {
-            update.DiscountAmount = model.DiscountAmount;
-        }  
+            var exist = await _billRepository.FindAsync(model.Id);
 
-        if (model.AmountAfterDiscount > 0)
-        {
-            update.AmountAfterDiscount = model.AmountAfterDiscount;
+            if (exist == null)
+            {
+                throw new ArgumentException(BillConstants.BillNotFound);
+            }
+
+            var update = new BillEntity()
+            {
+                Id = exist.Id,
+                EmployeeId = exist.EmployeeId,
+                CustomerId = exist.CustomerId,
+                OrderId = exist.OrderId,
+                PaymentMethodId = exist.PaymentMethodId,
+                BillCode = exist.BillCode,
+                RecipientName = exist.RecipientName,
+                RecipientPhone = exist.RecipientPhone,
+                RecipientAddress = exist.RecipientAddress,
+                TotalAmount = exist.TotalAmount,
+                DiscountAmount = exist.DiscountAmount,
+                AmountAfterDiscount = exist.AmountAfterDiscount,
+                AmountToPay = exist.AmountToPay,
+                Status = exist.Status,
+                PaymentStatus = exist.PaymentStatus,
+                CreatedOnDate = exist.CreatedOnDate,
+                RecipientEmail = exist.RecipientEmail,
+                LastModifiedOnDate = exist.LastModifiedOnDate,
+                UpdateBy = exist.UpdateBy,
+                Notes = exist.Notes,
+                LastModifiedByUserId = exist.LastModifiedByUserId
+            };
+
+            if (!string.IsNullOrWhiteSpace(model.BillCode))
+            {
+                update.BillCode = model.BillCode;
+            }
+
+            if (model.EmployeeId != null)
+            {
+                update.EmployeeId = model.EmployeeId;
+            }
+
+            if (model.CustomerId != null)
+            {
+                update.CustomerId = model.CustomerId;
+            }
+
+            if (model.OrderId != null)
+            {
+                update.OrderId = model.OrderId;
+            }
+
+            if (model.PaymentMethodId != null)
+            {
+                update.PaymentMethodId = model.PaymentMethodId;
+            }
+
+            if (!string.IsNullOrWhiteSpace(model.RecipientName))
+            {
+                update.RecipientName = model.RecipientName;
+            }
+
+            if (!string.IsNullOrWhiteSpace(model.RecipientPhone))
+            {
+                update.RecipientPhone = model.RecipientPhone;
+            }
+
+            if (!string.IsNullOrWhiteSpace(model.RecipientEmail))
+            {
+                update.RecipientEmail = model.RecipientEmail;
+            }
+
+            if (!string.IsNullOrWhiteSpace(model.RecipientAddress))
+            {
+                update.RecipientAddress = model.RecipientAddress;
+            }
+
+            if (model.TotalAmount > 0)
+            {
+                update.TotalAmount = model.TotalAmount;
+            }
+
+            if (model.DiscountAmount > 0)
+            {
+                update.DiscountAmount = model.DiscountAmount;
+            }
+
+            if (model.AmountAfterDiscount > 0)
+            {
+                update.AmountAfterDiscount = model.AmountAfterDiscount;
+            }
+
+            if (model.AmountAfterDiscount > 0)
+            {
+                update.AmountAfterDiscount = model.AmountAfterDiscount;
+            }
+
+            if (model.AmountToPay > 0)
+            {
+                update.AmountToPay = model.AmountToPay;
+            }
+
+            if (!string.IsNullOrEmpty(model.Status))
+            {
+                update.Status = model.Status;
+            }
+
+            if (!string.IsNullOrEmpty(model.PaymentStatus))
+            {
+                update.PaymentStatus = model.PaymentStatus;
+            }
+
+            if (model.CreatedOnDate != null)
+            {
+                update.CreatedOnDate = model.CreatedOnDate;
+            }
+
+            if (model.LastModifiedOnDate != null)
+            {
+                update.LastModifiedOnDate = model.LastModifiedOnDate;
+            }
+
+            if (!string.IsNullOrWhiteSpace(model.UpdateBy))
+            {
+                update.UpdateBy = model.UpdateBy;
+            }
+
+            if (!string.IsNullOrWhiteSpace(model.Notes))
+            {
+                update.Notes = model.Notes;
+            }
+
+            return await SaveAsync(update);
         }
 
-        if (model.AmountAfterDiscount > 0)
+        public async Task<BillEntity> SaveAsync(BillEntity billEntity)
         {
-            update.AmountAfterDiscount = model.AmountAfterDiscount;
-        }
-        
-        if (model.AmountToPay > 0)
-        {
-            update.AmountToPay = model.AmountToPay;
-        }
-
-        if (!string.IsNullOrEmpty(model.Status))
-        {
-            update.Status = model.Status;
-        }
-
-        if (!string.IsNullOrEmpty(model.PaymentStatus))
-        {
-            update.PaymentStatus = model.PaymentStatus;
-        }
-
-        if (model.CreatedOnDate != null)
-        {
-            update.CreatedOnDate = model.CreatedOnDate;
-        }
-
-        if (model.LastModifiedOnDate != null)
-        {
-            update.LastModifiedOnDate = model.LastModifiedOnDate;
-        }
-
-        if (!string.IsNullOrWhiteSpace(model.UpdateBy))
-        {
-            update.UpdateBy = model.UpdateBy;
-        }
-
-        if (!string.IsNullOrWhiteSpace(model.Notes))
-        {
-            update.Notes = model.Notes;
-        }
-        
-        return await SaveAsync(update);
-    }
-
-    public async Task<BillEntity> SaveAsync(BillEntity billEntity)
-    {
-        var res = await SaveAsync(new[] { billEntity });
+            var res = await SaveAsync(new[] { billEntity });
             return res.FirstOrDefault();
-    }
+        }
 
-    public async Task<IEnumerable<BillEntity>> SaveAsync(IEnumerable<BillEntity> billEntities)
-    {
+        public async Task<IEnumerable<BillEntity>> SaveAsync(IEnumerable<BillEntity> billEntities)
+        {
             return await _billRepository.SaveAsync(billEntities);
         }
         public async Task<BillModel> CreateBill(BillModel model)
@@ -224,7 +258,7 @@ public class BillBusiness : IBillBusiness
                 if (model == null)
                 {
                     return new BillModel();
-                  
+
                 }
 
                 var billEntity = new BillEntity
@@ -236,9 +270,9 @@ public class BillBusiness : IBillBusiness
                     RecipientEmail = model.CustomerEmail,
                     RecipientPhone = model.CustomerPhone,
                     RecipientAddress = model.CustomerAddress,
-                    TotalAmount = (double)model.TotalAmount,
-                    DiscountAmount = (double)model.DiscountAmount,
-                    FinalAmount = (double)model.FinalAmount,
+                    TotalAmount = model.TotalAmount,
+                    DiscountAmount = model.DiscountAmount,
+                    FinalAmount = model.FinalAmount,
                     VoucherCode = model.VoucherCode,
                     Notes = model.Note,
                     Status = model.Status,
@@ -251,7 +285,7 @@ public class BillBusiness : IBillBusiness
 
                 if (savedBill != null && model.BillDetails != null && model.BillDetails.Any())
                 {
-                    await _billDetailsBusiness.CreateBillDetails(model.BillDetails, savedBill.Id);
+                    await _billDetailsBusiness.CreateBillDetails( await _billDetailModelFactory.ConvertEntities( model.BillDetails), savedBill.Id);
                 }
 
                 var result = new BillModel
@@ -263,20 +297,20 @@ public class BillBusiness : IBillBusiness
                     CustomerPhone = savedBill.RecipientPhone,
                     CustomerEmail = savedBill.RecipientEmail,
                     CustomerAddress = savedBill.RecipientAddress,
-                    TotalAmount = (decimal)savedBill.TotalAmount,
-                    DiscountAmount = (decimal)savedBill.DiscountAmount,
-                    FinalAmount = (decimal)savedBill.FinalAmount,
+                    TotalAmount = savedBill.TotalAmount,
+                    DiscountAmount = savedBill.DiscountAmount,
+                    FinalAmount = savedBill.FinalAmount,
                     VoucherCode = savedBill.VoucherCode,
                     Note = savedBill.Notes,
                     Status = savedBill.Status,
                     PaymentMethod = savedBill.PaymentMethod,
                     PaymentStatus = savedBill.PaymentStatus,
                     CreatedOnDate = savedBill.CreatedOnDate.Value,
-                    UpdatedDate = savedBill.LastModifiedOnDate
+                    LastModifiedOnDate = savedBill.LastModifiedOnDate
                 };
 
                 return result;
-     
+
             }
             catch (Exception ex)
             {
@@ -308,17 +342,17 @@ public class BillBusiness : IBillBusiness
                     CustomerPhone = bill.RecipientPhone,
                     CustomerEmail = bill.RecipientEmail,
                     CustomerAddress = bill.RecipientAddress,
-                    TotalAmount = (decimal)bill.TotalAmount,
-                    DiscountAmount = (decimal)bill.DiscountAmount,
-                    FinalAmount = (decimal)bill.FinalAmount,
+                    TotalAmount = bill.TotalAmount,
+                    DiscountAmount = bill.DiscountAmount,
+                    FinalAmount = bill.FinalAmount,
                     VoucherCode = bill.VoucherCode,
                     Note = bill.Notes,
                     Status = bill.Status,
                     PaymentMethod = bill.PaymentMethod,
                     PaymentStatus = bill.PaymentStatus,
                     CreatedOnDate = bill.CreatedOnDate.Value,
-                    UpdatedDate = bill.LastModifiedOnDate,
-                    BillDetails = billDetails.Data
+                    LastModifiedOnDate = bill.LastModifiedOnDate,
+                    BillDetails = billDetails
                 };
 
                 return result;
@@ -347,29 +381,29 @@ public class BillBusiness : IBillBusiness
                     return null;
                 }
 
-  
+
                 var billDetails = await _billDetailsBusiness.GetBillDetailsByBillId(bill.Id);
 
                 var result = new BillModel
                 {
                     Id = bill.Id,
                     BillCode = bill.BillCode,
-                    CustomerId = bill.CustomerId != null ? bill.CustomerId: null,
+                    CustomerId = bill.CustomerId != null ? bill.CustomerId : null,
                     CustomerName = bill.RecipientName,
                     CustomerPhone = bill.RecipientPhone,
                     CustomerEmail = bill.RecipientEmail,
                     CustomerAddress = bill.RecipientAddress,
-                    TotalAmount = (decimal)bill.TotalAmount,
-                    DiscountAmount = (decimal)bill.DiscountAmount,
-                    FinalAmount = (decimal)bill.FinalAmount,
+                    TotalAmount = bill.TotalAmount,
+                    DiscountAmount = bill.DiscountAmount,
+                    FinalAmount = bill.FinalAmount,
                     VoucherCode = bill.VoucherCode,
                     Note = bill.Notes,
                     Status = bill.Status,
                     PaymentMethod = bill.PaymentMethod,
                     PaymentStatus = bill.PaymentStatus,
                     CreatedOnDate = bill.CreatedOnDate.Value,
-                    UpdatedDate = bill.LastModifiedOnDate,
-                    BillDetails = billDetails.Data
+                    LastModifiedOnDate = bill.LastModifiedOnDate,
+                    BillDetails = billDetails
                 };
 
                 return result;
@@ -381,7 +415,7 @@ public class BillBusiness : IBillBusiness
             }
         }
 
-        public async Task <List<BillModel>> GetBillsByUserId(Guid userId)
+        public async Task<List<BillModel>> GetBillsByUserId(Guid userId)
         {
             try
             {
@@ -391,7 +425,7 @@ public class BillBusiness : IBillBusiness
                 if (bills == null || !bills.Any())
                 {
                     return new List<BillModel>();
-        
+
                 }
 
                 var result = bills.Select(bill => new BillModel
@@ -403,8 +437,8 @@ public class BillBusiness : IBillBusiness
                     CustomerPhone = bill.RecipientPhone,
                     CustomerEmail = bill.RecipientEmail,
                     CustomerAddress = bill.RecipientAddress,
-                    TotalAmount = (decimal)bill.TotalAmount,
-                    DiscountAmount = (decimal)bill.DiscountAmount,
+                    TotalAmount = bill.TotalAmount,
+                    DiscountAmount = bill.DiscountAmount,
                     FinalAmount = (decimal)bill.FinalAmount,
                     VoucherCode = bill.VoucherCode,
                     Note = bill.Notes,
@@ -412,7 +446,7 @@ public class BillBusiness : IBillBusiness
                     PaymentMethod = bill.PaymentMethod,
                     PaymentStatus = bill.PaymentStatus,
                     CreatedOnDate = bill.CreatedOnDate.Value,
-                    UpdatedDate = bill.LastModifiedOnDate
+                    LastModifiedOnDate = bill.LastModifiedOnDate
                 }).ToList();
 
                 return result;
@@ -474,7 +508,7 @@ public class BillBusiness : IBillBusiness
             }
         }
 
-        public async Task <bool> UpdatePaymentMethod(Guid billId, string paymentMethod)
+        public async Task<bool> UpdatePaymentMethod(Guid billId, string paymentMethod)
         {
             try
             {
@@ -499,7 +533,7 @@ public class BillBusiness : IBillBusiness
             }
         }
 
-        public async Task <decimal> ApplyVoucher(string voucherCode, decimal totalAmount)
+        public async Task<decimal> ApplyVoucher(string voucherCode, decimal totalAmount)
         {
             try
             {
@@ -549,7 +583,7 @@ public class BillBusiness : IBillBusiness
             return billCode;
         }
 
-        public async Task<BillModel>  CheckoutFromCart(List<CartItemModel> cartItems, CustomerInfoModel customerInfo, string voucherCode)
+        public async Task<BillModel> CheckoutFromCart(List<CartItemModel> cartItems, CustomerInfoModel customerInfo, string voucherCode)
         {
             try
             {
@@ -605,7 +639,7 @@ public class BillBusiness : IBillBusiness
                     FinalAmount = finalAmount,
                     VoucherCode = voucherCode,
                     Note = customerInfo.Notes,
-                    Status = BillConstants.StatusPending,
+                    Status = BillConstants.PendingConfirmation,
                     PaymentMethod = "COD", // Mặc định là COD, có thể thay đổi sau
                     PaymentStatus = BillConstants.PaymentStatusUnpaid,
                     BillDetails = billDetails

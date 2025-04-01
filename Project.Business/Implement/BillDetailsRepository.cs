@@ -65,7 +65,12 @@ public class BillDetailsRepository : IBillDetailsRepository
                 query = query.Where((BillDetailsEntity x) => x.Id == queryModel.Id.Value);
             }
 
-            if (queryModel.ListId != null && queryModel.ListId.Any())
+            if(queryModel.BillIds!=null && queryModel.BillIds.Any())
+        {
+            query = query.Where((BillDetailsEntity x) => queryModel.BillIds.Contains(x.BillId.Value));
+        }
+
+        if (queryModel.ListId != null && queryModel.ListId.Any())
             {
                 query = query.Where((BillDetailsEntity x) => queryModel.ListId.Contains(x.Id));
             }

@@ -21,3 +21,4 @@ const Bill: React.FC = () => {
 };
 
 export default Bill;
+

@@ -23,13 +23,14 @@ namespace Project.DbManagement
         public string? RecipientEmail { get; set; }
         public string? RecipientPhone { get; set; }
         public string? RecipientAddress { get; set; }
-        public double? TotalAmount { get; set; }
-        public double? DiscountAmount { get; set; }
-        public double? AmountAfterDiscount { get; set; }
-        public double? AmountToPay { get; set; }
+        public decimal? TotalAmount { get; set; }
+        public string? Note { get; set; }
+        public decimal? DiscountAmount { get; set; }
+        public decimal? AmountAfterDiscount { get; set; }
+        public decimal? AmountToPay { get; set; }
         public string? VoucherCode { get; set; }
 
-        public double?  FinalAmount { get; set; }
+        public decimal?  FinalAmount { get; set; }
         public string? Status { get; set; }
         public string? PaymentStatus { get; set; }
         public string? UpdateBy { get; set; }

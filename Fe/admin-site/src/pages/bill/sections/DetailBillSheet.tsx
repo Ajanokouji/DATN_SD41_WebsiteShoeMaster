@@ -141,27 +141,41 @@ const DetailBillSheet: React.FC<DetailBillSheetProps> = ({
               </div>
             </div>
 
-            {/* Bill Items (Assuming there would be items) */}
+            {/* Bill Items */}
             <div className="mb-8">
               <h2 className="text-lg font-semibold mb-3">Order Details</h2>
               <div className="overflow-x-auto">
                 <table className="w-full border-collapse">
                   <thead className="bg-gray-50">
                     <tr>
-                      <th className="py-3 px-4 text-left text-sm font-semibold text-gray-700 border-b">Item</th>
+                      <th className="py-3 px-4 text-left text-sm font-semibold text-gray-700 border-b">Product</th>
+                      <th className="py-3 px-4 text-left text-sm font-semibold text-gray-700 border-b">Size</th>
+                      <th className="py-3 px-4 text-left text-sm font-semibold text-gray-700 border-b">Color</th>
                       <th className="py-3 px-4 text-right text-sm font-semibold text-gray-700 border-b">Quantity</th>
                       <th className="py-3 px-4 text-right text-sm font-semibold text-gray-700 border-b">Unit Price</th>
-                      <th className="py-3 px-4 text-right text-sm font-semibold text-gray-700 border-b">Amount</th>
+                      <th className="py-3 px-4 text-right text-sm font-semibold text-gray-700 border-b">Total</th>
                     </tr>
                   </thead>
                   <tbody>
-                    {/* Placeholder for items - you would map through actual order items here */}
-                    <tr>
-                      <td className="py-3 px-4 text-left border-b text-gray-800">Order Items</td>
-                      <td className="py-3 px-4 text-right border-b text-gray-800">-</td>
-                      <td className="py-3 px-4 text-right border-b text-gray-800">-</td>
-                      <td className="py-3 px-4 text-right border-b text-gray-800">{formatCurrency(bill.totalAmount)}</td>
-                    </tr>
+                    {bill.billDetails?.map((detail, index) => (
+                      <tr key={index}>
+                        <td className="py-3 px-4 text-left border-b text-gray-800">
+                          <div className="flex items-center gap-2">
+                            <img 
+                              src={detail.productImage} 
+                              alt={detail.productName}
+                              className="w-10 h-10 object-cover rounded"
+                            />
+                            <span>{detail.productName}</span>
+                          </div>
+                        </td>
+                        <td className="py-3 px-4 text-left border-b text-gray-800">{detail.size}</td>
+                        <td className="py-3 px-4 text-left border-b text-gray-800">{detail.color}</td>
+                        <td className="py-3 px-4 text-right border-b text-gray-800">{detail.quantity}</td>
+                        <td className="py-3 px-4 text-right border-b text-gray-800">{formatCurrency(detail.price)}</td>
+                        <td className="py-3 px-4 text-right border-b text-gray-800">{formatCurrency(detail.totalPrice)}</td>
+                      </tr>
+                    ))}
                   </tbody>
                 </table>
               </div>

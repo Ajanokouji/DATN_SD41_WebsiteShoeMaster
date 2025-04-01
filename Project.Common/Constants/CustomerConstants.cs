@@ -8,4 +8,6 @@ namespace Project.Common.Constants
         public const string CustomerUpdateError = "Error updating customer";
         public const string CustomerDeleteError = "Error deleting customer";
     }
+
+
 } 
