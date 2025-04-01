@@ -1,0 +1,82 @@
+﻿@model Project.DbManagement.ViewModels.PaySellOffViewModel
+@{
+    // var lstPttt = ViewData["lstPttt"] as List<PhuongThucThanhToan>;
+}
+<div class="d-flex flex-column" style="height:100%">
+    <form class="row g-3 p-3 formthanhtoan">
+        <div class="d-flex flex-row lh-1">
+            <div class="flex-fill text-start"><span id="nhanVien"></span>NV: @Model.NhanVien</div>
+            <div class="flex-fill text-end"><span id="ngay"></span>@Model.NgayThanhToan</div>
+        </div>
+        <hr />
+        <div class="d-flex flex-row lh-1">
+            <div class="flex-fill"><label for="inputName5" class="form-label ">Mã HD: @Model.MaHD</label></div>
+        </div>
+        <div class="d-flex flex-row lh-1">
+            <div class="flex-fill"><label for="inputName5" class="form-label">Khách hàng</label></div>
+            <div class="flex-fill text-end"> <span id="tenkh">@Model.KhachHang</span></div>
+        </div>
+        <div class="d-flex flex-row lh-1">
+            <div class="flex-fill"><label class="form-label">Số lượng</label></div>
+            <div class="flex-fill text-end"> <span id="soLuong">@Model.TongSL</span></div>
+        </div>
+        <div class="d-flex flex-row lh-1">
+            <div class="flex-fill"><label for="inputEmail5" class="form-label">Tổng tiền hàng</label></div>
+            <div class="flex-fill text-end"> <input id="tongTienHang" value="@Model.TongTien" hidden /><span>@Model.TongTien?.ToString("n0")</span></div>
+        </div>
+        <div class="d-flex flex-row lh-1">
+            <div class="flex-fill"><label for="inputEmail5" class="form-label">Khuyễn mãi voucher: </label></div>
+            <div class="flex-fill text-end"><span id="giatrivoucher"></span></div>
+        </div>
+
+        <div class="d-flex flex-row lh-1">
+            <div class="flex-fill"><label for="inputEmail5" class="form-label">Khách cần trả</label></div>
+            <div class="flex-fill text-end">
+                <span id="khachCanTra"></span>
+            </div>
+        </div>
+        <div class="d-flex flex-row lh-1">
+            <div class="flex-fill"><label for="inputState" class="form-label">Phương thức thanh toán </label></div>
+        </div>
+        <div class="d-flex flex-row lh-1">
+            <div class="flex-fill m-2">
+                <input class="form-check-input" type="radio" name="pttt" value="Tiền mặt" checked>
+                <label class="form-check-label" for="gridRadios1">
+                    Tiền mặt
+                </label>
+            </div>
+            <div class="flex-fill m-2">
+                <input class="form-check-input" type="radio" name="pttt" value="Chuyển khoản" checked>
+                <label class="form-check-label" for="gridRadios1">
+                    Chuyển khoản
+                </label>
+            </div>
+        </div>
+    </form>
+    <div class="d-flex flex-row lh-1">
+        <input type="text" name="search" id="voucher" placeholder="Nhập mã giảm giá">
+        <button type="button" title="Áp dụng" id="btn-voucher"></button>
+        <p id="validatevoucher"></p>
+    </div>
+
+
+    <div class="mt-auto text-danger" id="notification"></div>
+    <div class="d-flex flex-row mt-auto">
+        <button type="button" onclick="thanhToan('@Model.Id')" class="btn btn-primary fw-bold btn-block w-100" style="height:60px; font-size:24px">THANH TOÁN</button>
+    </div>
+</div>
+<script>
+    $(document).ready(function(){
+        var tongtien = parseInt('@Model.TongTien');
+        $("#khachCanTra").text(tongtien);
+        // Sử dụng điểm tích
+        $("#diemKHSD").keyup(function(){
+            var tienkhachtra = tongtien;
+            $("#khachCanTra").text(tienkhachtra.tolocalString());
+        });
+        // Sử dụng voucher
+        $("#btn-voucher").on("click", function() {
+            var voucher = $("#voucher").val();
+        });
+    })
+</script>
