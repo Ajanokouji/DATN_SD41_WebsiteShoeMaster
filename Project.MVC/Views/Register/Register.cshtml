@@ -30,22 +30,22 @@
                         <label><i class="fa fa-map-marker"></i> Địa chỉ</label>
                         <input asp-for="Address" name="Address" placeholder="Nhập địa chỉ" />
                     </div>
+                </div>
 
+                <div class="col-md-6">
                     <div class="form-group">
-                        <label><i class="fa fa-phone"></i> Số điện thoại</label>
-                        <input asp-for="PhoneNumber" name="PhoneNumber" placeholder="Nhập số điện thoại" />
+                        <label><i class="fa fa-phone"></i> Số điện thoại<span class="text-danger">*</span></label>
+                        <input asp-for="PhoneNumber" name="PhoneNumber" placeholder="Nhập số điện thoại" required />
                     </div>
 
                     <div class="form-group">
                         <label><i class="fa fa-envelope"></i> Email</label>
                         <input asp-for="Email" name="Email" placeholder="Nhập email" />
                     </div>
-                </div>
 
-                <div class="col-md-6">
                     <div class="form-group">
-                        <label><i class="fa fa-user"></i> Tên đăng nhập <span class="text-danger">*</span></label>
-                        <input asp-for="Username" name="Username" placeholder="Nhập Tên đăng nhập" required />
+                        <label><i class="fa fa-user"></i> Tên đăng nhập</label>
+                        <input asp-for="Username" name="Username" placeholder="Nhập Tên đăng nhập" />
                     </div>
 
                     <div class="form-group">
@@ -95,14 +95,10 @@
 
         // Kiểm tra từng input khi nhập
         function validateInput(input) {
-            const nameRegex = /^[A-Za-zÀ-Ỹà-ỹ\s]+$/;
             const phoneRegex = /^0[0-9]{9}$/;
-            const usernameRegex = /^(?=.*[A-Za-z])[A-Za-z0-9_]{3,}$/;
-            const passwordRegex = /^(?=.*[a-z])(?=.*[A-Z])(?=.*[!@@#$%^&*])(?=.*\d)[A-Za-z0-9!@@#$%^&*]{6,}$/;
             const emailRegex = /^[a-zA-Z0-9._%+-]+@@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$/;
 
             const name = document.querySelector("[name='Name']").value.trim();
-            const username = document.querySelector("[name='Username']").value.trim();
             const password = document.querySelector("[name='Password']").value;
             const confirmPassword = document.querySelector("[name='ConfirmPassword']").value;
             const email = document.querySelector("[name='Email']").value.trim();
@@ -111,26 +107,16 @@
             if (input.name === "Name") {
                 if (name === "") {
                     showError(input, "Tên không được để trống.");
-                } else if (!nameRegex.test(name)) {
-                    showError(input, "Tên chỉ được chứa chữ cái, không có số hoặc ký tự đặc biệt.");
                 } else {
                     clearError(input);
                 }
             }
 
             if (input.name === "PhoneNumber") {
-                if (phone !== "" && !phoneRegex.test(phone)) {
+                if (phone === "") {
+                    showError(input, "Số điện thoại không được để trống.");
+                }else if (phone !== "" && !phoneRegex.test(phone)) {
                     showError(input, "Số điện thoại phải bắt đầu bằng 0 và có đủ 10 chữ số.");
-                } else {
-                    clearError(input);
-                }
-            }
-
-            if (input.name === "Username") {
-                if (username === "") {
-                    showError(input, "Tên đăng nhập không được để trống.");
-                } else if (!usernameRegex.test(username)) {
-                    showError(input, "Tên đăng nhập phải có ít nhất 3 ký tự, có ít nhất 1 chữ cái, không chứa khoảng trắng và ký tự đặc biệt.");
                 } else {
                     clearError(input);
                 }
@@ -139,9 +125,7 @@
             if (input.name === "Password") {
                 if (password === "") {
                     showError(input, "Mật khẩu không được để trống.");
-                } else if (!passwordRegex.test(password)) {
-                    showError(input, "Mật khẩu phải có ít nhất 6 ký tự, không chứa khoảng trắng và có ít nhất 1 chữ cái, 1 chữ hoa, 1 chữ số và 1 ký tự đặc biệt.");
-                } else {
+                }else {
                     clearError(input);
                 }
             }

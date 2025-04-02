@@ -32,8 +32,14 @@ namespace Project.MVC.Controllers
             //Đã Validate dữ liệu ở client bằng js
 
             //Trim dữ liệu
-            user.Username = user.Username.Trim();
-            user.Name = user.Name.Trim();
+            if (!String.IsNullOrWhiteSpace(user.Username))
+            {
+                user.Username = user.Username.Trim();
+            }
+            if (!String.IsNullOrWhiteSpace(user.Name))
+            {
+                user.Name = user.Name.Trim();
+            }
             if (!String.IsNullOrWhiteSpace(user.PhoneNumber))
             {
                 user.PhoneNumber = user.PhoneNumber.Trim();
@@ -48,15 +54,18 @@ namespace Project.MVC.Controllers
             }
 
             //Tìm xem tên username đã tồn tại chưa
-            var lstUserFoundByUserName = _userBusiness.LocUserTheoNhieuDK(new UserQueryModel
+            if (!String.IsNullOrWhiteSpace(user.Username))
             {
-                Username = user.Username
-            }).Result.Where(u => u.Isdeleted == false);
-            //Nếu đã tồn tại
-            if (lstUserFoundByUserName.Any())
-            {
-                TempData["ErrRegMs"] = "Tên đăng nhập đã tồn tại";
-                return View(user);
+                var lstUserFoundByUserName = _userBusiness.LocUserTheoNhieuDK(new UserQueryModel
+                {
+                    Username = user.Username
+                }).Result.Where(u => u.Isdeleted == false);
+                //Nếu đã tồn tại
+                if (lstUserFoundByUserName.Any())
+                {
+                    TempData["ErrRegMs"] = "Tên đăng nhập đã tồn tại";
+                    return View(user);
+                }
             }
 
             //Tìm xem SĐT đã được sử dụng chưa
@@ -76,7 +85,7 @@ namespace Project.MVC.Controllers
             }
 
             //Tìm xem Email đã được sử dụng chưa
-            if (!String.IsNullOrWhiteSpace(user.PhoneNumber))
+            if (!String.IsNullOrWhiteSpace(user.Email))
             {
                 var lstUserFoundByEmail = _userBusiness.LocUserTheoNhieuDK(new UserQueryModel
                 {
