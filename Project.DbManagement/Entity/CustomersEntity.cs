@@ -9,7 +9,7 @@ using System.Threading.Tasks;
 
 namespace Project.DbManagement
 {
-    public class Customers: BaseEntity
+    public class CustomersEntity: BaseEntity
     {
         public Guid Id { get; set; }
         public string? Code { get; set; }

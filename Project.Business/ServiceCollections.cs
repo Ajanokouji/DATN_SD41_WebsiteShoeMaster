@@ -6,6 +6,7 @@ using Project.Business.Implement;
 using Project.Business.Interface;
 using Project.Business.Interface.Repositories;
 using Project.Business.ModelFactory;
+using Project.Business.ModelFactory.Implement;
 using Project.DbManagement;
 using System.Data;
 
@@ -54,7 +55,7 @@ namespace Project.Business
             services.AddScoped<IProductCategoriesRelationBusiness, ProductCategoriesRelationBusiness>();
             services.AddScoped<ICategoriesBusiness, CategoriesBusiness>();
 
-
+            services.AddScoped<IBillModelFactory, BillModelFactory>();
             services.AddScoped<IBillDetailModelFactory, BillDetailModelFactory>();
             services.AddTransient<IDbConnection>(sp =>
             {

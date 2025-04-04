@@ -51,6 +51,7 @@
                                     <table class="table">
                                         <thead>
                                             <tr>
+                                                <th>Ảnh</th>
                                                 <th>Sản phẩm</th>
                                                 <th>Số lượng</th>
                                                 <th>Tổng</th>
@@ -60,6 +61,11 @@
                                             @foreach (var item in Model.BillDetails)
                                             {
                                                 <tr>
+                                                    <td>
+                                                        <div class="trend__item__pic" style="max-width: 90px; max-height: 90px;">
+                                                            <img src="@item.ProductImage" alt="">
+                                                        </div>
+                                                    </td>
                                                     <td>@item.ProductName</td>
                                                     <td>@item.Quantity</td>
                                                     <td>@item.TotalPrice.ToString("N0") VNĐ</td>
@@ -69,7 +75,7 @@
                                         <tfoot>
                                             <tr>
                                                 <td colspan="2"><strong>Tổng tiền</strong></td>
-                                         @*        <td><strong>@Model.TotalAmount.ToString("N0") VNĐ</strong></td> *@
+                                         <td><strong>@Model.TotalAmount.Value.ToString("N0") VNĐ</strong></td> 
                                             </tr>
                                         </tfoot>
                                     </table>

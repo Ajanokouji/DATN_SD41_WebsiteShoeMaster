@@ -1,17 +1,15 @@
-﻿using Project.DbManagement.Entity;
+﻿using Project.DbManagement;
+using Project.DbManagement.Entity;
 using System;
 using System.Collections.Generic;
-using System.ComponentModel.DataAnnotations;
-using System.ComponentModel.DataAnnotations.Schema;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace Project.DbManagement
+namespace Project.Business.Model.PatchModel
 {
-    public class BillEntity: BaseEntity
+    public class BillPatchModel : BaseEntity
     {
-        [Key]
         public Guid Id { get; set; }
         public Guid? EmployeeId { get; set; }
         public Guid? CustomerId { get; set; }
@@ -30,7 +28,7 @@ namespace Project.DbManagement
         public decimal? AmountToPay { get; set; }
         public string? VoucherCode { get; set; }
 
-        public decimal?  FinalAmount { get; set; }
+        public decimal? FinalAmount { get; set; }
         public string? Status { get; set; }
         public string? PaymentStatus { get; set; }
         public string? UpdateBy { get; set; }

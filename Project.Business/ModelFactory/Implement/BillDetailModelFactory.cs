@@ -8,7 +8,7 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace Project.Business.ModelFactory
+namespace Project.Business.ModelFactory.Implement
 {
     class BillDetailModelFactory : IBillDetailModelFactory
     {

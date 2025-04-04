@@ -8,7 +8,7 @@ const Category: React.FC = () => {
   return (
     <>
       <Helmet>
-        <title> Category </title>
+        <title> Danh Mục </title>
       </Helmet>
       <section className="px-8">
         <Stat />
