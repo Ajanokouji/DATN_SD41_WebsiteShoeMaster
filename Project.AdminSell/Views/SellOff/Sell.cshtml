@@ -1,16 +1,15 @@
 ﻿@using Microsoft.AspNetCore.Mvc.TagHelpers
 @using Project.DbManagement
+@using Project.DbManagement.Entity
 @using Project.DbManagement.ViewModels
 @{
-    ViewData["Title"] = "BanHang";
-    var lsthdcho = ViewData["lsthdcho"] as List<BillEntity>;
-    // var lstPttt = ViewData["lstPttt"] as List<PhuongThucThanhToan>;
-
-    var loginInfor = new LoginViewModel();
+    ViewData["Title"] = "Sell Off";
+    var lstBill = ViewData["lstBill"] as List<BillEntity>;
+    var loginInfor = new UserEntity();
     string? session = Context.Session.GetString("LoginInfor");
     if (session != null)
     {
-        loginInfor = JsonConvert.DeserializeObject<LoginViewModel>(Context.Session.GetString("LoginInfor"));
+        loginInfor = JsonConvert.DeserializeObject<UserEntity>(Context.Session.GetString("LoginInfor"));
     }
 }
 
@@ -21,17 +20,17 @@
             <!--Hiển thị danh sách hóa đơn chờ-->
             <div class="tabbill">
                 <div class="icon me-auto"><i id="left" class="fa-solid fa-angle-left"></i></div>
-                @if (lsthdcho != null)
+                @if (lstBill != null)
                 {
                     <ul class="tabs-box">
                         @{
                             var index = 1;
-                            foreach (var item in lsthdcho)
+                            foreach (var item in lstBill)
                             {
                                 <li class="tab" onclick="gethdct('@item.Id')">
                                     <span value="@item.Id">
-                                        <a>Hoá đơn @index</a>
-                                        <a style="padding-left: 10px;" onclick="deleteHDCho('@item.Id')"><i
+                                        <a>Bill @index</a>
+                                        <a style="padding-left: 10px;" onclick="deletePDBill('@item.Id')"><i
                                                 class="fas fa-times"></i></a>
                                     </span>
                                 </li>
@@ -43,9 +42,9 @@
                 @* <div class="icon ms-auto"><i id="right" class="fa-solid fa-angle-right"></i></div> *@
             </div>
             <!--Tạo mới-->
-            <div class="ms-auto align-content-center">
+            <div class="ms-auto align-content-center" style="margin-top: 5px;">
                 <div class="btn-create d-flex align-items-center">
-                    <button type="button" onclick="addHDCho()" class=""
+                    <button type="button" onclick="addPDBill()" class=""
                             title="Thêm mới">
                         <i class="bi bi-plus-square"></i>
                     </button>
@@ -68,7 +67,7 @@
             <div class="d-flex justify-content-start">
                 <div class="search-product d-flex align-items-center">
                     <div class="search-bar" style="width: 530px;">
-                        <form class="search-form d-flex align-items-center">
+                        <form class="search-form d-flex align-items-center" style="margin-top: 9px;">
                             <input type="text" name="query" placeholder="Search.."
                                    title="Enter search keyword">
                             <button type="" title="Tìm kiếm"><i class="bi bi-search"></i></button>
@@ -205,10 +204,10 @@
     }
 
     //LOAD DANH SÁCH HOA DON CHO
-    async function loadHDCHO(callback) {
+    async function loadPDBill(callback) {
         try {
             const data = await $.ajax({
-                url: "https://localhost:7095/api/HoaDon/GetAllHDCho",
+                url: "/SellOff/GetAllPDBill",
                 type: "GET",
                 dataType: "json"
             });
@@ -220,8 +219,8 @@
                 $(".tabs-box").append(`
                 <li class="tab" onclick="gethdct('${itemID}')">
                     <span value="${itemID}">
-                    <a>Hoá đơn ${index}</a>
-                    <a style="padding-left: 10px;" onclick="deleteHDCho('${itemID}')"><i class="fas fa-times"></i></a>
+                    <a>Bill ${index}</a>
+                    <a style="padding-left: 10px;" onclick="deletePDBill('${itemID}')"><i class="fas fa-times"></i></a>
                     </span>
                 </li>
                 `);
@@ -233,16 +232,16 @@
     }
 
     //THÊM HÓA ĐƠN CHỜ
-    function addHDCho() {
+    function addPDBill() {
         $.ajax({
-            url: `https://localhost:7095/api/HoaDon/Offline/${'@loginInfor.Id'}`,
+            url: `/SellOff/CreateBill/@loginInfor.Id`,
             type: "POST",
             dataType: 'json',
             contentType: 'application/json',
             success: function (response) {
                 console.log(response);
                 toastr.success('Thêm thành công', "Success Alert", {timeOut: 300});
-                loadHDCHO(function () {
+                loadPDBill(function () {
                     activeTab(1);
                 });
             },
@@ -253,17 +252,17 @@
     }
 
     //Xóa hóa đơn chờ
-    function deleteHDCho(idhd) {
-        var ans = confirm("Bạn có chắc chắn xóa Đơn Nháp này?");
+    function deletePDBill(idBill) {
+        var ans = confirm("Bạn chắc chứ?");
         if (ans) {
             $.ajax({
-                url: "https://localhost:7095/api/HoaDon/deleteHoaDon/" + idhd,
+                url: "/SellOff/DeleteBill/" + idBill,
                 type: "DELETE",
                 dataType: 'json',
                 contentType: 'application/json',
                 success: function (response) {
                     $("#partialGioHang").empty();
-                    loadHDCHO(function () {
+                    loadPDBill(function () {
                         activeTab(0);
                     });
                     loadsp();
