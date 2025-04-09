@@ -73,6 +73,20 @@ export const updateBill = createAppThunk(
   }
 );
 
+// Cập nhật hóa đơn theo trường gửi lên
+export const patchBill = createAppThunk(
+  "bill/patch",
+  async ({ id, data }: { id: string; data: Partial<BillResDto> }) => {
+    const response = await billService.patchBillReq(id, data);
+    return response;
+  },
+  {
+    successMessage: BILL_MESSAGES.UPDATE_BILL.SUCCESS,
+    errorMessage: BILL_MESSAGES.UPDATE_BILL.ERROR,
+  }
+);
+
+
 // Xóa hóa đơn
 export const deleteBill = createAppThunk(
   "bill/delete",

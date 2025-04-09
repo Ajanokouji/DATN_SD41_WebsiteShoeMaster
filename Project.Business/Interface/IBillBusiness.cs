@@ -1,4 +1,5 @@
 ﻿using Project.Business.Model;
+using Project.Business.Model.PatchModel;
 using Project.Common;
 using Project.DbManagement;
 using SERP.Framework.Common;
@@ -25,7 +26,7 @@ public interface IBillBusiness
 
     Task<IEnumerable<BillEntity>> SaveAsync(IEnumerable<BillEntity> article);
 
-    Task<BillEntity> PatchAsync(BillEntity article);
+    Task<BillEntity> PatchAsync(BillPatchModel article);
 
     Task <BillModel> CreateBill(BillModel model);
     Task <BillModel> GetBillById(Guid id);

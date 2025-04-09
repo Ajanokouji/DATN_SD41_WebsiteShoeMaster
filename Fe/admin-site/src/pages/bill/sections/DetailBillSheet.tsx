@@ -1,4 +1,4 @@
-import React, { useEffect } from "react";
+import React, { useEffect, useState } from "react";
 import {
   Sheet,
   SheetContent,
@@ -7,12 +7,20 @@ import {
 import { useAppSelector } from "@/hooks/use-app-selector";
 import { selectBill } from "@/redux/apps/bill/billSelector";
 import { useAppDispatch } from "@/hooks/use-app-dispatch";
-import { fetchBillById } from "@/redux/apps/bill/billSlice";
+import { fetchBillById, patchBill, updateBill } from "@/redux/apps/bill/billSlice";
 import { Badge } from "@/components/ui/badge";
 import { Separator } from "@/components/ui/separator";
 import { Button } from "@/components/ui/button";
 import { Printer, Download, FileText } from "lucide-react";
 import { formatVietnamTime } from "@/utils/format";
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
+import { ORDER_STATUS, ORDER_STATUS_LABELS } from "@/constants/orderStatus.constants";
 
 interface DetailBillSheetProps {
   billId: string;
@@ -27,11 +35,55 @@ const DetailBillSheet: React.FC<DetailBillSheetProps> = ({
 }) => {
   const dispatch = useAppDispatch();
   const bill = useAppSelector(selectBill);
+  const [selectedStatus, setSelectedStatus] = useState<string>("");
+
+  useEffect(() => {
+    if (bill) {
+      setSelectedStatus(bill.status);
+    }
+  }, [bill]);
 
   useEffect(() => {
     
     dispatch(fetchBillById(billId));
   }, [dispatch, billId]);
+
+  const handleUpdateStatus = async (newStatus: string) => {
+    if (bill && newStatus) {
+      try {
+        await dispatch(patchBill({
+          id: bill.id,
+          data: {
+            id: bill.id,
+            status: newStatus
+          }
+        }));
+        // Refresh lại dữ liệu
+        dispatch(fetchBillById(billId));
+      } catch (error) {
+        console.error("Failed to update status:", error);
+      }
+    }
+  };
+
+  const getStatusBadgeVariant = (status: string) => {
+    switch (status) {
+      case ORDER_STATUS.Completed:
+        return "success";
+      case ORDER_STATUS.Cancelled:
+      case ORDER_STATUS.Rejected:
+      case ORDER_STATUS.DeliveryFailed:
+        return "destructive";
+      case ORDER_STATUS.Shipping:
+      case ORDER_STATUS.Delivered:
+        return "info";
+      case ORDER_STATUS.ReturnProcessing:
+      case ORDER_STATUS.Returned:
+        return "warning";
+      default:
+        return "secondary";
+    }
+  };
 
   const formatCurrency = (amount: number | null) => {
     if (amount === null) return "N/A";
@@ -41,7 +93,6 @@ const DetailBillSheet: React.FC<DetailBillSheetProps> = ({
     }).format(amount);
   };
 
-  
   if (!bill) {
     return (
       <Sheet open={isOpen} onOpenChange={onClose}>
@@ -65,8 +116,12 @@ const DetailBillSheet: React.FC<DetailBillSheetProps> = ({
                 <h1 className="text-2xl font-bold mb-2">Hóa đơn</h1>
                 <p className="text-sm opacity-90">Mã hóa đơn: {bill.billCode}</p>
                 <div className="flex gap-2 mt-1">
-                  <Badge variant="outline" className="text-white border-white">
-                    Trạng thái: {bill.status === "0" ? "Pending" : bill.status === "1" ? "Hoàn Thành" : "Hủy"}
+
+                  <Badge 
+                    variant={getStatusBadgeVariant(bill.status)} 
+                    className="text-white border-white"
+                  >
+                    Trạng thái: {ORDER_STATUS_LABELS[bill.status] || bill.status}
                   </Badge>
                   <Badge variant="outline" className="text-white border-white">
                     Thanh toán: {bill.paymentStatus === "0" ? "Chưa thanh toán" : bill.paymentStatus === "1" ? "Đã thanh toán" : "Thất bại"}
@@ -80,7 +135,9 @@ const DetailBillSheet: React.FC<DetailBillSheetProps> = ({
                   className="flex items-center gap-1"
                 >
                   <Printer className="h-4 w-4" />
-                  <span>In </span>
+
+                  <span>In</span>
+
                 </Button>
                 <Button
                   variant="secondary"
@@ -92,6 +149,35 @@ const DetailBillSheet: React.FC<DetailBillSheetProps> = ({
                 </Button>
               </div>
             </SheetHeader>
+          </div>
+
+          {/* Status Update Section */}
+          <div className="px-6 py-4 border-t border-b">
+            <div className="flex items-center gap-4">
+              <div className="flex-1">
+                <Select
+                  value={selectedStatus}
+                  onValueChange={(value) => setSelectedStatus(value)}
+                >
+                  <SelectTrigger className="w-[200px]">
+                    <SelectValue placeholder="Chọn trạng thái mới" />
+                  </SelectTrigger>
+                  <SelectContent>
+                    {Object.entries(ORDER_STATUS_LABELS).map(([value, label]) => (
+                      <SelectItem key={value} value={value}>
+                        {label}
+                      </SelectItem>
+                    ))}
+                  </SelectContent>
+                </Select>
+              </div>
+              <Button
+                onClick={() => handleUpdateStatus(selectedStatus)}
+                disabled={!selectedStatus || selectedStatus === bill.status}
+              >
+                Cập nhật trạng thái
+              </Button>
+            </div>
           </div>
 
           {/* Company & Invoice Info */}

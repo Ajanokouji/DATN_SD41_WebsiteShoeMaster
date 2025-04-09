@@ -18,10 +18,10 @@ public class BillRepository : IBillRepository
         _context = context;
     }
     public async Task<BillEntity> FindAsync(Guid id)
-        {
-            var res = await _context.Bills.FindAsync(id);
-            return res;
-        }
+    {
+        var res = await _context.Bills.AsNoTracking().FirstOrDefaultAsync(x => x.Id == id);
+        return res;
+    }
         public async Task<IEnumerable<BillEntity>> ListAllAsync(BillQueryModel queryModel)
         {
             var query = BuildQuery( queryModel);
