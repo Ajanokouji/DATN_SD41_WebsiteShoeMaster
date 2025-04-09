@@ -1,6 +1,7 @@
 using Microsoft.AspNetCore.Mvc;
 using Project.Business.Interface;
 using Project.Business.Model;
+using Project.Business.Model.PatchModel;
 using Project.DbManagement;
 using Project.DbManagement.Entity;
 using SERP.Framework.ApiUtils.Responses;
@@ -56,14 +57,10 @@ namespace Project.Api.Controllers
         }
 
         [HttpPatch("{id}")]
-        public async Task<IActionResult> UpdateBill(Guid id, [FromBody] BillEntity bill)
+        public async Task<IActionResult> UpdateBill(Guid id, [FromBody] BillPatchModel bill)
         {
             return await ExecuteFunction(async () =>
             {
-                if (id != bill.Id)
-                {
-                    throw new ArgumentException("Not Found");
-                }
                 var updatedBill = await _billBusiness.PatchAsync(bill);
                 return updatedBill;
             });

@@ -7,6 +7,7 @@ using Serilog;
 using Project.DbManagement;
 using Project.Common.Constants;
 using Project.Business.ModelFactory;
+using Project.Business.Model.PatchModel;
 
 namespace Project.Business.Implement
 {
@@ -107,7 +108,7 @@ namespace Project.Business.Implement
             return await _billRepository.ListByIdsAsync(ids);
         }
 
-        public async Task<BillEntity> PatchAsync(BillEntity model)
+        public async Task<BillEntity> PatchAsync(BillPatchModel model)
         {
             var exist = await _billRepository.FindAsync(model.Id);
 
@@ -295,47 +296,27 @@ namespace Project.Business.Implement
             }
         }
 
-        public async Task<BillModel> GetBillById(Guid id)
+        public async Task<BillModel> GetBillById(Guid billId)
         {
             try
             {
-                var billGuid = Guid.Parse(id.ToString());
-                var bill = await _billRepository.FindAsync(billGuid);
+
+                var bill = await _billRepository.FindAsync(billId);
 
                 if (bill == null)
                 {
                     return null;
                 }
 
-                var billDetails = await _billDetailsBusiness.GetBillDetailsByBillId(id);
 
-                var result = new BillModel
-                {
-                    Id = bill.Id,
-                    BillCode = bill.BillCode,
-                    CustomerId = bill.CustomerId != null ? bill.CustomerId : null,
-                    CustomerName = bill.RecipientName,
-                    CustomerPhone = bill.RecipientPhone,
-                    CustomerEmail = bill.RecipientEmail,
-                    CustomerAddress = bill.RecipientAddress,
-                    TotalAmount = bill.TotalAmount.Value,
-                    DiscountAmount = bill.DiscountAmount.Value,
-                    FinalAmount = bill.FinalAmount.Value,
-                    VoucherCode = bill.VoucherCode,
-                    Note = bill.Note,
-                    Status = bill.Status,
-                    PaymentMethod = bill.PaymentMethod,
-                    PaymentStatus = bill.PaymentStatus,
-                    CreatedOnDate = bill.CreatedOnDate.Value,
-                    LastModifiedOnDate = bill.LastModifiedOnDate,
-                    BillDetails = billDetails
-                };
+                var result = await _billModelFactory.CreateModel(bill, true);
+
 
                 return result;
             }
             catch (Exception ex)
             {
-                _logger.Error(ex, "Lỗi khi lấy thông tin hóa đơn {BillId}", id);
+                _logger.Error(ex, "Lỗi khi lấy thông tin hóa đơn {BillId}", billId);
                 return null;
             }
         }

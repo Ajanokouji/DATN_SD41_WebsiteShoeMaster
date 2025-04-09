@@ -133,7 +133,7 @@ namespace Project.MVC.Controllers
 
                 //Mới in ra thông báo Chưa thực hiện chuyển hướng
                 TempData["ErrMs"] = "Đăng nhập thành công dưới quyền khách hàng " + ms;
-                return View(user);
+                return RedirectToAction("Index","Home");
             }
             else
             {
