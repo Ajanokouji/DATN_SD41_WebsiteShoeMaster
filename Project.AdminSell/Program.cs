@@ -1,3 +1,8 @@
+using Microsoft.EntityFrameworkCore;
+using Project.AdminSell.IServices;
+using Project.AdminSell.Services;
+using Project.DbManagement;
+
 namespace Project.AdminSell
 {
     public class Program
@@ -17,6 +22,11 @@ namespace Project.AdminSell
                 options.Cookie.IsEssential = true; // Đảm bảo cookie không bị chặn
             });
             builder.Services.AddDistributedMemoryCache(); // Thêm để Session hoạt động
+            
+            builder.Services.AddDbContext<ProjectDbContext>(options =>
+                options.UseSqlServer(builder.Configuration.GetConnectionString("DefaultConnection")));
+            
+            builder.Services.AddScoped<ISellOffService, SellOffService>();
 
             var app = builder.Build();
 
