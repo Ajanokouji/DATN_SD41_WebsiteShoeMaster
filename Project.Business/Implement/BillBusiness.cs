@@ -14,6 +14,7 @@ namespace Project.Business.Implement
     {
         private readonly IBillRepository _billRepository;
         private readonly IBillDetailsBusiness _billDetailsBusiness;
+        private readonly IBillModelFactory _billModelFactory;
         private readonly IBillDetailModelFactory _billDetailModelFactory;
         private readonly IMemoryCache _cache;
         private readonly ILogger _logger;
@@ -22,10 +23,12 @@ namespace Project.Business.Implement
 
         public BillBusiness(
             IBillDetailModelFactory billDetailModelFactory,
-            IBillRepository billRepository, 
+            IBillRepository billRepository,
+            IBillModelFactory billModelFactory,
             IBillDetailsBusiness billDetailsBusiness, 
             IMemoryCache cache)
         {
+            _billModelFactory = billModelFactory;
             _billDetailModelFactory = billDetailModelFactory;
             _billRepository = billRepository;
             _billDetailsBusiness = billDetailsBusiness;
@@ -80,7 +83,7 @@ namespace Project.Business.Implement
                     CreatedOnDate = x.CreatedOnDate,
                     LastModifiedOnDate = x.LastModifiedOnDate,
                     UpdateBy = x.UpdateBy,
-                    Notes = x.Notes,
+
                     LastModifiedByUserId = x.LastModifiedByUserId,
                     BillDetails = billDetail?.Content?.Where(y => y.BillId == x.Id).ToList() ?? new List<BillDetailModel>()
                 }).ToList();
@@ -134,7 +137,6 @@ namespace Project.Business.Implement
                 RecipientEmail = exist.RecipientEmail,
                 LastModifiedOnDate = exist.LastModifiedOnDate,
                 UpdateBy = exist.UpdateBy,
-                Notes = exist.Notes,
                 LastModifiedByUserId = exist.LastModifiedByUserId
             };
 
@@ -233,10 +235,6 @@ namespace Project.Business.Implement
                 update.UpdateBy = model.UpdateBy;
             }
 
-            if (!string.IsNullOrWhiteSpace(model.Notes))
-            {
-                update.Notes = model.Notes;
-            }
 
             return await SaveAsync(update);
         }
@@ -274,7 +272,6 @@ namespace Project.Business.Implement
                     DiscountAmount = model.DiscountAmount,
                     FinalAmount = model.FinalAmount,
                     VoucherCode = model.VoucherCode,
-                    Notes = model.Note,
                     Status = model.Status,
                     PaymentMethod = model.PaymentMethod,
                     PaymentStatus = model.PaymentStatus,
@@ -288,29 +285,8 @@ namespace Project.Business.Implement
                     await _billDetailsBusiness.CreateBillDetails( await _billDetailModelFactory.ConvertEntities( model.BillDetails), savedBill.Id);
                 }
 
-                var result = new BillModel
-                {
-                    Id = savedBill.Id,
-                    BillCode = savedBill.BillCode,
-                    CustomerId = savedBill.CustomerId != null ? savedBill.CustomerId : null,
-                    CustomerName = savedBill.RecipientName,
-                    CustomerPhone = savedBill.RecipientPhone,
-                    CustomerEmail = savedBill.RecipientEmail,
-                    CustomerAddress = savedBill.RecipientAddress,
-                    TotalAmount = savedBill.TotalAmount,
-                    DiscountAmount = savedBill.DiscountAmount,
-                    FinalAmount = savedBill.FinalAmount,
-                    VoucherCode = savedBill.VoucherCode,
-                    Note = savedBill.Notes,
-                    Status = savedBill.Status,
-                    PaymentMethod = savedBill.PaymentMethod,
-                    PaymentStatus = savedBill.PaymentStatus,
-                    CreatedOnDate = savedBill.CreatedOnDate.Value,
-                    LastModifiedOnDate = savedBill.LastModifiedOnDate
-                };
-
+               var result = await _billModelFactory.CreateModel(savedBill,true);
                 return result;
-
             }
             catch (Exception ex)
             {
@@ -342,11 +318,11 @@ namespace Project.Business.Implement
                     CustomerPhone = bill.RecipientPhone,
                     CustomerEmail = bill.RecipientEmail,
                     CustomerAddress = bill.RecipientAddress,
-                    TotalAmount = bill.TotalAmount,
-                    DiscountAmount = bill.DiscountAmount,
-                    FinalAmount = bill.FinalAmount,
+                    TotalAmount = bill.TotalAmount.Value,
+                    DiscountAmount = bill.DiscountAmount.Value,
+                    FinalAmount = bill.FinalAmount.Value,
                     VoucherCode = bill.VoucherCode,
-                    Note = bill.Notes,
+                    Note = bill.Note,
                     Status = bill.Status,
                     PaymentMethod = bill.PaymentMethod,
                     PaymentStatus = bill.PaymentStatus,
@@ -397,7 +373,7 @@ namespace Project.Business.Implement
                     DiscountAmount = bill.DiscountAmount,
                     FinalAmount = bill.FinalAmount,
                     VoucherCode = bill.VoucherCode,
-                    Note = bill.Notes,
+                    Note = bill.Note,
                     Status = bill.Status,
                     PaymentMethod = bill.PaymentMethod,
                     PaymentStatus = bill.PaymentStatus,
@@ -441,7 +417,7 @@ namespace Project.Business.Implement
                     DiscountAmount = bill.DiscountAmount,
                     FinalAmount = (decimal)bill.FinalAmount,
                     VoucherCode = bill.VoucherCode,
-                    Note = bill.Notes,
+                    Note = bill.Note,
                     Status = bill.Status,
                     PaymentMethod = bill.PaymentMethod,
                     PaymentStatus = bill.PaymentStatus,

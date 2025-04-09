@@ -162,13 +162,6 @@ namespace Project.MVC.Controllers
                 return RedirectToAction("Index", "Home");
             }
 
-            // Lấy chi tiết đơn hàng
-            var billDetails = await _billDetailsBusiness.GetBillDetailsByBillId(billId);
-            if (billDetails !=null)
-            {
-                bill.BillDetails = billDetails;
-            }
-
             return View(bill);
         }
 

@@ -29,6 +29,7 @@ const DetailBillSheet: React.FC<DetailBillSheetProps> = ({
   const bill = useAppSelector(selectBill);
 
   useEffect(() => {
+    
     dispatch(fetchBillById(billId));
   }, [dispatch, billId]);
 
@@ -46,7 +47,7 @@ const DetailBillSheet: React.FC<DetailBillSheetProps> = ({
       <Sheet open={isOpen} onOpenChange={onClose}>
         <SheetContent className="w-full sm:max-w-lg">
           <div className="flex items-center justify-center h-full">
-            <p>Loading bill details...</p>
+            <p>Đang tải chi tiết hóa đơn...</p>
           </div>
         </SheetContent>
       </Sheet>
@@ -61,14 +62,14 @@ const DetailBillSheet: React.FC<DetailBillSheetProps> = ({
           <div className="bg-primary text-white p-6">
             <SheetHeader className="mb-4 flex justify-between items-start">
               <div>
-                <h1 className="text-2xl font-bold mb-2">INVOICE</h1>
-                <p className="text-sm opacity-90">Bill No: {bill.billCode}</p>
+                <h1 className="text-2xl font-bold mb-2">Hóa đơn</h1>
+                <p className="text-sm opacity-90">Mã hóa đơn: {bill.billCode}</p>
                 <div className="flex gap-2 mt-1">
                   <Badge variant="outline" className="text-white border-white">
-                    Status: {bill.status === "0" ? "Pending" : bill.status === "1" ? "Completed" : "Cancelled"}
+                    Trạng thái: {bill.status === "0" ? "Pending" : bill.status === "1" ? "Hoàn Thành" : "Hủy"}
                   </Badge>
                   <Badge variant="outline" className="text-white border-white">
-                    Payment: {bill.paymentStatus === "0" ? "Pending" : bill.paymentStatus === "1" ? "Paid" : "Failed"}
+                    Thanh toán: {bill.paymentStatus === "0" ? "Chưa thanh toán" : bill.paymentStatus === "1" ? "Đã thanh toán" : "Thất bại"}
                   </Badge>
                 </div>
               </div>
@@ -79,7 +80,7 @@ const DetailBillSheet: React.FC<DetailBillSheetProps> = ({
                   className="flex items-center gap-1"
                 >
                   <Printer className="h-4 w-4" />
-                  <span>Print</span>
+                  <span>In </span>
                 </Button>
                 <Button
                   variant="secondary"
@@ -87,7 +88,7 @@ const DetailBillSheet: React.FC<DetailBillSheetProps> = ({
                   className="flex items-center gap-1"
                 >
                   <Download className="h-4 w-4" />
-                  <span>Download</span>
+                  <span>Tải xuống</span>
                 </Button>
               </div>
             </SheetHeader>
@@ -97,7 +98,7 @@ const DetailBillSheet: React.FC<DetailBillSheetProps> = ({
           <div className="p-6 bg-white">
             <div className="grid grid-cols-2 gap-6 mb-8">
               <div>
-                <h2 className="text-lg font-semibold mb-1">From</h2>
+                <h2 className="text-lg font-semibold mb-1">Từ</h2>
                 <div className="text-gray-800">
                   <p className="font-medium">Your Company Name</p>
                   <p className="text-sm text-gray-600">
