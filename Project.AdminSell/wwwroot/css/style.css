@@ -1423,7 +1423,6 @@ h6 {
     border-radius: 3px;
     padding-top: 5px;
     position: relative;
-    overflow: hidden;
     height: 50px;
     width: 850px;
     background-color: #343a40;
@@ -1468,11 +1467,21 @@ h6 {
 .tabbill .tabs-box {
     display: flex;
     list-style: none;
-    overflow-x: hidden;
+    overflow-x: auto;
     overflow-y: hidden;
     scroll-behavior: smooth;
     height: 50px;
     box-sizing: border-box;
+    white-space: nowrap;
+}
+
+.tabbill .tabs-box::-webkit-scrollbar {
+    height: 6px; /* chỉnh thanh scroll thấp cho đẹp */
+}
+
+.tabbill .tabs-box::-webkit-scrollbar-thumb {
+    background: rgba(255, 255, 255, 0.6);
+    border-radius: 4px;
 }
 
 .tabs-box.dragging {
@@ -1483,16 +1492,13 @@ h6 {
 .tabs-box .tab {
     cursor: pointer;
     font-size: 1rem;
-    min-width: 135px;
+    min-width: 90px;
+    height: 40px;
+    margin-top: 6px;
     white-space: nowrap;
     padding: 8px 15px;
-    color: #fff;
-    -webkit-border-top-left-radius: 8px;
-    -webkit-border-top-right-radius: 8px;
-    -moz-border-radius-topleft: 8px;
-    -moz-border-radius-topright: 8px;
-    border-top-left-radius: 8px;
-    border-top-right-radius: 8px;
+    color: white;
+    border-radius: 5px;
 }
 
 .tabs-box .tab:first-child {
@@ -1504,7 +1510,7 @@ h6 {
 }
 
 .tabs-box .tab:hover {
-    background: #004392;
+    background: lightgray;
 }
 
 .tabs-box.dragging .tab {

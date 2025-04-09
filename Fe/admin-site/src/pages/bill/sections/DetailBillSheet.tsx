@@ -44,6 +44,7 @@ const DetailBillSheet: React.FC<DetailBillSheetProps> = ({
   }, [bill]);
 
   useEffect(() => {
+    
     dispatch(fetchBillById(billId));
   }, [dispatch, billId]);
 
@@ -115,6 +116,7 @@ const DetailBillSheet: React.FC<DetailBillSheetProps> = ({
                 <h1 className="text-2xl font-bold mb-2">Hóa đơn</h1>
                 <p className="text-sm opacity-90">Mã hóa đơn: {bill.billCode}</p>
                 <div className="flex gap-2 mt-1">
+
                   <Badge 
                     variant={getStatusBadgeVariant(bill.status)} 
                     className="text-white border-white"
@@ -133,7 +135,9 @@ const DetailBillSheet: React.FC<DetailBillSheetProps> = ({
                   className="flex items-center gap-1"
                 >
                   <Printer className="h-4 w-4" />
+
                   <span>In</span>
+
                 </Button>
                 <Button
                   variant="secondary"

@@ -308,7 +308,9 @@ namespace Project.Business.Implement
                     return null;
                 }
 
+
                 var result = await _billModelFactory.CreateModel(bill, true);
+
 
                 return result;
             }
