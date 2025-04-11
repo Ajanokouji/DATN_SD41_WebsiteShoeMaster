@@ -75,9 +75,7 @@ namespace Project.Api.Controllers
         {
             return await ExecuteFunction(async () =>
             {
-                var exist = await _productBusiness.FindAsync(id);
-                if (id != productEntity.Id || exist ==null)
-                    throw new ArgumentException("Not Found");
+               
                 var updatedProduct = await _productBusiness.PatchAsync(productEntity);
                 return updatedProduct;
             });

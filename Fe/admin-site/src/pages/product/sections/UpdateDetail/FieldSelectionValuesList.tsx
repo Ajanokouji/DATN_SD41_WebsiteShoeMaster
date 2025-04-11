@@ -20,7 +20,7 @@ export const FieldSelectionValuesList: React.FC<FieldSelectionValuesListProps> =
 }) => {
   return (
     <div className="space-y-2">
-      <h3 className="font-medium">Field Selection Values</h3>
+      <h3 className="font-medium">Thuộc Tính sản phẩm</h3>
       {fieldSelectionValues.map((field, index) => (
         <div key={index} className="flex space-x-2">
           <Input

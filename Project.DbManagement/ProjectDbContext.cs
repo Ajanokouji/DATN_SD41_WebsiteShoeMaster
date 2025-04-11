@@ -22,6 +22,7 @@ namespace Project.DbManagement
         public DbSet<CategoriesEntity> Categories { get; set; }
         public DbSet<UserEntity> Users{ get; set; }
         public DbSet<CustomersEntity> Customers { get; set; }
+        public DbSet<ImageFile> ImageFiles { get; set; }
 
         public DbSet<ProductCategoriesRelation> ProductCategoriesRelations { get; set; }
 

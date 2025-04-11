@@ -8,6 +8,7 @@ import { LuSettings } from "react-icons/lu";
 import { LuContact } from "react-icons/lu";
 import { TbCirclesRelation } from "react-icons/tb";
 import { FaFileInvoiceDollar } from "react-icons/fa6";
+import { FiFile } from "react-icons/fi";
 
 interface NavConfigItem {
   title: string;
