@@ -4,6 +4,8 @@ using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Project.Business.Implement;
 using Project.Business.Interface;
+using Project.Business.Interface.Project.Business.Interface;
+using Project.Business.Interface.Project.Business.Interface.Repositories;
 using Project.Business.Interface.Repositories;
 using Project.Business.ModelFactory;
 using Project.Business.ModelFactory.Implement;
@@ -38,6 +40,7 @@ namespace Project.Business
             services.AddScoped<IBillDetailsRepository, BillDetailsRepository>();
             services.AddScoped<IProductCategoriesRelationRepository, ProductCategoriesRelationRepository>();
             services.AddScoped<ICategoriesRepository, CategoriesRepository>();
+            services.AddScoped<IImageFileRepository, ImageFileRepository>();
 
             // Register Business Services
 
@@ -54,6 +57,7 @@ namespace Project.Business
             services.AddScoped<IBillDetailsBusiness, BillDetailsBusiness>();
             services.AddScoped<IProductCategoriesRelationBusiness, ProductCategoriesRelationBusiness>();
             services.AddScoped<ICategoriesBusiness, CategoriesBusiness>();
+            services.AddScoped<IImageFileBusiness, ImageFileBusiness>();
 
             services.AddScoped<IBillModelFactory, BillModelFactory>();
             services.AddScoped<IBillDetailModelFactory, BillDetailModelFactory>();

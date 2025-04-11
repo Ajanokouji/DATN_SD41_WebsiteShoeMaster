@@ -8,6 +8,7 @@ import { LuSettings } from "react-icons/lu";
 import { LuContact } from "react-icons/lu";
 import { TbCirclesRelation } from "react-icons/tb";
 import { FaFileInvoiceDollar } from "react-icons/fa6";
+import { FaFileAlt } from "react-icons/fa";
 
 interface NavConfigItem {
   title: string;
@@ -66,6 +67,12 @@ const navConfig: NavConfigItem[] = [
     path: "/bill",
     icon: FaFileInvoiceDollar,
     color: "#EF4444",
+  },
+  {
+    title: "Tài Nguyên",
+    path: "/file-manager",
+    icon: FaFileAlt,
+    color: "#3b82f6",
   },
   {
     title: "Cài đặt",
