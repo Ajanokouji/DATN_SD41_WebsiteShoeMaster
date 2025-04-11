@@ -36,7 +36,7 @@ export const VariantList: React.FC<VariantListProps> = ({
   return (
     <div className="space-y-4 mt-6">
       <div className="flex items-center justify-between">
-        <Label className="text-lg font-medium">Variants</Label>
+        <Label className="text-lg font-medium">Biến thể sản phẩm</Label>
         {isEditing && (
           <Button type="button" variant="outline" size="sm" onClick={onAdd}>
             <Plus className="h-4 w-4 mr-2" />
@@ -118,12 +118,12 @@ export const VariantList: React.FC<VariantListProps> = ({
         </Table>
       ) : (
         <div className="text-center p-4 border rounded-md bg-gray-50">
-          No variants available
+          Không có biến thể sản phẩm
           {isEditing && (
             <div className="mt-2">
               <Button type="button" variant="outline" size="sm" onClick={onAdd}>
                 <Plus className="h-4 w-4 mr-2" />
-                Thêm Variant
+                Thêm biến thể
               </Button>
             </div>
           )}

@@ -20,6 +20,7 @@ namespace Project.Business.Model
         public string? WorkFlowStates { get; set; }
         public DateTime? PublicOnDate { get; set; }
         public bool IsSelectMetadata { get; set; } = false;
+        public Dictionary<string,object>? PropertySearch { get; set; }
 
     }
 }

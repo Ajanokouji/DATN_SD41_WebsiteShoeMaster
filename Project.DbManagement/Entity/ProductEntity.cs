@@ -80,9 +80,9 @@ namespace Project.DbManagement.Entity
         public string? WorkFlowStates { get; set; }
         public DateTime? PublicOnDate { get; set; }
         [NotMapped]
-        public virtual List<MetaField> MetadataObj { get; set; }
+        public virtual List<MetaField>? MetadataObj { get; set; }
 
-        public virtual string MetadataJson
+        public virtual string? MetadataJson
         {
             get
             {
@@ -115,7 +115,7 @@ namespace Project.DbManagement.Entity
         public string? CompletePath { get; set; }
         public string? CompleteCode { get; set; }
         [NotMapped]
-        public List<LabelsObj> LabelsObjs { get; set; }
+        public List<LabelsObj>? LabelsObjs { get; set; }
         public virtual string? LabelsJson
         {
             get
