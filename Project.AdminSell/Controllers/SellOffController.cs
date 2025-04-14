@@ -1,8 +1,10 @@
 ﻿using System.Diagnostics;
 using Microsoft.AspNetCore.Mvc;
 using Newtonsoft.Json;
-using Project.AdminSell.IServices;
 using Project.AdminSell.Models;
+using Project.Business.Interface;
+using Project.Business.Model;
+using Project.DbManagement;
 using Project.DbManagement.Entity;
 
 namespace Project.AdminSell.Controllers;
@@ -10,18 +12,20 @@ namespace Project.AdminSell.Controllers;
 public class SellOffController : Controller
 {
     private readonly ILogger<SellOffController> _logger;
-    private readonly ISellOffService _sellOffService;
+    private readonly IBillBusiness _billBusiness;
+    private readonly IProductBusiness _productBusiness;
 
-    public SellOffController(ILogger<SellOffController> logger, ISellOffService sellOffService)
+    public SellOffController(ILogger<SellOffController> logger, IBillBusiness billBusiness, IProductBusiness productBusiness)
     {
         _logger = logger;
-        _sellOffService = sellOffService;
+        _billBusiness = billBusiness;
+        _productBusiness = productBusiness;
     }
 
     [HttpGet]
     public IActionResult Sell()
     {
-        var lstBill = _sellOffService.GetAllPendingBill();
+        var lstBill = _billBusiness.GetAllPendingBill();
         ViewData["lstBill"] = lstBill;
         UserEntity user = new UserEntity()
         {
@@ -38,39 +42,46 @@ public class SellOffController : Controller
     [HttpGet]
     public IActionResult GetAllPDBill()
     {
-        var lstBill = _sellOffService.GetAllPendingBill();
+        var lstBill = _billBusiness.GetAllPendingBill();
         return Ok(lstBill);
-        // return Json(new { data = lstBill });
     }
 
     [HttpPost]
     public bool CreateBill(Guid idEmployee)
     {
-        return _sellOffService.CreatePendingBill(idEmployee);
+        return _billBusiness.CreatePendingBill(idEmployee);
     }
 
     [HttpDelete]
     [Route("SellOff/DeleteBill/{idBill}")]
     public bool DeleteBill(Guid idBill)
     {
-        return _sellOffService.DeletePendingBill(idBill);
+        return _billBusiness.DeletePendingBill(idBill);
     }
 
-    // Sản phẩm
     [HttpGet]
-    public async Task<IActionResult> LoadSp(int page, int pagesize)
+    public async Task<IActionResult> LoadProduct(int page, int pagesize)
     {
-        // var listsanPham = await _httpClient.GetFromJsonAsync<List<SanPhamBanHang>>("SanPham/getAllSPBanHang");
-        // var model = listsanPham.Skip((page - 1) * pagesize).Take(pagesize).ToList();
-        // int totalRow = listsanPham.Count;
-        // return Json(new
-        // {
-        //     data = model,
-        //     total = totalRow,
-        //     status = true,
-        // });
-        return Ok();
+        var listProduct = await _productBusiness.GetAllProduct();
+        var model = listProduct.Skip((page - 1) * pagesize).Take(pagesize).ToList();
+        int totalRow = listProduct.Count;
+        return Json(new
+        {
+            data = model,
+            total = totalRow,
+            status = true,
+        });
     }
+    
+    // public async Task<IActionResult> ShowProductDetail(Guid idprd)
+    // {
+    //     var product = await _productBusiness.GetProductDetailById(idprd);
+    //     return Json(new
+    //     {
+    //         data = product,
+    //         status = true,
+    //     });
+    // }
 
     [ResponseCache(Duration = 0, Location = ResponseCacheLocation.None, NoStore = true)]
     public IActionResult Error()

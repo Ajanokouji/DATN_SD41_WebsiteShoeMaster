@@ -654,6 +654,34 @@ namespace Project.Business.Implement
                 return null;
             }
         }
-
+        
+        public List<BillEntity> GetAllPendingBill()
+        {
+            return _billRepository.GetAllPendingBill();
+        }
+        public bool CreatePendingBill(Guid idEmployee)
+        {
+            try
+            {
+                _billRepository.CreatePendingBill(idEmployee);
+                return true;
+            }
+            catch
+            {
+                return false;
+            }   
+        }
+        public bool DeletePendingBill(Guid idBill)
+        {
+            try
+            {
+                _billRepository.DeletePendingBill(idBill);
+                return true;
+            }
+            catch
+            {
+                return false;
+            }
+        }
     }
 }

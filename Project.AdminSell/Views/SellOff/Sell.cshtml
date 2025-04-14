@@ -125,7 +125,7 @@
     var pageSizesp = 10;// Tối đa 10sp 1 trang
     var pageIndexsp = 1;//Trang ban đầu
     $(document).ready(function () {
-        loadsp();
+        LoadProduct();
         activeTab(0);
         $(function () {
             $(document).on("click", ".tab", function (e) {
@@ -153,9 +153,9 @@
     }
 
     //LoadDSSanPham
-    function loadsp() {
+    function LoadProduct() {
         $.ajax({
-            url: "/SellOff/LoadSp",
+            url: "/SellOff/LoadProduct",
             type: "GET",
             data: {
                 page: pageIndexsp,
@@ -166,22 +166,21 @@
                 $(".product-list").empty();
                 for (let i = 0; i < response.data.length; i++) {
                     $(".product-list").append(`
-                                                    <li class="product-item d-flex flex-row" onclick="showSPDetail('${response.data[i].id}')">
+                                                    <li class="product-item d-flex flex-row" onclick="showProductDetail('${response.data[i].id}')">
                                                             <div class="product-img">
-                                                                <img src="/img/product/${response.data[i].anh}" class="img-fluid rounded-start" alt="...">
+                                                                <img src="${response.data[i].image}" class="img-fluid rounded-start" alt="...">
                                                             </div>
                                                             <div class="product-detail d-flex flex-column flex-grow-1">
-                                                                <span class="product-name mt-1">${response.data[i].ten}</span>
+                                                                <span class="product-name mt-1">${response.data[i].name}</span>
                                                                 <div class="product-infor mt-auto">
-                                                                    <span style="flex-basis:100%"><b style="color:blue;font-size:14px; font-weight:700">${response.data[i].giaBan.toLocaleString()}</b></span>
-
+                                                                    <span style="flex-basis:100%"><b style="color:#ff0000;font-size:14px; font-weight:700">${response.data[i].price.toLocaleString()}đ</b></span>
                                                                 </div>
                                                             </div>
                                                     </li>
                                                     `);
                 }
                 pagingsp(response.total, function () {
-                    loadsp();
+                    LoadProduct();
                 });
             },
             error: function (err) {
@@ -253,27 +252,38 @@
 
     //Xóa hóa đơn chờ
     function deletePDBill(idBill) {
-        var ans = confirm("Bạn chắc chứ?");
-        if (ans) {
-            $.ajax({
-                url: "/SellOff/DeleteBill/" + idBill,
-                type: "DELETE",
-                dataType: 'json',
-                contentType: 'application/json',
-                success: function (response) {
-                    $("#partialGioHang").empty();
-                    loadPDBill(function () {
-                        activeTab(0);
-                    });
-                    loadsp();
-                    toastr.success('Xóa thành công', 'Success Alert', {timeOut: 300});
-                },
-                error: function (response) {
-                    toastr.error('Xóa thất bại', 'Error Alert', {timeOut: 300});
-                }
-            });
-        }
+        Swal.fire({
+            title: 'Bạn chắc chứ?',
+            text: "Hành động này không thể hoàn tác!",
+            icon: 'warning',
+            showCancelButton: true,
+            confirmButtonColor: '#3085d6',
+            cancelButtonColor: '#d33',
+            confirmButtonText: 'Vâng, xóa đi!',
+            cancelButtonText: 'Hủy'
+        }).then((result) => {
+            if (result.isConfirmed) {
+                $.ajax({
+                    url: "/SellOff/DeleteBill/" + idBill,
+                    type: "DELETE",
+                    dataType: 'json',
+                    contentType: 'application/json',
+                    success: function (response) {
+                        $("#partialGioHang").empty();
+                        loadPDBill(function () {
+                            activeTab(0);
+                        });
+                        LoadProduct();
+                        toastr.success('Xóa thành công', 'Success Alert', { timeOut: 300 });
+                    },
+                    error: function (response) {
+                        toastr.error('Xóa thất bại', 'Error Alert', { timeOut: 300 });
+                    }
+                });
+            }
+        });
     }
+
 
     //Thêm SP vào Hóa đơn
     function addCTSP(idctsp, dongia) {
@@ -325,8 +335,8 @@
     }
 
     //Mở chi tiết sản phẩm
-    function showSPDetail(idsp) {
-        $("#sanphambody").load("/BanHangTaiQuay/ShowSPDetail/" + idsp);
+    function showProductDetail(idprd) {
+        $("#sanphambody").load("/BanHangTaiQuay/ShowProductDetail/" + idprd);
         $("#sanpham").modal("show");
     }
 
@@ -379,3 +389,4 @@
     });
 
 </script>
+<script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>

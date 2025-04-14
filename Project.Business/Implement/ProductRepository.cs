@@ -9,6 +9,8 @@ using SERP.Framework.Common;
 using SERP.Framework.Common.Extensions;
 using SERP.Framework.DB.Extensions;
 using Microsoft.EntityFrameworkCore.SqlServer;
+using Project.Common;
+using Project.DbManagement.ViewModels;
 
 namespace Project.Business.Implement
 {
@@ -273,6 +275,16 @@ namespace Project.Business.Implement
             throw new NotImplementedException();
         }
 
-       
+        public async Task<List<ListProductSellViewModel>> GetAllProduct()
+        {
+            return await (from products in _context.Products.AsNoTracking()
+                select new ListProductSellViewModel()
+                {
+                    Id = products.Id,
+                    Image = products.ImageUrl,
+                    Name = products.Name,
+                    Price = products.MetadataObj.GetMetadatavalue("MaxPrice")
+                }).ToListAsync();
+        }
     }
 }

@@ -6,6 +6,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+using Project.DbManagement.ViewModels;
 
 namespace Project.Business.Interface
 {
@@ -85,6 +86,6 @@ namespace Project.Business.Interface
         /// <returns></returns>
         Task<ProductEntity> PatchAsync(ProductEntity productEntity);
 
-
+        public Task<List<ListProductSellViewModel>> GetAllProduct();
     }
 }

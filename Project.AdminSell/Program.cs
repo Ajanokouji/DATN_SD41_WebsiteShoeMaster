@@ -1,6 +1,5 @@
 using Microsoft.EntityFrameworkCore;
-using Project.AdminSell.IServices;
-using Project.AdminSell.Services;
+using Project.Business;
 using Project.DbManagement;
 
 namespace Project.AdminSell
@@ -26,7 +25,7 @@ namespace Project.AdminSell
             builder.Services.AddDbContext<ProjectDbContext>(options =>
                 options.UseSqlServer(builder.Configuration.GetConnectionString("DefaultConnection")));
             
-            builder.Services.AddScoped<ISellOffService, SellOffService>();
+            builder.Services.RegisterServiceComponents(builder.Configuration);
 
             var app = builder.Build();
 
