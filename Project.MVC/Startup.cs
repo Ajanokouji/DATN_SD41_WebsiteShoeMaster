@@ -2,6 +2,7 @@
 using Project.DbManagement;
 using Microsoft.EntityFrameworkCore;
 using VNPAY.NET;
+using Project.Business.Interface.Services;
 
 namespace Project.MVC
 {
@@ -22,7 +23,8 @@ namespace Project.MVC
 
             services.AddControllersWithViews();
             services.RegisterServiceComponents(_configuration);
-            services.AddSingleton<IVnpay, Vnpay>();
+            //Connect VNPay API
+            services.AddScoped<IVnPayService, VnPayService>();
 
             // Add session support
             services.AddDistributedMemoryCache();
