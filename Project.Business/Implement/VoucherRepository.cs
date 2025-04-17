@@ -166,6 +166,13 @@ namespace Project.Business.Implement
 
             foreach (var voucher in Vouchers)
             {
+                // Fix lỗi tracking
+                var local = _context.Vouchers.Local.FirstOrDefault(x => x.Id == voucher.Id);
+                if (local != null)
+                {
+                    _context.Entry(local).State = EntityState.Detached;
+                }
+
                 var exist = await _context.Vouchers
                     .AsNoTracking()
                     .FirstOrDefaultAsync(x =>
@@ -183,15 +190,18 @@ namespace Project.Business.Implement
                 {
                     _context.Entry(exist).State = EntityState.Detached;
                     exist.Id = voucher.Id;
+                    exist.Code = voucher.Code;
+                    exist.DiscountAmount = voucher.DiscountAmount;
+                    exist.Description = voucher.Description;
+                    exist.MinimumOrderAmount = voucher.MinimumOrderAmount;
+                    exist.DiscountPercentage = voucher.DiscountPercentage;
                     exist.VoucherName = voucher.VoucherName;
                     exist.VoucherType = voucher.VoucherType;
                     exist.StartDate = voucher.StartDate;
                     exist.EndDate = voucher.EndDate;
                     exist.Status = voucher.Status;
-                    exist.CreatedOnDate = voucher.CreatedOnDate;
-                    exist.LastModifiedOnDate = voucher.LastModifiedOnDate;
 
-                    voucher.UpdateTracking(voucher.Id);
+                    exist.UpdateTracking(voucher.Id);
                     _context.Vouchers.Update(exist);
                     updated.Add(exist);
                 }
@@ -208,7 +218,7 @@ namespace Project.Business.Implement
             if (exist == null) throw new Exception(IVoucherRepository.MessageNotFound);
             exist.Isdeleted = true;
             _context.Vouchers.Update(exist);
-            _context.SaveChangesAsync();
+            await _context.SaveChangesAsync(); //Thêm await fix lỗi xóa
             return exist;
         }
 
@@ -228,6 +238,26 @@ namespace Project.Business.Implement
         public Task<Voucher> FindByCodeAsync(string code)
         {
             throw new NotImplementedException();
+        }
+
+        //Check code đã tồn tại hay chưa khi Tạo mới hoặc Cập nhật
+        public async Task<bool> IsVoucherCodeExist(string code, Guid? voucherId)
+        {
+            //Nếu voucherId có giá trị thì nghĩa là đang muốn kiểm tra khi cập nhật
+            if (voucherId.HasValue)
+            {
+                bool isExist = await _context.Vouchers
+                    .AsNoTracking()
+                    .AnyAsync(x => x.Code.Trim().ToLower() == code.Trim().ToLower() && x.Id != voucherId.Value && x.Isdeleted == false);
+                return isExist;
+            }
+            else //Nếu voucherId ko giá trị thì nghĩa là đang muốn kiểm tra khi tạo mới
+            {
+                bool isExist = await _context.Vouchers
+                    .AsNoTracking()
+                    .AnyAsync(x => x.Code.Trim().ToLower() == code.Trim().ToLower() && x.Isdeleted == false);
+                return isExist;
+            }
         }
     }
 }

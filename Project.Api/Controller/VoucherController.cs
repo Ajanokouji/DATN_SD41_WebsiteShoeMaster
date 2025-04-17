@@ -86,5 +86,20 @@ namespace Project.Api.Controllers
             var deletedVouchers = await _voucherBusiness.DeleteAsync(ids);
             return Ok(deletedVouchers);
         }
+
+        [HttpPost("IsCodeExist")]
+        public async Task<IActionResult> IsVoucherCodeExistAsync([FromBody] string code, [FromQuery] Guid? voucherId)
+        {
+            if (string.IsNullOrEmpty(code))
+            {
+                return BadRequest("Mã voucher không ???c ?? tr?ng.");
+            }
+
+            return await ExecuteFunction(async () =>
+            {
+                var isCodeExist = await _voucherBusiness.IsVoucherCodeExist(code, voucherId);
+                return Ok(isCodeExist);
+            });
+        }
     }
 }

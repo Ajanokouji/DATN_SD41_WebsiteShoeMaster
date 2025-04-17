@@ -87,7 +87,7 @@ namespace Project.MVC.Controllers
             }
 
             //Đăng nhập thành công
-            if (userFound.Type == "0") //Nếu type là Admin
+            if (userFound.Type == "0") //Nếu type là Admin (Giả sử type = 0 là Admin)
             {
                 //Tạo session user
                 HttpContext.Session.SetString(UserConstants.UserSessionKey, JsonConvert.SerializeObject(userFound));
@@ -96,7 +96,7 @@ namespace Project.MVC.Controllers
                 TempData["ErrMs"] = "Đăng nhập thành công dưới quyền Admin";
                 return View(user);
             }
-            else if (userFound.Type == "1") //Nếu type là Khách hàng
+            else if (userFound.Type == "1") //Nếu type là Khách hàng (Giả sử type = 1 là khách hàng)
             {
                 string ms = "";
 
@@ -134,6 +134,15 @@ namespace Project.MVC.Controllers
                 //Mới in ra thông báo Chưa thực hiện chuyển hướng
                 TempData["ErrMs"] = "Đăng nhập thành công dưới quyền khách hàng " + ms;
                 return RedirectToAction("Index","Home");
+            }
+            else if (userFound.Type == "2") //Nếu type là Nhân viên (Giả sử type = 2 là Nhân viên)
+            {
+                //Tạo session user
+                HttpContext.Session.SetString(UserConstants.UserSessionKey, JsonConvert.SerializeObject(userFound));
+
+                //Mới in ra thông báo Chưa thực hiện chuyển hướng
+                TempData["ErrMs"] = "Đăng nhập thành công dưới quyền Nhân viên";
+                return View(user);
             }
             else
             {
