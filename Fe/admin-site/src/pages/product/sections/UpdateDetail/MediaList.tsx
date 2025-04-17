@@ -29,7 +29,7 @@ export const MediaList: React.FC<MediaListProps> = ({
   return (
     <div className="space-y-4 mt-6">
       <div className="flex items-center justify-between">
-        <Label className="text-lg font-medium">Media</Label>
+        <Label className="text-lg font-medium">Ảnh</Label>
       </div>
 
       {isEditing && (

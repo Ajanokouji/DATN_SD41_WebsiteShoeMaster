@@ -1,4 +1,5 @@
 ﻿using Microsoft.Extensions.Caching.Memory;
+using Nest;
 using Project.Business.Interface;
 using Project.Business.Model;
 using Project.Common;
@@ -33,7 +34,7 @@ namespace Project.Business.Implement
                 .SetAbsoluteExpiration(TimeSpan.FromHours(1));
         }
 
-        public async Task<Customers> DeleteAsync(Guid id)
+        public async Task<CustomersEntity> DeleteAsync(Guid id)
         {
             try
             {
@@ -66,7 +67,7 @@ namespace Project.Business.Implement
             }
         }
 
-        public async Task<IEnumerable<Customers>> DeleteAsync(Guid[] deleteIds)
+        public async Task<IEnumerable<CustomersEntity>> DeleteAsync(Guid[] deleteIds)
         {
             try
             {
@@ -95,7 +96,7 @@ namespace Project.Business.Implement
             }
         }
 
-        public async Task<Customers> FindAsync(Guid id)
+        public async Task<CustomersEntity> FindAsync(Guid id)
         {
             try
             {
@@ -118,7 +119,28 @@ namespace Project.Business.Implement
             }
         }
 
-        public async Task<Pagination<Customers>> GetAllAsync(CustomerQueryModel queryModel)
+        public async Task<CustomersEntity> FindByPhoneNumberAsync(string phone)
+        {
+            try
+            {
+
+                var customer = (await _customerRepository.ListAllAsync(new CustomerQueryModel()
+                {
+                    PhoneNumber = phone
+                })).First();
+                if (customer == null)
+                {
+                    _logger.Warning("Customer not found");
+                }
+                return customer;
+            }
+            catch (Exception ex)
+            {
+                _logger.Error(ex, "Error finding customer ");
+                throw;
+            }
+        }
+        public async Task<Pagination<CustomersEntity>> GetAllAsync(CustomerQueryModel queryModel)
         {
             try
             {
@@ -129,7 +151,7 @@ namespace Project.Business.Implement
 
                 if (queryModel.PageSize == 0 && queryModel.CurrentPage == 0)
                 {
-                    if (_cache.TryGetValue(CustomerListCacheKey, out Pagination<Customers> cachedCustomers))
+                    if (_cache.TryGetValue(CustomerListCacheKey, out Pagination<CustomersEntity> cachedCustomers))
                     {
                         _logger.Debug("Retrieved customers from cache");
                         return cachedCustomers;
@@ -168,7 +190,7 @@ namespace Project.Business.Implement
             }
         }
 
-        public async Task<IEnumerable<Customers>> ListAllAsync(CustomerQueryModel queryModel)
+        public async Task<IEnumerable<CustomersEntity>> ListAllAsync(CustomerQueryModel queryModel)
         {
             try
             {
@@ -186,7 +208,7 @@ namespace Project.Business.Implement
             }
         }
 
-        public async Task<IEnumerable<Customers>> ListByIdsAsync(IEnumerable<Guid> ids)
+        public async Task<IEnumerable<CustomersEntity>> ListByIdsAsync(IEnumerable<Guid> ids)
         {
             try
             {
@@ -204,7 +226,7 @@ namespace Project.Business.Implement
             }
         }
 
-        public async Task<Customers> SaveAsync(Customers customer)
+        public async Task<CustomersEntity> SaveAsync(CustomersEntity customer)
         {
             try
             {
@@ -233,7 +255,7 @@ namespace Project.Business.Implement
             }
         }
 
-        public async Task<IEnumerable<Customers>> SaveAsync(IEnumerable<Customers> customers)
+        public async Task<IEnumerable<CustomersEntity>> SaveAsync(IEnumerable<CustomersEntity> customers)
         {
             try
             {
@@ -263,7 +285,7 @@ namespace Project.Business.Implement
             }
         }
 
-        public async Task<Customers> PatchAsync(Customers customer)
+        public async Task<CustomersEntity> PatchAsync(CustomersEntity customer)
         {
             try
             {
@@ -307,7 +329,7 @@ namespace Project.Business.Implement
             }
         }
 
-        public async Task<IEnumerable<Customers>> GetTopCustomersAsync(int count, DateTime? startDate = null, DateTime? endDate = null)
+        public async Task<IEnumerable<CustomersEntity>> GetTopCustomersAsync(int count, DateTime? startDate = null, DateTime? endDate = null)
         {
             try
             {
@@ -370,6 +392,8 @@ namespace Project.Business.Implement
                 throw;
             }
         }
+
+   
     }
 
     public class CustomerStatistics

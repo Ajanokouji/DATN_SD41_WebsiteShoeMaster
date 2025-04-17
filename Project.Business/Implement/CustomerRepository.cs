@@ -26,13 +26,13 @@ namespace Project.Business.Implement
             _context = context;
         }
 
-        public async Task<Customers> FindAsync(Guid id)
+        public async Task<CustomersEntity> FindAsync(Guid id)
         {
             var res = await _context.Customers.AsNoTracking().FirstOrDefaultAsync(x => x.Id == id);
             return res;
         }
 
-        public async Task<IEnumerable<Customers>> ListAllAsync(CustomerQueryModel queryModel)
+        public async Task<IEnumerable<CustomersEntity>> ListAllAsync(CustomerQueryModel queryModel)
         {
             var query = BuildQuery(queryModel);
             var resId = await query.Select(x => x.Id).ToListAsync();
@@ -40,16 +40,16 @@ namespace Project.Business.Implement
             return res;
         }
 
-        public async Task<IEnumerable<Customers>> ListByIdsAsync(IEnumerable<Guid> ids)
+        public async Task<IEnumerable<CustomersEntity>> ListByIdsAsync(IEnumerable<Guid> ids)
         {
             var res = await _context.Customers.Where(x => ids.Contains(x.Id)).ToListAsync();
             return res;
         }
 
-        public async Task<Pagination<Customers>> GetAllAsync(CustomerQueryModel queryModel)
+        public async Task<Pagination<CustomersEntity>> GetAllAsync(CustomerQueryModel queryModel)
         {
             queryModel.Sort = QueryUtils.FormatSortInput(queryModel.Sort);
-            IQueryable<Customers> queryable = BuildQuery(queryModel);
+            IQueryable<CustomersEntity> queryable = BuildQuery(queryModel);
             string sortExpression = string.Empty;
             if (string.IsNullOrWhiteSpace(queryModel.Sort) || queryModel.Sort.Equals("-LastModifiedOnDate"))
             {
@@ -63,9 +63,9 @@ namespace Project.Business.Implement
             return await queryable.GetPagedOrderAsync(queryModel.CurrentPage.Value, queryModel.PageSize.Value, sortExpression);
         }
 
-        private IQueryable<Customers> BuildQuery(CustomerQueryModel queryModel)
+        private IQueryable<CustomersEntity> BuildQuery(CustomerQueryModel queryModel)
         {
-            IQueryable<Customers> query = _context.Customers.AsNoTracking().Where(x => x.Isdeleted != true);
+            IQueryable<CustomersEntity> query = _context.Customers.AsNoTracking().Where(x => x.Isdeleted != true);
 
             if (queryModel.Id.HasValue)
             {
@@ -118,15 +118,15 @@ namespace Project.Business.Implement
             return res;
         }
 
-        public async Task<Customers> SaveAsync(Customers customer)
+        public async Task<CustomersEntity> SaveAsync(CustomersEntity customer)
         {
             var res = await SaveAsync(new[] { customer });
             return res.FirstOrDefault();
         }
 
-        public virtual async Task<IEnumerable<Customers>> SaveAsync(IEnumerable<Customers> customerEntities)
+        public virtual async Task<IEnumerable<CustomersEntity>> SaveAsync(IEnumerable<CustomersEntity> customerEntities)
         {
-            var updated = new List<Customers>();
+            var updated = new List<CustomersEntity>();
 
             foreach (var customer in customerEntities)
             {
@@ -159,7 +159,7 @@ namespace Project.Business.Implement
             return updated;
         }
 
-        public async Task<Customers> DeleteAsync(Guid id)
+        public async Task<CustomersEntity> DeleteAsync(Guid id)
         {
             var exist = await FindAsync(id);
             if (exist == null) throw new Exception(ICustomerRepository.MessageNoTFound);
@@ -169,7 +169,7 @@ namespace Project.Business.Implement
             return exist;
         }
 
-        public Task<IEnumerable<Customers>> DeleteAsync(Guid[] deleteIds)
+        public Task<IEnumerable<CustomersEntity>> DeleteAsync(Guid[] deleteIds)
         {
             throw new NotImplementedException();
         }

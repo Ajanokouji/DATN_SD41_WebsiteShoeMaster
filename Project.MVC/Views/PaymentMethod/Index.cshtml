@@ -1,4 +1,4 @@
-@model Project.Business.Model.PaymentViewModel
+﻿@model Project.Business.Model.PaymentViewModel
 
 @{
     ViewData["Title"] = "Phương thức thanh toán";
@@ -20,7 +20,6 @@
     </div>
 </div>
 <!-- Breadcrumb End -->
-
 <!-- Checkout Section Begin -->
 <section class="checkout spad">
     <div class="container">
@@ -33,7 +32,7 @@
                         <div class="row">
                             <div class="col-lg-8">
                                 <div asp-validation-summary="ModelOnly" class="text-danger"></div>
-                                
+
                                 <div class="checkout__payment">
                                     <div class="checkout__payment__title">
                                         <h5>Phương thức thanh toán</h5>
@@ -82,7 +81,8 @@
     </div>
 </section>
 <!-- Checkout Section End -->
-
 @section Scripts {
-    @{await Html.RenderPartialAsync("_ValidationScriptsPartial");}
+    @{
+        await Html.RenderPartialAsync("_ValidationScriptsPartial");
+    }
 } 

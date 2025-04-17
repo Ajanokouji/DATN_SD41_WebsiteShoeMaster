@@ -54,7 +54,7 @@ namespace Project.Api.Controllers
         }
 
         [HttpPost]
-        public async Task<IActionResult> CreateCustomer([FromBody] Customers customerEntity)
+        public async Task<IActionResult> CreateCustomer([FromBody] CustomersEntity customerEntity)
         {
             return await ExecuteFunction(async () =>
             {
@@ -64,8 +64,8 @@ namespace Project.Api.Controllers
         }
 
         [HttpPatch("{id}")]
-        [ProducesResponseType(typeof(ResponseObject<Customers>), StatusCodes.Status200OK)]
-        public async Task<IActionResult> PatchCustomer(Guid id, [FromBody] Customers customerEntity)
+        [ProducesResponseType(typeof(ResponseObject<CustomersEntity>), StatusCodes.Status200OK)]
+        public async Task<IActionResult> PatchCustomer(Guid id, [FromBody] CustomersEntity customerEntity)
         {
             return await ExecuteFunction(async () =>
             {
@@ -78,14 +78,14 @@ namespace Project.Api.Controllers
         }
 
         [HttpDelete("{id}")]
-        public async Task<ActionResult<Customers>> DeleteCustomer(Guid id)
+        public async Task<ActionResult<CustomersEntity>> DeleteCustomer(Guid id)
         {
             var deletedCustomer = await _customerBusiness.DeleteAsync(id);
             return Ok(deletedCustomer);
         }
 
         [HttpDelete]
-        public async Task<ActionResult<IEnumerable<Customers>>> DeleteCustomers([FromBody] Guid[] ids)
+        public async Task<ActionResult<IEnumerable<CustomersEntity>>> DeleteCustomers([FromBody] Guid[] ids)
         {
             var deletedCustomers = await _customerBusiness.DeleteAsync(ids);
             return Ok(deletedCustomers);

@@ -18,10 +18,10 @@ public class BillRepository : IBillRepository
         _context = context;
     }
     public async Task<BillEntity> FindAsync(Guid id)
-        {
-            var res = await _context.Bills.FindAsync(id);
-            return res;
-        }
+    {
+        var res = await _context.Bills.AsNoTracking().FirstOrDefaultAsync(x => x.Id == id);
+        return res;
+    }
         public async Task<IEnumerable<BillEntity>> ListAllAsync(BillQueryModel queryModel)
         {
             var query = BuildQuery( queryModel);
@@ -188,10 +188,7 @@ public class BillRepository : IBillRepository
                 query = query.Where(x => x.UpdateBy == queryModel.update_by);
             }
             
-            if (!string.IsNullOrEmpty(queryModel.ghi_chu))
-            {
-                query = query.Where(x => x.Notes == queryModel.ghi_chu);
-            }
+
             
             return query;
         }
@@ -252,7 +249,6 @@ public class BillRepository : IBillRepository
                     exist.RecipientEmail = bill.RecipientEmail;
                     exist.LastModifiedOnDate = bill.LastModifiedOnDate;
                     exist.UpdateBy = bill.UpdateBy;
-                    exist.Notes = bill.Notes;
                     exist.LastModifiedByUserId=bill.LastModifiedByUserId;
 
                     bill.UpdateTracking(bill.Id);

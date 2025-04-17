@@ -1,4 +1,4 @@
-import React, { useEffect } from "react";
+import React, { useEffect, useState } from "react";
 import {
   Sheet,
   SheetContent,
@@ -7,12 +7,20 @@ import {
 import { useAppSelector } from "@/hooks/use-app-selector";
 import { selectBill } from "@/redux/apps/bill/billSelector";
 import { useAppDispatch } from "@/hooks/use-app-dispatch";
-import { fetchBillById } from "@/redux/apps/bill/billSlice";
+import { fetchBillById, patchBill, updateBill } from "@/redux/apps/bill/billSlice";
 import { Badge } from "@/components/ui/badge";
 import { Separator } from "@/components/ui/separator";
 import { Button } from "@/components/ui/button";
 import { Printer, Download, FileText } from "lucide-react";
 import { formatVietnamTime } from "@/utils/format";
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
+import { ORDER_STATUS, ORDER_STATUS_LABELS, STATUS_TRANSITIONS } from "@/constants/orderStatus.constants";
 
 interface DetailBillSheetProps {
   billId: string;
@@ -27,10 +35,60 @@ const DetailBillSheet: React.FC<DetailBillSheetProps> = ({
 }) => {
   const dispatch = useAppDispatch();
   const bill = useAppSelector(selectBill);
+  const [selectedStatus, setSelectedStatus] = useState<string>("");
 
   useEffect(() => {
+    if (bill?.status) {
+      setSelectedStatus(bill.status);
+    }
+  }, [bill]);
+
+  useEffect(() => {
+    
     dispatch(fetchBillById(billId));
   }, [dispatch, billId]);
+
+  // Lấy danh sách trạng thái có thể chuyển đổi
+  const getAvailableStatuses = (currentStatus: string) => {
+    return STATUS_TRANSITIONS[currentStatus] || [];
+  };
+
+  const handleUpdateStatus = async (newStatus: string) => {
+    if (bill && newStatus) {
+      try {
+        await dispatch(updateBill({
+          id: bill.id,
+          data: {
+            id: bill.id,
+            status: newStatus
+          }
+        }));
+        // Refresh lại dữ liệu
+        dispatch(fetchBillById(billId));
+      } catch (error) {
+        console.error("Failed to update status:", error);
+      }
+    }
+  };
+
+  const getStatusBadgeVariant = (status: string) => {
+    switch (status) {
+      case ORDER_STATUS.Completed:
+        return "success";
+      case ORDER_STATUS.Cancelled:
+      case ORDER_STATUS.Rejected:
+      case ORDER_STATUS.DeliveryFailed:
+        return "destructive";
+      case ORDER_STATUS.Shipping:
+      case ORDER_STATUS.Delivered:
+        return "info";
+      case ORDER_STATUS.ReturnProcessing:
+      case ORDER_STATUS.Returned:
+        return "warning";
+      default:
+        return "secondary";
+    }
+  };
 
   const formatCurrency = (amount: number | null) => {
     if (amount === null) return "N/A";
@@ -40,13 +98,12 @@ const DetailBillSheet: React.FC<DetailBillSheetProps> = ({
     }).format(amount);
   };
 
-  
   if (!bill) {
     return (
       <Sheet open={isOpen} onOpenChange={onClose}>
         <SheetContent className="w-full sm:max-w-lg">
           <div className="flex items-center justify-center h-full">
-            <p>Loading bill details...</p>
+            <p>Đang tải chi tiết hóa đơn...</p>
           </div>
         </SheetContent>
       </Sheet>
@@ -61,14 +118,18 @@ const DetailBillSheet: React.FC<DetailBillSheetProps> = ({
           <div className="bg-primary text-white p-6">
             <SheetHeader className="mb-4 flex justify-between items-start">
               <div>
-                <h1 className="text-2xl font-bold mb-2">INVOICE</h1>
-                <p className="text-sm opacity-90">Bill No: {bill.billCode}</p>
+                <h1 className="text-2xl font-bold mb-2">Hóa đơn</h1>
+                <p className="text-sm opacity-90">Mã hóa đơn: {bill.billCode}</p>
                 <div className="flex gap-2 mt-1">
-                  <Badge variant="outline" className="text-white border-white">
-                    Status: {bill.status === "0" ? "Pending" : bill.status === "1" ? "Completed" : "Cancelled"}
+
+                  <Badge 
+                    variant={getStatusBadgeVariant(bill.status)} 
+                    className="text-white border-white"
+                  >
+                    Trạng thái: {ORDER_STATUS_LABELS[bill.status] || bill.status}
                   </Badge>
                   <Badge variant="outline" className="text-white border-white">
-                    Payment: {bill.paymentStatus === "0" ? "Pending" : bill.paymentStatus === "1" ? "Paid" : "Failed"}
+                    Thanh toán: {bill.paymentStatus === "0" ? "Chưa thanh toán" : bill.paymentStatus === "1" ? "Đã thanh toán" : "Thất bại"}
                   </Badge>
                 </div>
               </div>
@@ -79,7 +140,9 @@ const DetailBillSheet: React.FC<DetailBillSheetProps> = ({
                   className="flex items-center gap-1"
                 >
                   <Printer className="h-4 w-4" />
-                  <span>Print</span>
+
+                  <span>In</span>
+
                 </Button>
                 <Button
                   variant="secondary"
@@ -87,17 +150,69 @@ const DetailBillSheet: React.FC<DetailBillSheetProps> = ({
                   className="flex items-center gap-1"
                 >
                   <Download className="h-4 w-4" />
-                  <span>Download</span>
+                  <span>Tải xuống</span>
                 </Button>
               </div>
             </SheetHeader>
+          </div>
+
+          {/* Status Update Section */}
+          <div className="px-6 py-4 border-t border-b">
+            <div className="flex items-center gap-4">
+              <div className="flex-1">
+                <Select
+                  value={selectedStatus}
+                  onValueChange={(value) => setSelectedStatus(value)}
+                  disabled={getAvailableStatuses(bill?.status || "").length === 0}
+                >
+                  <SelectTrigger className="w-[200px] text-gray-900 bg-white">
+                    <SelectValue>
+                      {selectedStatus ? ORDER_STATUS_LABELS[selectedStatus] : "Chọn trạng thái mới"}
+                    </SelectValue>
+                  </SelectTrigger>
+                  <SelectContent>
+                    <SelectItem 
+                      key={bill?.status} 
+                      value={bill?.status || ""}
+                      className="text-gray-900 hover:bg-gray-100"
+                    >
+                      {ORDER_STATUS_LABELS[bill?.status || ""]} (Hiện tại)
+                    </SelectItem>
+                    
+                    {getAvailableStatuses(bill?.status || "")
+                      .filter(status => status !== bill?.status)
+                      .map((status) => (
+                        <SelectItem 
+                          key={status} 
+                          value={status}
+                          className="text-gray-900 hover:bg-gray-100"
+                        >
+                          {ORDER_STATUS_LABELS[status]}
+                        </SelectItem>
+                    ))}
+                  </SelectContent>
+                </Select>
+              </div>
+              <Button
+                onClick={() => handleUpdateStatus(selectedStatus)}
+                disabled={!selectedStatus || selectedStatus === bill?.status || 
+                         !getAvailableStatuses(bill?.status || "").includes(selectedStatus)}
+              >
+                Cập nhật trạng thái
+              </Button>
+            </div>
+            {getAvailableStatuses(bill?.status || "").length === 0 && (
+              <p className="text-sm text-muted-foreground mt-2">
+                Đơn hàng đã ở trạng thái kết thúc, không thể thay đổi trạng thái.
+              </p>
+            )}
           </div>
 
           {/* Company & Invoice Info */}
           <div className="p-6 bg-white">
             <div className="grid grid-cols-2 gap-6 mb-8">
               <div>
-                <h2 className="text-lg font-semibold mb-1">From</h2>
+                <h2 className="text-lg font-semibold mb-1">Từ</h2>
                 <div className="text-gray-800">
                   <p className="font-medium">Your Company Name</p>
                   <p className="text-sm text-gray-600">

@@ -35,6 +35,5 @@ namespace Project.DbManagement
         public string? PaymentStatus { get; set; }
         public string? UpdateBy { get; set; }
         public string? PaymentMethod { get; set; }
-        public string? Notes { get; set; }
     }
 }

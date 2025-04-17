@@ -11,6 +11,7 @@ using SERP.Framework.ApiUtils.Utils;
 using SERP.Framework.ApiUtils.Middlewares;
 using Microsoft.EntityFrameworkCore;
 using Project.DbManagement;
+using Project.Business.Interface.Services;
 namespace Project.Api
 {
     public class Startup
@@ -22,6 +23,7 @@ namespace Project.Api
             var builder = StartupHelpers.CreateDefaultConfigurationBuilder(env)
                             .AddLogging()
                             .AddEnvironmentVariables();
+            
             if (env.IsDevelopment())
             {
                 builder.AddUserSecrets<Startup>();
@@ -65,6 +67,10 @@ namespace Project.Api
                            .AllowAnyHeader();
                 });
             });
+
+            //Connect VNPay API
+            services.AddScoped<IVnPayService, VnPayService>();
+
         }
 
         public void Configure(IApplicationBuilder app, IWebHostEnvironment env)
@@ -81,6 +87,10 @@ namespace Project.Api
             app.UseSwagger();
             app.UseSwaggerUI();
             app.UseHttpsRedirection();
+
+            
+
+
 
             app.UseRouting();
             // app.UseAuthorization();

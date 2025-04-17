@@ -8,7 +8,7 @@ using System.Threading.Tasks;
 
 namespace Project.Business.Intercepter
 {
-    public interface IProductIntercepterAfterSave : IAfterSavedInterceptor<ProductEntity>
+    public interface IProductIntercepterAfterSave : BaseAfterSaveIntercepter<ProductEntity>
     {
     }
 }

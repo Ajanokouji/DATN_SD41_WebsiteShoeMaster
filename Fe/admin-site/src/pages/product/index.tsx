@@ -7,7 +7,7 @@ const Product: React.FC = () => {
   return (
     <>
       <Helmet>
-        <title> Product </title>
+        <title> Sản Phẩm </title>
       </Helmet>
       <section className="px-8">
         <ActionHeader />
