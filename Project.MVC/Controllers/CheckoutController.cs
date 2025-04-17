@@ -1,6 +1,7 @@
 ﻿using Microsoft.AspNetCore.Mvc;
 using Newtonsoft.Json;
 using Project.Business.Interface;
+using Project.Business.Interface.Services;
 using Project.Business.Model;
 using Project.Common;
 using Project.Common.Constants;
@@ -20,6 +21,7 @@ namespace Project.MVC.Controllers
         private readonly IBillBusiness _billBusiness;
         private readonly ICartBusiness _cartBusiness;
         private readonly IBillDetailsBusiness _billDetailsBusiness;
+        private readonly IVnPayService _vnPayService;
         private readonly IUserBusiness _userBusiness;
         private const string CartSessionKey = "CartSession";
 
@@ -27,12 +29,19 @@ namespace Project.MVC.Controllers
             IBillBusiness billBusiness,
             ICartBusiness cartBusiness,
             IBillDetailsBusiness billDetailsBusiness,
+            IVnPayService vnPayService,
             IUserBusiness userBusiness)
         {
             _billBusiness = billBusiness;
             _cartBusiness = cartBusiness;
             _billDetailsBusiness = billDetailsBusiness;
-            _userBusiness=userBusiness;
+            _vnPayService = vnPayService;
+            _userBusiness =userBusiness;
+        }
+
+        public IActionResult Checkout()
+        {
+            return View(); 
         }
 
         [HttpGet]
@@ -239,6 +248,14 @@ namespace Project.MVC.Controllers
             {
                 return Json(new { isSuccess = false, message = ex.Message });
             }
+        }
+
+        [HttpGet]
+        public IActionResult PaymentCallbackVnpay()
+        {
+            var response = _vnPayService.PaymentExecute(Request.Query);
+
+            return Json(response);
         }
     }
 }
