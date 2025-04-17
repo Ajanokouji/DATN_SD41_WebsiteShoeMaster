@@ -86,10 +86,10 @@ const AddProductSheet: React.FC<AddProductSheetProps> = ({
       <SheetContent className="w-[90%] sm:max-w-[80vw] max-w-none h-screen overflow-y-auto">
         <SheetHeader>
           <SheetTitle className="text-xl font-semibold text-gray-700">
-            Add Product
+            Thêm Sản Phẩm
           </SheetTitle>
           <SheetDescription>
-            Create a new product with custom metadata fields
+            Tạo sản phẩm mới với các trường thuộc tính tùy chỉnh
           </SheetDescription>
         </SheetHeader>
         <Form {...form}>
@@ -109,7 +109,7 @@ const AddProductSheet: React.FC<AddProductSheetProps> = ({
                 {isSubmitting ? "Creating..." : "Add new product"}
               </Button>
               <Button variant="outline" onClick={onClose} type="button">
-                Cancel
+                Huỷ
               </Button>
             </div>
           </form>

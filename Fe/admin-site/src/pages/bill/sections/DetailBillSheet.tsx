@@ -20,7 +20,7 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
-import { ORDER_STATUS, ORDER_STATUS_LABELS } from "@/constants/orderStatus.constants";
+import { ORDER_STATUS, ORDER_STATUS_LABELS, STATUS_TRANSITIONS } from "@/constants/orderStatus.constants";
 
 interface DetailBillSheetProps {
   billId: string;
@@ -38,7 +38,7 @@ const DetailBillSheet: React.FC<DetailBillSheetProps> = ({
   const [selectedStatus, setSelectedStatus] = useState<string>("");
 
   useEffect(() => {
-    if (bill) {
+    if (bill?.status) {
       setSelectedStatus(bill.status);
     }
   }, [bill]);
@@ -48,10 +48,15 @@ const DetailBillSheet: React.FC<DetailBillSheetProps> = ({
     dispatch(fetchBillById(billId));
   }, [dispatch, billId]);
 
+  // Lấy danh sách trạng thái có thể chuyển đổi
+  const getAvailableStatuses = (currentStatus: string) => {
+    return STATUS_TRANSITIONS[currentStatus] || [];
+  };
+
   const handleUpdateStatus = async (newStatus: string) => {
     if (bill && newStatus) {
       try {
-        await dispatch(patchBill({
+        await dispatch(updateBill({
           id: bill.id,
           data: {
             id: bill.id,
@@ -158,26 +163,49 @@ const DetailBillSheet: React.FC<DetailBillSheetProps> = ({
                 <Select
                   value={selectedStatus}
                   onValueChange={(value) => setSelectedStatus(value)}
+                  disabled={getAvailableStatuses(bill?.status || "").length === 0}
                 >
-                  <SelectTrigger className="w-[200px]">
-                    <SelectValue placeholder="Chọn trạng thái mới" />
+                  <SelectTrigger className="w-[200px] text-gray-900 bg-white">
+                    <SelectValue>
+                      {selectedStatus ? ORDER_STATUS_LABELS[selectedStatus] : "Chọn trạng thái mới"}
+                    </SelectValue>
                   </SelectTrigger>
                   <SelectContent>
-                    {Object.entries(ORDER_STATUS_LABELS).map(([value, label]) => (
-                      <SelectItem key={value} value={value}>
-                        {label}
-                      </SelectItem>
+                    <SelectItem 
+                      key={bill?.status} 
+                      value={bill?.status || ""}
+                      className="text-gray-900 hover:bg-gray-100"
+                    >
+                      {ORDER_STATUS_LABELS[bill?.status || ""]} (Hiện tại)
+                    </SelectItem>
+                    
+                    {getAvailableStatuses(bill?.status || "")
+                      .filter(status => status !== bill?.status)
+                      .map((status) => (
+                        <SelectItem 
+                          key={status} 
+                          value={status}
+                          className="text-gray-900 hover:bg-gray-100"
+                        >
+                          {ORDER_STATUS_LABELS[status]}
+                        </SelectItem>
                     ))}
                   </SelectContent>
                 </Select>
               </div>
               <Button
                 onClick={() => handleUpdateStatus(selectedStatus)}
-                disabled={!selectedStatus || selectedStatus === bill.status}
+                disabled={!selectedStatus || selectedStatus === bill?.status || 
+                         !getAvailableStatuses(bill?.status || "").includes(selectedStatus)}
               >
                 Cập nhật trạng thái
               </Button>
             </div>
+            {getAvailableStatuses(bill?.status || "").length === 0 && (
+              <p className="text-sm text-muted-foreground mt-2">
+                Đơn hàng đã ở trạng thái kết thúc, không thể thay đổi trạng thái.
+              </p>
+            )}
           </div>
 
           {/* Company & Invoice Info */}

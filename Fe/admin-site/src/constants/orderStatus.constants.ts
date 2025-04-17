@@ -26,4 +26,20 @@ export const ORDER_STATUS_LABELS: Record<string, string> = {
   DeliveryFailed: "Giao hàng thất bại",
   ReturnProcessing: "Đang xử lý hoàn trả",
   Returned: "Đã hoàn trả"
+};
+
+// Ma trận chuyển đổi trạng thái
+export const STATUS_TRANSITIONS: Record<string, string[]> = {
+  PendingConfirmation: ["Confirmed", "Rejected", "Cancelled"],
+  Confirmed: ["Paid", "Cancelled"],
+  Paid: ["Packed", "Cancelled"],
+  Packed: ["Shipping", "Cancelled"],
+  Shipping: ["Delivered", "DeliveryFailed"],
+  DeliveryFailed: ["Shipping", "Cancelled"],
+  Delivered: ["Completed", "ReturnProcessing"],
+  ReturnProcessing: ["Returned"],
+  Returned: [], // Trạng thái kết thúc
+  Completed: [], // Trạng thái kết thúc
+  Cancelled: [], // Trạng thái kết thúc
+  Rejected: [], // Trạng thái kết thúc
 }; 

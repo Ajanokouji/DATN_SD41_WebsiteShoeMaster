@@ -80,12 +80,12 @@ const ProductsTable: React.FC = () => {
     return formatVietnamTime(value);
   };
   const headers = [
-    { label: "Code", className: "text-center" },
-    { label: "Name" },
-    { label: "Image" },
-    { label: "Description" },
-    { label: "Status" },
-    { label: "Create At" },
+    { label: "Mã Sản Phẩm", className: "text-center" },
+    { label: "Tên Sản Phẩm" },
+    { label: "Hình Ảnh" },
+    { label: "Mô Tả" },
+    { label: "Trạng Thái" },
+    { label: "Ngày Tạo" },
     { label: " " },
   ];
 
