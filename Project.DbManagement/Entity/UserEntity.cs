@@ -15,19 +15,38 @@ namespace Project.DbManagement.Entity
     {
         [Key]
         public Guid Id { get; set; }
+        [Column(TypeName = "nvarchar(50)")]
         public string Type { get; set; }
+
+        [Column(TypeName = "nvarchar(256)")]
         public string? Username { get; set; }
+
+        [Column(TypeName = "nvarchar(256)")]
         public string? Name { get; set; }
+
+        [Column(TypeName = "nvarchar(20)")]
         public string? PhoneNumber { get; set; }
-        public string? Address { get; set; } 
+
+        [Column(TypeName = "nvarchar(256)")]
+        public string? Address { get; set; }
+
+        [Column(TypeName = "nvarchar(256)")]
         public string? Email { get; set; }
+
+        [Column(TypeName = "nvarchar(256)")]
         public string? AvartarUrl { get; set; }
-        public string? Password { get; set; }    
+
+        [Column(TypeName = "nvarchar(256)")]
+        public string? Password { get; set; }
+
+        [Column(TypeName = "nvarchar(max)")]
         public string? UserDetailJson { get; set; }
+
         public bool? IsActive { get; set; } = true;
 
         [NotMapped]
         public virtual List<MetaField> MetadataObj { get; set; }
+
         public virtual string MetadataJson
         {
             get
