@@ -15,6 +15,7 @@ class VoucherService {
     this.createVoucherReq = this.createVoucherReq.bind(this);
     this.deleteVoucherReq = this.deleteVoucherReq.bind(this);
     this.updateVoucherReq = this.updateVoucherReq.bind(this);
+    this.getVouchersByStatusDate = this.getVouchersByStatusDate.bind(this);
   }
 
   static getInstance(): VoucherService {
@@ -86,6 +87,45 @@ class VoucherService {
     } catch (error) {
       console.log("Delete voucher error:", error);
       throw new Error(`Delete voucher failed: ${error}`);
+    }
+  }
+
+  async getVouchersByStatusDate(
+    params: VoucherFilterParams,
+    trangThai: number
+  ): Promise<PaginatedResponse<VoucherResDto>> {
+    try {
+      const response = await httpClient.post<PaginatedResponse<VoucherResDto>>(
+        `${this.endpoints.vouchers}/filter-by-status-date`,
+        {}, // Body rỗng
+        {
+          params: {
+            ...params,
+            trangThai, // Thêm trạng thái vào query parameters
+          },
+        }
+      );
+      return response;
+    } catch (error) {
+      console.log("Fetch vouchers by status error:", error);
+      throw new Error(`Fetch vouchers by status failed: ${error}`);
+    }
+  }
+
+  async checkVoucherCodeExist(code: string, voucherId?: string): Promise<boolean> {
+    try {
+      const response = await httpClient.post<boolean>(
+        `${this.endpoints.vouchers}/IsCodeExist`,
+        JSON.stringify(code), // Gửi chuỗi JSON thuần
+        {
+          headers: { 'Content-Type': 'application/json' },
+          params: { voucherId },
+        }
+      );
+      return response;
+    } catch (error) {
+      console.log("Check voucher code exist error:", error);
+      throw new Error(`Check voucher code exist failed: ${error}`);
     }
   }
 }
