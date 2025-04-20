@@ -23,6 +23,7 @@ import { formatVietnamTime } from "@/utils/format";
 import { useLocation } from "react-router-dom";
 import DetailProductSheet from "./DetailProductSheet";
 
+
 const ProductTable = <T extends { id: string }>({
   headers,
   data,
@@ -53,7 +54,12 @@ const ProductTable = <T extends { id: string }>({
   </div>
 );
 
-const ProductsTable: React.FC = () => {
+interface ProductsTableProps {
+  selectedCategoryId: string | null; // Nhận id danh mục từ props
+}
+
+
+const ProductsTable: React.FC<ProductsTableProps> = ({ selectedCategoryId }) => {
   const dispatch = useAppDispatch();
   const products = useAppSelector(selectProducts);
   const pagination = useAppSelector(selectPagination);
@@ -136,9 +142,10 @@ const ProductsTable: React.FC = () => {
       maSanPham: params.get("maSanPham") || "",
       status: params.get("status") || "",
       description: params.get("description") || "",
+      mainCategoryId : selectedCategoryId || null,
     };
     dispatch(fetchProducts(filters));
-  }, [dispatch, location.search, pagination.currentPage, pagination.pageSize]);
+  }, [dispatch, location.search, pagination.currentPage, pagination.pageSize,selectedCategoryId]);
 
   // Xử lý khi thay đổi trang
   const handlePageChange = (newPage: number) => {

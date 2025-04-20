@@ -21,10 +21,10 @@ export const MultipleImageField: React.FC<MultipleImageFieldProps> = ({ control 
 
   const [isModalFileOpen, setIsModalFileOpen] = useState(false);
 
-  // const handleSelectImage = (imageUrl: string) => {
-  //   onChange([...value, imageUrl]);
-  //   setIsModalFileOpen(false);
-  // };
+  const handleSelectImage = (imageUrl: string) => {
+    onChange([...value, imageUrl]);
+    setIsModalFileOpen(false);
+  };
 
   const removeImageUrl = (index: number) => {
     const updated = [...value];
@@ -99,7 +99,7 @@ export const MultipleImageField: React.FC<MultipleImageFieldProps> = ({ control 
           isOpen={isModalFileOpen}
           onClose={() => setIsModalFileOpen(false)}
           //todo will define
-          //onSelectImage={handleSelectImage}
+          onSelectImage={handleSelectImage}
         />
       )}
     </div>

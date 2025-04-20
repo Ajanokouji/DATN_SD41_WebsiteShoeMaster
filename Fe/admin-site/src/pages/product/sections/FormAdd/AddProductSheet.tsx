@@ -18,9 +18,11 @@ import ProductReqDto from "@/types/product/product";
 import { createProduct } from "@/redux/apps/product/productSlice";
 import { LabelsSection } from "./LabelsSection";
 import { ImageField } from "./ImageFieldComponent";
-import VariantSection from "./VariantSection";
-import { MultipleImageField } from "./MultipleImageField";
+//import VariantSection from "./VariantSection";
 
+import {VariantForm} from "./VariantForm"
+import { MultipleImageField } from "./MultipleImageField";
+  
 interface AddProductSheetProps {
   isOpen: boolean;
   onClose: () => void;
@@ -102,11 +104,16 @@ const AddProductSheet: React.FC<AddProductSheetProps> = ({
             <MultipleImageField control={form.control} />
             <MetadataSection form={form} />
             <LabelsSection form={form} />
-            <VariantSection form={form} />
+             <VariantForm/> 
+            {/* <VariantSection form={form} /> */}
+
+
+
+
             <div className="flex justify-end gap-2 pt-4">
               {/* <pre>{JSON.stringify(form.formState.errors, null, 2)}</pre> */}
               <Button type="submit" disabled={isSubmitting}>
-                {isSubmitting ? "Creating..." : "Add new product"}
+                {isSubmitting ? "Đang tạo " : "Tạo sản phẩmt"}
               </Button>
               <Button variant="outline" onClick={onClose} type="button">
                 Huỷ

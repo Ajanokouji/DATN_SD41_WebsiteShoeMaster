@@ -22,7 +22,11 @@ interface ContextMenuState {
   fileId: string | null;
 }
 
-const FileManager = () => {
+interface FileManagerProps {
+  onSelectImage?: (file: FileItem) => void;
+}
+
+const FileManager : React.FC<FileManagerProps> = ({ onSelectImage }) => {
   // Refs
   const fileInputRef = useRef<HTMLInputElement>(null);
 
@@ -124,6 +128,7 @@ const FileManager = () => {
       fileId: null,
     });
   };
+  
 
   // Context Menu Items Configuration
   const getContextMenuItems = (fileId: string) => [
@@ -193,7 +198,7 @@ const FileManager = () => {
           <span>{loading ? "Đang tải lên..." : "Kéo thả file hoặc click để tải lên"}</span>
         </div>
       </Button>
-      <input
+      <Input
         type="file"
         ref={fileInputRef}
         onChange={handleFileUpload}
@@ -215,6 +220,12 @@ const FileManager = () => {
             key={file.id}
             className="border rounded-lg overflow-hidden group"
             onContextMenu={(e) => handleContextMenu(e, file.id)}
+            onClick={()=>{
+              if (onSelectImage) {
+                onSelectImage(file);
+              }
+            }
+          }
           >
             <div className="aspect-square relative">
               <img
