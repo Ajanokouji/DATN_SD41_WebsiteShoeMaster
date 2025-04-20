@@ -9,21 +9,41 @@ using System.Threading.Tasks;
 
 namespace Project.DbManagement.Entity
 {
-    public class CategoriesEntity:BaseEntity
+    public class CategoriesEntity : BaseEntity
     {
         public Guid Id { get; set; }
+
+        [Column(TypeName = "nvarchar(256)")]
         public string Name { get; set; }
+
+        [Column(TypeName = "nvarchar(1024)")]
         public string Description { get; set; }
+
         public Guid ParentId { get; set; }
+
         public int SortOrder { get; set; }
+
+        [Column(TypeName = "nvarchar(100)")]
         public string Type { get; set; }
+
+        [Column(TypeName = "nvarchar(512)")]
         public string ParentPath { get; set; }
+
+        [Column(TypeName = "nvarchar(128)")]
         public string Code { get; set; }
+
+        [Column(TypeName = "nvarchar(128)")]
         public string CompleteCode { get; set; }
+
+        [Column(TypeName = "nvarchar(256)")]
         public string CompleteName { get; set; }
+
+        [Column(TypeName = "nvarchar(512)")]
         public string CompletePath { get; set; }
+
         [NotMapped]
         public virtual List<MetaField> MetadataObj { get; set; }
+
         public virtual string MetadataJson
         {
             get
@@ -53,6 +73,5 @@ namespace Project.DbManagement.Entity
                 }
             }
         }
-
     }
 }
