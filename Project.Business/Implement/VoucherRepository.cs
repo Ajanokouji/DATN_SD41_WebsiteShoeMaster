@@ -259,5 +259,51 @@ namespace Project.Business.Implement
                 return isExist;
             }
         }
+
+        //Lọc voucher theo trạng thái đang diễn ra, sắp diễn ra, đã kết thúc
+        public async Task<Pagination<Voucher>> GetVouchersByStatusDateAsync(VoucherQueryModel queryModel, int trangThai)
+        {
+            var now = DateTime.UtcNow;
+
+            // Xây dựng query dựa trên trạng thái
+            IQueryable<Voucher> query = _context.Vouchers.AsNoTracking().Where(x => !x.Isdeleted.Value);
+
+            switch (trangThai)
+            {
+                case 1: // Đang diễn ra
+                    query = query.Where(x => x.StartDate <= now && x.EndDate >= now && x.Status == 1);
+                    break;
+
+                case 2: // Sắp diễn ra
+                    query = query.Where(x => x.StartDate > now && x.Status == 1);
+                    break;
+
+                case 3: // Đã kết thúc
+                    query = query.Where(x => x.EndDate < now);
+                    break;
+
+                default:
+                    throw new ArgumentException("Invalid trạng thái. Allowed values: 1 (Đang diễn ra), 2 (Sắp diễn ra), 3 (Đã kết thúc)");
+            }
+
+            // Tính tổng số bản ghi
+            var totalRecords = await query.CountAsync();
+
+            // Phân trang
+            var data = await query
+                .Skip((queryModel.CurrentPage.Value - 1) * queryModel.PageSize.Value)
+                .Take(queryModel.PageSize.Value)
+                .ToListAsync();
+
+            // Trả về kết quả phân trang
+            return new Pagination<Voucher>
+            {
+                Content = data,
+                CurrentPage = queryModel.CurrentPage.Value,
+                PageSize = queryModel.PageSize.Value,
+                TotalRecords = totalRecords,
+                TotalPages = (int)Math.Ceiling((double)totalRecords / queryModel.PageSize.Value)
+            };
+        }
     }
 }

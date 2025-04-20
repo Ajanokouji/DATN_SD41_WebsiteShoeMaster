@@ -1,4 +1,4 @@
-using Microsoft.AspNetCore.Mvc;
+﻿using Microsoft.AspNetCore.Mvc;
 using Project.Business.Interface;
 using Project.Business.Model;
 using Project.DbManagement;
@@ -92,13 +92,23 @@ namespace Project.Api.Controllers
         {
             if (string.IsNullOrEmpty(code))
             {
-                return BadRequest("M� voucher kh�ng ???c ?? tr?ng.");
+                return BadRequest("Mã voucher không được bỏ trống.");
             }
 
             return await ExecuteFunction(async () =>
             {
                 var isCodeExist = await _voucherBusiness.IsVoucherCodeExist(code, voucherId);
                 return Ok(isCodeExist);
+            });
+        }
+
+        [HttpPost("filter-by-status-date")]
+        public async Task<IActionResult> GetVouchersByStatusDateAsync([FromQuery] VoucherQueryModel queryModel, [FromQuery] int trangThai)
+        {
+            return await ExecuteFunction(async () =>
+            {
+                var vouchers = await _voucherBusiness.GetVouchersByStatusDateAsync(queryModel, trangThai);
+                return vouchers;
             });
         }
     }

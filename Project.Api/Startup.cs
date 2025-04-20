@@ -61,7 +61,6 @@ namespace Project.Api
                 options.AddPolicy("AllowLocalhost3000", builder =>
                 {
                     builder.WithOrigins(
-                        "http://localhost:5173",  //Them localhost cua Fe Admin site de khong bi loi CORS
                         "http://localhost:3000"
                     )
                     .AllowAnyMethod()

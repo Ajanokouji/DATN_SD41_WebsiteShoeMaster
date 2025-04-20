@@ -175,22 +175,17 @@ namespace Project.Business.Implement
             {
                 update.Code = model.Code;
             }
-            if (!string.IsNullOrWhiteSpace(model.Description))
-            {
-                update.Description = model.Description;
-            }
-            if (model.DiscountAmount >= 0)
-            {
-                update.DiscountAmount = model.DiscountAmount;
-            }
+
+            //Sửa lại để cho phép cập nhật từ có value thành null
+            update.Description = model.Description;
+            update.DiscountAmount = model.DiscountAmount;
+            update.DiscountPercentage = model.DiscountPercentage;
+
             if (model.MinimumOrderAmount >= 0)
             {
                 update.MinimumOrderAmount = model.MinimumOrderAmount;
             }
-            if (model.DiscountPercentage >= 0)
-            {
-                update.DiscountPercentage = model.DiscountPercentage;
-            }
+            
             if (!string.IsNullOrWhiteSpace(model.VoucherName))
             {
                 update.VoucherName = model.VoucherName;
@@ -328,6 +323,21 @@ namespace Project.Business.Implement
             catch (Exception ex)
             {
                 _logger.Error(ex, "Error checking if voucher code {VoucherCode} exists", code);
+                throw;
+            }
+        }
+
+        //Lọc voucher theo trạng thái đang diễn ra, sắp diễn ra, đã kết thúc
+        public async Task<Pagination<Voucher>> GetVouchersByStatusDateAsync(VoucherQueryModel queryModel, int trangThai)
+        {
+            try
+            {
+                var vouchers = await _voucherRepository.GetVouchersByStatusDateAsync(queryModel, trangThai);
+                return vouchers;
+            }
+            catch (Exception ex)
+            {
+                _logger.Error(ex, "Error getting vouchers by status date");
                 throw;
             }
         }
