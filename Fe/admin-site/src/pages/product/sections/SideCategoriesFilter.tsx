@@ -1,0 +1,61 @@
+// components/SideCategoryFilter.tsx
+import React, { useEffect, useState } from "react";
+import { Input } from "@/components/ui/input";
+import { FolderOpen } from "lucide-react";
+import categoryService from "@/redux/api/categoryApi";
+import { CategoryResDto } from "@/types/category/category";
+
+const SideCategoryFilter: React.FC = () => {
+  const [categories, setCategories] = useState<CategoryResDto[]>([]);
+  const [searchTerm, setSearchTerm] = useState("");
+  const [selectedFolder, setSelectedFolder] = useState<string | null>(null);
+
+  useEffect(() => {
+    const fetchCategories = async () => {
+      try {
+        const response = await categoryService.getCategories({
+          CurrentPage: 1,
+          PageSize: 20,
+        });
+        setCategories(response.data.content);
+      } catch (error) {
+        console.error("Failed to fetch categories", error);
+      }
+    };
+
+    fetchCategories();
+  }, []);
+
+  const filteredCategories = categories.filter((category) =>
+    category.name.toLowerCase().includes(searchTerm.toLowerCase())
+  );
+
+  return (
+    <div className="w-64 bg-background border-r p-4 overflow-y-auto max-h-screen">
+      <Input
+        placeholder="Tìm danh mục..."
+        className="mb-4"
+        value={searchTerm}
+        onChange={(e) => setSearchTerm(e.target.value)}
+      />
+
+      <div className="space-y-2">
+        <div className="font-medium text-sm">Danh mục</div>
+        {filteredCategories.map((category) => (
+          <div
+            key={category.id}
+            className={`flex items-center space-x-2 p-2 rounded cursor-pointer ${
+              selectedFolder === category.id ? "bg-accent" : "hover:bg-accent/50"
+            }`}
+            onClick={() => setSelectedFolder(category.id)}
+          >
+            <FolderOpen size={20} />
+            <span className="truncate">{category.name}</span>
+          </div>
+        ))}
+      </div>
+    </div>
+  );
+};
+
+export default SideCategoryFilter;

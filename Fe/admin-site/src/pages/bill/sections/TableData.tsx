@@ -63,14 +63,14 @@ const BillsTable: React.FC = () => {
     };
 
   const headers = [
-    { label: "Code", className: "text-center" },
-    { label: "Recipient Name" },
-    { label: "Recipient Phone" },
-    { label: "Total Amount" },
-    { label: "Discount Amount" },
-    { label: "AmountToPay" },
-    { label: "Status" },
-    { label: "Create At" },
+    { label: "Mã háo đơn", className: "text-center" },
+    { label: "Tên Khách Hàng" },
+    { label: "Số điện thoại" },
+    { label: "Số lượng" },
+    { label: "Giảm trừ" },
+    { label: "Phải trả" },
+    { label: "Trạng thái" },
+    { label: "Khởi tạo" },
     { label: " " },
   ];
 
