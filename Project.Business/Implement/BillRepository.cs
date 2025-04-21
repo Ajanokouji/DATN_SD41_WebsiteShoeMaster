@@ -194,7 +194,7 @@ public class BillRepository : IBillRepository
 
         if (!string.IsNullOrEmpty(queryModel.ghi_chu))
         {
-            query = query.Where(x => x.Notes == queryModel.ghi_chu);
+            query = query.Where(x => x.Note == queryModel.ghi_chu);
         }
 
         return query;
@@ -255,7 +255,7 @@ public class BillRepository : IBillRepository
                 exist.RecipientEmail = bill.RecipientEmail;
                 exist.LastModifiedOnDate = bill.LastModifiedOnDate;
                 exist.UpdateBy = bill.UpdateBy;
-                exist.Notes = bill.Notes;
+                exist.Note = bill.Note;
                 exist.LastModifiedByUserId = bill.LastModifiedByUserId;
 
                 bill.UpdateTracking(bill.Id);
