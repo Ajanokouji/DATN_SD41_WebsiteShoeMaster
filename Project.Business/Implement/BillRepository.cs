@@ -261,21 +261,121 @@ public class BillRepository : IBillRepository
             return updated;
         }
 
+        await _context.SaveChangesAsync();
 
-        public async Task<BillEntity> DeleteAsync(Guid Id)
+        return updated;
+    }
+
+
+    public async Task<BillEntity> DeleteAsync(Guid Id)
+    {
+        var exist = await FindAsync(Id);
+        if (exist == null) throw new Exception(IBillRepository.MessageNotFound);
+        exist.Isdeleted = true;
+        _context.Bills.Update(exist);
+        _context.SaveChangesAsync();
+        return exist;
+    }
+
+    public Task<IEnumerable<BillEntity>> DeleteAsync(Guid[] deleteIds)
+    {
+        throw new NotImplementedException();
+    }
+    public List<BillEntity> GetAllPendingBill()
+    {
+        return _context.Bills.Where(hd => hd.Status == "Pending").OrderBy(hd => hd.CreatedOnDate).ToList();
+    }
+
+    public bool CreatePendingBill(Guid idEmployee)
+    {
+        try
         {
-            var exist = await FindAsync(Id);
-            if (exist==null) throw new Exception(IBillRepository.MessageNotFound);
-            exist.Isdeleted=true;
-            _context.Bills.Update(exist);
-            _context.SaveChangesAsync();
-            return exist;
+            BillEntity bill = new BillEntity();
+            bill.Id = Guid.NewGuid();
+            bill.BillCode = "BILL" + (bill.Id).ToString().Substring(0, 8).ToUpper();
+            bill.EmployeeId = idEmployee;
+            bill.CreatedOnDate = DateTime.Now;
+            bill.Status = "Pending";
+            _context.Bills.Add(bill);
+            _context.SaveChanges();
+            return true;
         }
-
-        public Task<IEnumerable<BillEntity>> DeleteAsync(Guid[] deleteIds)
+        catch
         {
-            throw new NotImplementedException();
+            return false;
         }
+    }
 
-   
+    public bool DeletePendingBill(Guid idBill)
+    {
+        try
+        {
+            BillEntity bill = _context.Bills.Single(b => b.Id == idBill);
+            if (bill != null)
+            {
+                _context.Bills.Remove(bill);
+                _context.SaveChanges();
+                return true;
+            }
+            else
+            {
+                return false;
+            }
+        }
+        catch
+        {
+            return false;
+        }
+    }
+
+    public BillViewModel GetPDBillById(Guid idBill)
+    {
+        // List<BillDetailsViewModel> listBillDetails = (from bdt in _context.BillDetails
+        //     join prd in _context.Products on bdt.ProductId equals prd.Id
+        //     where bdt.BillId == idBill
+        //     select new BillDetailsViewModel()
+        //     {
+        //         Id = bdt.Id,
+        //         IdBill = bdt.BillId,
+        //         IdProduct = prd.Id,
+        //         Name = prd.MetadataObj.GetMetadatavalue("Name"),
+        //         Color = prd.MetadataObj.GetMetadatavalue("Color"),
+        //         Size = prd.MetadataObj.GetMetadatavalue("Size"),
+        //         Quantity = bdt.Quantity,
+        //         Price = bdt.Price,
+        //     }).AsEnumerable().Reverse().ToList();
+        // var result = (from bill in _context.Bills.ToList() 
+        //     join customers in _context.Customers.ToList() on bill.CustomerId equals customers.Id
+        //     where bill.Id == idBill
+        //     select new BillViewModel()
+        //     {
+        //         Id = bill.Id,
+        //         BillCode = bill.BillCode,
+        //         IdClient = customers?.Id,
+        //         NameClient = customers?.Name,
+        //         listBillDetails = listBillDetails,
+        //         Note = bill.Note == null ? "" : bill.Note,
+        //     }).FirstOrDefault();
+        // return result;
+        List<BillDetailsViewModel> listBillDetails = (from bdt in _context.BillDetails
+            join prd in _context.Products on bdt.ProductId equals prd.Id
+            where bdt.BillId == idBill
+            select new BillDetailsViewModel()
+            {
+                Id = bdt.Id,
+                IdBill = bdt.BillId,
+                IdProduct = prd.Id,
+                Image = prd.ImageUrl,
+                Name = prd.Name,
+                Color = prd.MetadataObj.GetMetadatavalue("Colorway"),
+                Size = prd.MetadataObj.GetMetadatavalue("Size"),
+                Quantity = bdt.Quantity,
+                Price = bdt.Price,
+            }).AsEnumerable().Reverse().ToList();
+        var result = new BillViewModel()
+        {
+            listBillDetails = listBillDetails
+        };
+        return result;
+    }
 }
