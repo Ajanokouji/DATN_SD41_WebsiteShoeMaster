@@ -46,4 +46,6 @@ public interface IBillDetailsBusiness
     Task<bool> UpdateBillDetailsStatus(Guid billDetailId, int status);
 
     public Task<bool> SaveBillDetails(BillDetailsRequest request);
+    public Task<BillDetailsEntity> UpdateQuantity(Guid idBillDetails, int quantity);
+    public Task<bool> DeleteBillDetails(Guid idBillDetails);
 }

@@ -317,17 +317,17 @@
     }
 
     //Xóa HDCT
-    function deleteHDCT(idcthd, idhd) {
+    function deleteHDCT(idbilldetails, idbill) {
         $.ajax({
-            url: "/BanHangTaiQuay/deleteHdct/" + idcthd,
-            async: false,
+            url: `/SellOff/DeleteBillDetails/` +idbilldetails,
             type: 'DELETE',
             dataType: 'json',
             success: function (response) {
-                gethdct(idhd)
+                toastr.success('Xóa thành oông', 'Success', { timeOut: 300 });
+                gethdct(idbill)
             },
             error: function (response) {
-                alert("Xóa thất bại");
+                toastr.error('Xóa thất bại', 'Error', { timeOut: 300 });
             }
         });
     }

@@ -444,4 +444,16 @@ public class BillDetailsBusiness : IBillDetailsBusiness
         var result = await _billDetailsRepository.SaveBillDetails(request);
         return result;
     }
+
+    public async Task<BillDetailsEntity> UpdateQuantity(Guid idBillDetails, int quantity)
+    {
+        var billdetails = await _billDetailsRepository.UpdateQuantity(idBillDetails, quantity);
+        return billdetails;
+    }
+
+    public async Task<bool> DeleteBillDetails(Guid idBillDetails)
+    {
+        var result = await _billDetailsRepository.DeleteBillDetails(idBillDetails);
+        return result;
+    }
 }

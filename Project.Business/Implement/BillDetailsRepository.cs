@@ -221,6 +221,12 @@ public class BillDetailsRepository : IBillDetailsRepository
             if (prdDtExist != true) //k tồn tại -> chưa có hdct-> tạo
             {
                 var guid = Guid.NewGuid();
+                var product = _context.Products.Find(request.IdProduct);
+                int quantityExist = Convert.ToInt32(product.MetadataObj.GetMetadatavalue("Quantity"));
+                if (quantityExist < request.Quantity)
+                {
+                    return false;
+                }
                 var billDetails = new BillDetailsEntity()
                 {
                     Id = guid,
@@ -229,14 +235,13 @@ public class BillDetailsRepository : IBillDetailsRepository
                     ProductId = request.IdProduct,
                     Quantity = request.Quantity,
                     Size = 1,
-                    Price = 1,
+                    Price = Convert.ToDecimal(product.MetadataObj.GetMetadatavalue("MaxPrice")),
                     TotalPrice = 1,
                     Status = 0,
                 };
                 await _context.BillDetails.AddAsync(billDetails);
                 await _context.SaveChangesAsync();
                 //Trừ số lượng CTSP
-                var product = _context.Products.Find(request.IdProduct);
                 int quantity = Convert.ToInt32(product.MetadataObj.GetMetadatavalue("Quantity"));
                 quantity -= request.Quantity;
                 product.MetadataObj.SetMetaFieldValue("Quantity", quantity.ToString());
@@ -250,13 +255,17 @@ public class BillDetailsRepository : IBillDetailsRepository
                     .Where(c => c.ProductId == request.IdProduct && c.BillId == request.IdBill)
                     .FirstOrDefault();
                 var product = _context.Products.Find(request.IdProduct);
+                int quantity = Convert.ToInt32(product.MetadataObj.GetMetadatavalue("Quantity"));
+                if (quantity <= 0)
+                {
+                    return false;
+                }
                 exist.Quantity += request.Quantity;
                 //exist.DonGia = request.DonGia;
                 _context.BillDetails.Update(exist);
                 await _context.SaveChangesAsync();
 
                 //Thay đổi số lượng ctsp
-                int quantity = Convert.ToInt32(product.MetadataObj.GetMetadatavalue("Quantity"));
                 quantity -= request.Quantity;
                 product.MetadataObj.SetMetaFieldValue("Quantity", quantity.ToString());
                 _context.Products.Update(product);
@@ -267,6 +276,52 @@ public class BillDetailsRepository : IBillDetailsRepository
         catch (Exception ex)
         {
             return false;
+        }
+    }
+
+    public async Task<BillDetailsEntity> UpdateQuantity(Guid idBillDetails, int quantity)
+    {
+        try
+        {
+            var billDetails = _context.BillDetails.Find(idBillDetails);
+            var product = _context.Products.Find(billDetails.ProductId);
+            
+            int CurrentQuantity = Convert.ToInt32(product.MetadataObj.GetMetadatavalue("Quantity"));
+            int returnQuantity = billDetails.Quantity - quantity;
+            int value = CurrentQuantity += returnQuantity;
+            if (value < 0) throw new Exception("Số lượng sản phẩm không đủ");
+            product.MetadataObj.SetMetaFieldValue("Quantity", value.ToString());
+            billDetails.Quantity = quantity;
+            _context.Products.Update(product);
+            _context.BillDetails.Update(billDetails);
+            await _context.SaveChangesAsync();
+            return billDetails;
+        }
+        catch (Exception e)
+        {
+            throw new Exception("Lỗi cập nhật số lượng hóa đơn chi tiết", e);
+        }
+    }
+
+    public async Task<bool> DeleteBillDetails(Guid idBillDetails)
+    {
+        try
+        {
+            var billDetails = await _context.BillDetails.FindAsync(idBillDetails);
+            if (billDetails == null) throw new Exception("Not Found");
+            int billDetailsQuantity = billDetails.Quantity;
+            var product = await _context.Products.FindAsync(billDetails.ProductId);
+            int productQuantity = Convert.ToInt32(product.MetadataObj.GetMetadatavalue("Quantity"));
+            int updateQuantity = productQuantity + billDetailsQuantity;
+            product.MetadataObj.SetMetaFieldValue("Quantity", updateQuantity.ToString());
+            _context.Products.Update(product);
+            _context.BillDetails.Remove(billDetails);
+            await _context.SaveChangesAsync();
+            return true;
+        }
+        catch
+        {
+            throw new Exception("Delete Failed");
         }
     }
 }
