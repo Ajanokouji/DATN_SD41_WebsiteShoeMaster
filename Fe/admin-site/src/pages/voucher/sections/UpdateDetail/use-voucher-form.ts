@@ -4,18 +4,24 @@ import { useAppDispatch } from "@/hooks/use-app-dispatch";
 import {
   fetchVoucherById,
   updateVoucher,
+  checkVoucherCodeExist,
 } from "@/redux/apps/voucher/voucherSlice";
+import { zodResolver } from "@hookform/resolvers/zod";
+import { VoucherFormSchema, voucherFormSchema } from "./FormSchema";
 
-interface FormData {
-  voucherName: string;
-  startDate: string;
-  endDate: string;
-  // Add other fields as needed
-}
+// Hàm chuyển đổi UTC thành giờ địa phương
+const convertUtcToLocal = (utcString: string): string => {
+  // Convert 'YYYY-MM-DD HH:mm:ss' => 'YYYY-MM-DDTHH:mm:ssZ' (UTC format)
+  const isoString = utcString.replace(" ", "T") + "Z";
+  const utcDate = new Date(isoString); // Parse as UTC
+
+  // Convert to local date string for <input type="datetime-local" />
+  const localDate = new Date(utcDate.getTime() - utcDate.getTimezoneOffset() * 60000);
+  return localDate.toISOString().slice(0, 19); // 'YYYY-MM-DDTHH:mm:ss'
+};
 
 export const useVoucherForm = (
   voucherId: string,
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   voucher: any,
   onClose: () => void
 ) => {
@@ -24,22 +30,54 @@ export const useVoucherForm = (
   const [isLoading, setIsLoading] = useState(false);
 
   // Initialize form with empty values
-  const methods = useForm<FormData>({
+  const methods = useForm<VoucherFormSchema>({
+    resolver: zodResolver(voucherFormSchema),
+    mode: "onChange",
+    reValidateMode: "onChange",
     defaultValues: {
       voucherName: "",
       startDate: "",
       endDate: "",
+      status: 0,
+      voucherType: 1,
+      isdeleted: false,
+      createdByUserId: "3fa85f64-5717-4562-b3fc-2c963f66afa6",
+      lastModifiedByUserId: "3fa85f64-5717-4562-b3fc-2c963f66afa6",
+      lastModifiedOnDate: new Date().toISOString(),
+      createdOnDate: new Date().toISOString(),
+      code: "",
+      discountAmount: undefined,
+      discountPercentage: undefined,
+      description: "",
+      minimumOrderAmount: undefined,
+      discountType: "$",
     }
   });
 
   // Reset form with voucher data when it's available
   useEffect(() => {
     if (voucher) {
+      // Chuyển đổi thời gian UTC thành thời gian địa phương
+      const startDateLocal = voucher.startDate ? convertUtcToLocal(voucher.startDate) : "";
+      const endDateLocal = voucher.endDate ? convertUtcToLocal(voucher.endDate) : "";
+
       methods.reset({
         voucherName: voucher.voucherName || "",
-        startDate: voucher.startDate || "",
-        endDate: voucher.endDate || "",
-        // Add other fields as needed
+        startDate: startDateLocal,
+        endDate: endDateLocal,
+        code: voucher.code || "",
+        discountType: voucher.discountAmount ? "$" : "%",
+        discountAmount: voucher.discountAmount || undefined,
+        discountPercentage: voucher.discountPercentage || undefined,
+        minimumOrderAmount: voucher.minimumOrderAmount || undefined,
+        status: voucher.status || 0,
+        description: voucher.description || "",
+        voucherType: voucher.voucherType || 1,
+        isdeleted: voucher.isdeleted || false,
+        createdByUserId: voucher.createdByUserId || "3fa85f64-5717-4562-b3fc-2c963f66afa6",
+        lastModifiedByUserId: voucher.lastModifiedByUserId || "3fa85f64-5717-4562-b3fc-2c963f66afa6",
+        lastModifiedOnDate: voucher.lastModifiedOnDate || new Date().toISOString(),
+        createdOnDate: voucher.createdOnDate || new Date().toISOString(),
       });
     }
   }, [voucher, methods]);
@@ -53,15 +91,55 @@ export const useVoucherForm = (
     }
   }, [dispatch, voucherId]);
 
-  const handleSubmit = (value: FormData) => {
-    const updatedVoucher = {
-      ...voucher,
-      ...value,
-    };
+  const handleSubmit = async (value: VoucherFormSchema) => {
+    try {
+      const resultAction = await dispatch(checkVoucherCodeExist({ code: value.code.trim(), voucherId: voucherId.trim() }));
+        if (checkVoucherCodeExist.fulfilled.match(resultAction)) {
+          const isExist = resultAction.payload;
 
-    dispatch(updateVoucher({ id: voucherId, data: updatedVoucher }));
-    setIsEditing(false);
-    onClose();
+          if (isExist) {
+            methods.setError("code", {
+              type: "manual",
+              message: "Mã voucher đã tồn tại",
+            });
+            return;
+          }
+        }
+        else{
+          console.error("Lỗi trong quá trình kiểm tra mã voucher:", resultAction.error.message);
+          return;
+        }
+
+      //Xác định chỉ có một trong hai discountAmount hoặc discountPercentage được nhập
+      if (value.discountType === "$") {
+        value.discountPercentage = undefined;
+      } else {
+        value.discountAmount = undefined;
+      }
+
+      console.log("Giá trị voucher sau khi sửa:", value);
+
+      //Trim chuỗi
+      value.voucherName = value.voucherName.trim();
+      value.code = value.code.trim();
+      value.description = value.description?.trim() || undefined;
+
+      //Chuyển thành giờ UTC
+      value.startDate = new Date(value.startDate).toISOString();
+      value.endDate = new Date(value.endDate).toISOString();
+
+      const updatedVoucher = {
+        ...voucher,
+        ...value,
+      };
+
+      var editRs = await dispatch(updateVoucher({ id: voucherId, data: updatedVoucher }));
+      if (updateVoucher.fulfilled.match(editRs)) {
+        onClose();
+      }
+    } catch (error) {
+      console.error("Lỗi trong quá trình sửa voucher:", error);
+    }
   };
 
   return {

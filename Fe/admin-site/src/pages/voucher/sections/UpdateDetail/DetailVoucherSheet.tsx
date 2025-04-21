@@ -12,7 +12,6 @@ import { selectVoucher } from "@/redux/apps/voucher/voucherSelector";
 import { useVoucherForm } from "./use-voucher-form";
 import { VoucherForm } from "./VoucherForm";
 
-
 interface DetailVoucherSheetProps {
   voucherId: string;
   isOpen: boolean;
@@ -37,7 +36,7 @@ const DetailVoucherSheet: React.FC<DetailVoucherSheetProps> = ({
       <SheetContent className="w-[90%] sm:max-w-[80vw] max-w-none h-screen overflow-y-auto">
         <SheetHeader>
           <SheetTitle className="text-xl font-semibold text-gray-700">
-            Detail Voucher: {voucher?.voucherName}
+            Chi tiết Voucher: {voucher?.voucherName}
           </SheetTitle>
           <SheetDescription />
         </SheetHeader>
@@ -51,19 +50,22 @@ const DetailVoucherSheet: React.FC<DetailVoucherSheetProps> = ({
 
           {!isEditing ? (
             <Button
-              className="flex absolute bottom-3 left-7"
+              className="flex justify-start bottom-3 left-7"
               type="button"
               onClick={() => setIsEditing(true)}
             >
               Chỉnh sửa
             </Button>
           ) : (
-            <div className="flex absolute bottom-3 left-7 space-x-2">
+            <div className="flex justify-start bottom-3 left-7">
               <Button type="submit">Lưu</Button>
               <Button
                 type="button"
                 variant="secondary"
-                onClick={() => setIsEditing(false)}
+                onClick={() => {
+                  methods.reset();
+                  setIsEditing(false);
+                }}
               >
                 Hủy
               </Button>

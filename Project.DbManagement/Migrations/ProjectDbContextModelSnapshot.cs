@@ -429,7 +429,7 @@ namespace Project.DbManagement.Migrations
                     b.ToTable("Contacts");
                 });
 
-            modelBuilder.Entity("Project.DbManagement.Entity.ImageFileEntity", b =>
+            modelBuilder.Entity("Project.DbManagement.Entity.ImageFile", b =>
                 {
                     b.Property<Guid>("Id")
                         .ValueGeneratedOnAdd()
@@ -598,6 +598,7 @@ namespace Project.DbManagement.Migrations
                         .HasColumnType("nvarchar(max)");
 
                     b.Property<string>("MetadataJson")
+                        .IsRequired()
                         .HasColumnType("nvarchar(max)");
 
                     b.Property<string>("Name")
