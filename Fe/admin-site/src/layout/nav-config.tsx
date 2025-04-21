@@ -8,6 +8,7 @@ import { LuSettings } from "react-icons/lu";
 import { LuContact } from "react-icons/lu";
 import { TbCirclesRelation } from "react-icons/tb";
 import { FaFileInvoiceDollar } from "react-icons/fa6";
+import { FaFileAlt } from "react-icons/fa";
 
 interface NavConfigItem {
   title: string;
@@ -26,25 +27,25 @@ const navConfig: NavConfigItem[] = [
     color: "#6366f1",
   },
   {
-    title: "Category",
+    title: "Danh mục",
     path: "/category",
     icon: AiOutlineProduct,
     color: "#f87171",
   },
   {
-    title: "Product",
+    title: "Sản phẩm",
     path: "/product",
     icon: RiShoppingBag3Line,
     color: "#8b5cf6",
   },
   {
-    title: "Relation",
+    title: "Danh Mục Quan Hệ",
     path: "/relation",
     icon: TbCirclesRelation,
     color: "#759a94",
   },
   {
-    title: "Customer",
+    title: "Người dùng",
     path: "/customer",
     icon: LuUsers,
     color: "#ec4899",
@@ -56,19 +57,25 @@ const navConfig: NavConfigItem[] = [
     color: "#10b981",
   },
   {
-    title: "Contact",
+    title: "Liên Hệ",
     path: "/contact",
     icon: LuContact,
     color: "#f59e0b",
   },
   {
-    title: "Bill",
+    title: "Hóa đơn",
     path: "/bill",
     icon: FaFileInvoiceDollar,
     color: "#EF4444",
   },
   {
-    title: "Setting",
+    title: "Tài Nguyên",
+    path: "/file-manager",
+    icon: FaFileAlt,
+    color: "#3b82f6",
+  },
+  {
+    title: "Cài đặt",
     path: "/setting",
     icon: LuSettings,
     color: "#3b82f6",

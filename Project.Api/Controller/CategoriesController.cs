@@ -36,6 +36,7 @@ namespace Project.Api.Controllers
         }
 
         [HttpPost("filter")]
+        [ProducesResponseType(typeof(ResponsePagination<CategoriesEntity>), StatusCodes.Status200OK)]
         public async Task<IActionResult> GetCategories([FromQuery] CategoriesQueryModel queryModel)
         {
             return await ExecuteFunction(async () =>

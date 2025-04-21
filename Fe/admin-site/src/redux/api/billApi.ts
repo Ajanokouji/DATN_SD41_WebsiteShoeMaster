@@ -85,6 +85,22 @@ class BillService {
     }
   }
 
+  async patchBillReq(
+    id: string,
+    formData: Partial<BillReqDto>
+  ): Promise<BillDetailResDto> {
+    try {
+      const response = await httpClient.patch<{ data: BillDetailResDto }>(
+        `${this.endpoints.bills}/${id}`,
+        formData
+      );
+      return response.data;
+    } catch (error) {
+      console.error("Patch bill error:", error);
+      throw new Error(`Patch bill failed: ${error}`);
+    }
+  }
+
   // 🔴 Xóa hóa đơn theo ID
   async deleteBillReq(id: string): Promise<void> {
     try {

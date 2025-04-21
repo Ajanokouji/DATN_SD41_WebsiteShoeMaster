@@ -13,7 +13,7 @@ namespace Project.Business.Model
         public string? CustomerEmail { get; set; }
         public string? CustomerAddress { get; set; }
 
-        public List<BillDetailModel> BillDetails { get; set; } = new List<BillDetailModel>();
+        public List<BillDetailModel>? BillDetails { get; set; } = new List<BillDetailModel>();
     }
 
     public class BillDetailModel  :BaseEntity

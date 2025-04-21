@@ -1,19 +1,16 @@
 import React, { useState } from "react";
 import { Control, useController } from "react-hook-form";
-import {
-  FormLabel,
-} from "@/components/ui/form";
-import { Input } from "@/components/ui/input";
+import { FormLabel } from "@/components/ui/form";
 import { Button } from "@/components/ui/button";
 import { ProductFormSchema } from "./FormSchema";
 import { X, Plus } from "lucide-react";
+import FileManagerModal from "@/pages/file-manager/FileManagerModal";
 
 interface MultipleImageFieldProps {
   control: Control<ProductFormSchema>;
 }
 
 export const MultipleImageField: React.FC<MultipleImageFieldProps> = ({ control }) => {
-  // Use controller to properly manage the form field
   const {
     field: { value = [], onChange }
   } = useController({
@@ -21,36 +18,18 @@ export const MultipleImageField: React.FC<MultipleImageFieldProps> = ({ control 
     control,
     defaultValue: []
   });
-  
-  // Local state to manage temporarily entered URL
-  const [newImageUrl, setNewImageUrl] = useState("");
 
-  // Add a new image URL to the mediaObjs array
-  const addImageUrl = () => {
-    if (!newImageUrl.trim()) return;
-    
-    // Update the mediaObjs field using the controller
-    onChange([...value, newImageUrl]);
-    
-    // Clear the input field
-    setNewImageUrl("");
+  const [isModalFileOpen, setIsModalFileOpen] = useState(false);
+
+  const handleSelectImage = (imageUrl: string) => {
+    onChange([...value, imageUrl]);
+    setIsModalFileOpen(false);
   };
 
-  // Remove an image URL from the mediaObjs array
   const removeImageUrl = (index: number) => {
-    const updatedMediaObjs = [...value];
-    updatedMediaObjs.splice(index, 1);
-    
-    // Update the form values using the controller
-    onChange(updatedMediaObjs);
-  };
-
-  // Handle Enter key press to add new image
-  const handleKeyPress = (e: React.KeyboardEvent) => {
-    if (e.key === 'Enter') {
-      e.preventDefault();
-      addImageUrl();
-    }
+    const updated = [...value];
+    updated.splice(index, 1);
+    onChange(updated);
   };
 
   return (
@@ -59,19 +38,11 @@ export const MultipleImageField: React.FC<MultipleImageFieldProps> = ({ control 
         <FormLabel className="text-base">Hình ảnh sản phẩm</FormLabel>
       </div>
 
-      {/* Input for adding new image URL */}
       <div className="flex gap-2">
-        <Input
-          placeholder="https://example.com/image.jpg"
-          value={newImageUrl}
-          onChange={(e) => setNewImageUrl(e.target.value)}
-          onKeyPress={handleKeyPress}
-          className="flex-1"
-        />
         <Button 
           type="button" 
           variant="outline"
-          onClick={addImageUrl}
+          onClick={() => setIsModalFileOpen(true)}
           className="flex items-center gap-1"
         >
           <Plus size={16} />
@@ -79,7 +50,6 @@ export const MultipleImageField: React.FC<MultipleImageFieldProps> = ({ control 
         </Button>
       </div>
 
-      {/* Display and manage existing images */}
       {value.length === 0 ? (
         <div className="text-sm text-muted-foreground italic">
           Chưa có hình ảnh nào. Vui lòng thêm hình ảnh sản phẩm.
@@ -103,7 +73,6 @@ export const MultipleImageField: React.FC<MultipleImageFieldProps> = ({ control 
                 </Button>
               </div>
 
-              {/* Image preview */}
               <div>
                 <p className="text-sm font-medium mb-2">Xem trước:</p>
                 <div className="border rounded-md overflow-hidden w-full h-40 bg-slate-100">
@@ -122,6 +91,16 @@ export const MultipleImageField: React.FC<MultipleImageFieldProps> = ({ control 
             </div>
           ))}
         </div>
+      )}
+
+      {/* FileManager Modal */}
+      {isModalFileOpen && (
+        <FileManagerModal
+          isOpen={isModalFileOpen}
+          onClose={() => setIsModalFileOpen(false)}
+          //todo will define
+          onSelectImage={handleSelectImage}
+        />
       )}
     </div>
   );

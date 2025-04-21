@@ -159,15 +159,33 @@ namespace Project.Business.Implement
             var update = new Voucher
             {
                 Id = exist.Id,
+                Code = exist.Code,
+                Description = exist.Description,
+                DiscountAmount = exist.DiscountAmount,
+                MinimumOrderAmount = exist.MinimumOrderAmount,
+                DiscountPercentage = exist.DiscountPercentage,
                 VoucherName = exist.VoucherName,
                 VoucherType = exist.VoucherType,
                 StartDate = exist.StartDate,
                 EndDate = exist.EndDate,
-                Status = exist.Status,
-                CreatedOnDate = exist.CreatedOnDate,
-                LastModifiedOnDate = exist.LastModifiedOnDate
+                Status = exist.Status
             };
 
+            if (!string.IsNullOrWhiteSpace(model.Code))
+            {
+                update.Code = model.Code;
+            }
+
+            //Sửa lại để cho phép cập nhật từ có value thành null
+            update.Description = model.Description;
+            update.DiscountAmount = model.DiscountAmount;
+            update.DiscountPercentage = model.DiscountPercentage;
+
+            if (model.MinimumOrderAmount >= 0)
+            {
+                update.MinimumOrderAmount = model.MinimumOrderAmount;
+            }
+            
             if (!string.IsNullOrWhiteSpace(model.VoucherName))
             {
                 update.VoucherName = model.VoucherName;
@@ -258,8 +276,8 @@ namespace Project.Business.Implement
                     return false;
                 }
 
-                var isValid = voucher.Status == 1 && 
-                            DateTime.UtcNow >= voucher.StartDate && 
+                var isValid = voucher.Status == 1 &&
+                            DateTime.UtcNow >= voucher.StartDate &&
                             DateTime.UtcNow <= voucher.EndDate &&
                             orderAmount >= voucher.MinimumOrderAmount;
 
@@ -290,6 +308,36 @@ namespace Project.Business.Implement
             catch (Exception ex)
             {
                 _logger.Error(ex, "Error calculating discount for voucher {VoucherCode}", voucherCode);
+                throw;
+            }
+        }
+
+        //Check code đã tồn tại hay chưa khi Tạo mới hoặc Cập nhật
+        public async Task<bool> IsVoucherCodeExist(string code, Guid? voucherId)
+        {
+            try
+            {
+                var isCodeExist = await _voucherRepository.IsVoucherCodeExist(code, voucherId);
+                return isCodeExist;
+            }
+            catch (Exception ex)
+            {
+                _logger.Error(ex, "Error checking if voucher code {VoucherCode} exists", code);
+                throw;
+            }
+        }
+
+        //Lọc voucher theo trạng thái đang diễn ra, sắp diễn ra, đã kết thúc
+        public async Task<Pagination<Voucher>> GetVouchersByStatusDateAsync(VoucherQueryModel queryModel, int trangThai)
+        {
+            try
+            {
+                var vouchers = await _voucherRepository.GetVouchersByStatusDateAsync(queryModel, trangThai);
+                return vouchers;
+            }
+            catch (Exception ex)
+            {
+                _logger.Error(ex, "Error getting vouchers by status date");
                 throw;
             }
         }

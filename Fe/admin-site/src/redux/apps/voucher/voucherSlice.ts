@@ -81,6 +81,22 @@ export const deleteVoucher = createAppThunk(
   }
 );
 
+export const fetchVouchersByStatusDate = createAppThunk(
+  "vouchers/fetchByStatusDate",
+  async ({ params, trangThai }: { params: VoucherFilterParams; trangThai: number }) => {
+    const response = await voucherService.getVouchersByStatusDate(params, trangThai);
+    return response;
+  }
+);
+
+export const checkVoucherCodeExist = createAppThunk(
+  "voucher/checkCodeExist",
+  async ({ code, voucherId }: { code: string; voucherId?: string }) => {
+    const isExist = await voucherService.checkVoucherCodeExist(code, voucherId);
+    return isExist;
+  }
+);
+
 const voucherSlice = createSlice({
   name: "voucher",
   initialState,
@@ -140,6 +156,20 @@ const voucherSlice = createSlice({
         state.vouchers = state.vouchers.filter(
           (voucher) => voucher.id !== action.payload
         );
+      },
+    });
+
+    // Fetch vouchers by status Đang diễn ra, Sắp diễn ra, Đã kết thúc
+    addLoadingCases(builder, fetchVouchersByStatusDate, {
+      onFulfilled: (state, action) => {
+        state.loading = false;
+        state.vouchers = action.payload.data.content;
+        state.pagination = {
+          currentPage: action.payload.data.currentPage,
+          totalPages: action.payload.data.totalPages,
+          pageSize: action.payload.data.pageSize,
+          totalRecords: action.payload.data.totalRecords,
+        };
       },
     });
   },

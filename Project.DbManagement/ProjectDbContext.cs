@@ -1,6 +1,10 @@
 ﻿using Microsoft.EntityFrameworkCore;
 using Project.DbManagement.Entity;
-
+using System;
+using System.Collections.Generic;
+using System.Linq;
+using System.Text;
+using System.Threading.Tasks;
 
 namespace Project.DbManagement
 {
@@ -17,7 +21,9 @@ namespace Project.DbManagement
         public DbSet<ProductEntity> Products { get; set; }
         public DbSet<CategoriesEntity> Categories { get; set; }
         public DbSet<UserEntity> Users{ get; set; }
-        public DbSet<Customers> Customers { get; set; }
+        public DbSet<ContentBase>  ContentBases{ get; set; }
+        public DbSet<CustomersEntity> Customers { get; set; }
+        public DbSet<ImageFileEntity> ImageFiles { get; set; }
 
         public DbSet<ProductCategoriesRelation> ProductCategoriesRelations { get; set; }
 
