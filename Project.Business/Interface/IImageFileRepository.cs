@@ -7,10 +7,10 @@ namespace Project.Business.Interface
 {
     namespace Project.Business.Interface.Repositories
     {
-        public interface IImageFileRepository : IRepository<ImageFile,ImageFileQueryModel>
+        public interface IImageFileRepository : IRepository<ImageFileEntity,ImageFileQueryModel>
         {
-            Task<ImageFile> FindByCompletePathAsync(string completePath);
-            Task<ImageFile> SaveAsync(ImageFile imageFile);
+            Task<ImageFileEntity> FindByCompletePathAsync(string completePath);
+            Task<ImageFileEntity> SaveAsync(ImageFileEntity imageFile);
         }
     }
 }

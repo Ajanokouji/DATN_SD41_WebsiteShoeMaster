@@ -1,48 +1,61 @@
 using Microsoft.AspNetCore.Mvc;
-using Nest;
+using Project.Business.Interface;
 using Project.Business.Interface.Project.Business.Interface;
 using Project.Business.Model;
 using Project.DbManagement.Entity;
-using System;
-using System.IO;
-using System.Threading.Tasks;
+using SERP.Framework.ApiUtils.Controllers;
+using SERP.Framework.ApiUtils.Responses;
+using SERP.Framework.ApiUtils.Utils;
+
 
 namespace Project.Api.Controllers
 {
     [ApiController]
     [Route("api/files")]
-    public class ImageFileController : ControllerBase
+    public class ImageFileController : BaseControllerApi
     {
         private readonly IImageFileBusiness _imageFileBusiness;
         private readonly IConfiguration _configuration;
         private readonly IWebHostEnvironment _webHostEnvironment;
 
-        public ImageFileController(IConfiguration configuration, IImageFileBusiness imageFileBusiness, IWebHostEnvironment webHostEnvironment)
+        public ImageFileController(IWebHostEnvironment webHostEnvironment, IConfiguration configuration, IImageFileBusiness imageFileBusiness, IHttpRequestHelper httpRequestHelper, ILogger<ApiControllerBase> logger) : base(httpRequestHelper, logger)
         {
-            _configuration = configuration ;
+            _configuration = configuration;
             _imageFileBusiness = imageFileBusiness ?? throw new ArgumentNullException(nameof(imageFileBusiness));
             _webHostEnvironment = webHostEnvironment ?? throw new ArgumentNullException(nameof(webHostEnvironment));
         }
 
         [HttpPost("upload")]
-        public async Task<IActionResult> UploadImage([FromForm] FileUploadRequestModel  fileUploadRequestModel)
+        [ProducesResponseType(typeof(ResponseObject<ImageFileEntity>), StatusCodes.Status200OK)]
+        public async Task<IActionResult> UploadImage([FromForm] FileUploadRequestModel fileUploadRequestModel)
         {
-            var storageUrl = _configuration["FileSettings:StorageUrl"];
-            Uri baseUri = new Uri(storageUrl.EndsWith("/") ? storageUrl : storageUrl + "/");
-            if (fileUploadRequestModel.File == null || fileUploadRequestModel.File.Length == 0)
+            return await ExecuteFunction(async () =>
             {
-                return BadRequest("No file uploaded."); 
-            }
+                var storageUrl = _configuration["FileSettings:StorageUrl"];
+                Uri baseUri = new Uri(storageUrl.EndsWith("/") ? storageUrl : storageUrl + "/");
+                if (fileUploadRequestModel.File == null || fileUploadRequestModel.File.Length == 0)
+                {
+                   throw new Exception("File is required.");
+                }
 
-            try
-            {             
                 var uploadsFolder = Path.Combine(_webHostEnvironment.WebRootPath, "user-blob");
                 if (!Directory.Exists(uploadsFolder))
                 {
                     Directory.CreateDirectory(uploadsFolder);
                 }
 
-                var fileName =(fileUploadRequestModel.FileName+ Path.GetExtension(fileUploadRequestModel.File.FileName))??fileUploadRequestModel.File.FileName+DateTimeOffset.UtcNow;
+                var extension = Path.GetExtension(fileUploadRequestModel.File.FileName);
+                string fileName;
+                if (!string.IsNullOrEmpty(fileUploadRequestModel.FileName))
+                {
+                    fileName = fileUploadRequestModel.FileName + extension;
+                }
+                else
+                {
+                    fileName = Path.GetFileNameWithoutExtension(fileUploadRequestModel.File.FileName)
+                        + "_" + DateTimeOffset.UtcNow.ToUnixTimeSeconds() + extension;
+                }
+
                 var filePath = Path.Combine(uploadsFolder, fileName);
 
                 using (var stream = new FileStream(filePath, FileMode.Create))
@@ -50,10 +63,10 @@ namespace Project.Api.Controllers
                     await fileUploadRequestModel.File.CopyToAsync(stream);
                 }
 
-                var imageFile = new ImageFile
+                ImageFileEntity imageFile = new ImageFileEntity
                 {
                     Id = Guid.NewGuid(),
-                    FileName =fileName,
+                    FileName = fileName,
                     FilePath = filePath,
                     CompleteFilePath = (new Uri(baseUri, fileName)).ToString(),
                     ContentType = fileUploadRequestModel.File.ContentType,
@@ -61,15 +74,9 @@ namespace Project.Api.Controllers
                     UploadedBy = User?.Identity?.Name ?? "Anonymous",
                     CreatedOnDate = DateTime.UtcNow
                 };
-
-                var savedImageFile = await _imageFileBusiness.SaveAsync(imageFile);
-
-                return Ok(new { Message = "File uploaded successfully.", ImageFile = savedImageFile });
-            }
-            catch (Exception ex)
-            {
-                return StatusCode(500, $"Internal server error: {ex.Message}");
-            }
+                var res=  await _imageFileBusiness.SaveAsync(imageFile);
+                return res;
+            });
         }
 
         [HttpGet("{fileName}")]
@@ -126,44 +133,50 @@ namespace Project.Api.Controllers
             }
         }
 
-        [HttpGet("list")]
-        public async Task<IActionResult> ListAllImageFiles()
+        [HttpPost("filter")]
+        [ProducesResponseType(typeof(ResponsePagination<ImageFileEntity>), StatusCodes.Status200OK)]
+        public async Task<IActionResult> GetImageFiles([FromBody] ImageFileQueryModel queryModel)
         {
-            try
+            return await ExecuteFunction(async () =>
             {
-                var imageFiles = await _imageFileBusiness.ListAllAsync();
-                return Ok(imageFiles);
-            }
-            catch (Exception ex)
-            {
-                return StatusCode(500, $"Internal server error: {ex.Message}");
-            }
+                try
+                {
+                    var imageFiles = await _imageFileBusiness.GetAllAsync(queryModel);
+                    return imageFiles;
+                }
+                catch (Exception ex)
+                {
+                    throw new Exception ($"Internal server error: {ex.Message}");
+                }
+            });
         }
-
         [HttpDelete("{id:guid}")]
         public async Task<IActionResult> DeleteImageFile(Guid id)
         {
-            try
+            return await ExecuteFunction(async () =>
             {
-                var deletedImageFile = await _imageFileBusiness.DeleteAsync(id);
-                if (deletedImageFile == null)
+                try
                 {
-                    return NotFound("File not found.");
-                }
+                    var deletedImageFile = await _imageFileBusiness.DeleteAsync(id);
+                    if (deletedImageFile == null)
+                    {
+                        return NotFound("File not found.");
+                    }
 
-                // Optionally, delete the physical file from the server
-                var filePath = deletedImageFile.FilePath;
-                if (!string.IsNullOrEmpty(filePath) && System.IO.File.Exists(filePath))
+                    // Optionally, delete the physical file from the server
+                    var filePath = deletedImageFile.FilePath;
+                    if (!string.IsNullOrEmpty(filePath) && System.IO.File.Exists(filePath))
+                    {
+                        System.IO.File.Delete(filePath);
+                    }
+
+                    return Ok(new { Message = "File deleted successfully.", ImageFile = deletedImageFile });
+                }
+                catch (Exception ex)
                 {
-                    System.IO.File.Delete(filePath);
+                    return StatusCode(500, $"Internal server error: {ex.Message}");
                 }
-
-                return Ok(new { Message = "File deleted successfully.", ImageFile = deletedImageFile });
-            }
-            catch (Exception ex)
-            {
-                return StatusCode(500, $"Internal server error: {ex.Message}");
-            }
+            });
         }
     }
 }

@@ -12,6 +12,8 @@ namespace Project.DbManagement
     public class Voucher: BaseEntity
     {
         [Key]
+        public Guid Id { get; set; } 
+
         [Column(TypeName = "nvarchar(50)")]
         public string? Code { get; set; }
 

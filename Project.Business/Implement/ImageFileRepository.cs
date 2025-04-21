@@ -23,12 +23,12 @@ namespace Project.Business.Implement
             _context = context;
         }
 
-        public async Task<ImageFile> FindAsync(Guid id)
+        public async Task<ImageFileEntity> FindAsync(Guid id)
         {
             return await _context.ImageFiles.AsNoTracking().FirstOrDefaultAsync(x => x.Id == id && x.Isdeleted ==false);
         }
 
-        public async Task<ImageFile> SaveAsync(ImageFile imageFile)
+        public async Task<ImageFileEntity> SaveAsync(ImageFileEntity imageFile)
         {
             var exist = await _context.ImageFiles.AsNoTracking().FirstOrDefaultAsync(x => x.Id == imageFile.Id);
             if (exist == null)
@@ -52,7 +52,7 @@ namespace Project.Business.Implement
             return imageFile;
         }
 
-        public async Task<ImageFile> DeleteAsync(Guid id)
+        public async Task<ImageFileEntity> DeleteAsync(Guid id)
         {
             var exist = await FindAsync(id);
             if (exist == null) throw new Exception("ImageFile not found");
@@ -62,15 +62,15 @@ namespace Project.Business.Implement
             return exist;
         }
 
-        public async Task<ImageFile> FindByCompletePathAsync(string completePath)
+        public async Task<ImageFileEntity> FindByCompletePathAsync(string completePath)
         {
             var res = await _context.ImageFiles.AsNoTracking().FirstOrDefaultAsync(x => x.CompleteFilePath == completePath);
             return res;
         }
 
-        private  IQueryable<ImageFile> BuildQuery(ImageFileQueryModel imageFileQueryModel)
+        private  IQueryable<ImageFileEntity> BuildQuery(ImageFileQueryModel imageFileQueryModel)
         {
-            IQueryable<ImageFile> query = _context.ImageFiles.AsNoTracking();
+            IQueryable<ImageFileEntity> query = _context.ImageFiles.AsNoTracking().Where(x=>x.Isdeleted==false);
 
             if (imageFileQueryModel.Id != Guid.Empty)
             {
@@ -105,7 +105,7 @@ namespace Project.Business.Implement
             return query;
         }
 
-        public async Task<Pagination<ImageFile>> GetAllAsync(ImageFileQueryModel imageFileQueryModel)
+        public async Task<Pagination<ImageFileEntity>> GetAllAsync(ImageFileQueryModel imageFileQueryModel)
         {
             var query = BuildQuery(imageFileQueryModel);
 
@@ -122,7 +122,7 @@ namespace Project.Business.Implement
             return await query.GetPagedAsync(imageFileQueryModel.CurrentPage.Value, imageFileQueryModel.PageSize.Value, sortExpression);
         }
 
-        public async Task<IEnumerable<ImageFile>> ListAllAsync(ImageFileQueryModel queryModel)
+        public async Task<IEnumerable<ImageFileEntity>> ListAllAsync(ImageFileQueryModel queryModel)
         {
            var query = BuildQuery(queryModel);
             return await query.ToListAsync();
@@ -135,13 +135,13 @@ namespace Project.Business.Implement
             return await query.CountAsync();
         }
 
-        public async Task<IEnumerable<ImageFile>> ListByIdsAsync(IEnumerable<Guid> ids)
+        public async Task<IEnumerable<ImageFileEntity>> ListByIdsAsync(IEnumerable<Guid> ids)
         {
             var query = _context.ImageFiles.AsNoTracking().Where(x => ids.Contains(x.Id)&& x.Isdeleted==false);
             return await query.ToListAsync();
         }
 
-        Task<IEnumerable<ImageFile>> IRepository<ImageFile, ImageFileQueryModel>.DeleteAsync(Guid[] deleteIds)
+        Task<IEnumerable<ImageFileEntity>> IRepository<ImageFileEntity, ImageFileQueryModel>.DeleteAsync(Guid[] deleteIds)
         {
             throw new NotImplementedException();
         }

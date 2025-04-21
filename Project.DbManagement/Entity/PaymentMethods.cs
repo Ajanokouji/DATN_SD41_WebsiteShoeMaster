@@ -13,6 +13,8 @@ namespace Project.DbManagement
     public class PaymentMethods: BaseEntity
     {
         [Key]
+        public Guid Id { get; set; }
+
         [Column(TypeName = "nvarchar(50)")]
         public string PaymentMethodCode { get; set; }
 

@@ -13,7 +13,7 @@ export const RelationPage = lazy(() => import("@/pages/relation"));
 export const VoucherPage = lazy(() => import("@/pages/voucher"));
 export const ContactPage = lazy(() => import("@/pages/contact"));
 export const BillPage = lazy(() => import("@/pages/bill"));
-
+export const FileManagerPage = lazy(() => import("@/pages/file-manager"));
 export const CustomerPage = lazy(() => import("@/pages/customer"));
 // export const LoginPage = lazy(() => import("../pages/auth/Login"));
 // export const RegisterPage = lazy(() => import("../pages/auth/Register"));
@@ -77,6 +77,10 @@ export default function Router() {
         {
           path: "bill",
           element: <BillPage />,
+        },
+        {
+          path: "file-manager",
+          element: <FileManagerPage />,
         },
       ],
     },

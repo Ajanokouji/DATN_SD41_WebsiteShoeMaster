@@ -31,7 +31,7 @@ namespace Project.Business.Implement
             _useCache = _configuration.GetValue<bool>("CacheSettings:UseCache");
         }
 
-        public async Task<ImageFile> FindAsync(Guid id)
+        public async Task<ImageFileEntity> FindAsync(Guid id)
         {
             try
             {
@@ -54,17 +54,17 @@ namespace Project.Business.Implement
             }
         }
 
-        public async Task<IEnumerable<ImageFile>> ListAllAsync()
+        public async Task<IEnumerable<ImageFileEntity>> ListAllAsync(ImageFileQueryModel imageFileQueryModel)
         {
             try
             {
-                if (_useCache && _cache.TryGetValue(ImageFileListCacheKey, out IEnumerable<ImageFile> cachedImageFiles))
+                if (_useCache && _cache.TryGetValue(ImageFileListCacheKey, out IEnumerable<ImageFileEntity> cachedImageFiles))
                 {
                     _logger.Debug("Retrieved image files from cache");
                     return cachedImageFiles;
                 }
 
-                var imageFiles = await _imageFileRepository.ListAllAsync();
+                var imageFiles = await _imageFileRepository.ListAllAsync(imageFileQueryModel);
                 if (_useCache)
                 {
                     _cache.Set(ImageFileListCacheKey, imageFiles, _cacheOptions);
@@ -79,7 +79,7 @@ namespace Project.Business.Implement
             }
         }
 
-        public async Task<ImageFile> SaveAsync(ImageFile imageFile)
+        public async Task<ImageFileEntity> SaveAsync(ImageFileEntity imageFile)
         {
             try
             {
@@ -103,7 +103,7 @@ namespace Project.Business.Implement
             }
         }
 
-        public async Task<ImageFile> DeleteAsync(Guid id)
+        public async Task<ImageFileEntity> DeleteAsync(Guid id)
         {
             try
             {
@@ -134,15 +134,16 @@ namespace Project.Business.Implement
             }
         }
 
-        public async Task<ImageFile> FindByCompletePathAsync(string completePath)
+        public async Task<ImageFileEntity> FindByCompletePathAsync(string completePath)
         {
             var res = await  _imageFileRepository.FindByCompletePathAsync(completePath);
             return res;
         }
 
-        public Task<Pagination<ImageFile>> GetAllAsync(ImageFileQueryModel imageFileQueryModel)
+        public async Task<Pagination<ImageFileEntity>> GetAllAsync(ImageFileQueryModel imageFileQueryModel)
         {
-            
+            var res = await _imageFileRepository.GetAllAsync(imageFileQueryModel);
+            return res;
         }
     }
 
