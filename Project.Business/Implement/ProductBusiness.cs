@@ -320,7 +320,6 @@ namespace Project.Business.Implement
                 throw;
             }
         }
-
         public Task<List<ListProductSellViewModel>> GetAllProduct()
         {
             return _productRepository.GetAllProduct();

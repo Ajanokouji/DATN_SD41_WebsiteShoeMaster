@@ -9,6 +9,7 @@ public interface IBillDetailsRepository : IRepository<BillDetailsEntity, BillDet
     protected const string MessageNotFound = "Bill not found";
     Task<BillDetailsEntity> SaveAsync(BillDetailsEntity billDetails);
     Task<IEnumerable<BillDetailsEntity>> SaveAsync(IEnumerable<BillDetailsEntity> billDetails);
+   
     public Task<bool> SaveBillDetails(BillDetailsRequest request);
     public Task<BillDetailsEntity> UpdateQuantity(Guid idBillDetails, int quantity);
     public Task<bool> DeleteBillDetails(Guid idBillDetails);

@@ -85,7 +85,6 @@ namespace Project.Business.Interface
         /// <param name="productEntity"></param>
         /// <returns></returns>
         Task<ProductEntity> PatchAsync(ProductEntity productEntity);
-
         public Task<List<ListProductSellViewModel>> GetAllProduct();
         
         public Task<ProductDetailsViewModel> GetProductDetailsById(Guid idprd);

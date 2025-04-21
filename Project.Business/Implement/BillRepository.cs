@@ -285,6 +285,25 @@ public class BillRepository : IBillRepository
         throw new NotImplementedException();
     }
 
+
+        return updated;
+    }
+
+
+    public async Task<BillEntity> DeleteAsync(Guid Id)
+    {
+        var exist = await FindAsync(Id);
+        if (exist == null) throw new Exception(IBillRepository.MessageNotFound);
+        exist.Isdeleted = true;
+        _context.Bills.Update(exist);
+        _context.SaveChangesAsync();
+        return exist;
+    }
+
+    public Task<IEnumerable<BillEntity>> DeleteAsync(Guid[] deleteIds)
+    {
+        throw new NotImplementedException();
+    }
     public List<BillEntity> GetAllPendingBill()
     {
         return _context.Bills.Where(hd => hd.Status == "Pending").OrderBy(hd => hd.CreatedOnDate).ToList();
