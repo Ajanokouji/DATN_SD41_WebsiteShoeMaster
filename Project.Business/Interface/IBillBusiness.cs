@@ -41,6 +41,7 @@ public interface IBillBusiness
         List<CartItemModel> cartItems, 
         CustomerInfoModel customerInfo, 
         string voucherCode);
+    
     public List<BillEntity> GetAllPendingBill();
     public bool CreatePendingBill(Guid idEmployee);
     public bool DeletePendingBill(Guid idBill);

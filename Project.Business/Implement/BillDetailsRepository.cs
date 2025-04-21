@@ -210,7 +210,6 @@ public class BillDetailsRepository : IBillDetailsRepository
     {
         throw new NotImplementedException();
     }
-
     public async Task<bool> SaveBillDetails(BillDetailsRequest request)
     {
         try
@@ -221,6 +220,12 @@ public class BillDetailsRepository : IBillDetailsRepository
             if (prdDtExist != true) //k tồn tại -> chưa có hdct-> tạo
             {
                 var guid = Guid.NewGuid();
+                var product = _context.Products.Find(request.IdProduct);
+                int quantityExist = Convert.ToInt32(product.MetadataObj.GetMetadatavalue("Quantity"));
+                if (quantityExist < request.Quantity)
+                {
+                    return false;
+                }
                 var billDetails = new BillDetailsEntity()
                 {
                     Id = guid,
@@ -229,14 +234,13 @@ public class BillDetailsRepository : IBillDetailsRepository
                     ProductId = request.IdProduct,
                     Quantity = request.Quantity,
                     Size = 1,
-                    Price = 1,
+                    Price = Convert.ToDecimal(product.MetadataObj.GetMetadatavalue("MaxPrice")),
                     TotalPrice = 1,
                     Status = 0,
                 };
                 await _context.BillDetails.AddAsync(billDetails);
                 await _context.SaveChangesAsync();
                 //Trừ số lượng CTSP
-                var product = _context.Products.Find(request.IdProduct);
                 int quantity = Convert.ToInt32(product.MetadataObj.GetMetadatavalue("Quantity"));
                 quantity -= request.Quantity;
                 product.MetadataObj.SetMetaFieldValue("Quantity", quantity.ToString());

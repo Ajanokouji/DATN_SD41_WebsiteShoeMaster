@@ -284,7 +284,6 @@ public class BillRepository : IBillRepository
     {
         throw new NotImplementedException();
     }
-
     public List<BillEntity> GetAllPendingBill()
     {
         return _context.Bills.Where(hd => hd.Status == "Pending").OrderBy(hd => hd.CreatedOnDate).ToList();

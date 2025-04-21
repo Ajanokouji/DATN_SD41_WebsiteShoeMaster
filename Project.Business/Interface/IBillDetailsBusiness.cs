@@ -44,6 +44,5 @@ public interface IBillDetailsBusiness
     Task<bool> CreateBillDetails(List<BillDetailsEntity> billDetails, Guid billId);
 
     Task<bool> UpdateBillDetailsStatus(Guid billDetailId, int status);
-
     public Task<bool> SaveBillDetails(BillDetailsRequest request);
 }

@@ -274,7 +274,6 @@ namespace Project.Business.Implement
         {
             throw new NotImplementedException();
         }
-
         public async Task<List<ListProductSellViewModel>> GetAllProduct()
         {
             return await (from products in _context.Products.AsNoTracking()

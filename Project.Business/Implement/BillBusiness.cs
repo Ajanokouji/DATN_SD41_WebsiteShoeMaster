@@ -655,7 +655,6 @@ namespace Project.Business.Implement
                 return null;
             }
         }
-        
         public List<BillEntity> GetAllPendingBill()
         {
             return _billRepository.GetAllPendingBill();

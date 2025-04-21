@@ -428,7 +428,6 @@ public class BillDetailsBusiness : IBillDetailsBusiness
             return false;
         }
     }
-
     public async Task<bool> SaveBillDetails(BillDetailsRequest request)
     {
         var result = await _billDetailsRepository.SaveBillDetails(request);
