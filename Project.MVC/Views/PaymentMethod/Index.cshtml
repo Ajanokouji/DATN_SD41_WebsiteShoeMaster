@@ -27,7 +27,7 @@
             <div class="col-lg-12">
                 <h5 class="mb-4">Chọn phương thức thanh toán</h5>
                 <div class="checkout__form">
-                    <form asp-action="ProcessPayment" method="post">
+                    @* <form asp-action="ProcessPayment" method="post">
                         <input type="hidden" asp-for="BillId" />
                         <div class="row">
                             <div class="col-lg-8">
@@ -41,7 +41,7 @@
                                         @foreach (var method in Model.PaymentMethods)
                                         {
                                             <div class="payment-method">
-                                                <input type="radio" code="@method.Code" name="SelectedPaymentMethod" value="@method.Code" required>
+                                                <input type="radio" code="@method.Code" asp-for="SelectedPaymentMethod" value="@method.Code" required>
                                                 <label for="@method.Code">@method.Name</label>
                                                 <div class="payment-method__details">
                                                     @if (method.Code == "COD")
@@ -70,11 +70,56 @@
                                             <li>Tổng tiền <span>@Model.TotalAmount.ToString("N0") VNĐ</span></li>
                                         </ul>
                                     </div>
-                                    <button type="submit" class="site-btn">Tiếp tục thanh toán</button>
+                                    <form method="post" asp-action="CreatePaymentUrlVnpay" asp-controller="VnPay">
+										<input type="hidden" name="Name" value="Test" />
+										<input type="hidden" name="Amount" value="100000" />
+										<input type="hidden" name="OrderDesciption" value="Thanh toán qua Vnpay tại ShoeMaster" />
+										<input type="hidden" name="OrderType" value="Test" />
+                                        <button class="btn btn-success" type="submit">Thanh toán</button>
+
+                                    </form>
                                 </div>
                             </div>
                         </div>
+                    </form> *@
+                    <form asp-action="ProcessPayment" method="post">
+                        <input type="hidden" asp-for="BillId" />
+
+                        <div asp-validation-summary="ModelOnly" class="text-danger"></div>
+
+                        <div class="checkout__payment__methods">
+                            @foreach (var method in Model.PaymentMethods)
+                            {
+                                <div class="payment-method">
+                                    <input type="radio" id="@method.Code" asp-for="SelectedPaymentMethod" value="@method.Code" required>
+                                    <label for="@method.Code">@method.Name</label>
+                                    <div class="payment-method__details">
+                                        @if (method.Code == "COD")
+                                        {
+                                            <p>Thanh toán khi nhận hàng (COD). Bạn sẽ thanh toán bằng tiền mặt khi nhận được hàng.</p>
+                                        }
+                                        else if (method.Code == "Banking")
+                                        {
+                                            <p>Chuyển khoản qua ngân hàng.</p>
+                                        }
+                                        else if (method.Code == "VNPay")
+                                        {
+                                            <p>Thanh toán trực tuyến qua VNPay.</p>
+                                        }
+                                    </div>
+                                </div>
+                            }
+                        </div>
+
+                        <div class="checkout__order__total">
+                            <ul>
+                                <li>Tổng tiền <span>@Model.TotalAmount.ToString("N0") VNĐ</span></li>
+                            </ul>
+                        </div>
+
+                        <button type="submit" class="site-btn">Tiếp tục thanh toán</button>
                     </form>
+
                 </div>
             </div>
         </div>
