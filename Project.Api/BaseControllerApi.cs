@@ -18,7 +18,6 @@ namespace Project.Api
 
         protected  async Task<IActionResult> ExecuteFunction<T>(Func<Task<T>> func)
         {
-
             try
             {
                 return ParseResult(await func());

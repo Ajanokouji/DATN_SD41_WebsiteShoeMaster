@@ -55,13 +55,13 @@ namespace Project.MVC.Controllers
                     else //Tìm thấy
                     {
                         //Tìm cartDetail
-                        var lstCartDetailFound = _cartDetailsBusiness.GetByCartId(cartFound.Id);
+                        var lstCartDetailFound =  await _cartDetailsBusiness.GetByCartId(cartFound.Id);
 
                         //Nếu cartDetail không rỗng
-                        if (lstCartDetailFound.Result != null && lstCartDetailFound.Result.Any())
+                        if (lstCartDetailFound != null && lstCartDetailFound.Any())
                         {
                             //Chuyển cartdetail thành cartItemModel
-                            List<CartItemModel> lstCartItemModel = lstCartDetailFound.Result.Select(x => new CartItemModel
+                            List<CartItemModel> lstCartItemModel = lstCartDetailFound.Select(x => new CartItemModel
                             {
                                 ProductId = x.IdProduct,
                                 Quantity = x.Quantity.Value

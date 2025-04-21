@@ -9,7 +9,7 @@ const Bill: React.FC = () => {
   return (
     <>
       <Helmet>
-        <title> Bill </title>
+        <title> Hóa đơn </title>
       </Helmet>
       <section className="px-8">
         <Stat />

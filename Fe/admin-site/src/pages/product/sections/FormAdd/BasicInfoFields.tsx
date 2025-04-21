@@ -72,7 +72,7 @@ export const BasicInfoFields: React.FC<BasicInfoFieldsProps> = ({
           name="code"
           render={({ field }) => (
             <FormItem>
-              <FormLabel>Code</FormLabel>
+              <FormLabel>Mã Sản Phẩm</FormLabel>
               <FormControl>
                 <Input placeholder="Product code" {...field} />
               </FormControl>
@@ -86,7 +86,7 @@ export const BasicInfoFields: React.FC<BasicInfoFieldsProps> = ({
           name="name"
           render={({ field }) => (
             <FormItem>
-              <FormLabel>Name</FormLabel>
+              <FormLabel>Tên Sản Phẩm</FormLabel>
               <FormControl>
                 <Input placeholder="Product name" {...field} />
               </FormControl>
@@ -101,7 +101,7 @@ export const BasicInfoFields: React.FC<BasicInfoFieldsProps> = ({
         name="description"
         render={({ field }) => (
           <FormItem>
-            <FormLabel>Description</FormLabel>
+            <FormLabel>Mô Tả</FormLabel>
             <FormControl>
               <Textarea
                 placeholder="Enter product description"

@@ -10,10 +10,10 @@ using System.Threading.Tasks;
 
 namespace Project.Business
 {
-    public interface ICustomerRepository : IRepository<Customers, CustomerQueryModel>
+    public interface ICustomerRepository : IRepository<CustomersEntity, CustomerQueryModel>
     {
         protected const string MessageNoTFound = "Customer not found";
-        Task<Customers> SaveAsync(Customers article);
-        Task<IEnumerable<Customers>> SaveAsync(IEnumerable<Customers> customerEntities);
+        Task<CustomersEntity> SaveAsync(CustomersEntity article);
+        Task<IEnumerable<CustomersEntity>> SaveAsync(IEnumerable<CustomersEntity> customerEntities);
     }
 }

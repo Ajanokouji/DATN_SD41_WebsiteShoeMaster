@@ -18,24 +18,37 @@ namespace Project.DbManagement.Entity
         [ForeignKey("ProductEntity")]
         public Guid IdProduct { get; set; }
         public virtual ProductEntity? ProductEntity { get; set; }
+
         [ForeignKey("CategoriesEntity")]
         public Guid CategoriesId { get; set; }
         public virtual CategoriesEntity? CategoriesEntity { get; set; }
+
+        [Column(TypeName = "nvarchar(256)")]
         public string ProductName { get; set; }
+
+        [Column(TypeName = "nvarchar(256)")]
         public string CategoryName { get; set; }
+
+        [Column(TypeName = "nvarchar(50)")]
         public string RelationType { get; set; }
+
         public int? Order { get; set; } = 9999;
 
         public bool? IsPublish { get; set; }
         public DateTime? PublishStartDate { get; set; }
         public DateTime? PublishEndDate { get; set; }
         public DateTime? PublishOnDate { get; set; }
+
+        [Column(TypeName = "nvarchar(50)")]
         public string? Status { get; set; }
+
+        [Column(TypeName = "nvarchar(max)")]
         public string Description { get; set; }
 
         [NotMapped]
         public virtual RelatedObj? RelatedObj { get; set; }
 
+        [Column(TypeName = "nvarchar(max)")]
         public virtual string? RelatedObjJson
         {
             get
@@ -63,6 +76,7 @@ namespace Project.DbManagement.Entity
         [NotMapped]
         public virtual RelatedObj? RelatedObj2 { get; set; }
 
+        [Column(TypeName = "nvarchar(max)")]
         public virtual string? RelatedObj2Json
         {
             get

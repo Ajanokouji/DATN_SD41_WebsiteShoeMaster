@@ -1,16 +1,10 @@
 using Microsoft.AspNetCore.Mvc;
-using Project.Business.Implement;
 using Project.Business.Interface;
-using Project.Business.Interface.Repositories;
 using Project.Business.Model;
 using Project.DbManagement.Entity;
 using SERP.Framework.ApiUtils.Controllers;
 using SERP.Framework.ApiUtils.Responses;
 using SERP.Framework.ApiUtils.Utils;
-using SERP.Framework.Business;
-using System;
-using System.Collections.Generic;
-using System.Threading.Tasks;
 
 namespace Project.Api.Controllers
 {
@@ -75,9 +69,7 @@ namespace Project.Api.Controllers
         {
             return await ExecuteFunction(async () =>
             {
-                var exist = await _productBusiness.FindAsync(id);
-                if (id != productEntity.Id || exist ==null)
-                    throw new ArgumentException("Not Found");
+               
                 var updatedProduct = await _productBusiness.PatchAsync(productEntity);
                 return updatedProduct;
             });

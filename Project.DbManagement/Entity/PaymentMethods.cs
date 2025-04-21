@@ -6,6 +6,7 @@ using System.Threading.Tasks;
 using System.ComponentModel.DataAnnotations;
 using System.Collections;
 using Project.DbManagement.Entity;
+using System.ComponentModel.DataAnnotations.Schema;
 
 namespace Project.DbManagement
 {
@@ -13,10 +14,19 @@ namespace Project.DbManagement
     {
         [Key]
         public Guid Id { get; set; }
+
+        [Column(TypeName = "nvarchar(50)")]
         public string PaymentMethodCode { get; set; }
+
+        [Column(TypeName = "nvarchar(256)")]
         public string PaymentMethodName { get; set; }
+
         public int Status { get; set; }
+
+        [Column(TypeName = "nvarchar(256)")]
         public string CreatedBy { get; set; }
+
+        [Column(TypeName = "nvarchar(256)")]
         public string UpdatedBy { get; set; }
     }
 }

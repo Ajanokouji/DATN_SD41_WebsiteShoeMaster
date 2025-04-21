@@ -2,6 +2,7 @@
 using Project.Business.Model;
 using Project.DbManagement;
 using Project.DbManagement.Entity;
+using SERP.Framework.Common;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -16,5 +17,7 @@ namespace Project.Business.Interface
         Task<Voucher> SaveAsync(Voucher article);
         Task<IEnumerable<Voucher>> SaveAsync(IEnumerable<Voucher> vouchers);
         Task<Voucher> FindByCodeAsync(string code);
+        Task<bool> IsVoucherCodeExist(string code, Guid? voucherId);
+        Task<Pagination<Voucher>> GetVouchersByStatusDateAsync(VoucherQueryModel queryModel, int trangThai);
     }
 }

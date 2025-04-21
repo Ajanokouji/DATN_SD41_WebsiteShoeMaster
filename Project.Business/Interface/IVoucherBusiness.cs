@@ -76,6 +76,8 @@ namespace Project.Business.Interface
         /// <param name="voucher"></param>
         /// <returns></returns>
         Task<Voucher> PatchAsync(Voucher voucher);
+        Task<bool> IsVoucherCodeExist(string code, Guid? voucherId);
+        Task<Pagination<Voucher>> GetVouchersByStatusDateAsync(VoucherQueryModel queryModel, int trangThai);
     }
 }
 

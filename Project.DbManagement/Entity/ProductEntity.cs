@@ -7,25 +7,40 @@ using Project.Common;
 
 namespace Project.DbManagement.Entity
 {
-    public class ProductEntity:BaseEntity
+    public class ProductEntity : BaseEntity
     {
         [Key]
         public Guid Id { get; set; }
+
+        [Column(TypeName = "nvarchar(50)")]
         public string? Code { get; set; }
+
+        [Column(TypeName = "nvarchar(256)")]
         public string? Name { get; set; }
+
+        [Column(TypeName = "nvarchar(50)")]
         public string? Status { get; set; }
+
+        [Column(TypeName = "nvarchar(256)")]
         public string? ImageUrl { get; set; }
+
+        [Column(TypeName = "nvarchar(50)")]
         public string? SortOrder { get; set; }
+
+        [Column(TypeName = "nvarchar(max)")]
         public string? Description { get; set; }
+
         public Guid? MainCategoryId { get; set; }
 
         [NotMapped]
         public List<Variant>? VariantObjs { get; set; }
+
+        [Column(TypeName = "nvarchar(max)")]
         public string? VariantJson
         {
             get
             {
-                if (VariantObjs==null) return null;
+                if (VariantObjs == null) return null;
                 return JsonSerializer.Serialize(VariantObjs);
             }
             set
@@ -39,14 +54,15 @@ namespace Project.DbManagement.Entity
             }
         }
 
-
         [NotMapped]
         public List<string>? MediaObjs { get; set; }
+
+        [Column(TypeName = "nvarchar(max)")]
         public string? MediasJson
         {
             get
             {
-                if (MediaObjs==null) return null;
+                if (MediaObjs == null) return null;
                 return JsonSerializer.Serialize(MediaObjs);
             }
             set
@@ -62,13 +78,16 @@ namespace Project.DbManagement.Entity
 
         [NotMapped]
         public List<Guid>? RelatedObjectIds { get; set; }
-        public string? RelatedIds { 
-            get 
-            { 
-                if (RelatedObjectIds==null) return null;
+
+        [Column(TypeName = "nvarchar(max)")]
+        public string? RelatedIds
+        {
+            get
+            {
+                if (RelatedObjectIds == null) return null;
                 return JsonSerializer.Serialize(RelatedObjectIds);
-            } 
-            set 
+            }
+            set
             {
                 if (string.IsNullOrWhiteSpace(value))
                 {
@@ -76,13 +95,19 @@ namespace Project.DbManagement.Entity
                     return;
                 }
                 RelatedObjectIds = JsonSerializer.Deserialize<List<Guid>>(value);
-            } }
-        public string? WorkFlowStates { get; set; }
-        public DateTime? PublicOnDate { get; set; }
-        [NotMapped]
-        public virtual List<MetaField> MetadataObj { get; set; }
+            }
+        }
 
-        public virtual string MetadataJson
+        [Column(TypeName = "nvarchar(max)")]
+        public string? WorkFlowStates { get; set; }
+
+        public DateTime? PublicOnDate { get; set; }
+
+        [NotMapped]
+        public virtual List<MetaField>? MetadataObj { get; set; }
+
+        [Column(TypeName = "nvarchar(max)")]
+        public virtual string? MetadataJson
         {
             get
             {
@@ -111,11 +136,20 @@ namespace Project.DbManagement.Entity
                 }
             }
         }
+
+        [Column(TypeName = "nvarchar(256)")]
         public string? CompleteName { get; set; }
+
+        [Column(TypeName = "nvarchar(max)")]
         public string? CompletePath { get; set; }
+
+        [Column(TypeName = "nvarchar(256)")]
         public string? CompleteCode { get; set; }
+
         [NotMapped]
-        public List<LabelsObj> LabelsObjs { get; set; }
+        public List<LabelsObj>? LabelsObjs { get; set; }
+
+        [Column(TypeName = "nvarchar(max)")]
         public virtual string? LabelsJson
         {
             get
@@ -157,10 +191,18 @@ namespace Project.DbManagement.Entity
 
     public class Variant
     {
+        [Column(TypeName = "nvarchar(50)")]
         public string Id { get; set; } = string.Empty;
+
+        [Column(TypeName = "nvarchar(50)")]
         public string? ProductId { get; set; } = string.Empty;
+
+        [Column(TypeName = "nvarchar(50)")]
         public string? Size { get; set; } = string.Empty;
+
+        [Column(TypeName = "nvarchar(50)")]
         public string? SizeType { get; set; } = string.Empty;
+
         public decimal? LowestAsk { get; set; }
     }
 }

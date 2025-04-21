@@ -11,6 +11,11 @@ export default interface VoucherReqDto {
   createdOnDate: string;
   status: number;
   isdeleted: boolean;
+  code: string; // Mã voucher
+  discountAmount: number | null; // Số tiền giảm giá
+  discountPercentage: number | null; // Phần trăm giảm giá
+  description: string | null; // Mô tả voucher
+  minimumOrderAmount: number | null; // Giá trị đơn hàng tối thiểu
 }
 
 export interface VoucherResDto {
@@ -24,6 +29,11 @@ export interface VoucherResDto {
   lastModifiedByUserId: string;
   startDate: string;
   endDate: string;
+  code: string; // Mã voucher
+  discountAmount: number | null; // Số tiền giảm giá
+  discountPercentage: number | null; // Phần trăm giảm giá
+  description: string | null; // Mô tả voucher
+  minimumOrderAmount: number | null; // Giá trị đơn hàng tối thiểu
 }
 
 export interface VoucherFilterParams extends PaginationParams {
