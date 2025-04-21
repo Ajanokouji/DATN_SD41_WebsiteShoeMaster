@@ -55,7 +55,7 @@
         <!--Hiển thị hóa đơn chi tiết-->
         <div class="d-flex flex-column p-2 mx-3 mt-3 border-0 rounded-3 flex-grow-1 bg-white" style="background-color: white; color: black; height:640px;">
             <div class="d-flex flex-column p-2">
-                <div id="partialGioHang">
+                <div id="partialCart">
                 </div>
             </div>
         </div>
@@ -93,7 +93,7 @@
 <div class="modal border-0 rounded-0" id="thanhtoan" tabindex="-1">
     <div class="modal-dialog" id="modalthanhtoan">
         <div class="modal-content" id="modalthanhtoan-content">
-            <div class="modal-header bg-primary">
+            <div class="modal-header" style="background-color: #343a40">
                 <h5 class="modal-title fw-700 text-white align-center">THANH TOÁN </h5>
                 <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
             </div>
@@ -106,14 +106,12 @@
 <div class="modal border-0 rounded-0" id="sanpham" tabindex="-1">
     <div class="modal-dialog" id="modalsanpham">
         <div class="modal-content" id="modalsanpham-content">
-            <div class="modal-header bg-primary">
-                <h5 class="modal-title fw-700 text-white align-center">Chi tiết sản phẩm</h5>
+            <div class="modal-header" style="background-color: #343a40">
                 <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
             </div>
             <div class="modal-body" id="sanphambody">
             </div>
-            <div class="modal-footer">
-                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Bỏ qua</button>
+            <div class="modal-footer" style="background-color: #343a40; height: 50px;">
             </div>
         </div>
     </div>
@@ -269,7 +267,7 @@
                     dataType: 'json',
                     contentType: 'application/json',
                     success: function (response) {
-                        $("#partialGioHang").empty();
+                        $("#partialCart").empty();
                         loadPDBill(function () {
                             activeTab(0);
                         });
@@ -286,12 +284,12 @@
 
 
     //Thêm SP vào Hóa đơn
-    function addCTSP(idctsp, dongia) {
+    function addCTSP(idprd, price) {
         var activeTab = $(".tabs-box .tab").filter(".active");
         var elementValue = activeTab.find("span").attr("value");
-        var request = {IdHoaDon: elementValue, IdChiTietSanPham: idctsp, DonGia: dongia, SoLuong: 1}
+        var request = {IdBill: elementValue, IdProduct: idprd, Price: price, Quantity: 1}
         $.ajax({
-            url: "/SellOff/addHdct",
+            url: "/SellOff/AddProductToCart/",
             async: false,
             type: 'POST',
             dataType: 'json',
@@ -299,7 +297,7 @@
             success: function (response) {
                 if (response.success == true) {
                     toastr.success('Thêm thành công', "Success Alert", {timeOut: 300});
-                    gethdct(request.IdHoaDon);
+                    gethdct(request.IdBill);
                     loadCTSPByID();
                 } else {
                     toastr.error('Thêm thất bại', 'Error Alert', {timeOut: 300});
@@ -315,7 +313,7 @@
     //LAY HOA DON CHI TIET THEO IDHOADON
 
     function gethdct(idhd) {
-        $("#partialGioHang").load("/BanHangTaiQuay/getCTHD/" + idhd);
+        $("#partialCart").load("/SellOff/GetPDBill/" + idhd);
     }
 
     //Xóa HDCT
@@ -336,7 +334,7 @@
 
     //Mở chi tiết sản phẩm
     function showProductDetail(idprd) {
-        $("#sanphambody").load("/BanHangTaiQuay/ShowProductDetail/" + idprd);
+        $("#sanphambody").load("/SellOff/ShowProductDetail/" + idprd);
         $("#sanpham").modal("show");
     }
 
@@ -365,7 +363,7 @@
             data: request,
             success: function (response) {
                 $("#thanhtoan").modal("hide");
-                $("#partialGioHang").empty();
+                $("#partialCart").empty();
                 toastr.success('Thanh toán thành công', "Success Alert", {timeOut: 300});
                 loadHDCHO(function () {
                     activeTab(0);

@@ -10,5 +10,7 @@ namespace Project.Business.Interface.Repositories
         Task<ProductEntity> SaveAsync(ProductEntity article);
         Task<IEnumerable<ProductEntity>> SaveAsync(IEnumerable<ProductEntity> productEntities);
         public Task<List<ListProductSellViewModel>> GetAllProduct();
+        public Task<ProductDetailsViewModel> GetProductDetailsById(Guid idprd);
+        public Task<List<ProductDetailsViewModel>> ListProductDetailsById(Guid idprd);
     }
 }

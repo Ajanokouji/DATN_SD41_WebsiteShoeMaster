@@ -305,5 +305,15 @@ namespace Project.Business.Implement
         {
             return _productRepository.GetAllProduct();
         }
+
+        public async Task<ProductDetailsViewModel> GetProductDetailsById(Guid idprd)
+        {
+            return await _productRepository.GetProductDetailsById(idprd); 
+        }
+
+        public async Task<List<ProductDetailsViewModel>> ListProductDetailsById(Guid idprd)
+        {
+            return await _productRepository.ListProductDetailsById(idprd);
+        }
     }
 }

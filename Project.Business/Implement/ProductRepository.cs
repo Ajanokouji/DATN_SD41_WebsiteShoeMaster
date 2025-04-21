@@ -286,5 +286,36 @@ namespace Project.Business.Implement
                     Price = products.MetadataObj.GetMetadatavalue("MaxPrice")
                 }).ToListAsync();
         }
+
+        public async Task<ProductDetailsViewModel> GetProductDetailsById(Guid idprd)
+        {
+            var result = await (from product in _context.Products.AsNoTracking()
+                where product.Id == idprd
+                select new ProductDetailsViewModel()
+                {
+                    Id = product.Id,
+                    Name = product.Name,
+                    Color = product.MetadataObj.GetMetadatavalue("Colorway"),
+                    Size = product.MetadataObj.GetMetadatavalue("Size"),
+                }).FirstOrDefaultAsync();
+            return result;
+        }
+
+        public async Task<List<ProductDetailsViewModel>> ListProductDetailsById(Guid idprd)
+        {
+            var result = await (from product in _context.Products.AsNoTracking()
+                where product.Id == idprd
+                select new ProductDetailsViewModel()
+                {
+                    Id = product.Id,
+                    Name = product.Name,
+                    Color = product.MetadataObj.GetMetadatavalue("Colorway"),
+                    Size = product.MetadataObj.GetMetadatavalue("Size"),
+                    Quantity = product.MetadataObj.GetMetadatavalue("Quantity"),
+                    Image = product.ImageUrl,
+                    Price = product.MetadataObj.GetMetadatavalue("MaxPrice")
+                }).ToListAsync();
+            return result;
+        }
     }
 }

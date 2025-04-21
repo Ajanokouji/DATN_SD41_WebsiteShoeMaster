@@ -9,6 +9,7 @@ using Serilog;
 using Project.Common.Constants;
 using Project.Business.ModelFactory;
 using System.Net.WebSockets;
+using Project.DbManagement.ViewModels;
 
 namespace Project.Business.Implement;
 
@@ -428,6 +429,9 @@ public class BillDetailsBusiness : IBillDetailsBusiness
         }
     }
 
-
-  
+    public async Task<bool> SaveBillDetails(BillDetailsRequest request)
+    {
+        var result = await _billDetailsRepository.SaveBillDetails(request);
+        return result;
+    }
 }

@@ -7,6 +7,7 @@ using Serilog;
 using Project.DbManagement;
 using Project.Common.Constants;
 using Project.Business.ModelFactory;
+using Project.DbManagement.ViewModels;
 
 namespace Project.Business.Implement
 {
@@ -682,6 +683,11 @@ namespace Project.Business.Implement
             {
                 return false;
             }
+        }
+
+        public BillViewModel GetPDBillById(Guid idBill)
+        {
+            return _billRepository.GetPDBillById(idBill);
         }
     }
 }

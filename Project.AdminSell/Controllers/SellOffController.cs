@@ -6,6 +6,7 @@ using Project.Business.Interface;
 using Project.Business.Model;
 using Project.DbManagement;
 using Project.DbManagement.Entity;
+using Project.DbManagement.ViewModels;
 
 namespace Project.AdminSell.Controllers;
 
@@ -14,12 +15,14 @@ public class SellOffController : Controller
     private readonly ILogger<SellOffController> _logger;
     private readonly IBillBusiness _billBusiness;
     private readonly IProductBusiness _productBusiness;
+    private readonly IBillDetailsBusiness _billDetailsBusiness;
 
-    public SellOffController(ILogger<SellOffController> logger, IBillBusiness billBusiness, IProductBusiness productBusiness)
+    public SellOffController(ILogger<SellOffController> logger, IBillBusiness billBusiness, IProductBusiness productBusiness, IBillDetailsBusiness billDetailsBusiness)
     {
         _logger = logger;
         _billBusiness = billBusiness;
         _productBusiness = productBusiness;
+        _billDetailsBusiness = billDetailsBusiness;
     }
 
     [HttpGet]
@@ -73,16 +76,52 @@ public class SellOffController : Controller
         });
     }
     
-    // public async Task<IActionResult> ShowProductDetail(Guid idprd)
-    // {
-    //     var product = await _productBusiness.GetProductDetailById(idprd);
-    //     return Json(new
-    //     {
-    //         data = product,
-    //         status = true,
-    //     });
-    // }
-
+    [HttpGet]
+    [Route("SellOff/ShowProductDetail/{idprd}")]
+    public async Task<IActionResult> ShowProductDetail(Guid idprd)
+    {
+        var product = await _productBusiness.GetProductDetailsById(idprd);
+        return PartialView("_ProductDetails", product);
+    }
+    
+    [HttpGet]
+    [Route("SellOff/ListProductDetail/{idprd}")]
+    public async Task<IActionResult> ListProductDetail(Guid idprd)
+    {
+        var product = await _productBusiness.ListProductDetailsById(idprd);
+        return Json( new {data = product});
+    }
+    
+    [HttpGet("/SellOff/GetPDBill/{id}")]
+    public IActionResult GetPDBill(Guid id)
+    {
+        var bill = _billBusiness.GetPDBillById(id);
+        return PartialView("_Cart", bill);
+    }
+    
+    [HttpPost]
+    public async Task<ActionResult> AddProductToCart(BillDetailsRequest request)
+    {
+        try
+        {
+            BillDetailsRequest billDetails = new BillDetailsRequest()
+            {
+                Id = new Guid(),
+                IdProduct = request.IdProduct,
+                IdBill = request.IdBill,
+                Quantity = request.Quantity,
+                //DonGia = request.DonGia,//Thanh toán rồi mới lưu
+            };
+            var response = await _billDetailsBusiness.SaveBillDetails(billDetails);
+            if (response) return Json(new { success = true });
+            return Json(new { success = false });
+        }
+        catch
+        {
+            return Json(new { success = false });
+        }
+    }
+    
     [ResponseCache(Duration = 0, Location = ResponseCacheLocation.None, NoStore = true)]
     public IActionResult Error()
     {
