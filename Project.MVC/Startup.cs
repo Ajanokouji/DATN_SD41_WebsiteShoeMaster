@@ -10,6 +10,7 @@ namespace Project.MVC
     {
         private readonly IConfiguration _configuration;
 
+
         public Startup(IConfiguration configuration)
         {
             _configuration = configuration;
@@ -23,8 +24,7 @@ namespace Project.MVC
 
             services.AddControllersWithViews();
             services.RegisterServiceComponents(_configuration);
-            //Connect VNPay API
-            services.AddScoped<IVnPayService, VnPayService>();
+            
 
             // Add session support
             services.AddDistributedMemoryCache();
@@ -34,6 +34,8 @@ namespace Project.MVC
                 options.Cookie.HttpOnly = true;
                 options.Cookie.IsEssential = true;
             });
+            //Connect VNPay API
+            services.AddScoped<IVnPayService, VnPayService>();
         }
 
         public void Configure(IApplicationBuilder app, IWebHostEnvironment env)
@@ -42,6 +44,10 @@ namespace Project.MVC
             {
                 app.UseExceptionHandler("/Home/Error");
                 app.UseHsts();
+            }
+            else
+            {
+                app.UseDeveloperExceptionPage();
             }
 
             app.UseHttpsRedirection();

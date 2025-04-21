@@ -29,11 +29,20 @@ namespace Project.MVC.Controllers
             _vnPayService = vnPayService;
         }
 
+        [HttpPost]
         public IActionResult CreatePaymentUrlVnpay(PaymentInformationModel model)
         {
             var url = _vnPayService.CreatePaymentUrl(model, HttpContext);
 
             return Redirect(url);
+        }
+
+        [HttpGet]
+        public IActionResult PaymentCallbackVnpay()
+        {
+            var response = _vnPayService.PaymentExecute(Request.Query);
+
+            return Json(response);
         }
 
     }
