@@ -62,9 +62,12 @@ namespace Project.Api
             {
                 options.AddPolicy("AllowLocalhost3000", builder =>
                 {
-                    builder.WithOrigins("http://localhost:3000")
-                           .AllowAnyMethod()
-                           .AllowAnyHeader();
+                    builder.WithOrigins(
+                        "http://localhost:3000"
+                    )
+                    .AllowAnyMethod()
+                    .AllowAnyHeader()
+                    .AllowCredentials();
                 });
             });
 
