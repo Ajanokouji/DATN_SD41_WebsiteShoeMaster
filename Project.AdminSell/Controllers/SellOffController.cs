@@ -1,27 +1,34 @@
 ﻿using System.Diagnostics;
 using Microsoft.AspNetCore.Mvc;
 using Newtonsoft.Json;
-using Project.AdminSell.IServices;
 using Project.AdminSell.Models;
+using Project.Business.Interface;
+using Project.Business.Model;
+using Project.DbManagement;
 using Project.DbManagement.Entity;
+using Project.DbManagement.ViewModels;
 
 namespace Project.AdminSell.Controllers;
 
 public class SellOffController : Controller
 {
     private readonly ILogger<SellOffController> _logger;
-    private readonly ISellOffService _sellOffService;
+    private readonly IBillBusiness _billBusiness;
+    private readonly IProductBusiness _productBusiness;
+    private readonly IBillDetailsBusiness _billDetailsBusiness;
 
-    public SellOffController(ILogger<SellOffController> logger, ISellOffService sellOffService)
+    public SellOffController(ILogger<SellOffController> logger, IBillBusiness billBusiness, IProductBusiness productBusiness, IBillDetailsBusiness billDetailsBusiness)
     {
         _logger = logger;
-        _sellOffService = sellOffService;
+        _billBusiness = billBusiness;
+        _productBusiness = productBusiness;
+        _billDetailsBusiness = billDetailsBusiness;
     }
 
     [HttpGet]
     public IActionResult Sell()
     {
-        var lstBill = _sellOffService.GetAllPendingBill();
+        var lstBill = _billBusiness.GetAllPendingBill();
         ViewData["lstBill"] = lstBill;
         UserEntity user = new UserEntity()
         {
@@ -38,40 +45,83 @@ public class SellOffController : Controller
     [HttpGet]
     public IActionResult GetAllPDBill()
     {
-        var lstBill = _sellOffService.GetAllPendingBill();
+        var lstBill = _billBusiness.GetAllPendingBill();
         return Ok(lstBill);
-        // return Json(new { data = lstBill });
     }
 
     [HttpPost]
     public bool CreateBill(Guid idEmployee)
     {
-        return _sellOffService.CreatePendingBill(idEmployee);
+        return _billBusiness.CreatePendingBill(idEmployee);
     }
 
     [HttpDelete]
     [Route("SellOff/DeleteBill/{idBill}")]
     public bool DeleteBill(Guid idBill)
     {
-        return _sellOffService.DeletePendingBill(idBill);
+        return _billBusiness.DeletePendingBill(idBill);
     }
 
-    // Sản phẩm
     [HttpGet]
-    public async Task<IActionResult> LoadSp(int page, int pagesize)
+    public async Task<IActionResult> LoadProduct(int page, int pagesize)
     {
-        // var listsanPham = await _httpClient.GetFromJsonAsync<List<SanPhamBanHang>>("SanPham/getAllSPBanHang");
-        // var model = listsanPham.Skip((page - 1) * pagesize).Take(pagesize).ToList();
-        // int totalRow = listsanPham.Count;
-        // return Json(new
-        // {
-        //     data = model,
-        //     total = totalRow,
-        //     status = true,
-        // });
-        return Ok();
+        var listProduct = await _productBusiness.GetAllProduct();
+        var model = listProduct.Skip((page - 1) * pagesize).Take(pagesize).ToList();
+        int totalRow = listProduct.Count;
+        return Json(new
+        {
+            data = model,
+            total = totalRow,
+            status = true,
+        });
     }
-
+    
+    [HttpGet]
+    [Route("SellOff/ShowProductDetail/{idprd}")]
+    public async Task<IActionResult> ShowProductDetail(Guid idprd)
+    {
+        var product = await _productBusiness.GetProductDetailsById(idprd);
+        return PartialView("_ProductDetails", product);
+    }
+    
+    [HttpGet]
+    [Route("SellOff/ListProductDetail/{idprd}")]
+    public async Task<IActionResult> ListProductDetail(Guid idprd)
+    {
+        var product = await _productBusiness.ListProductDetailsById(idprd);
+        return Json( new {data = product});
+    }
+    
+    [HttpGet("/SellOff/GetPDBill/{id}")]
+    public IActionResult GetPDBill(Guid id)
+    {
+        var bill = _billBusiness.GetPDBillById(id);
+        return PartialView("_Cart", bill);
+    }
+    
+    [HttpPost]
+    public async Task<ActionResult> AddProductToCart(BillDetailsRequest request)
+    {
+        try
+        {
+            BillDetailsRequest billDetails = new BillDetailsRequest()
+            {
+                Id = new Guid(),
+                IdProduct = request.IdProduct,
+                IdBill = request.IdBill,
+                Quantity = request.Quantity,
+                //DonGia = request.DonGia,//Thanh toán rồi mới lưu
+            };
+            var response = await _billDetailsBusiness.SaveBillDetails(billDetails);
+            if (response) return Json(new { success = true });
+            return Json(new { success = false });
+        }
+        catch
+        {
+            return Json(new { success = false });
+        }
+    }
+    
     [ResponseCache(Duration = 0, Location = ResponseCacheLocation.None, NoStore = true)]
     public IActionResult Error()
     {

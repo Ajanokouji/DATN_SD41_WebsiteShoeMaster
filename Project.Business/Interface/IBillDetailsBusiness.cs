@@ -5,6 +5,7 @@ using SERP.Framework.Common;
 using System;
 using System.Collections.Generic;
 using System.Threading.Tasks;
+using Project.DbManagement.ViewModels;
 
 namespace Project.Business.Interface;
 
@@ -43,4 +44,6 @@ public interface IBillDetailsBusiness
     Task<bool> CreateBillDetails(List<BillDetailsEntity> billDetails, Guid billId);
 
     Task<bool> UpdateBillDetailsStatus(Guid billDetailId, int status);
+
+    public Task<bool> SaveBillDetails(BillDetailsRequest request);
 }

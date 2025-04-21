@@ -44,7 +44,7 @@
 
 
 </head>
-<body>
+<body class="toggle-sidebar">
 <!-- ======= Header ======= -->
 <header id="header" class="header fixed-top d-flex align-items-center">
 
@@ -97,101 +97,101 @@
 
 </header><!-- End Header -->
 <!-- ======= Sidebar ======= -->
-<aside id="sidebar" class="sidebar">
-
-    <ul class="sidebar-nav" id="sidebar-nav">
-        <!--Lam thêm  start-->
-        @* <li class="nav-item"> *@
-        @*     <a class="nav-link collapsed" data-bs-target="#tables-nav" data-bs-toggle="collapse"> *@
-        @*         <i class="bi bi-layout-text-window-reverse"></i><span>Thống Kê</span><i class="bi bi-chevron-down ms-auto"></i> *@
-        @*     </a> *@
-        @*     <ul id="tables-nav" class="nav-content collapse " data-bs-parent="#sidebar-nav"> *@
-        @*         <li> *@
-        @*             <a asp-controller="ThongKe" asp-action="ThongKe"> *@
-        @*                 <i class="bi bi-circle"></i><span>Thống kê </span> *@
-        @*             </a> *@
-        @*         </li> *@
-        @*         <li> *@
-        @*             <a asp-controller="ThongKe" asp-action="ThongKeSP"> *@
-        @*                 <i class="bi bi-circle"></i><span>Thống kê Sản Phẩm</span> *@
-        @*             </a> *@
-        @*         </li> *@
-        @*         <li> *@
-        @*             <a asp-controller="ThongKe" asp-action="ThongKeKH"> *@
-        @*                 <i class="bi bi-circle"></i><span>Thống Kê Khách Hàng</span> *@
-        @*             </a> *@
-        @*         </li> *@
-        @*         <li class="nav-item dropdown"> *@
-        @*             <a class="nav-link dropdown-toggle" data-bs-target="#tables-nav" data-bs-toggle="collapse" href="#" role="button" data-bs-toggle="dropdown" aria-expanded="false"> *@
-        @*                 Thống Kê Doanh Thu *@
-        @*             </a> *@
-        @*             <ul class="dropdown-menu" id="tables-nav" class="nav-content collapse " data-bs-parent="#sidebar-nav"> *@
-        @*                 <li> *@
-        @*                     <a asp-controller="ThongKe" asp-action="ThongKeDoanhThuTheoNgay"> *@
-        @*                         <i class="bi bi-circle"></i><span>Theo Ngày</span> *@
-        @*                     </a> *@
-        @*                 </li> *@
-        @*                 <li> *@
-        @*                     <a asp-controller="ThongKe" asp-action="ThongKeDoanhThuTheoThang"> *@
-        @*                         <i class="bi bi-circle"></i><span>Theo Tháng</span> *@
-        @*                     </a> *@
-        @*                 </li> *@
-        @*                 <li> *@
-        @*                     <a asp-controller="ThongKe" asp-action="ThongKeDoanhThuTheoNam"> *@
-        @*                         <i class="bi bi-circle"></i><span>Theo Năm</span> *@
-        @*                     </a> *@
-        @*                 </li> *@
-        @*             </ul> *@
-        @*         </li> *@
-        @*     </ul> *@
-        @* </li> *@
-        <!--Lam thêm end-->
-
-        <li class="nav-item">
-            <a class="nav-link collapsed" asp-controller="BanHangTaiQuay" asp-action="BanHang">
-                <i class="bi bi-menu-button-wide"></i><span>Bán hàng</span>
-            </a>
-            <ul id="forms-nav" class="nav-content collapse " data-bs-parent="#sidebar-nav">
-                <li>
-                    <a asp-controller="LoaiSP" asp-action="Show">
-                        <i class="bi bi-circle"></i><span>Loại Sản Phẩm</span>
-                    </a>
-                </li>
-            </ul>
-        </li>
-        <li class="nav-item">
-            <a class="nav-link collapsed" asp-controller="QuanLyHoaDon" asp-action="_QuanLyHoaDon">
-                <i class="bi bi-menu-button-wide"></i><span>Quản lý hóa đơn</span>
-            </a>
-            <ul id="forms-nav" class="nav-content collapse " data-bs-parent="#sidebar-nav">
-                <li>
-                    <a asp-controller="LoaiSP" asp-action="Show">
-                        <i class="bi bi-circle"></i><span>Loại Sản Phẩm</span>
-                    </a>
-                </li>
-            </ul>
-        </li>
-        <li class="nav-item">
-            <a class="nav-link collapsed" asp-controller="Admin" asp-action="ProductManager">
-                <i class="bi bi-journal-text"></i><span>Quản lý sản phẩm</span>
-            </a>
-            <ul id="forms-nav" class="nav-content collapse " data-bs-parent="#sidebar-nav">
-                <li>
-                    <a asp-controller="LoaiSP" asp-action="Show">
-                        <i class="bi bi-circle"></i><span>Loại Sản Phẩm</span>
-                    </a>
-                </li>
-                <li>
-                    <a href="forms-layouts.html">
-                        <i class="bi bi-circle"></i><span>Form Layouts</span>
-                    </a>
-                </li>
-            </ul>
-        </li><!-- End Forms Nav -->
-        
-    </ul>
-
-</aside><!-- End Sidebar-->
+@* <aside id="sidebar" class="sidebar"> *@
+@* *@
+@*     <ul class="sidebar-nav" id="sidebar-nav"> *@
+@*         <!--Lam thêm  start--> *@
+@*         $1$ <li class="nav-item"> #1# *@
+@*         $1$     <a class="nav-link collapsed" data-bs-target="#tables-nav" data-bs-toggle="collapse"> #1# *@
+@*         $1$         <i class="bi bi-layout-text-window-reverse"></i><span>Thống Kê</span><i class="bi bi-chevron-down ms-auto"></i> #1# *@
+@*         $1$     </a> #1# *@
+@*         $1$     <ul id="tables-nav" class="nav-content collapse " data-bs-parent="#sidebar-nav"> #1# *@
+@*         $1$         <li> #1# *@
+@*         $1$             <a asp-controller="ThongKe" asp-action="ThongKe"> #1# *@
+@*         $1$                 <i class="bi bi-circle"></i><span>Thống kê </span> #1# *@
+@*         $1$             </a> #1# *@
+@*         $1$         </li> #1# *@
+@*         $1$         <li> #1# *@
+@*         $1$             <a asp-controller="ThongKe" asp-action="ThongKeSP"> #1# *@
+@*         $1$                 <i class="bi bi-circle"></i><span>Thống kê Sản Phẩm</span> #1# *@
+@*         $1$             </a> #1# *@
+@*         $1$         </li> #1# *@
+@*         $1$         <li> #1# *@
+@*         $1$             <a asp-controller="ThongKe" asp-action="ThongKeKH"> #1# *@
+@*         $1$                 <i class="bi bi-circle"></i><span>Thống Kê Khách Hàng</span> #1# *@
+@*         $1$             </a> #1# *@
+@*         $1$         </li> #1# *@
+@*         $1$         <li class="nav-item dropdown"> #1# *@
+@*         $1$             <a class="nav-link dropdown-toggle" data-bs-target="#tables-nav" data-bs-toggle="collapse" href="#" role="button" data-bs-toggle="dropdown" aria-expanded="false"> #1# *@
+@*         $1$                 Thống Kê Doanh Thu #1# *@
+@*         $1$             </a> #1# *@
+@*         $1$             <ul class="dropdown-menu" id="tables-nav" class="nav-content collapse " data-bs-parent="#sidebar-nav"> #1# *@
+@*         $1$                 <li> #1# *@
+@*         $1$                     <a asp-controller="ThongKe" asp-action="ThongKeDoanhThuTheoNgay"> #1# *@
+@*         $1$                         <i class="bi bi-circle"></i><span>Theo Ngày</span> #1# *@
+@*         $1$                     </a> #1# *@
+@*         $1$                 </li> #1# *@
+@*         $1$                 <li> #1# *@
+@*         $1$                     <a asp-controller="ThongKe" asp-action="ThongKeDoanhThuTheoThang"> #1# *@
+@*         $1$                         <i class="bi bi-circle"></i><span>Theo Tháng</span> #1# *@
+@*         $1$                     </a> #1# *@
+@*         $1$                 </li> #1# *@
+@*         $1$                 <li> #1# *@
+@*         $1$                     <a asp-controller="ThongKe" asp-action="ThongKeDoanhThuTheoNam"> #1# *@
+@*         $1$                         <i class="bi bi-circle"></i><span>Theo Năm</span> #1# *@
+@*         $1$                     </a> #1# *@
+@*         $1$                 </li> #1# *@
+@*         $1$             </ul> #1# *@
+@*         $1$         </li> #1# *@
+@*         $1$     </ul> #1# *@
+@*         $1$ </li> #1# *@
+@*         <!--Lam thêm end--> *@
+@* *@
+@*         <li class="nav-item"> *@
+@*             <a class="nav-link collapsed" asp-controller="BanHangTaiQuay" asp-action="BanHang"> *@
+@*                 <i class="bi bi-menu-button-wide"></i><span>Bán hàng</span> *@
+@*             </a> *@
+@*             <ul id="forms-nav" class="nav-content collapse " data-bs-parent="#sidebar-nav"> *@
+@*                 <li> *@
+@*                     <a asp-controller="LoaiSP" asp-action="Show"> *@
+@*                         <i class="bi bi-circle"></i><span>Loại Sản Phẩm</span> *@
+@*                     </a> *@
+@*                 </li> *@
+@*             </ul> *@
+@*         </li> *@
+@*         <li class="nav-item"> *@
+@*             <a class="nav-link collapsed" asp-controller="QuanLyHoaDon" asp-action="_QuanLyHoaDon"> *@
+@*                 <i class="bi bi-menu-button-wide"></i><span>Quản lý hóa đơn</span> *@
+@*             </a> *@
+@*             <ul id="forms-nav" class="nav-content collapse " data-bs-parent="#sidebar-nav"> *@
+@*                 <li> *@
+@*                     <a asp-controller="LoaiSP" asp-action="Show"> *@
+@*                         <i class="bi bi-circle"></i><span>Loại Sản Phẩm</span> *@
+@*                     </a> *@
+@*                 </li> *@
+@*             </ul> *@
+@*         </li> *@
+@*         <li class="nav-item"> *@
+@*             <a class="nav-link collapsed" asp-controller="Admin" asp-action="ProductManager"> *@
+@*                 <i class="bi bi-journal-text"></i><span>Quản lý sản phẩm</span> *@
+@*             </a> *@
+@*             <ul id="forms-nav" class="nav-content collapse " data-bs-parent="#sidebar-nav"> *@
+@*                 <li> *@
+@*                     <a asp-controller="LoaiSP" asp-action="Show"> *@
+@*                         <i class="bi bi-circle"></i><span>Loại Sản Phẩm</span> *@
+@*                     </a> *@
+@*                 </li> *@
+@*                 <li> *@
+@*                     <a href="forms-layouts.html"> *@
+@*                         <i class="bi bi-circle"></i><span>Form Layouts</span> *@
+@*                     </a> *@
+@*                 </li> *@
+@*             </ul> *@
+@*         </li><!-- End Forms Nav --> *@
+@*          *@
+@*     </ul> *@
+@* *@
+@* </aside><!-- End Sidebar--> *@
 
 <main id="main" class="main">
 

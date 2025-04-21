@@ -2,6 +2,7 @@
 using Project.Business.Model.PatchModel;
 using Project.Common;
 using Project.DbManagement;
+using Project.DbManagement.ViewModels;
 using SERP.Framework.Common;
 
 namespace Project.Business.Interface;
@@ -41,4 +42,8 @@ public interface IBillBusiness
         List<CartItemModel> cartItems, 
         CustomerInfoModel customerInfo, 
         string voucherCode);
+    public List<BillEntity> GetAllPendingBill();
+    public bool CreatePendingBill(Guid idEmployee);
+    public bool DeletePendingBill(Guid idBill);
+    public BillViewModel GetPDBillById(Guid idBill);
 }

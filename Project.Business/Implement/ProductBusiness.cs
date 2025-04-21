@@ -12,6 +12,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
 using System.Transactions;
+using Project.DbManagement.ViewModels;
 
 namespace Project.Business.Implement
 {
@@ -318,6 +319,21 @@ namespace Project.Business.Implement
                 _logger.Error(ex, "Error saving multiple products");
                 throw;
             }
+        }
+
+        public Task<List<ListProductSellViewModel>> GetAllProduct()
+        {
+            return _productRepository.GetAllProduct();
+        }
+
+        public async Task<ProductDetailsViewModel> GetProductDetailsById(Guid idprd)
+        {
+            return await _productRepository.GetProductDetailsById(idprd); 
+        }
+
+        public async Task<List<ProductDetailsViewModel>> ListProductDetailsById(Guid idprd)
+        {
+            return await _productRepository.ListProductDetailsById(idprd);
         }
     }
 }

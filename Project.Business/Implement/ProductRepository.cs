@@ -9,6 +9,8 @@ using SERP.Framework.Common;
 using SERP.Framework.Common.Extensions;
 using SERP.Framework.DB.Extensions;
 using Microsoft.EntityFrameworkCore.SqlServer;
+using Project.Common;
+using Project.DbManagement.ViewModels;
 
 namespace Project.Business.Implement
 {
@@ -273,6 +275,47 @@ namespace Project.Business.Implement
             throw new NotImplementedException();
         }
 
-       
+        public async Task<List<ListProductSellViewModel>> GetAllProduct()
+        {
+            return await (from products in _context.Products.AsNoTracking()
+                select new ListProductSellViewModel()
+                {
+                    Id = products.Id,
+                    Image = products.ImageUrl,
+                    Name = products.Name,
+                    Price = products.MetadataObj.GetMetadatavalue("MaxPrice")
+                }).ToListAsync();
+        }
+
+        public async Task<ProductDetailsViewModel> GetProductDetailsById(Guid idprd)
+        {
+            var result = await (from product in _context.Products.AsNoTracking()
+                where product.Id == idprd
+                select new ProductDetailsViewModel()
+                {
+                    Id = product.Id,
+                    Name = product.Name,
+                    Color = product.MetadataObj.GetMetadatavalue("Colorway"),
+                    Size = product.MetadataObj.GetMetadatavalue("Size"),
+                }).FirstOrDefaultAsync();
+            return result;
+        }
+
+        public async Task<List<ProductDetailsViewModel>> ListProductDetailsById(Guid idprd)
+        {
+            var result = await (from product in _context.Products.AsNoTracking()
+                where product.Id == idprd
+                select new ProductDetailsViewModel()
+                {
+                    Id = product.Id,
+                    Name = product.Name,
+                    Color = product.MetadataObj.GetMetadatavalue("Colorway"),
+                    Size = product.MetadataObj.GetMetadatavalue("Size"),
+                    Quantity = product.MetadataObj.GetMetadatavalue("Quantity"),
+                    Image = product.ImageUrl,
+                    Price = product.MetadataObj.GetMetadatavalue("MaxPrice")
+                }).ToListAsync();
+            return result;
+        }
     }
 }
