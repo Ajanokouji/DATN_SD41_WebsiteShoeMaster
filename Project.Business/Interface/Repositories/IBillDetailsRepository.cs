@@ -11,4 +11,6 @@ public interface IBillDetailsRepository : IRepository<BillDetailsEntity, BillDet
     Task<IEnumerable<BillDetailsEntity>> SaveAsync(IEnumerable<BillDetailsEntity> billDetails);
    
     public Task<bool> SaveBillDetails(BillDetailsRequest request);
+    public Task<BillDetailsEntity> UpdateQuantity(Guid idBillDetails, int quantity);
+    public Task<bool> DeleteBillDetails(Guid idBillDetails);
 }
