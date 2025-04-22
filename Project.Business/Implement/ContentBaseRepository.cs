@@ -104,7 +104,7 @@ namespace Project.Business.Implement
             return result.FirstOrDefault();
         }
 
-        public async Task<IEnumerable<ContentBase>> SaveAsync(IEnumerable<ContentBase> entities)
+        public virtual async Task<IEnumerable<ContentBase>> SaveAsync(IEnumerable<ContentBase> entities)
         {
             var updated = new List<ContentBase>();
 
@@ -116,6 +116,7 @@ namespace Project.Business.Implement
 
                 if (exist == null)
                 {
+                    // Đảm bảo rằng việc tạo mới đối tượng đã được xử lý đúng cách
                     entity.CreateTracking(entity.Id);
                     entity.UpdateTracking(entity.Id);
                     _context.ContentBases.Add(entity);
@@ -123,6 +124,7 @@ namespace Project.Business.Implement
                 }
                 else
                 {
+                    // Xử lý cập nhật nếu đối tượng đã tồn tại
                     _context.Entry(exist).State = EntityState.Detached;
 
                     exist.Title = entity.Title;
@@ -143,6 +145,7 @@ namespace Project.Business.Implement
             await _context.SaveChangesAsync();
             return updated;
         }
+
 
         public async Task<ContentBase> DeleteAsync(Guid id)
         {
