@@ -17,7 +17,8 @@ public class SellOffController : Controller
     private readonly IProductBusiness _productBusiness;
     private readonly IBillDetailsBusiness _billDetailsBusiness;
 
-    public SellOffController(ILogger<SellOffController> logger, IBillBusiness billBusiness, IProductBusiness productBusiness, IBillDetailsBusiness billDetailsBusiness)
+    public SellOffController(ILogger<SellOffController> logger, IBillBusiness billBusiness,
+        IProductBusiness productBusiness, IBillDetailsBusiness billDetailsBusiness)
     {
         _logger = logger;
         _billBusiness = billBusiness;
@@ -75,7 +76,7 @@ public class SellOffController : Controller
             status = true,
         });
     }
-    
+
     [HttpGet]
     [Route("SellOff/ShowProductDetail/{idprd}")]
     public async Task<IActionResult> ShowProductDetail(Guid idprd)
@@ -83,22 +84,22 @@ public class SellOffController : Controller
         var product = await _productBusiness.GetProductDetailsById(idprd);
         return PartialView("_ProductDetails", product);
     }
-    
+
     [HttpGet]
     [Route("SellOff/ListProductDetail/{idprd}")]
     public async Task<IActionResult> ListProductDetail(Guid idprd)
     {
         var product = await _productBusiness.ListProductDetailsById(idprd);
-        return Json( new {data = product});
+        return Json(new { data = product });
     }
-    
+
     [HttpGet("/SellOff/GetPDBill/{id}")]
     public IActionResult GetPDBill(Guid id)
     {
         var bill = _billBusiness.GetPDBillById(id);
         return PartialView("_Cart", bill);
     }
-    
+
     [HttpPost]
     public async Task<ActionResult> AddProductToCart(BillDetailsRequest request)
     {
@@ -121,7 +122,34 @@ public class SellOffController : Controller
             return Json(new { success = false });
         }
     }
-    
+
+    [HttpPost]
+    public async Task<IActionResult> UpdateQuantity(Guid idbilldeltails, int quantity)
+    {
+        try
+        {
+            var response = await _billDetailsBusiness.UpdateQuantity(idbilldeltails, quantity);
+            return Json(new { success = true, data = response });
+        }
+        catch (Exception ex)
+        {
+            return Json(new { success = false, message = ex.InnerException?.Message ?? ex.Message });
+        }
+    }
+
+    [HttpDelete]
+    [Route("SellOff/DeleteBillDetails/{idbilldeltails}")]
+    public async Task<IActionResult> DeleteBillDetails(Guid idbilldeltails)
+    {
+        var response = await _billDetailsBusiness.DeleteBillDetails(idbilldeltails);
+        if (response == true)
+        {
+            return Json(new { success = true, message = "Xóa thành công" });
+        }
+        else
+            return Json(new { success = false, message = "Xóa thất bại" });
+    }
+
     [ResponseCache(Duration = 0, Location = ResponseCacheLocation.None, NoStore = true)]
     public IActionResult Error()
     {

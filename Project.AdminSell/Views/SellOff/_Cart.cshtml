@@ -295,50 +295,55 @@
     });
 
     //Update số lượng
-    function UpdateSL(IDHDCT, SL) {
+    function UpdateSL(idbilldeltails, quantity) {
         $.ajax({
-            url: "/BanHangTaiQuay/UpdateSL",
-            async: false,
-            type: 'GET',
+            url: "/SellOff/UpdateQuantity",
+            type: 'POST',
             dataType: 'json',
             data: {
-                idhdct: IDHDCT,
-                sl: SL
+                idbilldeltails: idbilldeltails,
+                quantity: quantity,
             },
             success: function (response) {
-                gethdct('@Model.Id');
+                if (response.success) {
+                    gethdct('@Model.Id');
+                    toastr.success('Cập nhật thành công', 'Success', { timeOut: 300 });
+                } else {
+                    toastr.error(response.message || 'Cập nhật thất bại', 'Error', { timeOut: 300 });
+                    gethdct('@Model.Id');
+                }
             },
-            error: function (response) {
-                toastr.error('Thêm sản phẩm thất bại', 'Error Alert', {timeOut: 300});
+            error: function (xhr, status, error) {
+                toastr.error('Cập nhật thất bại', 'Lỗi Ajax', { timeOut: 300 });
             }
         });
     }
 
     // Tăng giảm số lượng
     $('.minus').click(function () {
-        var idcthd = $(this).data('value');
+        var idbilldetails = $(this).data('value');
         var $input = $(this).parent().find('input');
         var count = parseInt($input.val()) - 1;
         count = count < 1 ? 1 : count;
         $input.val(count);
         $input.change();
-        UpdateSL(idcthd, count);
+        UpdateSL(idbilldetails, count);
         return false;
     });
     $('.plus').click(function () {
-        var idcthd = $(this).data('value');
+        var idbilldetails = $(this).data('value');
         var $input = $(this).parent().find('input');
         var count = parseInt($input.val()) + 1;
         $input.val(count);
         $input.change();
-        UpdateSL(idcthd, count);
+        UpdateSL(idbilldetails, count);
         return false;
     });
     //Thay đổi số lượng
     $('.changesl').on('input', function () {
-        var idcthd = $(this).parent().find('span').data('value');
+        var idbilldetails = $(this).parent().find('span').data('value');
         let count = $(this).val();
-        UpdateSL(idcthd, count);
+        UpdateSL(idbilldetails, count);
     });
 
     //Lưu ghi chú

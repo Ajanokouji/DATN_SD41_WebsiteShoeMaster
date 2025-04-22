@@ -8,6 +8,7 @@ using Project.DbManagement;
 using Project.Common.Constants;
 using Project.Business.ModelFactory;
 using Project.Business.Model.PatchModel;
+using Project.DbManagement.ViewModels;
 
 namespace Project.Business.Implement
 {
@@ -611,6 +612,7 @@ namespace Project.Business.Implement
                 return null;
             }
         }
+        
         public List<BillEntity> GetAllPendingBill()
         {
             return _billRepository.GetAllPendingBill();
@@ -640,5 +642,9 @@ namespace Project.Business.Implement
             }
         }
 
+        public BillViewModel GetPDBillById(Guid idBill)
+        {
+            return _billRepository.GetPDBillById(idBill);
+        }
     }
 }
