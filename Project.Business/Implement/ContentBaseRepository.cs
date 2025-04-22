@@ -68,7 +68,7 @@ namespace Project.Business.Implement
 
         private IQueryable<ContentBase> BuildQuery(ContentBaseQueryModel queryModel)
         {
-            var query = _context.ContentBases.AsNoTracking().Where(x => !x.IsDeleted);
+            var query = _context.ContentBases.AsNoTracking().Where(x => !x.Isdeleted.Value);
 
             if (queryModel.Id.HasValue)
             {
@@ -151,7 +151,7 @@ namespace Project.Business.Implement
         {
             var exist = await FindAsync(id);
             if (exist == null) throw new Exception("Content not found.");
-            exist.IsDeleted = true;
+            exist.Isdeleted = true;
             _context.ContentBases.Update(exist);
             await _context.SaveChangesAsync();
             return exist;

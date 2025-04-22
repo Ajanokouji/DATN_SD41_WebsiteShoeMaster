@@ -45,6 +45,7 @@ namespace Project.DbManagement
         public string? Note { get; set; }
 
         public decimal? DiscountAmount { get; set; }
+        public Source  Source{ get;set; }
 
         public decimal? AmountAfterDiscount { get; set; }
 
