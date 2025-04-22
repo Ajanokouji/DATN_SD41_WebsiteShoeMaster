@@ -21,6 +21,7 @@ import {
 } from "@/redux/apps/product/productSlice";
 import RelationTable from "./RelationTable";
 import RelationReqDto from "@/types/category/relation";
+import { Input } from "@/components/ui/input";
 
 interface RelationsTableProps {
   selectedCategoryId: string | null;
@@ -99,7 +100,7 @@ const RelationsTable: React.FC<RelationsTableProps> = ({
       key: "id",
       render: (_, product) => {
         return (
-          <input
+          <Input
             type="checkbox"
             checked={relations.some(
               (relation) => relation.idProduct === product.id

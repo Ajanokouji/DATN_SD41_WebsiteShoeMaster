@@ -8,9 +8,12 @@ import { TriangleAlert } from "lucide-react";
 
 const GlobalAlert = () => {
   const dispatch = useAppDispatch();
-  const { message, type } = useAppSelector(
-    (state) => state.messages.notification
-  );
+
+  // ✅ Tránh lỗi destructuring từ undefined
+  const notification = useAppSelector((state) => state.messages?.notification);
+
+  const message = notification?.message;
+  const type = notification?.type;
 
   useEffect(() => {
     if (message) {
@@ -41,9 +44,11 @@ const GlobalAlert = () => {
         });
       }
 
-      setTimeout(() => {
+      const timeoutId = setTimeout(() => {
         dispatch(clearNotification());
       }, 3000);
+
+      return () => clearTimeout(timeoutId); // Cleanup
     }
   }, [message, type, dispatch]);
 
