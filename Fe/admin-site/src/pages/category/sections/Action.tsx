@@ -27,7 +27,7 @@ const ActionHeader = () => {
         <div className="flex gap-5 justify-end">
           <Button onClick={handleOpenDialogAdd}>
             <FaPlus />
-            Add category
+            Thêm danh mục
           </Button>
         </div>
       </div>

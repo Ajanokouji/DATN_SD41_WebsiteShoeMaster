@@ -21,7 +21,6 @@ namespace Project.DbManagement.Entity
         [Column(TypeName = "nvarchar(50)")]
         public string? Status { get; set; }
 
-        [Column(TypeName = "nvarchar(256)")]
         public string? ImageUrl { get; set; }
 
         [Column(TypeName = "nvarchar(50)")]

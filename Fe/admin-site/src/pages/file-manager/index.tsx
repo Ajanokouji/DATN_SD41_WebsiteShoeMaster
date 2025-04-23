@@ -254,21 +254,26 @@ const FileManager : React.FC<FileManagerProps> = ({ onSelectImage }) => {
       
       <div className="flex-1 p-6">
         <Card>
-          <CardContent className="p-6">
-            {renderUploadSection()}
-            {renderFileGrid()}
-            
-            {contextMenu.show && contextMenu.fileId && (
-              <ContextMenu
-                items={getContextMenuItems(contextMenu.fileId).map(item => ({
-                  ...item,
-                  label: item.label || '' // Ensure label is always a string
-                }))}
-                x={contextMenu.x}
-                y={contextMenu.y}
-                onClose={closeContextMenu}
-              />
-            )}
+          <CardContent className="p-6 h-[calc(100vh-100px)] overflow-hidden">
+            <div className="flex flex-col h-full">
+              {renderUploadSection()}
+              
+              <div className="flex-1 overflow-y-auto pr-2">
+                {renderFileGrid()}
+              </div>
+
+              {contextMenu.show && contextMenu.fileId && (
+                <ContextMenu
+                  items={getContextMenuItems(contextMenu.fileId).map(item => ({
+                    ...item,
+                    label: item.label || ''
+                  }))}
+                  x={contextMenu.x}
+                  y={contextMenu.y}
+                  onClose={closeContextMenu}
+                />
+              )}
+            </div>
           </CardContent>
         </Card>
       </div>
