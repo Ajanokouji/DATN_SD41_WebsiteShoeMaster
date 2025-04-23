@@ -31,7 +31,7 @@ namespace Project.DbManagement
         [Column(TypeName = "nvarchar(512)")]
         public string? ProductImage { get; set; }
 
-        public int Size { get; set; }
+        public string Size { get; set; }
 
         [Column(TypeName = "nvarchar(50)")]
         public string? Color { get; set; }

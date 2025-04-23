@@ -5,6 +5,7 @@ import { Button } from "@/components/ui/button";
 import { ProductFormSchema } from "./FormSchema";
 import { X, Plus } from "lucide-react";
 import FileManagerModal from "@/pages/file-manager/FileManagerModal";
+import { FileItem } from "@/types/file";
 
 interface MultipleImageFieldProps {
   control: Control<ProductFormSchema>;
@@ -21,8 +22,8 @@ export const MultipleImageField: React.FC<MultipleImageFieldProps> = ({ control 
 
   const [isModalFileOpen, setIsModalFileOpen] = useState(false);
 
-  const handleSelectImage = (imageUrl: string) => {
-    onChange([...value, imageUrl]);
+  const handleSelectImage = (file: FileItem) => {
+    onChange([...value, file.completeFilePath]);
     setIsModalFileOpen(false);
   };
 

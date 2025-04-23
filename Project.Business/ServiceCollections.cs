@@ -3,6 +3,7 @@ using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Project.Business.Implement;
+using Project.Business.Implementation;
 using Project.Business.Interface;
 using Project.Business.Interface.Project.Business.Interface;
 using Project.Business.Interface.Project.Business.Interface.Repositories;
@@ -68,6 +69,9 @@ namespace Project.Business
                 return new SqlConnection(connectionString);
             });
             services.AddScoped<IProductRepository, ProductDapperRepository>();
+
+            services.AddScoped<IDistrictRepository, DistrictRepository>();
+            services.AddScoped<IDistrictBusiness, DistrictBusiness>();
 
 
             // Configure CORS
