@@ -40,38 +40,5 @@ namespace Project.DbManagement.Entity
 
         [Column(TypeName = "nvarchar(512)")]
         public string CompletePath { get; set; }
-
-        [NotMapped]
-        public virtual List<MetaField> MetadataObj { get; set; }
-
-        public virtual string MetadataJson
-        {
-            get
-            {
-                if (MetadataObj != null)
-                {
-                    return JsonSerializer.Serialize(MetadataObj, JsonSerializerOptionConstants.JavaScriptEncoderOption);
-                }
-
-                return null;
-            }
-            set
-            {
-                if (string.IsNullOrWhiteSpace(value))
-                {
-                    MetadataObj = null;
-                    return;
-                }
-
-                try
-                {
-                    MetadataObj = JsonSerializer.Deserialize<List<MetaField>>(value, JsonSerializerOptionConstants.DefaultOption);
-                }
-                catch (Exception value2)
-                {
-                    Console.WriteLine(value2);
-                }
-            }
-        }
     }
 }

@@ -18,12 +18,10 @@ import ProductReqDto from "@/types/product/product";
 import { createProduct } from "@/redux/apps/product/productSlice";
 import { LabelsSection } from "./LabelsSection";
 import { ImageField } from "./ImageFieldComponent";
-//import VariantSection from "./VariantSection";
 import ActionHeader from "@/pages/relation/sections/Action";
-import {VariantForm} from "./VariantForm"
+import { VariantForm } from "./VariantForm";
 import { MultipleImageField } from "./MultipleImageField";
 
-  
 interface AddProductSheetProps {
   isOpen: boolean;
   onClose: () => void;
@@ -64,6 +62,7 @@ const AddProductSheet: React.FC<AddProductSheetProps> = ({
   };
 
   const handleSubmit = async (values: ProductFormSchema) => {
+    console.log("Form is submitting with values:", values);
     setIsSubmitting(true);
     try {
       const productData: ProductReqDto = {
@@ -82,7 +81,7 @@ const AddProductSheet: React.FC<AddProductSheetProps> = ({
       await dispatch(createProduct(productData));
       onClose();
     } catch (error) {
-      console.error("Create product error details:", error);
+      console.error("Create product error:", error);
     } finally {
       setIsSubmitting(false);
     }
@@ -99,9 +98,12 @@ const AddProductSheet: React.FC<AddProductSheetProps> = ({
             Tạo sản phẩm mới với các trường thuộc tính tùy chỉnh
           </SheetDescription>
         </SheetHeader>
+
         <Form {...form}>
           <form
-            onSubmit={form.handleSubmit(handleSubmit)}
+            onSubmit={form.handleSubmit(handleSubmit, (e) => {
+              console.warn("Form validation failed", e);
+            })}
             className="space-y-6"
           >
             <BasicInfoFields control={form.control} />
@@ -111,16 +113,16 @@ const AddProductSheet: React.FC<AddProductSheetProps> = ({
             <MultipleImageField control={form.control} />
             <MetadataSection form={form} />
             <LabelsSection form={form} />
-            <VariantForm />
-            {/* <VariantSection form={form} /> */}
+            <VariantForm form={form} />
 
-
-
+            {/* Hiển thị lỗi form để dễ debug */}
+            <pre className="text-red-600 text-xs bg-gray-50 p-2 rounded">
+              {JSON.stringify(form.formState.errors, null, 2)}
+            </pre>
 
             <div className="flex justify-end gap-2 pt-4">
-              {/* <pre>{JSON.stringify(form.formState.errors, null, 2)}</pre> */}
               <Button type="submit" disabled={isSubmitting}>
-                {isSubmitting ? "Đang tạo " : "Tạo sản phẩm"}
+                {isSubmitting ? "Đang tạo..." : "Tạo sản phẩm"}
               </Button>
               <Button variant="outline" onClick={onClose} type="button">
                 Huỷ
