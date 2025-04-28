@@ -27,9 +27,9 @@
 
                 <form class="search-form d-flex align-items-center">
                     <input type="text" name="search" style="outline: none;" id="search" value="@Model.NameClient"
-                           placeholder="Tìm kiếm khách hàng theo tên, SĐT">
+                           placeholder="Phone number">
                     <button type="button" title="Thêm mới khách hàng" data-bs-toggle="modal"
-                            data-bs-target="#themkhachhang"><i class="fa-regular fa-plus" style="color: #a6a8ab;"></i>
+                            data-bs-target="#themkhachhang#"><i class="fa-regular fa-plus" style="color: #a6a8ab;"></i>
                     </button>
                 </form>
                 <div>
@@ -288,7 +288,7 @@
                     gethdct('@Model.Id');
                 },
                 error: function (response) {
-                    toastr.error('Xóa khách hàng thất bại', 'Error Alert', {timeOut: 300});
+                    //toastr.error('Xóa khách hàng thất bại', 'Error Alert', {timeOut: 300});
                 }
             });
         }

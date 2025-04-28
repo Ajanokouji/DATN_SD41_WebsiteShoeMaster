@@ -25,37 +25,40 @@
 }
 <div class="d-flex flex-column p-1 h-100">
     <h4><b>@Model.Name</b></h4>
-    <!--Màu sắc-->
-    <div class="d-flex flex-row p-3" style="border: none; border-bottom: 2px dashed #ced4da;">
-        <div class="d-flex align-items-center" style="width:140px">
-            <h6 class="fw-bold">MÀU SẮC</h6>
-        </div>
-        <div class="flex-grow-1 align-content-start">
-            <div id="buttons">
-                <button class="button-value mb-1 btnms" value="@Model.Id">
-                    @Model.Color
-                </button>
-            </div>
-        </div>
-    </div>
-    <!--Kích thước-->
-    <div class="d-flex flex-row p-3">
-        <div class="d-flex align-items-center" style="width:140px">
-            <h6 class="fw-bold">KÍCH THƯỚC</h6>
-        </div>
-        <div class="flex-grow-1 align-content-start">
-            <div id="buttons">
-                <button class="button-value mb-1 btnkc" value="@Model.Id">
-                    @Model.Size
-                </button>
-            </div>
-        </div>
-    </div>
+    @* <!--Màu sắc--> *@
+    @* <div class="d-flex flex-row p-3" style="border: none; border-bottom: 2px dashed #ced4da;"> *@
+    @*     <div class="d-flex align-items-center" style="width:140px"> *@
+    @*         <h6 class="fw-bold">MÀU SẮC</h6> *@
+    @*     </div> *@
+    @*     <div class="flex-grow-1 align-content-start"> *@
+    @*         <div id="buttons"> *@
+    @*             <button class="button-value mb-1 btnms" value="@Model.Id"> *@
+    @*                 @Model.Color *@
+    @*             </button> *@
+    @*         </div> *@
+    @*     </div> *@
+    @* </div> *@
+    @* <!--Kích thước--> *@
+    @* <div class="d-flex flex-row p-3"> *@
+    @*     <div class="d-flex align-items-center" style="width:140px"> *@
+    @*         <h6 class="fw-bold">KÍCH THƯỚC</h6> *@
+    @*     </div> *@
+    @*     <div class="flex-grow-1 align-content-start"> *@
+    @*         <div id="buttons"> *@
+    @*             <button class="button-value mb-1 btnkc" value="@Model.Id"> *@
+    @*                 @Model.Size *@
+    @*             </button> *@
+    @*         </div> *@
+    @*     </div> *@
+    @* </div> *@
     <!--Chi tiết sản phẩm-->
-    <div class="d-flex flex-row p-2 mt-auto">
-        <div class="d-flex align-content-start flex-wrap w-100 mt-2" id="lstChiTietSP"
-             style="height:350px;overflow-y:scroll">
-        </div>
+    @* <div class="d-flex flex-row p-2 mt-auto"> *@
+    @*     <div class="d-flex align-content-start flex-wrap w-100 mt-2" id="lstChiTietSP" *@
+    @*          style="height:350px;overflow-y:scroll"> *@
+    @*     </div> *@
+    @* </div> *@
+    <div class="d-flex align-content-start flex-wrap w-100 mt-2" id="lstChiTietSP"
+         style="height:350px;overflow-y:scroll">
     </div>
 </div>
 
