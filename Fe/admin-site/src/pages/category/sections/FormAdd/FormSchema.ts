@@ -4,6 +4,7 @@ export const categoryFormSchema = z.object({
   code: z.string().min(1, "Code is required"),
   name: z.string().min(1, "Name is required"),
   description: z.string(),
+  parentId: z.string().optional(),
   type: z.string(),
   completeCode: z.string(),
   completeName: z.string(),

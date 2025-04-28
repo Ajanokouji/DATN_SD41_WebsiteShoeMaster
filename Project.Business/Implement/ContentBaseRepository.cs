@@ -68,7 +68,7 @@ namespace Project.Business.Implement
 
         private IQueryable<ContentBase> BuildQuery(ContentBaseQueryModel queryModel)
         {
-            var query = _context.ContentBases.AsNoTracking().Where(x => !x.IsDeleted);
+            var query = _context.ContentBases.AsNoTracking().Where(x => !x.Isdeleted.Value);
 
             if (queryModel.Id.HasValue)
             {
@@ -104,7 +104,7 @@ namespace Project.Business.Implement
             return result.FirstOrDefault();
         }
 
-        public async Task<IEnumerable<ContentBase>> SaveAsync(IEnumerable<ContentBase> entities)
+        public virtual async Task<IEnumerable<ContentBase>> SaveAsync(IEnumerable<ContentBase> entities)
         {
             var updated = new List<ContentBase>();
 
@@ -116,6 +116,7 @@ namespace Project.Business.Implement
 
                 if (exist == null)
                 {
+                    // Đảm bảo rằng việc tạo mới đối tượng đã được xử lý đúng cách
                     entity.CreateTracking(entity.Id);
                     entity.UpdateTracking(entity.Id);
                     _context.ContentBases.Add(entity);
@@ -123,6 +124,7 @@ namespace Project.Business.Implement
                 }
                 else
                 {
+                    // Xử lý cập nhật nếu đối tượng đã tồn tại
                     _context.Entry(exist).State = EntityState.Detached;
 
                     exist.Title = entity.Title;
@@ -144,11 +146,12 @@ namespace Project.Business.Implement
             return updated;
         }
 
+
         public async Task<ContentBase> DeleteAsync(Guid id)
         {
             var exist = await FindAsync(id);
             if (exist == null) throw new Exception("Content not found.");
-            exist.IsDeleted = true;
+            exist.Isdeleted = true;
             _context.ContentBases.Update(exist);
             await _context.SaveChangesAsync();
             return exist;

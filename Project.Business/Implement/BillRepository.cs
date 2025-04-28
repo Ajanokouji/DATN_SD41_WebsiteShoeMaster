@@ -281,11 +281,11 @@ public class BillRepository : IBillRepository
         return exist;
     }
 
+
     public Task<IEnumerable<BillEntity>> DeleteAsync(Guid[] deleteIds)
     {
         throw new NotImplementedException();
     }
-
     public List<BillEntity> GetAllPendingBill()
     {
         return _context.Bills.Where(hd => hd.Status == "Pending").OrderBy(hd => hd.CreatedOnDate).ToList();

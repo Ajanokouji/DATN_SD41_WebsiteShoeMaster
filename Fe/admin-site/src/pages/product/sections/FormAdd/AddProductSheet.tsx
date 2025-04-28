@@ -19,9 +19,10 @@ import { createProduct } from "@/redux/apps/product/productSlice";
 import { LabelsSection } from "./LabelsSection";
 import { ImageField } from "./ImageFieldComponent";
 //import VariantSection from "./VariantSection";
-
+import ActionHeader from "@/pages/relation/sections/Action";
 import {VariantForm} from "./VariantForm"
 import { MultipleImageField } from "./MultipleImageField";
+
   
 interface AddProductSheetProps {
   isOpen: boolean;
@@ -45,6 +46,7 @@ const AddProductSheet: React.FC<AddProductSheetProps> = ({
       mediaObjs: [],
       metadataObj: [],
       labelsObjs: [],
+      mainCategoryId: "",
       variantObjs: [],
       sortOrder: "0",
       lastModifiedDate: new Date().toISOString(),
@@ -52,11 +54,14 @@ const AddProductSheet: React.FC<AddProductSheetProps> = ({
       publicOnDate: new Date().toISOString(),
       createdByUserId: "3fa85f64-5717-4562-b3fc-2c963f66afa6",
       lastModifiedByUserId: "3fa85f64-5717-4562-b3fc-2c963f66afa6",
-      mainCategoryId: "3fa85f64-5717-4562-b3fc-2c963f66afa6",
       status: "Available",
       workFlowStates: "Available",
     },
   });
+
+  const handleCategorySelect = (categoryId: string) => {
+    form.setValue("mainCategoryId", categoryId);
+  };
 
   const handleSubmit = async (values: ProductFormSchema) => {
     setIsSubmitting(true);
@@ -100,11 +105,13 @@ const AddProductSheet: React.FC<AddProductSheetProps> = ({
             className="space-y-6"
           >
             <BasicInfoFields control={form.control} />
+            <h3 className="text-lg font-medium">Chọn Danh mục sản phẩm</h3>
+            <ActionHeader onCategorySelect={handleCategorySelect} />
             <ImageField control={form.control} />
             <MultipleImageField control={form.control} />
             <MetadataSection form={form} />
             <LabelsSection form={form} />
-             <VariantForm/> 
+            <VariantForm />
             {/* <VariantSection form={form} /> */}
 
 
@@ -113,7 +120,7 @@ const AddProductSheet: React.FC<AddProductSheetProps> = ({
             <div className="flex justify-end gap-2 pt-4">
               {/* <pre>{JSON.stringify(form.formState.errors, null, 2)}</pre> */}
               <Button type="submit" disabled={isSubmitting}>
-                {isSubmitting ? "Đang tạo " : "Tạo sản phẩmt"}
+                {isSubmitting ? "Đang tạo " : "Tạo sản phẩm"}
               </Button>
               <Button variant="outline" onClick={onClose} type="button">
                 Huỷ

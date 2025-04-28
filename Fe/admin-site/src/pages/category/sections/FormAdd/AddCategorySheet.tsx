@@ -8,6 +8,7 @@ import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { CategoryFormSchema, categoryFormSchema } from "./FormSchema";
 import { BasicInfoFields } from "./BasicInfoFields";
+import ActionHeader from "@/pages/relation/sections/Action";
 import { MetadataSection } from "./MetadataSection";
 import {
   Sheet,
@@ -26,6 +27,7 @@ const AddCategorySheet: React.FC<AddCategorySheetProps> = ({
   isOpen,
   onClose,
 }) => {
+
   const dispatch = useAppDispatch();
   const [isSubmitting, setIsSubmitting] = useState(false);
 
@@ -35,6 +37,7 @@ const AddCategorySheet: React.FC<AddCategorySheetProps> = ({
       code: "",
       name: "",
       description: "",
+      parentId: "",
       metadataObj: [],
       sortOrder: 0,
       parentPath: "parent/path",
@@ -44,7 +47,16 @@ const AddCategorySheet: React.FC<AddCategorySheetProps> = ({
       createdOnDate: new Date().toISOString(),
     },
   });
-  console.log(form.formState.errors);
+
+  const handleCategorySelect = (categoryId: string) => {
+    form.setValue("parentId", categoryId);
+  };
+
+
+  const handleCategorySelect = (categoryId: string) => {
+    form.setValue("parentId", categoryId);
+  };
+
 
   const handleSubmit = async (values: CategoryFormSchema) => {
     setIsSubmitting(true);
@@ -75,10 +87,11 @@ const AddCategorySheet: React.FC<AddCategorySheetProps> = ({
       <SheetContent className="w-[90%] sm:max-w-[80vw] max-w-none h-screen overflow-y-auto">
         <SheetHeader>
           <SheetTitle className="text-xl font-semibold text-gray-700">
-            Add Category
+            Tạo danh mục mới
           </SheetTitle>
+
           <SheetDescription>
-            Create a new category with custom metadata fields
+            Nhập thông tin danh mục mới vào biểu mẫu bên dưới.
           </SheetDescription>
         </SheetHeader>
 
@@ -88,11 +101,13 @@ const AddCategorySheet: React.FC<AddCategorySheetProps> = ({
             className="space-y-6"
           >
             <BasicInfoFields control={form.control} />
+            <h3 className="text-lg font-medium">Chọn Danh mục Cha</h3>
+            <ActionHeader onCategorySelect={handleCategorySelect}/>
             <MetadataSection form={form} />
 
             <div className="flex justify-end gap-2 absolute bottom-4 left-0 w-full px-6">
               <Button type="submit" disabled={isSubmitting}>
-                {isSubmitting ? "Creating..." : "Add new category"}
+                {isSubmitting ? "Đang tạo..." : "Tạo danh  mục mới"}
               </Button>
               <Button variant="outline" onClick={onClose} type="button">
                 Cancel

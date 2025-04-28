@@ -68,10 +68,10 @@ const CategoriesTable: React.FC = () => {
 
 
   const headers = [
-    { label: "Code", className: "text-center" },
-    { label: "Name" },
-    { label: "Description" },
-    { label: "Create At" },
+    { label: "Mã", className: "text-center" },
+    { label: "Tên danh mục" },
+    { label: "Mô tả" },
+    { label: "Ngày tạo" },
     { label: " " },
   ];
 

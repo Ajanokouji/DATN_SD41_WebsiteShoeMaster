@@ -54,14 +54,14 @@ export const BasicInfoFields: React.FC<BasicInfoFieldsProps> = ({ control }) => 
   return (
     <>
       <div className="grid grid-cols-2 gap-4">
-        <FormField
+      <FormField
           control={control}
-          name="code"
+          name="name"
           render={({ field }) => (
             <FormItem>
-              <FormLabel>Code</FormLabel>
+              <FormLabel>Tên</FormLabel>
               <FormControl>
-                <Input placeholder="Category code" {...field} />
+                <Input placeholder="Tên danh mục" {...field} />
               </FormControl>
               <FormMessage />
             </FormItem>
@@ -70,12 +70,19 @@ export const BasicInfoFields: React.FC<BasicInfoFieldsProps> = ({ control }) => 
 
         <FormField
           control={control}
-          name="name"
+          name="code"
           render={({ field }) => (
             <FormItem>
-              <FormLabel>Name</FormLabel>
+              <FormLabel>Mã danh mục</FormLabel>
               <FormControl>
-                <Input placeholder="Category name" {...field} />
+                <Input placeholder="Mã danh mục"
+                  {...field}
+                  onFocus={() => {
+                    if (nameValue) {
+                      const generated = formatType(nameValue);
+                      field.onChange(generated);
+                    }
+                  }} />
               </FormControl>
               <FormMessage />
             </FormItem>
@@ -88,10 +95,10 @@ export const BasicInfoFields: React.FC<BasicInfoFieldsProps> = ({ control }) => 
         name="description"
         render={({ field }) => (
           <FormItem>
-            <FormLabel>Description</FormLabel>
+            <FormLabel>Mô tả</FormLabel>
             <FormControl>
               <Textarea
-                placeholder="Enter category description"
+                placeholder="Nhập mô tả danh mục"
                 className="min-h-24"
                 {...field}
               />
