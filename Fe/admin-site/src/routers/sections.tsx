@@ -15,6 +15,7 @@ export const ContactPage = lazy(() => import("@/pages/contact"));
 export const BillPage = lazy(() => import("@/pages/bill"));
 export const FileManagerPage = lazy(() => import("@/pages/file-manager"));
 export const CustomerPage = lazy(() => import("@/pages/customer"));
+export const VoucherProductPage = lazy(() => import("@/pages/voucherProduct"));
 // export const LoginPage = lazy(() => import("../pages/auth/Login"));
 // export const RegisterPage = lazy(() => import("../pages/auth/Register"));
 export const Page404 = lazy(() => import("../pages/shared/NotFoundPage"));
@@ -81,6 +82,10 @@ export default function Router() {
         {
           path: "file-manager",
           element: <FileManagerPage />,
+        },
+        {
+          path: "voucher-product/:voucherId", // Định nghĩa route với tham số động
+          element: <VoucherProductPage />,
         },
       ],
     },

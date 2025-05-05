@@ -1,4 +1,4 @@
-import React, { useEffect } from "react";
+import React, { useEffect, useState } from "react";
 import { Control, useFormContext } from "react-hook-form";
 import {
   FormControl,
@@ -17,12 +17,29 @@ import {
   SelectValue,
 } from "@/components/ui/select";
 import { VoucherFormSchema } from "./FormSchema";
+import { FaStore, FaCartShopping } from "react-icons/fa6";
+import { useAppDispatch } from "@/hooks/use-app-dispatch";
+import { useAppSelector } from "@/hooks/use-app-selector";
+import {
+  setProductPage,
+  setProductPageSize,
+  searchProduct,
+  clearProducts,
+} from "@/redux/apps/voucherProduct/voucherProductSlice";
+import {
+  selectProductPagination,
+  selectProducts,
+} from "@/redux/apps/voucherProduct/voucherProductSelector";
+import Pagination from "@/components/Pagination";
+import { ProductDetailResDto, VariantObjs } from "@/types/product/product";
+import DetailProductSheet from "@/pages/product/sections/DetailProductSheet";
 
 interface BasicInfoFieldsProps {
   control: Control<VoucherFormSchema>;
+  voucherType: number;
 }
 
-export const BasicInfoFields: React.FC<BasicInfoFieldsProps> = ({ control }) => {
+export const BasicInfoFields: React.FC<BasicInfoFieldsProps> = ({ control, voucherType }) => {
   const { watch, setValue, trigger } = useFormContext();
   const discountType = watch("discountType");
 
@@ -33,256 +50,802 @@ export const BasicInfoFields: React.FC<BasicInfoFieldsProps> = ({ control }) => 
       trigger("discountAmount");
     } else {
       trigger("discountPercentage");
+      trigger("maxDiscountAmount");
     }
+  };
+
+  const getLocalDateTimeString = (date: Date) => {
+    const pad = (n: number) => n.toString().padStart(2, '0');
+  
+    const year = date.getFullYear();
+    const month = pad(date.getMonth() + 1);
+    const day = pad(date.getDate());
+    const hours = pad(date.getHours());
+    const minutes = pad(date.getMinutes());
+  
+    return `${year}-${month}-${day}T${hours}:${minutes}`;
   };
 
   useEffect(() => {
     setValue("discountType", "$");
     setValue("status", 1);
+    setValue("startDate", getLocalDateTimeString(new Date()));
+    setValue("endDate", getLocalDateTimeString(new Date(Date.now() + 86400000)));
+    setValue("displaySettings", 1);
   }, [setValue]);
 
+  //search product
+  const [searchString, setSearchString] = useState<string>("");
+  const [inputSearchString, setInputSearchString] = useState<string>("");
+  const dispatch = useAppDispatch();
+  const products = useAppSelector(selectProducts);
+  const pagination = useAppSelector(selectProductPagination);
+  const [isSearching, setIsSearching] = useState<boolean>(false);
+  const [variantProduct, setVariantProduct] = useState<ProductDetailResDto | null>(null);
+  const [isOpenFormAddVoucherProduct, setValueIsOpenFormAddVP] = useState(false);
+  const [productsIsSelected, setProductsIsSelected] = useState<ProductDetailResDto[] | null>(null);
+
+  const openFormAddVoucherProduct = () => {
+    setIsSearching(false);
+    setVariantProduct(null);
+    setValueIsOpenFormAddVP(true);
+    setSearchString("");
+    setInputSearchString("");
+    setProductsIsSelected(null);
+    setProductPage(0);
+    setProductPageSize(20);
+    dispatch(clearProducts());
+  }
+
+  const formatCurrency = (value: number) =>
+    new Intl.NumberFormat("en-us").format(value);
+
+  const handleSubmitSearch = async () => {
+    setIsSearching(true); // Bắt đầu tìm kiếm
+    try {
+      await dispatch(
+        searchProduct({
+          tenSanPham: inputSearchString,
+          CurrentPage: 1,
+          PageSize: pagination.pageSize,
+        })
+      ).unwrap(); // Chờ kết quả từ Redux Thunk
+  
+      setVariantProduct(null);
+    } catch (error) {
+      console.error("Search failed:", error); // Xử lý lỗi nếu có
+    } finally {
+      setIsSearching(false); // Kết thúc tìm kiếm (thành công hoặc thất bại)
+    }
+  };
+
+  const showVariantProducts = (product: ProductDetailResDto) => {
+    setVariantProduct(product);
+  }
+
+  const handlePageChange = async (newPage: number) => {
+    dispatch(setProductPage(newPage));
+    try {
+      await dispatch(
+        searchProduct({
+          tenSanPham: inputSearchString,
+          CurrentPage: newPage,
+          PageSize: pagination.pageSize,
+        })
+      ).unwrap(); // Chờ kết quả từ Redux Thunk
+    } catch (error) {
+      console.error("Search failed:", error);
+    }
+  };
+  
+  const handlePageSizeChange = async (newSize: number) => {
+    dispatch(setProductPageSize(newSize));
+    try {
+      await dispatch(
+        searchProduct({
+          tenSanPham: inputSearchString,
+          CurrentPage: 1,
+          PageSize: newSize,
+        })
+      ).unwrap(); // Chờ kết quả từ Redux Thunk
+    } catch (error) {
+      console.error("Search failed:", error); // Xử lý lỗi nếu có
+    }
+  };
+
+  //Thêm sản phẩm(biến thể) áp dụng mã voucher
+  const AddProductIsSelected = (product: ProductDetailResDto, variant: VariantObjs) => {
+    setProductsIsSelected((prev) => {
+      if (!prev) {
+        // Nếu danh sách ban đầu là null, thêm sản phẩm mới
+        const newProduct = { ...product, variantObjs: [variant] };
+        setValue("productsIsSelected", [newProduct]); // Lưu vào form state
+        return [newProduct];
+      }
+  
+      // Kiểm tra xem sản phẩm đã tồn tại trong danh sách chưa
+      const existingProductIndex = prev.findIndex((p) => p.id === product.id);
+  
+      if (existingProductIndex === -1) {
+        // Nếu sản phẩm chưa tồn tại, thêm sản phẩm mới vào đầu danh sách
+        const newProduct = { ...product, variantObjs: [variant] };
+        const updatedProducts = [newProduct, ...prev];
+        setValue("productsIsSelected", updatedProducts); // Lưu vào form state
+        return updatedProducts;
+      } else {
+        // Nếu sản phẩm đã tồn tại, thêm biến thể vào danh sách variantObjs
+        const updatedProducts = [...prev];
+        const existingProduct = updatedProducts[existingProductIndex];
+  
+        // Kiểm tra xem biến thể đã tồn tại trong variantObjs chưa
+        const isVariantExists = existingProduct.variantObjs.some((v) => v.id === variant.id);
+  
+        if (!isVariantExists) {
+          // Nếu biến thể chưa tồn tại, thêm biến thể vào variantObjs
+          existingProduct.variantObjs = [...existingProduct.variantObjs, variant];
+        }
+  
+        setValue("productsIsSelected", updatedProducts); // Lưu vào form state
+        return updatedProducts;
+      }
+    });
+  };
+
+  const removeProductInProductsIsSelected = (index: number) => {
+    setProductsIsSelected((prev) => {
+      if (!prev) return null; // Nếu mảng ban đầu là null, không làm gì
+      return prev.filter((_, i) => i !== index); // Loại bỏ phần tử tại vị trí index
+    });
+  };
+
+  const removeVariantInProductsIsSelected = (productId: string, variantIndex: number) => {
+    setProductsIsSelected((prev) => {
+      if (!prev) return null; // Nếu danh sách ban đầu là null, không làm gì
+
+      // Tìm sản phẩm có id === productId
+      const productIndex = prev.findIndex((product) => product.id === productId);
+      if (productIndex === -1) return prev; // Nếu không tìm thấy sản phẩm, trả về danh sách cũ
+
+      // Tạo bản sao của danh sách sản phẩm
+      const updatedProducts = [...prev];
+      const product = updatedProducts[productIndex];
+
+      // Xóa variant tại vị trí variantIndex
+      product.variantObjs = product.variantObjs.filter((_, index) => index !== variantIndex);
+
+      // Nếu variantObjs rỗng, xóa luôn sản phẩm
+      if (product.variantObjs.length === 0) {
+        updatedProducts.splice(productIndex, 1); // Xóa sản phẩm khỏi danh sách
+      }
+
+      return updatedProducts;
+    });
+  };
+
+  //Xem chi tiết sản phẩm
+  const [isOpenDetail, setIsOpenDetail] = useState(false);
+  const [selectedDetailId, setSelectedDetailId] = useState<string | null>(
+    null
+  );
+  const handleOpenDetail = (id: string) => {
+    setIsOpenDetail(true);
+    setSelectedDetailId(id);
+  };
+  
   return (
     <div className="space-y-4">
-      <div className="grid grid-cols-2 gap-4">
-        <FormField
-          control={control}
-          name="voucherName"
-          render={({ field }) => (
-            <FormItem>
-              <FormLabel>Tên Voucher</FormLabel>
-              <FormControl>
-                <Input
-                  placeholder="Nhập tên voucher"
-                  {...field}
-                  onChange={(e) => {
-                    field.onChange(e);
-                    trigger("voucherName");
-                  }}
-                />
-              </FormControl>
-              <FormMessage />
-            </FormItem>
-          )}
-        />
-        <FormField
-          control={control}
-          name="code"
-          render={({ field }) => (
-            <FormItem>
-              <FormLabel>Mã Voucher</FormLabel>
-              <FormControl>
-                <Input
-                  placeholder="Nhập mã voucher"
-                  {...field}
-                  onChange={(e) => {
-                    field.onChange(e);
-                    trigger("code");
-                  }}
-                />
-              </FormControl>
-              <FormMessage />
-            </FormItem>
-          )}
-        />
+      <div>
+        <h2 className="text-lg font-semibold">Thông tin cơ bản</h2>
+        <div className="mt-10 ml-5">
+          <div className="flex items-center mb-5 gap-4">
+            <FormLabel className="w-32">Loại Voucher</FormLabel>
+            {voucherType === 1 && (
+              <span className="flex items-center rounded border p-4 shadow hover:bg-gray-200">
+                <FaStore className="mr-3 text-xl"/>Voucher toàn shop
+              </span>
+              )
+            }
+            {voucherType === 2 && (
+              <span className="flex items-center rounded border p-4 shadow hover:bg-gray-200">
+                <FaCartShopping className="mr-3 text-xl"/>Voucher sản phẩm
+              </span>
+              )
+            }
+          </div>
+          <div className="mb-5">
+            <FormField
+              control={control}
+              name="voucherName"
+              render={({ field }) => (
+                <FormItem>
+                  <div className="flex items-center gap4">
+                    <FormLabel className="w-32">Tên Voucher</FormLabel>
+                    <FormControl className="flex-1">
+                      <Input
+                        placeholder="Nhập tên voucher tối đa 100 ký tự"
+                        {...field}
+                        onChange={(e) => {
+                          field.onChange(e);
+                          trigger("voucherName");
+                        }}
+                      />
+                    </FormControl>
+                  </div>
+                  <FormMessage className="text-center ml-32" />
+                </FormItem>
+              )}
+            />
+          </div>
+          <div className="mb-5">
+            <FormField
+              control={control}
+              name="code"
+              render={({ field }) => (
+                <FormItem>
+                  <div className="flex items-center gap-4">
+                    <FormLabel className="w-32">Mã Voucher</FormLabel>
+                    <FormControl className="flex-1">
+                      <Input
+                        placeholder="Nhập mã voucher tối đa 10 ký tự, chỉ bao gồm chữ cái và số, vui lòng không nhập các ký tự đặc biệt và khoảng trắng"
+                        {...field}
+                        onChange={(e) => {
+                          field.onChange(e);
+                          trigger("code");
+                        }}
+                      />
+                    </FormControl>
+                  </div>
+                  <FormMessage className="text-center ml-32" />
+                </FormItem>
+              )}
+            />
+          </div>
+          <div className="flex mb-10">
+            <FormField
+              control={control}
+              name="startDate"
+              render={({ field }) => (
+                <FormItem>
+                  <div className="flex items-center gap-4">
+                    <FormLabel className="w-32">Thời gian lưu mã</FormLabel>
+                    <FormControl className="flex-1">
+                      <Input
+                        type="datetime-local"
+                        {...field}
+                        onChange={(e) => {
+                          field.onChange(e);
+                          trigger("startDate");
+                          trigger("endDate");
+                        }}
+                      />
+                    </FormControl>
+                  </div>
+                  <FormMessage className="text-center ml-32" />
+                </FormItem>
+              )}
+            />
+            <div className="pl-5 pr-5">__</div>
+            <FormField
+              control={control}
+              name="endDate"
+              render={({ field }) => (
+                <FormItem>
+                  <div className="flex items-center">
+                    <FormControl>
+                      <Input
+                        type="datetime-local"
+                        {...field}
+                        onChange={(e) => {
+                          field.onChange(e);
+                          trigger("endDate");
+                          trigger("startDate");
+                        }}
+                      />
+                    </FormControl>
+                  </div>
+                  <FormMessage className="text-center" />
+                </FormItem>
+              )}
+            />
+          </div>
+        </div>
       </div>
 
-      <div className="grid grid-cols-2 gap-4">
-        <FormField
-          control={control}
-          name="startDate"
-          render={({ field }) => (
-            <FormItem>
-              <FormLabel>Ngày bắt đầu</FormLabel>
-              <FormControl>
-                <Input
-                  type="datetime-local"
-                  step={1}
-                  {...field}
-                  onChange={(e) => {
-                    field.onChange(e);
-                    trigger("startDate");
-                    trigger("endDate");
-                  }}
-                />
-              </FormControl>
-              <FormMessage />
-            </FormItem>
-          )}
-        />
-        <FormField
-          control={control}
-          name="endDate"
-          render={({ field }) => (
-            <FormItem>
-              <FormLabel>Ngày kết thúc</FormLabel>
-              <FormControl>
-                <Input
-                  type="datetime-local"
-                  step={1}
-                  {...field}
-                  onChange={(e) => {
-                    field.onChange(e);
-                    trigger("endDate");
-                    trigger("startDate");
-                  }}
-                />
-              </FormControl>
-              <FormMessage />
-            </FormItem>
-          )}
-        />
-      </div>
+      <hr className="border border-gray-300"/>
 
-      <div className="grid grid-cols-2 gap-4">
-        {discountType === "$" && (
-          <FormField
-            control={control}
-            name="discountAmount"
-            render={({ field }) => (
-              <FormItem>
-                <FormLabel>Giá trị giảm</FormLabel>
-                <div className="flex items-center gap-2">
-                  <FormControl>
-                    <Input
-                      type="number"
-                      placeholder="Nhập số tiền giảm"
-                      {...field}
-                      onChange={(e) => {
-                        field.onChange(e);
-                        trigger("discountAmount");
-                      }}
-                    />
-                  </FormControl>
-                  <Select
-                    value={discountType}
-                    onValueChange={(val) => handleDiscountTypeChange(val as "$" | "%")}
-                  >
-                    <SelectTrigger className="w-16">
-                      <SelectValue />
-                    </SelectTrigger>
-                    <SelectContent>
-                      <SelectItem value="$">$</SelectItem>
-                      <SelectItem value="%">%</SelectItem>
-                    </SelectContent>
-                  </Select>
-                </div>
-                <FormMessage />
-              </FormItem>
-            )}
-          />
-        )}
-
-        {discountType === "%" && (
-          <FormField
-            control={control}
-            name="discountPercentage"
-            render={({ field }) => (
-              <FormItem>
-                <FormLabel>Giá trị giảm</FormLabel>
-                <div className="flex items-center gap-2">
-                  <FormControl>
-                    <Input
-                      type="number"
-                      placeholder="Nhập phần trăm giảm"
-                      {...field}
-                      onChange={(e) => {
-                        field.onChange(e);
-                        trigger("discountPercentage");
-                      }}
-                    />
-                  </FormControl>
-                  <Select
-                    value={discountType}
-                    onValueChange={(val) => handleDiscountTypeChange(val as "$" | "%")}
-                  >
-                    <SelectTrigger className="w-16">
-                      <SelectValue />
-                    </SelectTrigger>
-                    <SelectContent>
-                      <SelectItem value="$">$</SelectItem>
-                      <SelectItem value="%">%</SelectItem>
-                    </SelectContent>
-                  </Select>
-                </div>
-                <FormMessage />
-              </FormItem>
-            )}
-          />
-        )}
-
-        <FormField
-          control={control}
-          name="minimumOrderAmount"
-          render={({ field }) => (
-            <FormItem>
-              <FormLabel>Giá trị đơn hàng tối thiểu</FormLabel>
-              <FormControl>
-                <Input
-                  type="number"
-                  placeholder="Nhập giá trị đơn hàng tối thiểu"
-                  {...field}
-                  onChange={(e) => {
-                    field.onChange(e);
-                    trigger("minimumOrderAmount");
-                  }}
-                />
-              </FormControl>
-              <FormMessage />
-            </FormItem>
-          )}
-        />
-      </div>
-
-      <div className="grid grid-cols-1 gap-4">
-        <FormField
-          control={control}
-          name="status"
-          render={({ field }) => (
-            <FormItem>
-              <FormLabel>Trạng thái</FormLabel>
-              <Select
-                value={String(field.value)}
-                onValueChange={(val) => {
-                  field.onChange(Number(val));
-                  trigger("status");
-                }}
-              >
-                <FormControl>
-                  <SelectTrigger>
-                    <SelectValue placeholder="Chọn trạng thái" />
-                  </SelectTrigger>
-                </FormControl>
-                <SelectContent>
-                  <SelectItem value="1">Hoạt động</SelectItem>
-                  <SelectItem value="0">Không hoạt động</SelectItem>
-                </SelectContent>
-              </Select>
-              <FormMessage />
-            </FormItem>
-          )}
-        />
-      </div>
-
-      <FormField
-        control={control}
-        name="description"
-        render={({ field }) => (
-          <FormItem>
-            <FormLabel>Mô tả</FormLabel>
-            <FormControl>
-              <Textarea
-                placeholder="Mô tả ngắn..."
-                {...field}
-                onChange={(e) => {
-                  field.onChange(e);
-                  trigger("description");
-                }}
+      <div className="mt-10">
+        <div className="mt-10">
+          <h2 className="text-lg font-semibold">Thiết lập mã giảm giá</h2>
+        </div>
+        <div className="mt-10 ml-5">
+          <div className="mt-5">
+            {discountType === "$" && (
+              <FormField
+                control={control}
+                name="discountAmount"
+                render={({ field }) => (
+                  <FormItem>
+                    <div className="flex items-center gap-4">
+                      <FormLabel className="w-32">Giá trị giảm</FormLabel>
+                      <div className="flex items-center gap-2 flex-1">
+                        <FormControl>
+                          <Input
+                            type="number"
+                            placeholder="Nhập số tiền giảm, phải lớn hơn 0"
+                            {...field}
+                            onChange={(e) => {
+                              field.onChange(e);
+                              trigger("discountAmount");
+                            }}
+                          />
+                        </FormControl>
+                        <Select
+                          value={discountType}
+                          onValueChange={(val) => handleDiscountTypeChange(val as "$" | "%")}
+                        >
+                          <SelectTrigger className="w-16">
+                            <SelectValue />
+                          </SelectTrigger>
+                          <SelectContent>
+                            <SelectItem value="$">$</SelectItem>
+                            <SelectItem value="%">%</SelectItem>
+                          </SelectContent>
+                        </Select>
+                      </div>
+                    </div>
+                    <FormMessage className="text-center ml-32"/>
+                  </FormItem>
+                )}
               />
-            </FormControl>
-            <FormMessage />
-          </FormItem>
+            )}
+
+            {discountType === "%" && (
+              <div className="flex gap-4">
+                {/* Giá trị giảm */}
+                <FormField
+                  control={control}
+                  name="discountPercentage"
+                  render={({ field }) => (
+                    <FormItem className="flex-1">
+                      <div className="flex items-center gap-2">
+                        <FormLabel className="w-32">Giá trị giảm</FormLabel>
+                        <FormControl className="flex-1">
+                          <Input
+                            type="number"
+                            placeholder="Nhập phần trăm giảm, 0 < x <= 100"
+                            {...field}
+                            onChange={(e) => {
+                              field.onChange(e);
+                              trigger("discountPercentage");
+                            }}
+                          />
+                        </FormControl>
+                        <Select
+                          value={discountType}
+                          onValueChange={(val) => handleDiscountTypeChange(val as "$" | "%")}
+                        >
+                          <SelectTrigger className="w-16">
+                            <SelectValue />
+                          </SelectTrigger>
+                          <SelectContent>
+                            <SelectItem value="$">$</SelectItem>
+                            <SelectItem value="%">%</SelectItem>
+                          </SelectContent>
+                        </Select>
+                      </div>
+                      <FormMessage className="text-center ml-20" />
+                    </FormItem>
+                  )}
+                />
+
+                {/* Tối đa */}
+                <FormField
+                  control={control}
+                  name="maxDiscountAmount"
+                  render={({ field }) => (
+                    <FormItem className="flex-1 ml-9">
+                      <div className="flex items-center gap-2">
+                        <FormLabel className="w-20">Tối đa</FormLabel>
+                        <FormControl className="flex-1">
+                          <Input
+                            type="number"
+                            placeholder="Nhập số tiền giảm tối đa, phải lớn hơn 0"
+                            {...field}
+                            onChange={(e) => {
+                              field.onChange(e);
+                              trigger("maxDiscountAmount");
+                            }}
+                          />
+                        </FormControl>
+                      </div>
+                      <FormMessage className="text-center ml-20" />
+                    </FormItem>
+                  )}
+                />
+              </div>
+            )}
+          </div>
+          <div className="mt-5">
+            <FormField
+              control={control}
+              name="minimumOrderAmount"
+              render={({ field }) => (
+                <FormItem>
+                  <div className="flex items-center gap-4">
+                    <FormLabel className="w-32">Giá trị đơn hàng tối thiểu</FormLabel>
+                    <FormControl className="flex-1">
+                      <Input
+                        type="number"
+                        placeholder="Nhập giá trị đơn hàng tối thiểu, phải lớn hơn hoặc bằng 0"
+                        {...field}
+                        onChange={(e) => {
+                          field.onChange(e);
+                          trigger("minimumOrderAmount");
+                        }}
+                      />
+                    </FormControl>
+                  </div>
+                  <FormMessage className="text-center ml-32" />
+                </FormItem>
+              )}
+            />
+          </div>
+          <div className="mt-5">
+            <FormField
+              control={control}
+              name="totalMaxUsage"
+              render={({ field }) => (
+                <FormItem>
+                  <div className="flex items-center gap-4">
+                    <FormLabel className="w-32">Tổng lượt sử dụng tối đa</FormLabel>
+                    <FormControl className="flex-1">
+                      <Input
+                        type="number"
+                        placeholder="Nhập tổng số mã giảm giá có thể sử dụng, phải lớn hơn 0"
+                        {...field}
+                        onChange={(e) => {
+                          field.onChange(e);
+                          trigger("totalMaxUsage");
+                        }}
+                      />
+                    </FormControl>
+                  </div>
+                  <FormMessage className="text-center ml-32" />
+                </FormItem>
+              )}
+            />
+          </div>
+          <div className="mt-5">
+            <FormField
+              control={control}
+              name="maxUsagePerCustomer"
+              render={({ field }) => (
+                <FormItem>
+                  <div className="flex items-center gap-4">
+                    <FormLabel className="w-32">Lượt sử dụng tối đa/người mua</FormLabel>
+                    <FormControl className="flex-1">
+                      <Input
+                        type="number"
+                        placeholder="Nhập số lượt sử dụng tối đa trên một người mua, phải lớn hơn 0 và không được lớn hơn Tổng lượt sử dụng tối đa"
+                        {...field}
+                        onChange={(e) => {
+                          field.onChange(e);
+                          trigger("maxUsagePerCustomer");
+                        }}
+                      />
+                    </FormControl>
+                  </div>
+                  <FormMessage className="text-center ml-32" />
+                </FormItem>
+              )}
+            />
+          </div>
+          <div className="mt-5">
+            <FormField
+              control={control}
+              name="status"
+              render={({ field }) => (
+                <FormItem>
+                  <div className="flex items-center gap-4">
+                    <FormLabel className="w-32">Trạng thái</FormLabel>
+                    <Select
+                      value={String(field.value)}
+                      onValueChange={(val) => {
+                        field.onChange(Number(val));
+                        trigger("status");
+                      }}
+                    >
+                      <FormControl className="flex-1">
+                        <SelectTrigger>
+                          <SelectValue placeholder="Chọn trạng thái" />
+                        </SelectTrigger>
+                      </FormControl>
+                      <SelectContent>
+                        <SelectItem value="1">Hoạt động</SelectItem>
+                        <SelectItem value="0">Không hoạt động</SelectItem>
+                      </SelectContent>
+                    </Select>
+                  </div>
+                  <FormMessage className="text-center" />
+                </FormItem>
+              )}
+            />
+          </div>
+          <div className="mt-5 mb-10">
+            <FormField
+              control={control}
+              name="description"
+              render={({ field }) => (
+                <FormItem>
+                  <div className="flex items-center gap-4">
+                    <FormLabel className="w-32">Mô tả</FormLabel>
+                    <FormControl className="flex-1">
+                      <Textarea
+                        placeholder="Mô tả ngắn..."
+                        {...field}
+                        onChange={(e) => {
+                          field.onChange(e);
+                          trigger("description");
+                        }}
+                      />
+                    </FormControl>
+                  </div>
+                  <FormMessage className="text-center" />
+                </FormItem>
+              )}
+            />
+          </div>
+        </div>
+      </div>
+
+      <hr className="border border-gray-300"/>
+
+      <div className="mt-10">
+        <div className="mt-10">
+          <h2 className="text-lg font-semibold">Hiển thị mã giảm giá và các sản phẩm áp dụng</h2>
+        </div>
+        <div className="mt-10 ml-5">
+          <FormField
+            control={control}
+            name="displaySettings"
+            render={({ field }) => (
+              <FormItem>
+                <div className="flex items-center">
+                  <FormLabel className="w-32">Thiết lập hiển thị</FormLabel>
+                  <Select
+                    value={String(field.value)}
+                    onValueChange={(val) => {
+                      field.onChange(Number(val));
+                      trigger("displaySettings");
+                    }}
+                  >
+                    <FormControl className="flex-1">
+                      <SelectTrigger>
+                        <SelectValue placeholder="Chọn thiết lập hiển thị" />
+                      </SelectTrigger>
+                    </FormControl>
+                    <SelectContent>
+                      <SelectItem value="1">Hiển thị nhiều nơi</SelectItem>
+                      <SelectItem value="0">Không công khai</SelectItem>
+                    </SelectContent>
+                  </Select>
+                </div>
+                {field.value === 1 && (
+                  <div className="text-sm text-center text-gray-500 ml-32">
+                    Voucher sẽ tự động được hiển thị công khai trên các trang phù hợp và có thể được sử dụng bởi tất cả khách hàng
+                  </div>
+                  )
+                }
+
+                {field.value === 0 && (
+                  <div className="text-sm text-center text-gray-500 ml-32">
+                    Voucher này sẽ không được hiển thị công khai trên bất kỳ trang nào và chỉ những người được bạn cho phép mới có thể sử dụng được
+                  </div>
+                  )
+                }
+                <FormMessage className="text-center" />
+              </FormItem>
+            )}
+          />
+        </div>
+        <div className="mt-5 ml-5">
+          <div className="flex items-center gap-4">
+            <FormLabel className="w-32">Sản phẩm áp dụng</FormLabel>
+            <div>
+              {voucherType === 1 && (
+                <div className="border border-gray-900 rounded p-1 hover:bg-gray-200">
+                  Tất cả sản phẩm
+                </div>
+              )}
+              {voucherType === 2 && (
+                <button onClick={openFormAddVoucherProduct} type="button" className="btn font-semibold rounded border border-gray-900 p-1 hover:bg-gray-200">
+                  + Thêm sản phẩm
+                </button>
+              )}
+            </div>
+          </div>
+        </div>
+        { isOpenFormAddVoucherProduct && (
+          <div className="p-5 m-5 border border-gray-300 rounded">
+            {/* Tìm kiếm sản phẩm */}
+            <div className="flex items-center">
+              <Input
+                placeholder="Tìm kiếm sản phẩm cần thêm dựa trên tên sản phẩm, mã sản phẩm hoặc mô tả"
+                value={inputSearchString}
+                onChange={(e) => setInputSearchString(e.target.value)}
+                onKeyDown={(e) => {
+                  if (e.key === "Enter") {
+                    e.preventDefault(); // Ngăn hành vi mặc định của phím Enter
+                    handleSubmitSearch(); // Gọi hàm tìm kiếm
+                  }
+                }}
+                className="flex-1"
+              />
+              <button
+                type="button"
+                onClick={handleSubmitSearch}
+                className={`p-2 ml-2 text-sm w-32 rounded font-semibold ${
+                  isSearching ? "bg-gray-400 cursor-not-allowed" : "bg-blue-500 hover:bg-blue-600 text-white"
+                }`}
+                disabled={isSearching} // Disable nút khi đang tìm kiếm
+                >
+                {isSearching ? "Đang tìm..." : "Tìm kiếm"}
+              </button>
+            </div>
+          
+            {/* Danh sách sản phẩm */}
+            <div className="flex">
+              <div className="mt-4 border rounded p-2 w-[35%] mr-2 h-[60vh]">
+                <div className="text-center font-semibold mb-4 bg-gray-200 rounded p-1">Sản phẩm</div>
+                {products !== null && products.length > 0 ? (
+                  <ul className="space-y-2 max-h-[50vh] overflow-y-auto">
+                    {products?.map((product) => (
+                      <li 
+                        onClick={() => showVariantProducts(product)}
+                        key={product.id}
+                        className="p-4 border rounded shadow hover:bg-gray-100"
+                      >
+                        <div className="flex">
+                          <img className="w-[30%] h-[30%] rounded" src={product.imageUrl}/>
+                          <div className="ml-2">
+                            <h3 className="font-semibold">{product.name}</h3>
+                            <p className="text-sm text-gray-500">{product.code}</p>
+                            <button onClick={() => handleOpenDetail(product.id)} type="button" className="flex text-sm items-start text-blue-500 hover:text-blue-700" >
+                              Chi tiết
+                            </button>
+                          </div>
+                        </div>
+                      </li>
+                    ))}
+                  </ul>
+                ) : (
+                  <p className="text-gray-500">Không tìm thấy sản phẩm nào.</p>
+                )}
+              </div>
+              <div className="mt-4 border rounded p-2 w-[15%] mr-2">
+                <div className="text-center font-semibold mb-4 bg-gray-200 rounded p-1">
+                  Biến thể
+                </div>
+                <div className="max-h-[50vh] overflow-y-auto">
+                  {variantProduct !== null && variantProduct.variantObjs.length > 0 ? (
+                    <ul className="space-y-2">
+                      {variantProduct.variantObjs.map((variant) => {
+                        // Kiểm tra xem variant đã được thêm vào productsIsSelected hay chưa
+                        const isVariantSelected = productsIsSelected?.some(
+                          (product) =>
+                            product.id === variantProduct.id && // Kiểm tra sản phẩm
+                            product.variantObjs.some((v) => v.id === variant.id) // Kiểm tra biến thể
+                        );
+                    
+                        return (
+                          <li
+                            key={variant.id}
+                            className="p-4 border rounded shadow hover:bg-gray-100 relative"
+                          >
+                            <button
+                              onClick={() => AddProductIsSelected(variantProduct, variant)}
+                              type="button"
+                              className={`absolute top-2 right-2 border rounded p-1 ${
+                                isVariantSelected
+                                  ? "bg-gray-400 cursor-not-allowed"
+                                  : "bg-blue-500 text-white hover:bg-blue-600"
+                              } text-xs`}
+                              disabled={isVariantSelected} // Disable nút nếu variant đã được thêm
+                            >
+                              +
+                            </button>
+                            <div className="flex items-center">
+                              <div className="w-full">
+                                <h3 className="font-semibold">{variant.id}</h3>
+                                <p className="text-sm text-gray-500">
+                                  {variant.size} ({variant.sizeType})
+                                </p>
+                                <p className="text-sm text-gray-500">{formatCurrency(variant.lowestAsk)}$</p>
+                              </div>
+                            </div>
+                          </li>
+                        );
+                      })}
+                    </ul>
+                  ) : (
+                    <p className="text-gray-500">Không tìm thấy biến thể của sản phẩm này.</p>
+                  )}
+                </div>
+              </div>
+              <div className="mt-4 border rounded p-2 w-[50%]">
+                <div className="text-center font-semibold mb-4 bg-gray-200 rounded p-1">
+                  Đã thêm
+                </div>
+                <div className="max-h-[50vh] overflow-y-auto">
+                  {productsIsSelected !== null && productsIsSelected.length > 0 ? (
+                    <ul className="space-y-2">
+                      {productsIsSelected.map((product, index) => (
+                        <li 
+                          key={product.id}
+                          className="p-4 border rounded shadow hover:bg-gray-100 relative"
+                        >
+                          <button
+                            onClick={() => removeProductInProductsIsSelected(index)}
+                            type="button" 
+                            className="absolute top-2 right-2 border rounded p-1 bg-red-500 text-white hover:bg-red-600 text-xs"
+                          >
+                            X
+                          </button>
+                          <div className="flex items-center gap-4">
+                            <img className="w-[20%] rounded" src={product.imageUrl} alt={product.name} />
+                            <div className="flex-1">
+                              <h3 className="font-semibold">{product.name}</h3>
+                              <p className="text-sm text-gray-500">{product.code}</p>
+                            </div>
+                          </div>
+                          <div className="flex w-max-[40%] overflow-x-auto">
+                            {product.variantObjs.map((variant, index) => (
+                              <div className="relative p-2 border rounded mr-1" key={variant.id}>
+                                <button
+                                  onClick={() => removeVariantInProductsIsSelected(product.id, index)}
+                                  type="button"
+                                  className="absolute top-2 right-2 border rounded p-1 bg-red-500 text-white hover:bg-red-600 text-xs"
+                                >
+                                  X
+                                </button>
+                                <h3 className="font-semibold">{variant.id}</h3>
+                                <p className="text-sm text-gray-500">{variant.size} ({variant.sizeType})</p>
+                                <p className="text-sm text-gray-500">{formatCurrency(variant.lowestAsk)}$</p>
+                              </div>
+                            ))}
+                          </div>
+                        </li>
+                      ))}
+                    </ul>
+                  ) : (
+                    <p className="text-gray-500">Trống</p>
+                  )}
+                </div>
+              </div>
+            </div>
+
+            <form>
+              <Pagination                                   //fix lỗi form nhầm nút chuyển trang
+                currentPage={pagination.currentPage}        //trong pagi là submit, bằng cách nhét pagi
+                totalPages={pagination.totalPages}          //trong 1 form riêng, sau đó chặn hoàn toàn
+                pageSize={pagination.pageSize}              //submit form riêng bằng cách cho validate
+                totalRecords={pagination.totalRecords}      //của nó luôn luôn không thành công
+                onPageChange={handlePageChange}
+                onPageSizeChange={handlePageSizeChange}
+              />
+              <input required hidden/>
+            </form>
+
+            {isOpenDetail && selectedDetailId && (
+              <DetailProductSheet
+                productId={selectedDetailId}
+                isOpen={isOpenDetail}
+                onClose={() => setIsOpenDetail(false)}
+              />
+            )}
+          </div>
         )}
-      />
+      </div>
     </div>
   );
 };
