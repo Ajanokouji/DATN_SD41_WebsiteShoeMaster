@@ -8,6 +8,7 @@ using Project.DbManagement.ViewModels;
 using SERP.Framework.Business;
 using SERP.Framework.Common;
 using SERP.Framework.DB.Extensions;
+using SERP.Framework.Entities.Metadata.Extensions;
 
 namespace Project.Business.Implement;
 
@@ -314,17 +315,28 @@ public class BillRepository : IBillRepository
     {
         try
         {
-            BillEntity bill = _context.Bills.Single(b => b.Id == idBill);
-            if (bill != null)
+            var bill = _context.Bills.SingleOrDefault(b => b.Id == idBill);
+            if (bill == null) return false;
+
+            var listBilldetails = _context.BillDetails.Where(bd => bd.BillId == idBill).ToList();
+
+            foreach (var billDetails in listBilldetails)
             {
-                _context.Bills.Remove(bill);
-                _context.SaveChanges();
-                return true;
+                var product = _context.Products.SingleOrDefault(p => p.Id == billDetails.ProductId);
+                if (product == null) continue;
+
+                int quantity = Convert.ToInt32(product.MetadataObj.GetMetadatavalue("Quantity"));
+                quantity += billDetails.Quantity;
+                product.MetadataObj.SetMetaFieldValue("Quantity", quantity.ToString());
+
+                _context.Products.Update(product);
             }
-            else
-            {
-                return false;
-            }
+
+            _context.BillDetails.RemoveRange(listBilldetails);
+            _context.Bills.Remove(bill);
+            _context.SaveChanges();
+
+            return true;
         }
         catch
         {
@@ -376,11 +388,14 @@ public class BillRepository : IBillRepository
                 Quantity = bdt.Quantity,
                 Price = bdt.Price,
             }).AsEnumerable().Reverse().ToList();
-        var result = new BillViewModel()
-        {
-            Id = idBill,
-            listBillDetails = listBillDetails
-        };
+        var result = (from bill in _context.Bills.ToList()
+            where bill.Id == idBill
+            select new BillViewModel
+            {
+                Id = idBill,
+                BillCode = bill.BillCode,
+                listBillDetails = listBillDetails
+            }).FirstOrDefault();
         return result;
     }
 }

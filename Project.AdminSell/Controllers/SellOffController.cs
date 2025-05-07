@@ -149,6 +149,20 @@ public class SellOffController : Controller
         else
             return Json(new { success = false, message = "Xóa thất bại" });
     }
+    
+    [HttpGet]
+    public async Task<IActionResult> SearchProduct(int page, int pagesize, string keyword)
+    {
+        var listProduct = await _productBusiness.SearchProduct(keyword);
+        var model = listProduct.Skip((page - 1) * pagesize).Take(pagesize).ToList();
+        int totalRow = listProduct.Count;
+        return Json(new
+        {
+            data = model,
+            total = totalRow,
+            status = true,
+        });
+    }
 
     [ResponseCache(Duration = 0, Location = ResponseCacheLocation.None, NoStore = true)]
     public IActionResult Error()
