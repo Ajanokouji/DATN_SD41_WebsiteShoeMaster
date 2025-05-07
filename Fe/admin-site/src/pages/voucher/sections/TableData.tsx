@@ -7,9 +7,9 @@ import TableProps from "@/types/common/table";
 import { useAppDispatch } from "@/hooks/use-app-dispatch";
 import { useAppSelector } from "@/hooks/use-app-selector";
 import { VoucherResDto } from "@/types/voucher/voucher";
+import { Link } from "react-router-dom";
 import {
   deleteVoucher,
-  fetchVouchersByStatusDate,
   setPage,
   setPageSize,
   fetchVouchers,
@@ -19,7 +19,7 @@ import {
   selectVouchers,
 } from "@/redux/apps/voucher/voucherSelector";
 import DetailVoucherSheet from "./UpdateDetail/DetailVoucherSheet";
-import { date } from "zod";
+import { formatVietnamTime } from "@/utils/format";
 
 const VoucherTable = <T extends { id: string }>({
   headers,
@@ -60,48 +60,34 @@ const VouchersTable: React.FC = () => {
     setIsOpenUpdate(true);
     setSelectedVoucherId(id);
   };
-
-  const formatDateTime = (rawDate: string) => {
-    var date = new Date();
-    if(rawDate.includes("T") && rawDate.includes("Z")) {
-      date = new Date(rawDate);
-    }
-    else
-    {
-      //Chuyển đổi về định dạng UTC (Db đã lưu giờ UTC nhưng định dạng ko chuẩn nên phải chuyển đổi lại)
-      date = new Date(rawDate.replace(" ", "T") + "Z");
-    }
-
-    const dateLocal = new Date(date); //Tự chuyển đổi về giờ local
-    const options: Intl.DateTimeFormatOptions = {
-      hour: "2-digit",
-      minute: "2-digit",
-      second: "2-digit",
-      day: "2-digit",
-      month: "2-digit",
-      year: "numeric",
-    };
-    return new Intl.DateTimeFormat("vi-vn", options).format(dateLocal);
-  };
   
   const renderDateRange = (startDate: string, endDate: string) => {
-    return `${formatDateTime(startDate)} - ${formatDateTime(endDate)}`;
-  };  
+    if(startDate.includes("T") && endDate.includes("T")) {
+      startDate = startDate.replace("T", " ").replace("Z", "");
+      endDate = endDate.replace("T", " ").replace("Z", "");
+    }
+    return `${formatVietnamTime(startDate)} - ${formatVietnamTime(endDate)}`;
+  };
 
   const renderDiscount = (voucher: VoucherResDto) => {
-    const formatCurrency = (value: number) =>
-      new Intl.NumberFormat("en-us").format(value);
     if (voucher.discountAmount) {
-      return `${formatCurrency(voucher.discountAmount)} $`;
+      return `${formatCurrency(voucher.discountAmount)}$`;
     }
     return `${voucher.discountPercentage}%`;
   };
 
+  const renderMaxDiscountAmount = (voucher: VoucherResDto) => {
+    if (voucher.maxDiscountAmount) {
+      return `(Tối đa: ${formatCurrency(voucher.maxDiscountAmount)}$)`;
+    }
+  };
+
+  const formatCurrency = (value: number) =>
+    new Intl.NumberFormat("en-us").format(value);
+
   const renderMinimumOrderAmount = (voucher: VoucherResDto) => {
-    const formatCurrency = (value: number) =>
-      new Intl.NumberFormat("en-us").format(value);
     if (voucher.minimumOrderAmount) {
-      return `${formatCurrency(voucher.minimumOrderAmount)} $`;
+      return `${formatCurrency(voucher.minimumOrderAmount)}$`;
     }
   };
 
@@ -121,6 +107,8 @@ const VouchersTable: React.FC = () => {
     { label: "Loại mã" },
     { label: "Giảm giá" },
     { label: "Giá trị đơn hàng tối thiểu" },
+    { label: "Tổng lượt sử dụng tối đa" },
+    { label: "Đã dùng" },
     { label: "Thời gian lưu Mã Voucher" },
     { label: "Trạng thái" },
     { label: "Thao tác" },
@@ -179,7 +167,7 @@ const VouchersTable: React.FC = () => {
             </div>
             <div>
               <span>{value}</span>
-              <div className="text-sm text-gray-800">{row?.code}</div>
+              <div className="text-sm text-gray-500">{row?.code}</div>
             </div>
           </div>
         );
@@ -187,18 +175,73 @@ const VouchersTable: React.FC = () => {
     },    
     {
       key: "voucherType",
-      render: (value) =>
-        value === 1
-          ? "Voucher toàn Shop"
-          : value === 2
-          ? "Voucher sản phẩm"
-          : "Không xác định",
+      render: (value, row) => {
+        if (value === 1) {
+          return (
+            <div>
+              <div>Voucher toàn shop</div>
+              <div>{row?.displaySettings === 1?"(Hiển thị nhiều nơi)":"(Không công khai)"}</div>
+              <div className="text-gray-500 italic">Áp dụng cho</div>
+              <div className="text-gray-500 italic">tất cả sản phẩm</div>
+            </div>
+          );
+        }
+        if (value === 2) {
+          return (
+            <div>
+              <div>Voucher sản phẩm</div>
+              <div>{row?.displaySettings === 1?"(Hiển thị nhiều nơi)":"(Không công khai)"}</div>
+              <Link to={`/voucher-product/${row?.id}`} target="_blank" rel="noopener noreferrer"
+              className="text-blue-500 hover:text-blue-700 italic">
+                <div>Xem chi tiết các</div>
+                <div>sản phẩm áp dụng</div>
+              </Link>
+            </div>
+          );
+        }
+        else{
+          return (
+            <div>
+              <div>Voucher không xác định</div>
+            </div>
+          );
+        }
+      }
     },
     {
-      render: (_, row) => renderDiscount(row!),
+      render: (_, row) => {
+        if (row) {
+          return (
+            <div>
+              <div>{renderDiscount(row)}</div>
+              <div>{renderMaxDiscountAmount(row)}</div>
+            </div>
+          );
+        }
+      },
     },
     {
       render: (_, row) => renderMinimumOrderAmount(row!),
+    },
+    {
+      key: "totalMaxUsage",
+      render: (value) => {
+        if (value != null) {
+          return formatCurrency(value);
+        } else {
+          return "Không xác định";
+        }
+      },
+    },
+    {
+      key: "redeemCount",
+      render: (value) => {
+        if (value != null) {
+          return formatCurrency(value);
+        } else {
+          return "Không xác định";
+        }
+      },
     },
     {
       render: (_, row) =>
@@ -224,29 +267,21 @@ const VouchersTable: React.FC = () => {
 
   useEffect(() => {
     const trangThaiMap: { [key: string]: number | undefined } = {
-      "Tất cả": undefined,
+      "Tất cả": 0,
       "Đang diễn ra": 1,
       "Sắp diễn ra": 2,
       "Đã kết thúc": 3,
+      "Tạm dừng": 4,
     };
   
     const trangThai = trangThaiMap[activeTab];
   
-    if (trangThai) {
-      dispatch(
-        fetchVouchersByStatusDate({
-          params: {
-            CurrentPage: pagination.currentPage,
-            PageSize: pagination.pageSize,
-          },
-          trangThai,
-        })
-      );
-    } else {
+    if (trangThai !== undefined) {
       dispatch(
         fetchVouchers({
           CurrentPage: pagination.currentPage,
           PageSize: pagination.pageSize,
+          statusTotal: trangThai,
         })
       );
     }
@@ -264,7 +299,7 @@ const VouchersTable: React.FC = () => {
     <section className="mt-10">
       {/* Tabs */}
       <div className="flex space-x-4 mb-6 border-b border-gray-300">
-        {["Tất cả", "Đang diễn ra", "Sắp diễn ra", "Đã kết thúc"].map((tab) => (
+        {["Tất cả", "Đang diễn ra", "Sắp diễn ra", "Đã kết thúc", "Tạm dừng"].map((tab) => (
           <button
             key={tab}
             className={`relative px-4 py-2 text-sm font-medium transition-colors duration-300 ${
