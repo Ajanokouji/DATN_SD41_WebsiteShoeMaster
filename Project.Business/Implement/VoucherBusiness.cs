@@ -168,7 +168,12 @@ namespace Project.Business.Implement
                 VoucherType = exist.VoucherType,
                 StartDate = exist.StartDate,
                 EndDate = exist.EndDate,
-                Status = exist.Status
+                Status = exist.Status,
+                TotalMaxUsage = exist.TotalMaxUsage,
+                MaxUsagePerCustomer = exist.MaxUsagePerCustomer,
+                DisplaySettings = exist.DisplaySettings,
+                RedeemCount = exist.RedeemCount,
+                MaxDiscountAmount = exist.MaxDiscountAmount
             };
 
             if (!string.IsNullOrWhiteSpace(model.Code))
@@ -205,6 +210,26 @@ namespace Project.Business.Implement
             if (model.Status >= 0)
             {
                 update.Status = model.Status;
+            }
+            if (model.TotalMaxUsage >= 0)
+            {
+                update.TotalMaxUsage = model.TotalMaxUsage;
+            }
+            if (model.MaxUsagePerCustomer >= 0)
+            {
+                update.MaxUsagePerCustomer = model.MaxUsagePerCustomer;
+            }
+            if (model.DisplaySettings >= 0)
+            {
+                update.DisplaySettings = model.DisplaySettings;
+            }
+            if (model.MaxDiscountAmount >= 0)
+            {
+                update.MaxDiscountAmount = model.MaxDiscountAmount;
+            }
+            if (model.RedeemCount >= 0)
+            {
+                update.RedeemCount = model.RedeemCount;
             }
             return await SaveAsync(update);
         }
@@ -253,6 +278,14 @@ namespace Project.Business.Implement
                 exist.EndDate = voucher.EndDate ?? exist.EndDate;
                 exist.Status = voucher.Status;
                 exist.LastModifiedOnDate = DateTime.UtcNow;
+                exist.DiscountPercentage = voucher.DiscountPercentage > 0 ? voucher.DiscountPercentage : exist.DiscountPercentage;
+                exist.MinimumOrderAmount = voucher.MinimumOrderAmount >= 0 ? voucher.MinimumOrderAmount : exist.MinimumOrderAmount;
+                exist.VoucherType = voucher.VoucherType > 0 ? voucher.VoucherType : exist.VoucherType;
+                exist.TotalMaxUsage = voucher.TotalMaxUsage > 0 ? voucher.TotalMaxUsage : exist.TotalMaxUsage;
+                exist.MaxUsagePerCustomer = voucher.MaxUsagePerCustomer > 0 ? voucher.MaxUsagePerCustomer : exist.MaxUsagePerCustomer;
+                exist.DisplaySettings = voucher.DisplaySettings > 0 ? voucher.DisplaySettings : exist.DisplaySettings;
+                exist.MaxDiscountAmount = voucher.MaxDiscountAmount > 0 ? voucher.MaxDiscountAmount : exist.MaxDiscountAmount;
+                exist.RedeemCount = voucher.RedeemCount >= 0 ? voucher.RedeemCount : exist.RedeemCount;
 
                 var result = await SaveAsync(exist);
                 _logger.Information("Voucher {VoucherId} updated successfully", voucher.Id);
@@ -323,21 +356,6 @@ namespace Project.Business.Implement
             catch (Exception ex)
             {
                 _logger.Error(ex, "Error checking if voucher code {VoucherCode} exists", code);
-                throw;
-            }
-        }
-
-        //Lọc voucher theo trạng thái đang diễn ra, sắp diễn ra, đã kết thúc
-        public async Task<Pagination<Voucher>> GetVouchersByStatusDateAsync(VoucherQueryModel queryModel, int trangThai)
-        {
-            try
-            {
-                var vouchers = await _voucherRepository.GetVouchersByStatusDateAsync(queryModel, trangThai);
-                return vouchers;
-            }
-            catch (Exception ex)
-            {
-                _logger.Error(ex, "Error getting vouchers by status date");
                 throw;
             }
         }
