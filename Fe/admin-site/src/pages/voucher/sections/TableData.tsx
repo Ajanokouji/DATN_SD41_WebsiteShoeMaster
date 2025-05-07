@@ -191,7 +191,7 @@ const VouchersTable: React.FC = () => {
             <div>
               <div>Voucher sản phẩm</div>
               <div>{row?.displaySettings === 1?"(Hiển thị nhiều nơi)":"(Không công khai)"}</div>
-              <Link to={`/voucherProduct/${row?.id}`} target="_blank" rel="noopener noreferrer"
+              <Link to={`/voucher-product/${row?.id}`} target="_blank" rel="noopener noreferrer"
               className="text-blue-500 hover:text-blue-700 italic">
                 <div>Xem chi tiết các</div>
                 <div>sản phẩm áp dụng</div>
