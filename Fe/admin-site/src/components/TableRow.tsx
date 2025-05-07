@@ -27,6 +27,7 @@ const TableRowComponent = <
     voucherName?: string;
     fullName?: string;
     billCode?: string;
+    varientProductId?: string;
   }
 >({
   data,
@@ -49,6 +50,7 @@ const TableRowComponent = <
     if (data.code) return data.code;
     if (data.voucherName) return data.voucherName;
     if (data.billCode) return data.billCode;
+    if (data.varientProductId) return data.varientProductId;
     return data.id;
   };
 

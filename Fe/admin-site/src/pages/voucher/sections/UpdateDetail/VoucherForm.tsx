@@ -1,5 +1,4 @@
-import React, { useEffect } from "react";
-import { useWatch } from "react-hook-form";
+import React from "react";
 import { FormProvider, UseFormReturn } from "react-hook-form";
 import {
   Form,
@@ -34,7 +33,7 @@ export const VoucherForm: React.FC<VoucherFormProps> = ({
   onSubmit,
   children,
 }) => {
-  const { control, watch, setValue, clearErrors, trigger, setError } = methods;
+  const { control, watch, setValue, trigger } = methods;
   const discountType = watch("discountType");
 
   const handleDiscountTypeChange = (val: "$" | "%") => {

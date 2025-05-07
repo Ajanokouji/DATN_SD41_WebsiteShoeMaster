@@ -316,5 +316,30 @@ namespace Project.Business.Implement
                 }).ToListAsync();
             return result;
         }
+
+        public async Task<List<ListProductSellViewModel>> SearchProduct(string keyword)
+        {
+            if (string.IsNullOrEmpty(keyword))
+            {
+                 GetAllProduct();
+            }
+
+            // Chuyển từ khóa và các trường dữ liệu về chữ thường để tìm kiếm không phân biệt chữ hoa chữ thường
+            keyword = keyword.ToLower();
+
+            var products = await (from product in _context.Products
+                    where (product.Name.ToLower().Contains(keyword) || product.Code.ToLower().Contains(keyword))
+                    select new ListProductSellViewModel()
+                    {
+                        Id = product.Id,
+                        Image = product.ImageUrl,
+                        Name = product.Name,
+                        Price = product.MetadataObj.GetMetadatavalue("MaxPrice")
+                    })
+                .AsNoTracking()
+                .ToListAsync();
+
+            return products;
+        }
     }
 }

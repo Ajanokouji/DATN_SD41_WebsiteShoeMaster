@@ -334,5 +334,10 @@ namespace Project.Business.Implement
         {
             return await _productRepository.ListProductDetailsById(idprd);
         }
+
+        public Task<List<ListProductSellViewModel>> SearchProduct(string keyword)
+        {
+            return _productRepository.SearchProduct(keyword);
+        }
     }
 }

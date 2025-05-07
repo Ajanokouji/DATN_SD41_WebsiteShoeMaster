@@ -15,6 +15,10 @@ import { createVoucher, checkVoucherCodeExist } from "@/redux/apps/voucher/vouch
 import { voucherFormSchema, VoucherFormSchema } from "./FormSchema";
 import VoucherReqDto from "@/types/voucher/voucher";
 import { BasicInfoFields } from "./BasicFields";
+import VoucherProductReqDto from "@/types/voucherProduct/voucherProduct";
+import { createVoucherProduct } from "@/redux/apps/voucherProduct/voucherProductSlice"
+import { v4 as uuidv4 } from "uuid";
+import { VariantObjs } from "@/types/product/product";
 
 interface AddVoucherSheetProps {
   isOpen: boolean;
@@ -50,6 +54,12 @@ const AddVoucherSheet: React.FC<AddVoucherSheetProps> = ({
       discountPercentage: undefined,
       description: "",
       minimumOrderAmount: undefined,
+      totalMaxUsage: undefined,
+      maxUsagePerCustomer: undefined,
+      displaySettings: undefined,
+      maxDiscountAmount: undefined,
+      redeemCount: undefined,
+      productsIsSelected: null,
     },
   });
 
@@ -66,10 +76,11 @@ const AddVoucherSheet: React.FC<AddVoucherSheetProps> = ({
             type: "manual",
             message: "Mã voucher đã tồn tại",
           });
+          form.setFocus("code");
           return;
         }
       }
-      else{
+      else {
         console.error("Lỗi trong quá trình kiểm tra mã voucher:", resultAction.error.message);
         return;
       }
@@ -77,12 +88,14 @@ const AddVoucherSheet: React.FC<AddVoucherSheetProps> = ({
       //Xác định chỉ có một trong hai discountAmount hoặc discountPercentage được nhập
       if (values.discountType === "$") {
         values.discountPercentage = undefined;
+        values.maxDiscountAmount = undefined;
       } else {
         values.discountAmount = undefined;
       }
 
       const voucherData: VoucherReqDto = {
         ...values,
+        id: uuidv4(),
         discountAmount: values.discountAmount ?? null,
         discountPercentage: values.discountPercentage ?? null,
         minimumOrderAmount: values.minimumOrderAmount ?? null,
@@ -91,6 +104,11 @@ const AddVoucherSheet: React.FC<AddVoucherSheetProps> = ({
         lastModifiedByUserId: values.lastModifiedByUserId || "",
         lastModifiedOnDate: values.lastModifiedOnDate || new Date().toISOString(),
         createdOnDate: values.createdOnDate || new Date().toISOString(),
+        totalMaxUsage: values.totalMaxUsage ?? null,
+        maxUsagePerCustomer: values.maxUsagePerCustomer ?? null,
+        displaySettings: values.displaySettings ?? null,
+        maxDiscountAmount: values.maxDiscountAmount ?? null,
+        redeemCount: 0  //RedeemCount mặc định lúc mới tạo là = 0
       };
 
       //Trim chuỗi
@@ -100,14 +118,37 @@ const AddVoucherSheet: React.FC<AddVoucherSheetProps> = ({
 
       // Chuyển thành giờ UTC
       if (values.startDate) {
-        voucherData.startDate = new Date(values.startDate).toISOString();
+        voucherData.startDate = new Date(values.startDate.replace("T", " ") + ":00").toISOString();
       }
       if (values.endDate) {
-        voucherData.endDate = new Date(values.endDate).toISOString();
+        voucherData.endDate = new Date(values.endDate.replace("T", " ") + ":00").toISOString();
       }
 
       var createRs = await dispatch(createVoucher(voucherData));
       if (createVoucher.fulfilled.match(createRs)) {
+        ////Thêm voucherProduct
+        if (
+          voucherData.voucherType === 2 &&
+          values.productsIsSelected !== null &&
+          values.productsIsSelected.length > 0
+        ) {
+          // Map voucherProducts
+          const voucherProducts: VoucherProductReqDto[] = values.productsIsSelected.flatMap((product) =>
+            product.variantObjs.map((variant: VariantObjs) => ({
+              voucherId: voucherData.id,
+              productId: product.id,
+              varientProductId: variant.id,
+              createdByUserId: "3fa85f64-5717-4562-b3fc-2c963f66afa6",
+              lastModifiedByUserId: "3fa85f64-5717-4562-b3fc-2c963f66afa6",
+              lastModifiedOnDate: new Date().toISOString(),
+              createdOnDate: new Date().toISOString(),
+            }))
+          );
+        
+          // Create voucherProduct
+          await dispatch(createVoucherProduct(voucherProducts));
+        }
+
         onClose();
       }
     } catch (error) {
@@ -120,15 +161,9 @@ const AddVoucherSheet: React.FC<AddVoucherSheetProps> = ({
   return (
     <Sheet open={isOpen} onOpenChange={onClose}>
       <SheetContent className="w-[90%] sm:max-w-[80vw] max-w-none h-screen overflow-y-auto">
-        <SheetHeader>
-          <SheetTitle className="text-xl font-semibold text-gray-700">
-            {voucherType === 1 ? "Tạo Voucher Toàn Shop" : "Tạo Voucher Sản Phẩm"}
-          </SheetTitle>
-          <SheetDescription>
-            {voucherType === 1
-            ? "Áp dụng cho tất cả sản phẩm trong Shop của bạn."
-            : "Áp dụng cho những sản phẩm nhất định mà Shop chọn."}
-          </SheetDescription>
+        <SheetHeader className="sr-only">
+          <SheetTitle></SheetTitle>
+          <SheetDescription></SheetDescription>
         </SheetHeader>
         <br />
         <Form {...form}>
@@ -136,7 +171,7 @@ const AddVoucherSheet: React.FC<AddVoucherSheetProps> = ({
             onSubmit={form.handleSubmit(handleSubmit)}
             className="space-y-6 overflow-auto"
           >
-            <BasicInfoFields control={form.control} />
+            <BasicInfoFields control={form.control} voucherType={voucherType} />
 
             <div className="flex justify-end gap-2 pt-4">
               <Button type="submit" disabled={isSubmitting}>
