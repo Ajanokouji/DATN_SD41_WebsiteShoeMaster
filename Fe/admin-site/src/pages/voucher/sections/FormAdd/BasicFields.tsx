@@ -800,7 +800,7 @@ export const BasicInfoFields: React.FC<BasicInfoFieldsProps> = ({ control, vouch
                           </div>
                           <div className="flex w-max-[40%] overflow-x-auto">
                             {product.variantObjs.map((variant, index) => (
-                              <div className="relative p-2 border rounded mr-1" key={variant.id}>
+                              <div className="min-w-[80px] relative p-2 border rounded mr-1" key={variant.id}>
                                 <button
                                   onClick={() => removeVariantInProductsIsSelected(product.id, index)}
                                   type="button"
