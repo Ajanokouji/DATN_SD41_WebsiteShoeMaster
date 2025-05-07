@@ -46,11 +46,11 @@ export interface LabelsObjs {
   color: string;
 }
 export interface VariantObjs {
-  id: string;
-  productId: string;
-  size: string;
-  sizeType: string;
-  lowestAsk: number;
+  group1: string,
+  group2: string,
+  price: string,
+  stock: string,
+  sku: string,
 }
 export interface ProductResDto {
   id: string;

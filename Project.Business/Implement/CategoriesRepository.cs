@@ -135,7 +135,6 @@ namespace Project.Business.Implement
                     exist.CompleteCode = category.CompleteCode;
                     exist.CompleteName = category.CompleteName;
                     exist.CompletePath = category.CompletePath;
-                    exist.MetadataObj = category.MetadataObj;
                     exist.LastModifiedOnDate = category.LastModifiedOnDate;
                     exist.CreatedOnDate = category.CreatedOnDate;
 

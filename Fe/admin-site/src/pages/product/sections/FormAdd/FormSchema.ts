@@ -15,11 +15,11 @@ export const productFormSchema = z.object({
   completePath: z.string(),
   variantObjs: z.array(
     z.object({
-      id: z.string(),
-      productId: z.string(),
-      size: z.string(),
-      sizeType: z.string(),
-      lowestAsk: z.number(),
+      group1: z.string(),
+      group2: z.string(),
+      price: z.string(),
+      stock: z.string(),
+      sku: z.string(),
     })
   ),
   metadataObj: z.array(
