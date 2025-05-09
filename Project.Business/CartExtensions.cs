@@ -6,7 +6,7 @@ namespace Project.Common.Extensions
 {
     public static class CartExtensions
     {
-        public static List<CartItemModel> ToCartItemModels(this List<CartSession> cartSessions)
+        public static List<CartItemModel> ToCartItemModels(this List<CartItem> cartSessions)
         {
             if (cartSessions == null || !cartSessions.Any())
             {
@@ -20,7 +20,7 @@ namespace Project.Common.Extensions
                 ProductImage = item.ProductImage,
                 Price = item.Price,
                 Quantity = item.Quantity,
-                Size = 0, // Mặc định, cần cập nhật nếu có thông tin size
+                Size = string.Empty, // Mặc định, cần cập nhật nếu có thông tin size
                 Color = string.Empty // Mặc định, cần cập nhật nếu có thông tin màu
             }).ToList();
         }

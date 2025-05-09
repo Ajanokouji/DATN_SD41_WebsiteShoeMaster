@@ -18,7 +18,7 @@ export const productFormSchema = z.object({
       group1: z.string(),
       group2: z.string(),
       price: z.string(),
-      stock: z.string(),
+      stock: z.number(),
       sku: z.string(),
     })
   ),

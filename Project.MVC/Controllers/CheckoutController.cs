@@ -53,7 +53,7 @@ namespace Project.MVC.Controllers
                 return RedirectToAction("Index", "Cart");
             }
 
-            var cartSessions = JsonConvert.DeserializeObject<List<CartSession>>(cartSession);
+            var cartSessions = JsonConvert.DeserializeObject<List<CartItem>>(cartSession);
             var cartItemsResult = await _cartBusiness.GetCartItems(cartSessions);
             if (!cartItemsResult.IsSuccess || cartItemsResult.Data == null || !cartItemsResult.Data.Any())
             {
@@ -87,7 +87,7 @@ namespace Project.MVC.Controllers
                     return Json(new { success = false, message = "Giỏ hàng trống" });
                 }
 
-                var cartSessions = JsonConvert.DeserializeObject<List<CartSession>>(cartSession);
+                var cartSessions = JsonConvert.DeserializeObject<List<CartItem>>(cartSession);
                 var cartItemsResult = await _cartBusiness.GetCartItems(cartSessions);
                 if (!cartItemsResult.IsSuccess || cartItemsResult.Data == null || !cartItemsResult.Data.Any())
                 {

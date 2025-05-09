@@ -14,13 +14,15 @@ interface Option {
 
 interface VariantFormProps {
   form: UseFormReturn<ProductFormSchema>;
+  initialVariants?: CombinationData[];
+  mode?: "create" | "edit";
 }
 
 interface CombinationData {
   group1: string;
   group2: string;
   price: string;
-  stock: string;
+  stock: number;
   sku: string;
 }
 
@@ -104,7 +106,6 @@ export const VariantForm: React.FC<VariantFormProps> = ({ form }) => {
 
     const colorValues = colorOption?.values ?? [];
     const sizeValues = sizeOption?.values ?? [];
-
     if (colorValues.length === 0 && sizeValues.length === 0) return [];
 
     if (colorValues.length > 0 && sizeValues.length === 0) {
@@ -112,7 +113,7 @@ export const VariantForm: React.FC<VariantFormProps> = ({ form }) => {
         group1: v.value,
         group2: "",
         price: "",
-        stock: "",
+        stock: 0,
         sku: "",
       }));
     }
@@ -122,7 +123,7 @@ export const VariantForm: React.FC<VariantFormProps> = ({ form }) => {
         group1: "",
         group2: v.value,
         price: "",
-        stock: "",
+        stock: 0,
         sku: "",
       }));
     }
@@ -134,7 +135,7 @@ export const VariantForm: React.FC<VariantFormProps> = ({ form }) => {
           group1: color.value,
           group2: size.value,
           price: "",
-          stock: "",
+          stock: 0,
           sku: "",
         });
       });
@@ -149,12 +150,33 @@ export const VariantForm: React.FC<VariantFormProps> = ({ form }) => {
     form.setValue("variantObjs", combinations);
   }, [options]);
 
-  const handleCombinationChange = (index: number, field: keyof CombinationData, value: string) => {
+  const handleCombinationChange = (
+    index: number,
+    field: keyof CombinationData,
+    value: string
+  ) => {
     const updated = [...combinationData];
-    updated[index][field] = value;
+  
+    switch (field) {
+      case "stock":
+        updated[index][field] = Number(value);
+        break;
+      case "price":
+      case "sku":
+      case "group1":
+      case "group2":
+        updated[index][field] = value;
+        break;
+      default:
+        // This should never happen
+        throw new Error(`Unhandled field: ${field}`);
+    }
+  
     setCombinationData(updated);
     form.setValue("variantObjs", updated);
   };
+  
+
 
   const group1RowSpans: { [key: string]: number } = {};
   combinationData.forEach((c) => {
@@ -166,19 +188,45 @@ export const VariantForm: React.FC<VariantFormProps> = ({ form }) => {
       <h2 className="text-lg font-semibold">Phân loại hàng</h2>
 
       <div className="flex gap-4">
-        <Button type="button" onClick={() => handleAddGroup("Màu sắc", () => setIsColorGroupDisabled(true))} disabled={isColorGroupDisabled} variant="outline">
-          <Plus size={16} className="mr-2" />Tạo nhóm phân loại Màu sắc
+        <Button
+          type="button"
+          onClick={() =>
+            handleAddGroup("Màu sắc", () => setIsColorGroupDisabled(true))
+          }
+          disabled={isColorGroupDisabled}
+          variant="outline"
+        >
+          <Plus size={16} className="mr-2" />
+          Tạo nhóm phân loại Màu sắc
         </Button>
-        <Button type="button" onClick={() => handleAddGroup("Kích cỡ", () => setIsSizeGroupDisabled(true))} disabled={isSizeGroupDisabled} variant="outline">
-          <Plus size={16} className="mr-2" />Tạo nhóm phân loại Kích cỡ
+        <Button
+          type="button"
+          onClick={() =>
+            handleAddGroup("Kích cỡ", () => setIsSizeGroupDisabled(true))
+          }
+          disabled={isSizeGroupDisabled}
+          variant="outline"
+        >
+          <Plus size={16} className="mr-2" />
+          Tạo nhóm phân loại Kích cỡ
         </Button>
       </div>
 
       {options.map((option) => (
-        <div key={option.id} className="border p-3 rounded bg-gray-50 mt-4 space-y-2">
+
+        <div
+          key={option.id}
+          className="border p-3 rounded bg-gray-50 mt-4 space-y-2"
+        >
           <div className="flex items-center gap-2">
             <Input value={option.name} disabled className="w-1/3" />
-            <Button type="button" onClick={() => handleRemoveOption(option.id)} variant="ghost" size="icon" className="ml-auto text-gray-500">
+            <Button
+              type="button"
+              onClick={() => handleRemoveOption(option.id)}
+              variant="ghost"
+              size="icon"
+              className="ml-auto text-gray-500"
+            >
               <X size={18} />
             </Button>
           </div>
@@ -188,16 +236,31 @@ export const VariantForm: React.FC<VariantFormProps> = ({ form }) => {
                 <Input
                   value={val.value}
                   placeholder="Giá trị phân loại"
-                  onChange={(e) => handleValueChange(option.id, val.id, e.target.value)}
+
+                  onChange={(e) =>
+                    handleValueChange(option.id, val.id, e.target.value)
+                  }
                   className="pr-6"
                 />
-                <Button type="button" onClick={() => handleRemoveValue(option.id, val.id)} size="icon" variant="ghost" className="absolute top-1 right-1 text-gray-500">
+                <Button
+                  type="button"
+                  onClick={() => handleRemoveValue(option.id, val.id)}
+                  size="icon"
+                  variant="ghost"
+                  className="absolute top-1 right-1 text-gray-500"
+                >
                   <X size={12} />
                 </Button>
               </div>
             ))}
-            <Button type="button" size="sm" variant="ghost" onClick={() => handleAddValue(option.id)}>
-              <Plus size={14} className="mr-1" />Thêm giá trị
+            <Button
+              type="button"
+              size="sm"
+              variant="ghost"
+              onClick={() => handleAddValue(option.id)}
+            >
+              <Plus size={14} className="mr-1" />
+              Thêm giá trị
             </Button>
           </div>
         </div>
@@ -225,25 +288,50 @@ export const VariantForm: React.FC<VariantFormProps> = ({ form }) => {
             </thead>
             <tbody>
               {combinationData.map((combination, index) => {
-                const isFirst = index === 0 || combination.group1 !== combinationData[index - 1].group1;
+
+                const isFirst =
+                  index === 0 ||
+                  combination.group1 !== combinationData[index - 1].group1;
                 const rowSpan = group1RowSpans[combination.group1];
 
                 return (
                   <tr key={index}>
                     {isFirst && (
-                      <td className="border p-2 align-middle" rowSpan={rowSpan}>
+
+                      <td
+                        className="border p-2 align-middle"
+                        rowSpan={rowSpan}
+                      >
                         {combination.group1}
                       </td>
                     )}
                     <td className="border p-2">{combination.group2}</td>
                     <td className="border p-2">
-                      <Input value={combination.price} onChange={(e) => handleCombinationChange(index, "price", e.target.value)} placeholder="Giá" />
+                      <Input
+                        value={combination.price}
+                        onChange={(e) =>
+                          handleCombinationChange(index, "price", e.target.value)
+                        }
+                        placeholder="Giá"
+                      />
                     </td>
                     <td className="border p-2">
-                      <Input value={combination.stock} onChange={(e) => handleCombinationChange(index, "stock", e.target.value)} placeholder="Kho" />
+                      <Input
+                        value={combination.stock.toString()}
+                        onChange={(e) =>
+                          handleCombinationChange(index, "stock", e.target.value)
+                        }
+                        placeholder="Kho"
+                      />
                     </td>
                     <td className="border p-2">
-                      <Input value={combination.sku} onChange={(e) => handleCombinationChange(index, "sku", e.target.value)} placeholder="SKU" />
+                      <Input
+                        value={combination.sku}
+                        onChange={(e) =>
+                          handleCombinationChange(index, "sku", e.target.value)
+                        }
+                        placeholder="SKU"
+                      />
                     </td>
                   </tr>
                 );

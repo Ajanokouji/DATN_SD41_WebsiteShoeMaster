@@ -110,7 +110,7 @@ namespace Project.MVC.Controllers
                 if (!string.IsNullOrEmpty(cartSessionJson))
                 {
                     //Giải json session cart
-                    var cartSessions = JsonConvert.DeserializeObject<List<CartSession>>(cartSessionJson);
+                    var cartSessions = JsonConvert.DeserializeObject<List<CartItem>>(cartSessionJson);
                     //Nếu list session cart không trống
                     if (cartSessions != null && cartSessions.Any())
                     {
