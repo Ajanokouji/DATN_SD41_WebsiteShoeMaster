@@ -15,6 +15,11 @@ namespace Project.DbManagement.Entity
 
         public Guid IdProduct { get; set; }
 
+        public string? Size { get; set; }
+
+        public string? Color { get; set; }
+
+
         public int? Quantity { get; set; }
 
         public bool? IsOnSale { get; set; } = false;

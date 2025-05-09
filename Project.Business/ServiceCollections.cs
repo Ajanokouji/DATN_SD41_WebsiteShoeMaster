@@ -3,6 +3,7 @@ using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Project.Business.Implement;
+using Project.Business.Implementation;
 using Project.Business.Interface;
 using Project.Business.Interface.Project.Business.Interface;
 using Project.Business.Interface.Project.Business.Interface.Repositories;
@@ -41,6 +42,7 @@ namespace Project.Business
             services.AddScoped<IProductCategoriesRelationRepository, ProductCategoriesRelationRepository>();
             services.AddScoped<ICategoriesRepository, CategoriesRepository>();
             services.AddScoped<IImageFileRepository, ImageFileRepository>();
+            services.AddScoped<IVoucherProductsRepository, VoucherProductRepository>();
 
             // Register Business Services
 
@@ -58,6 +60,7 @@ namespace Project.Business
             services.AddScoped<IProductCategoriesRelationBusiness, ProductCategoriesRelationBusiness>();
             services.AddScoped<ICategoriesBusiness, CategoriesBusiness>();
             services.AddScoped<IImageFileBusiness, ImageFileBusiness>();
+            services.AddScoped<IVoucherProductsBusiness, VoucherProductsBusiness>();
 
             services.AddScoped<IBillModelFactory, BillModelFactory>();
             services.AddScoped<IBillDetailModelFactory, BillDetailModelFactory>();
@@ -68,6 +71,9 @@ namespace Project.Business
                 return new SqlConnection(connectionString);
             });
             services.AddScoped<IProductRepository, ProductDapperRepository>();
+
+            services.AddScoped<IDistrictRepository, DistrictRepository>();
+            services.AddScoped<IDistrictBusiness, DistrictBusiness>();
 
 
             // Configure CORS

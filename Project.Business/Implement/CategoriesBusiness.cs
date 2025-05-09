@@ -90,8 +90,6 @@ namespace Project.Business.Implement
                 CreatedOnDate = exist.CreatedOnDate,
                 LastModifiedByUserId = exist.LastModifiedByUserId,
                 LastModifiedOnDate = exist.LastModifiedOnDate,
-                MetadataObj = exist.MetadataObj,
-                MetadataJson = exist.MetadataJson,
                 Isdeleted = exist.Isdeleted
             };
 
@@ -134,14 +132,6 @@ namespace Project.Business.Implement
             if (!string.IsNullOrWhiteSpace(model.CompletePath))
             {
                 update.CompletePath = model.CompletePath;
-            }
-            if (model.MetadataObj != null && model.MetadataObj.Any())
-            {
-                update.MetadataObj = model.MetadataObj;
-            }
-            if (!string.IsNullOrWhiteSpace(model.MetadataJson))
-            {
-                update.MetadataJson = model.MetadataJson;
             }
 
             return await SaveAsync(update);

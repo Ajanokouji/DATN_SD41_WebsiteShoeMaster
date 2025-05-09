@@ -53,6 +53,35 @@ namespace Project.Business.Implement
 
             queryModel.Sort = QueryUtils.FormatSortInput(queryModel.Sort);
             IQueryable<Voucher> queryable = BuildQuery(queryModel);
+
+            //Lọc theo trạng thái tổng: Tất cả, Đang diễn ra, Sắp diễn ra, Đã kết thúc, Tạm dừng
+            var now = DateTime.UtcNow;
+            switch (queryModel.StatusTotal)
+            {
+                case 0:
+                    break;
+
+                case 1: // Đang diễn ra
+                    queryable = queryable.Where(x => x.StartDate <= now && x.EndDate >= now && x.Status == 1);
+                    break;
+
+                case 2: // Sắp diễn ra
+                    queryable = queryable.Where(x => x.StartDate > now && x.Status == 1);
+                    break;
+
+                case 3: // Đã kết thúc
+                    queryable = queryable.Where(x => x.EndDate < now);
+                    break;
+
+                case 4: // Tạm dừng: Sắp diễn ra hoặc đang diễn ra nhưng status == 0: dừng hoạt động
+                    queryable = queryable.Where(x => (x.StartDate <= now && x.EndDate >= now && x.Status == 0)
+                                                        || (x.StartDate > now && x.Status == 0));
+                    break;
+
+                default:
+                    throw new ArgumentException("Invalid trạng thái. Allowed values: 0 (Tất cả), 1 (Đang diễn ra), 2 (Sắp diễn ra), 3 (Đã kết thúc), 4 (Tạm dừng)");
+            }
+
             string sortExpression = string.Empty;
             if (string.IsNullOrWhiteSpace(queryModel.Sort) || queryModel.Sort.Equals("-LastModifiedOnDate"))
             {
@@ -131,6 +160,45 @@ namespace Project.Business.Implement
                 query = query.Where(x => x.LastModifiedOnDate == queryModel.last_modifi_on_date);
             }
 
+            if (queryModel.TotalMaxUsage >= 0)
+            {
+                query = query.Where(x => x.TotalMaxUsage == queryModel.TotalMaxUsage);
+            }
+
+            if (queryModel.MaxUsagePerCustomer >= 0)
+            {
+                query = query.Where(x => x.MaxUsagePerCustomer == queryModel.MaxUsagePerCustomer);
+            }
+
+            if (queryModel.DisplaySettings >= 0)
+            {
+                query = query.Where(x => x.DisplaySettings == queryModel.DisplaySettings);
+            }
+
+            if (queryModel.MaxDiscountAmount >= 0)
+            {
+                query = query.Where(x => x.MaxDiscountAmount == queryModel.MaxDiscountAmount);
+            }
+
+            if (queryModel.RedeemCount >= 0)
+            {
+                query = query.Where(x => x.RedeemCount == queryModel.RedeemCount);
+            }
+
+            if (queryModel.DiscountAmount != null)
+            {
+                query = query.Where(x => x.DiscountAmount == queryModel.DiscountAmount);
+            }
+
+            if (queryModel.DiscountPercentage != null)
+            {
+                query = query.Where(x => x.DiscountPercentage == queryModel.DiscountPercentage);
+            }
+
+            if (queryModel.MinimumOrderAmount != null)
+            {
+                query = query.Where(x => x.MinimumOrderAmount == queryModel.MinimumOrderAmount);
+            }
 
             //if (queryModel.MetaDataQueries != null && queryModel.MetaDataQueries.Any())
             //{
@@ -200,6 +268,11 @@ namespace Project.Business.Implement
                     exist.StartDate = voucher.StartDate;
                     exist.EndDate = voucher.EndDate;
                     exist.Status = voucher.Status;
+                    exist.TotalMaxUsage = voucher.TotalMaxUsage;
+                    exist.MaxUsagePerCustomer = voucher.MaxUsagePerCustomer;
+                    exist.DisplaySettings = voucher.DisplaySettings;
+                    exist.MaxDiscountAmount = voucher.MaxDiscountAmount;
+                    exist.RedeemCount = voucher.RedeemCount;
 
                     exist.UpdateTracking(voucher.Id);
                     _context.Vouchers.Update(exist);
@@ -258,52 +331,6 @@ namespace Project.Business.Implement
                     .AnyAsync(x => x.Code.Trim().ToLower() == code.Trim().ToLower() && x.Isdeleted == false);
                 return isExist;
             }
-        }
-
-        //Lọc voucher theo trạng thái đang diễn ra, sắp diễn ra, đã kết thúc
-        public async Task<Pagination<Voucher>> GetVouchersByStatusDateAsync(VoucherQueryModel queryModel, int trangThai)
-        {
-            var now = DateTime.UtcNow;
-
-            // Xây dựng query dựa trên trạng thái
-            IQueryable<Voucher> query = _context.Vouchers.AsNoTracking().Where(x => !x.Isdeleted.Value);
-
-            switch (trangThai)
-            {
-                case 1: // Đang diễn ra
-                    query = query.Where(x => x.StartDate <= now && x.EndDate >= now && x.Status == 1);
-                    break;
-
-                case 2: // Sắp diễn ra
-                    query = query.Where(x => x.StartDate > now && x.Status == 1);
-                    break;
-
-                case 3: // Đã kết thúc
-                    query = query.Where(x => x.EndDate < now);
-                    break;
-
-                default:
-                    throw new ArgumentException("Invalid trạng thái. Allowed values: 1 (Đang diễn ra), 2 (Sắp diễn ra), 3 (Đã kết thúc)");
-            }
-
-            // Tính tổng số bản ghi
-            var totalRecords = await query.CountAsync();
-
-            // Phân trang
-            var data = await query
-                .Skip((queryModel.CurrentPage.Value - 1) * queryModel.PageSize.Value)
-                .Take(queryModel.PageSize.Value)
-                .ToListAsync();
-
-            // Trả về kết quả phân trang
-            return new Pagination<Voucher>
-            {
-                Content = data,
-                CurrentPage = queryModel.CurrentPage.Value,
-                PageSize = queryModel.PageSize.Value,
-                TotalRecords = totalRecords,
-                TotalPages = (int)Math.Ceiling((double)totalRecords / queryModel.PageSize.Value)
-            };
         }
     }
 }

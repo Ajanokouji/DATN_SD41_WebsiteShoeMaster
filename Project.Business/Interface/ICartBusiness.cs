@@ -73,12 +73,12 @@ namespace Project.Business.Interface
         /// <param name="cart"></param>
         /// <returns></returns>
         Task<Cart> PatchAsync(Cart cart);
-        Task<ServiceResult<List<CartItemModel>>> GetCartItems(List<CartSession> cartSessions);
+        Task<ServiceResult<List<CartItemModel>>> GetCartItems(List<CartItem> cartSessions);
         Task<ServiceResult<decimal>> CalculateCartTotal(List<CartItemModel> cartItems);
-        Task<ServiceResult<int>> GetCartCount(List<CartSession> cartSessions);
-        Task<ServiceResult<bool>> AddToCart(CartSession cartItem, List<CartSession> currentCart);
-        Task<ServiceResult<bool>> UpdateCartItem(CartSession cartItem, List<CartSession> currentCart);
-        Task<ServiceResult<bool>> RemoveFromCart(Guid productId, int size, List<CartSession> currentCart);
+        Task<ServiceResult<int>> GetCartCount(List<CartItem> cartSessions);
+        Task<ServiceResult<bool>> AddToCart(CartItem cartItem, List<CartItem> currentCart);
+        Task<ServiceResult<bool>> UpdateCartItem(CartItem cartItem, List<CartItem> currentCart);
+        Task<ServiceResult<bool>> RemoveFromCart(Guid productId, List<CartItem> currentCart);
         Task<ServiceResult<bool>> ClearCart();
 
         Task<ServiceResult<bool>> AddCartSessionToCartDb(UserEntity user, List<CartItemModel> lstCartItemModel);

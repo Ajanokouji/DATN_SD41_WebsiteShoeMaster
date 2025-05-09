@@ -1,0 +1,10 @@
+{
+  "profiles": {
+    "crawlProvine": {
+      "commandName": "Project"
+    },
+    "Container (Dockerfile)": {
+      "commandName": "Docker"
+    }
+  }
+}

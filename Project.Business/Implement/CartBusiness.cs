@@ -371,7 +371,7 @@ namespace Project.Business.Implement
             }
         }
 
-        public async Task<ServiceResult<List<CartItemModel>>> GetCartItems(List<CartSession> cartSessions)
+        public async Task<ServiceResult<List<CartItemModel>>> GetCartItems(List<CartItem> cartSessions)
         {
             try
             {
@@ -449,7 +449,7 @@ namespace Project.Business.Implement
             }
         }
 
-        public async Task<ServiceResult<int>> GetCartCount(List<CartSession> cartSessions)
+        public async Task<ServiceResult<int>> GetCartCount(List<CartItem> cartSessions)
         {
             try
             {
@@ -483,7 +483,7 @@ namespace Project.Business.Implement
             }
         }
 
-        public async Task<ServiceResult<bool>> AddToCart(CartSession cartItem, List<CartSession> currentCart)
+        public async Task<ServiceResult<bool>> AddToCart(CartItem cartItem, List<CartItem> currentCart)
         {
             try
             {
@@ -499,7 +499,7 @@ namespace Project.Business.Implement
 
                 if (currentCart == null)
                 {
-                    currentCart = new List<CartSession>();
+                    currentCart = new List<CartItem>();
                 }
 
                 // Kiểm tra xem sản phẩm đã có trong giỏ hàng chưa
@@ -539,7 +539,7 @@ namespace Project.Business.Implement
             }
         }
 
-        public async Task<ServiceResult<bool>> UpdateCartItem(CartSession cartItem, List<CartSession> currentCart)
+        public async Task<ServiceResult<bool>> UpdateCartItem(CartItem cartItem, List<CartItem> currentCart)
         {
             try
             {
@@ -591,7 +591,7 @@ namespace Project.Business.Implement
             }
         }
 
-        public async Task<ServiceResult<bool>> RemoveFromCart(Guid productId, int size, List<CartSession> currentCart)
+        public async Task<ServiceResult<bool>> RemoveFromCart(Guid productId , List<CartItem> currentCart)
         {
             try
             {
@@ -607,8 +607,7 @@ namespace Project.Business.Implement
 
                 // Tìm sản phẩm trong giỏ hàng
                 var existingItem = currentCart.FirstOrDefault(x => 
-                    x.ProductId == productId && 
-                    x.Size == size);
+                    x.ProductId == productId);
 
                 if (existingItem == null)
                 {
@@ -1380,6 +1379,5 @@ namespace Project.Business.Implement
         {
             return await _cartRepository.LocCartTheoNhieuDK(queryModel);
         }
-
     }
 }

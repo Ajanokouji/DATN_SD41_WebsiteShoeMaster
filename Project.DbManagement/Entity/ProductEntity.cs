@@ -4,6 +4,7 @@ using System.ComponentModel.DataAnnotations;
 using System.ComponentModel.DataAnnotations.Schema;
 using System.Text.Json;
 using Project.Common;
+using Newtonsoft.Json;
 
 namespace Project.DbManagement.Entity
 {
@@ -40,7 +41,7 @@ namespace Project.DbManagement.Entity
             get
             {
                 if (VariantObjs == null) return null;
-                return JsonSerializer.Serialize(VariantObjs);
+                return JsonConvert.SerializeObject(VariantObjs);
             }
             set
             {
@@ -49,7 +50,7 @@ namespace Project.DbManagement.Entity
                     VariantObjs = null;
                     return;
                 }
-                VariantObjs = JsonSerializer.Deserialize<List<Variant>>(value);
+                VariantObjs = JsonConvert.DeserializeObject<List<Variant>>(value);
             }
         }
 
@@ -62,7 +63,7 @@ namespace Project.DbManagement.Entity
             get
             {
                 if (MediaObjs == null) return null;
-                return JsonSerializer.Serialize(MediaObjs);
+                return JsonConvert.SerializeObject(MediaObjs);
             }
             set
             {
@@ -71,7 +72,7 @@ namespace Project.DbManagement.Entity
                     MediaObjs = null;
                     return;
                 }
-                MediaObjs = JsonSerializer.Deserialize<List<string>>(value);
+                MediaObjs = JsonConvert.DeserializeObject<List<string>>(value);
             }
         }
 
@@ -84,7 +85,7 @@ namespace Project.DbManagement.Entity
             get
             {
                 if (RelatedObjectIds == null) return null;
-                return JsonSerializer.Serialize(RelatedObjectIds);
+                return JsonConvert.SerializeObject(RelatedObjectIds);
             }
             set
             {
@@ -93,7 +94,7 @@ namespace Project.DbManagement.Entity
                     RelatedObjectIds = null;
                     return;
                 }
-                RelatedObjectIds = JsonSerializer.Deserialize<List<Guid>>(value);
+                RelatedObjectIds = JsonConvert.DeserializeObject<List<Guid>>(value);
             }
         }
 
@@ -112,7 +113,7 @@ namespace Project.DbManagement.Entity
             {
                 if (MetadataObj != null)
                 {
-                    return JsonSerializer.Serialize(MetadataObj, JsonSerializerOptionConstants.JavaScriptEncoderOption);
+                    return JsonConvert.SerializeObject(MetadataObj);
                 }
 
                 return null;
@@ -127,7 +128,7 @@ namespace Project.DbManagement.Entity
 
                 try
                 {
-                    MetadataObj = JsonSerializer.Deserialize<List<MetaField>>(value, JsonSerializerOptionConstants.DefaultOption);
+                    MetadataObj = JsonConvert.DeserializeObject<List<MetaField>>(value);
                 }
                 catch (Exception value2)
                 {
@@ -158,7 +159,7 @@ namespace Project.DbManagement.Entity
                     return null;
                 }
 
-                return JsonSerializer.Serialize(LabelsObjs.Where((LabelsObj x) => x != null).ToList());
+                return JsonConvert.SerializeObject(LabelsObjs.Where((LabelsObj x) => x != null).ToList());
             }
             set
             {
@@ -170,13 +171,13 @@ namespace Project.DbManagement.Entity
 
                 try
                 {
-                    LabelsObjs = JsonSerializer.Deserialize<List<LabelsObj>>(value);
+                    LabelsObjs = JsonConvert.DeserializeObject<List<LabelsObj>>(value);
                 }
                 catch (Exception)
                 {
                     try
                     {
-                        List<string> source = JsonSerializer.Deserialize<List<string>>(value);
+                        List<string> source = JsonConvert.DeserializeObject<List<string>>(value);
                         LabelsObjs = source.Select((string x) => new LabelsObj(x, x, x)).ToList();
                     }
                     catch (Exception)
@@ -190,18 +191,18 @@ namespace Project.DbManagement.Entity
 
     public class Variant
     {
-        [Column(TypeName = "nvarchar(50)")]
-        public string Id { get; set; } = string.Empty;
+        public string? Sku { get; set; } = string.Empty;
+                                                                                                                                                                                                                                                                                       
+        public string? ImageUrl { get; set; } = string.Empty;
 
-        [Column(TypeName = "nvarchar(50)")]
-        public string? ProductId { get; set; } = string.Empty;
+        public string? Group1 { get; set; } = string.Empty;
 
-        [Column(TypeName = "nvarchar(50)")]
+        public string? Group2 { get; set; } = string.Empty;
+
         public string? Size { get; set; } = string.Empty;
 
-        [Column(TypeName = "nvarchar(50)")]
-        public string? SizeType { get; set; } = string.Empty;
+        public string? Price { get; set; } = string.Empty;
+        public int? Stock { get; set; }
 
-        public decimal? LowestAsk { get; set; }
     }
 }
