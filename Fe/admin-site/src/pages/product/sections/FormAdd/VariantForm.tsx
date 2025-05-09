@@ -106,7 +106,6 @@ export const VariantForm: React.FC<VariantFormProps> = ({ form }) => {
 
     const colorValues = colorOption?.values ?? [];
     const sizeValues = sizeOption?.values ?? [];
-
     if (colorValues.length === 0 && sizeValues.length === 0) return [];
 
     if (colorValues.length > 0 && sizeValues.length === 0) {
@@ -178,6 +177,7 @@ export const VariantForm: React.FC<VariantFormProps> = ({ form }) => {
   };
   
 
+
   const group1RowSpans: { [key: string]: number } = {};
   combinationData.forEach((c) => {
     group1RowSpans[c.group1] = (group1RowSpans[c.group1] || 0) + 1;
@@ -213,6 +213,7 @@ export const VariantForm: React.FC<VariantFormProps> = ({ form }) => {
       </div>
 
       {options.map((option) => (
+
         <div
           key={option.id}
           className="border p-3 rounded bg-gray-50 mt-4 space-y-2"
@@ -235,6 +236,7 @@ export const VariantForm: React.FC<VariantFormProps> = ({ form }) => {
                 <Input
                   value={val.value}
                   placeholder="Giá trị phân loại"
+
                   onChange={(e) =>
                     handleValueChange(option.id, val.id, e.target.value)
                   }
@@ -286,6 +288,7 @@ export const VariantForm: React.FC<VariantFormProps> = ({ form }) => {
             </thead>
             <tbody>
               {combinationData.map((combination, index) => {
+
                 const isFirst =
                   index === 0 ||
                   combination.group1 !== combinationData[index - 1].group1;
@@ -294,6 +297,7 @@ export const VariantForm: React.FC<VariantFormProps> = ({ form }) => {
                 return (
                   <tr key={index}>
                     {isFirst && (
+
                       <td
                         className="border p-2 align-middle"
                         rowSpan={rowSpan}

@@ -24,13 +24,23 @@ namespace Project.DbManagement
         public DateTime? StartDate { get; set; }
         public DateTime? EndDate { get; set; }
         public int? Status { get; set; }
-        public int? DiscountAmount { get; set; }
+        public decimal? DiscountAmount { get; set; }
 
         [Column(TypeName = "nvarchar(256)")]
         public string? Description { get; set; }
 
-        public int? MinimumOrderAmount { get; set; }
+        public decimal? MinimumOrderAmount { get; set; }
         public decimal? DiscountPercentage { get; set; }
 
+        //Tổng lượt sử dụng tối đa
+        public int? TotalMaxUsage { get; set; }
+        //Số lượt sử dụng tối đa trên mỗi khách hàng
+        public int? MaxUsagePerCustomer { get; set; }
+        //Thiết lập hiển thị: Hiển thị nhiều nơi | Chia sẻ thông qua mã voucher
+        public int? DisplaySettings { get; set; }
+        //Số tiền giảm giá tối đa đối với voucher giảm theo phần trăm
+        public decimal? MaxDiscountAmount { get; set; }
+        //Tổng Số lượt đã sử dụng voucher
+        public int? RedeemCount { get; set; }
     }
 }

@@ -202,7 +202,7 @@ namespace Project.DbManagement.Entity
         public string? Size { get; set; } = string.Empty;
 
         public string? Price { get; set; } = string.Empty;
-
         public int? Stock { get; set; }
+
     }
 }
