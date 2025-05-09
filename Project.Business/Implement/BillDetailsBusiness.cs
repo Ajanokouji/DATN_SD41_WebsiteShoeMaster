@@ -455,4 +455,9 @@ public class BillDetailsBusiness : IBillDetailsBusiness
         var result = await _billDetailsRepository.DeleteBillDetails(idBillDetails);
         return result;
     }
+
+    public async Task<List<BillDetailsViewModel>> GetBillDetailsByIdBill(Guid idBill)
+    {
+        return await _billDetailsRepository.GetBillDetailsByIdBill(idBill);
+    }
 }

@@ -324,4 +324,23 @@ public class BillDetailsRepository : IBillDetailsRepository
             throw new Exception("Delete Failed");
         }
     }
+
+    public async Task<List<BillDetailsViewModel>> GetBillDetailsByIdBill(Guid idBill)
+    {
+        List<BillDetailsViewModel> lstBillDetails = await (from billDetails in _context.BillDetails
+            join product in _context.Products on billDetails.ProductId equals product.Id
+            where billDetails.BillId == idBill
+            select new BillDetailsViewModel()
+            {
+                Id = billDetails.Id,
+                IdBill = billDetails.BillId,
+                IdProduct = product.Id,
+                Name = product.Name,
+                Color = product.MetadataObj.GetMetadatavalue("Colorway"),
+                Size = product.MetadataObj.GetMetadatavalue("Size"),
+                Quantity = billDetails.Quantity,
+                Price = billDetails.Price,
+            }).ToListAsync();
+        return lstBillDetails;
+    }
 }
