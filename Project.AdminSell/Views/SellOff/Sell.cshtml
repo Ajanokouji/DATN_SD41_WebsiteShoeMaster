@@ -385,20 +385,13 @@
 
     //Thanh toán chuyển trạng thái
     function thanhToan(id) {
-        var pttt = $('input[name="pttt"]:checked').val();
-        var ttien = $("#khachCanTra").text();
-        var thuevat = $("#thueVAT").val();
-        var tichdiemhd = $("#diemtichhd").text();
-        var tichdiemsd = parseInt($('#diemKHSD').val());
+        var paymentmethod = $('input[name="pttt"]:checked').val();
+        var totalprice = $("#khachCanTra").text();
         var request = {
             Id: id,
-            PTTT: pttt,
-            IdNhanVien: '@loginInfor.Id',
-            IdVoucher: null,
-            TongTien: ttien,
-            ThueVAT: thuevat,
-            DiemTichHD: tichdiemhd,
-            DiemSD: tichdiemsd
+            PaymentMethod: paymentmethod,
+            IdEmployee: '@loginInfor.Id',
+            TotalPrice: totalprice,
         };
         $.ajax({
             url: "/SellOff/ThanhToan",
@@ -410,7 +403,7 @@
                 $("#thanhtoan").modal("hide");
                 $("#partialCart").empty();
                 toastr.success('Thanh toán thành công', "Success Alert", {timeOut: 300});
-                loadHDCHO(function () {
+                loadPDBill(function () {
                     activeTab(0);
                 });
             },

@@ -47,4 +47,5 @@ public interface IBillBusiness
     public bool CreatePendingBill(Guid idEmployee);
     public bool DeletePendingBill(Guid idBill);
     public BillViewModel GetPDBillById(Guid idBill);
+    public bool PaymentBill(PaymentBillRequest bill);
 }

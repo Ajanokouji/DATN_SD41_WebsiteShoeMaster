@@ -175,7 +175,7 @@
             @*         style="font-size:20px; width:400px"> *@
             @*     THANH TOÁN *@
             @* </button> *@
-            <button type="button" id="" class="btn btn-primary fw-bold btn-block"
+            <button type="button" id="btnThanhToan" class="btn btn-primary fw-bold btn-block"
                     style="font-size:20px; width:400px">
                 Pay Now
             </button>
@@ -212,7 +212,7 @@
         var activeTab = $(".tabs-box .tab").filter(".active");
         var elementValue = activeTab.find("span").attr("value");
         console.log(elementValue);
-        $("#thanhtoanbody").load("/BanHangTaiQuay/ViewThanhToan/" + elementValue);
+        $("#thanhtoanbody").load("/SellOff/ViewPayment/" + elementValue);
         $("#thanhtoan").modal("show");
     });
 

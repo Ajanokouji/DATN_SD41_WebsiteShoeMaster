@@ -149,7 +149,7 @@ public class SellOffController : Controller
         else
             return Json(new { success = false, message = "Xóa thất bại" });
     }
-    
+
     [HttpGet]
     public async Task<IActionResult> SearchProduct(int page, int pagesize, string keyword)
     {
@@ -162,6 +162,56 @@ public class SellOffController : Controller
             total = totalRow,
             status = true,
         });
+    }
+
+    [HttpGet("/SellOff/ViewPayment/{id}")]
+    public async Task<IActionResult> ViewPayment(Guid id)
+    {
+        var bill = _billBusiness.GetPDBillById(id);
+        var lstBillDetails = await _billDetailsBusiness.GetBillDetailsByIdBill(id);
+        //Kiểm tra là hóa đơn của khách có tài khoản không?
+        var client = "Customer";
+        var loginInfor = new UserEntity();
+        string? session = HttpContext.Session.GetString("LoginInfor");
+        if (session != null)
+        {
+            loginInfor = JsonConvert.DeserializeObject<UserEntity>(session);
+        }
+
+        var quantity = lstBillDetails.Sum(c => c.Quantity);
+        var totalPrice = lstBillDetails.Sum(c => c.Quantity * c.Price);
+        //ViewData["lstPttt"] = listpttt;
+        var payBill = new PaySellOffViewModel()
+        {
+            Id = bill.Id,
+            BillCode = bill.BillCode,
+            Client = client,
+            Employee = loginInfor.Name,
+            PaymentDate = DateTime.Now,
+            TotalQuantity = quantity,
+            TotalPrice = totalPrice,
+        };
+        return PartialView("_Pay", payBill);
+    }
+
+    public async Task<IActionResult> ThanhToan(PaymentBillRequest request)
+    {
+        var billrequest = new PaymentBillRequest()
+        {
+            Id = request.Id,
+            IdEmployee = request.IdEmployee,
+            PaymentDate = DateTime.Now,
+            PaymentMethod = request.PaymentMethod,
+            TotalPrice = request.TotalPrice,
+            status = "complete",
+        };
+        var response = _billBusiness.PaymentBill(billrequest);
+        if (response == true)
+        {
+            return Json(new { success = true, message = "Payment Success" });
+        }
+        else
+            return Json(new { success = false, message = "Payment Fails" });
     }
 
     [ResponseCache(Duration = 0, Location = ResponseCacheLocation.None, NoStore = true)]

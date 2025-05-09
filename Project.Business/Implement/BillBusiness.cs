@@ -646,5 +646,18 @@ namespace Project.Business.Implement
         {
             return _billRepository.GetPDBillById(idBill);
         }
+
+        public bool PaymentBill(PaymentBillRequest bill)
+        {
+            try
+            {
+                _billRepository.PaymentBill(bill);
+                return true;
+            }
+            catch
+            {
+                return false;
+            }
+        }
     }
 }
