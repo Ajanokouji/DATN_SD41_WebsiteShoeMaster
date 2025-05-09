@@ -1,14 +1,18 @@
+using Foundatio;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.Hosting;
 using Project.Api;
 using SERP.Framework.ApiUtils;
 using SERP.Framework.LoggingConfiguration;
+using Project.Business.Interface;
+using Project.Business;
 
 public class Program
 {
     public static void Main(string[] args)
     {
+        
         CreateHostBuilder(args).Build().Run();
     }
 
@@ -22,6 +26,7 @@ public class Program
                     .AddLogging()
                     .AddEnvironmentVariables();
             })
+            
             .ConfigureWebHostDefaults(webBuilder =>
             {
                 webBuilder.UseStartup<Startup>();

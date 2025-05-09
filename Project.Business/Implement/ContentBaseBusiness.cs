@@ -67,7 +67,7 @@ namespace Project.Business.Implement
             existingContent.PublishStartDate = contentBase.PublishStartDate == default ? existingContent.PublishStartDate : contentBase.PublishStartDate;
             existingContent.PublishEndDate = contentBase.PublishEndDate == default ? existingContent.PublishEndDate : contentBase.PublishEndDate;
             existingContent.IsPublish = contentBase.IsPublish;
-            existingContent.Isdeleted = contentBase.Isdeleted;
+            //existingContent.IsDeleted = contentBase.IsDeleted;1
             existingContent.LastModifiedOnDate = DateTime.Now;
 
             return await SaveAsync(existingContent);
