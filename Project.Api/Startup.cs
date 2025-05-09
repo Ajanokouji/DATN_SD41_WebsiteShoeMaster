@@ -12,12 +12,14 @@ using SERP.Framework.ApiUtils.Middlewares;
 using Microsoft.EntityFrameworkCore;
 using Project.DbManagement;
 using Project.Business.Interface.Services;
+using Foundatio;
 namespace Project.Api
 {
     public class Startup
     {
         public IConfiguration Configuration { get; }
-
+        
+        
         public Startup(IWebHostEnvironment env)
         {
             var builder = StartupHelpers.CreateDefaultConfigurationBuilder(env)

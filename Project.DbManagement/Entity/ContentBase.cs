@@ -4,8 +4,10 @@ using System.ComponentModel.DataAnnotations.Schema;
 
 namespace Project.DbManagement.Entity
 {
+    [Table("ContentBase")]
     public class ContentBase : BaseEntity
     {
+
         [Key]
         public Guid Id { get; set; }
 
@@ -28,15 +30,5 @@ namespace Project.DbManagement.Entity
         public DateTime PublishEndDate { get; set; }  // Ngày kết thúc xuất bản
 
         public bool IsPublish { get; set; }  // Trạng thái xuất bản (true/false)
-        public bool IsDeleted { get; set; }  // Trạng thái đã xóa hay chưa (logical delete)
-
-        public DateTime CreatedOnDate { get; set; }  // Ngày tạo
-        public DateTime LastModifiedOnDate { get; set; }  // Ngày sửa đổi lần cuối
-
-        [Column(TypeName = "nvarchar(128)")]
-        public string CreatedBy { get; set; }  // Người tạo
-
-        [Column(TypeName = "nvarchar(128)")]
-        public string LastModifiedBy { get; set; }  // Người sửa đổi lần cuối
     }
 }

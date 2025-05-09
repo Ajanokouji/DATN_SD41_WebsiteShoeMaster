@@ -34,6 +34,7 @@ namespace Project.Business
             services.AddScoped<IUserRepository, UserRepository>();
             services.AddScoped<ICustomerRepository, CustomerRepository>();
             services.AddScoped<IContactRepository, ContactRepository>();
+            services.AddScoped<IContentBaseRepository, ContentBaseRepository>();
             services.AddScoped<IVoucherRepository, VoucherRepository>();
             services.AddScoped<IVoucherDetailsRepository, VoucherDetailsRepository>();
             services.AddScoped<ICartDetailsRepository, CartDetailsRepository>();
@@ -51,6 +52,7 @@ namespace Project.Business
             services.AddScoped<IUserBusiness, UserBusiness>();
             services.AddScoped<ICustomerBusiness, CustomerBusiness>();
             services.AddScoped<IContactBusiness, ContactBusiness>();
+            services.AddScoped<IContentBaseBusiness, ContentBaseBusiness>();
             services.AddScoped<IVoucherBusiness, VoucherBusiness>();
             services.AddScoped<IVoucherDetailsBusiness, VoucherDetailsBusiness>();
             services.AddScoped<ICartDetailsBusiness, CartDetailsBusiness>();

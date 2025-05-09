@@ -44,6 +44,7 @@ namespace Project.Api.Controllers
             });
         }
 
+
         [HttpPost("count")]
         public async Task<IActionResult> GetContentBaseCount([FromQuery] ContentBaseQueryModel queryModel)
         {
