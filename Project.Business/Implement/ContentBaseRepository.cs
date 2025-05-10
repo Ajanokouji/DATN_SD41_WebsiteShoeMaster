@@ -13,6 +13,7 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
+using static Microsoft.EntityFrameworkCore.DbLoggerCategory;
 
 namespace Project.Business.Implement
 {
@@ -44,13 +45,14 @@ namespace Project.Business.Implement
 
         public async Task<Pagination<ContentBase>> GetAllAsync(ContentBaseQueryModel queryModel)
         {
+            ContentBaseQueryModel contentBaseQueryModel = queryModel;
+
             queryModel.Sort = QueryUtils.FormatSortInput(queryModel.Sort);
             IQueryable<ContentBase> queryable = BuildQuery(queryModel);
             string sortExpression = string.Empty;
-
             if (string.IsNullOrWhiteSpace(queryModel.Sort) || queryModel.Sort.Equals("-LastModifiedOnDate"))
             {
-                queryable = queryable.OrderByDescending(x => x.LastModifiedOnDate);
+                queryable = queryable.OrderByDescending((ContentBase x) => x.LastModifiedOnDate);
             }
             else
             {
@@ -60,6 +62,7 @@ namespace Project.Business.Implement
             return await queryable.GetPagedOrderAsync(queryModel.CurrentPage.Value, queryModel.PageSize.Value, sortExpression);
         }
 
+
         public async Task<int> GetCountAsync(ContentBaseQueryModel queryModel)
         {
             var query = BuildQuery(queryModel);
@@ -68,7 +71,8 @@ namespace Project.Business.Implement
 
         private IQueryable<ContentBase> BuildQuery(ContentBaseQueryModel queryModel)
         {
-            var query = _context.ContentBases.AsNoTracking().Where(x => !x.Isdeleted.Value);
+
+            var query = _context.ContentBases.AsNoTracking().Where(x => x.IsDeleted == false);
 
             if (queryModel.Id.HasValue)
             {
@@ -151,7 +155,7 @@ namespace Project.Business.Implement
         {
             var exist = await FindAsync(id);
             if (exist == null) throw new Exception("Content not found.");
-            exist.Isdeleted = true;
+            exist.IsDeleted = true;
             _context.ContentBases.Update(exist);
             await _context.SaveChangesAsync();
             return exist;

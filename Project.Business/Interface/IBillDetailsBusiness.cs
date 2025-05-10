@@ -17,9 +17,11 @@ public interface IBillDetailsBusiness
 
     Task<int> GetCountAsync(BillDetailsQueryModel queryModel);
 
-    Task<IEnumerable<BillDetailModel>> ListByIdsAsync(IEnumerable<Guid> ids);
+    Task<IEnumerable<BillDetailsEntity>> ListAllByIdBill(Guid idBill);
 
     Task<BillDetailModel> FindAsync(Guid contentId);
+
+    Task<IEnumerable<BillDetailModel>> ListAllByBillId(Guid contentId);
 
     Task<BillDetailModel> DeleteAsync(Guid contentId);
     
@@ -47,4 +49,5 @@ public interface IBillDetailsBusiness
     public Task<bool> SaveBillDetails(BillDetailsRequest request);
     public Task<BillDetailsEntity> UpdateQuantity(Guid idBillDetails, int quantity);
     public Task<bool> DeleteBillDetails(Guid idBillDetails);
+
 }

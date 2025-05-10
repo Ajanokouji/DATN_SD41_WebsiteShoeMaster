@@ -3,6 +3,9 @@ using Project.DbManagement;
 using Microsoft.EntityFrameworkCore;
 using VNPAY.NET;
 using Project.Business.Interface.Services;
+using Microsoft.AspNetCore.Mvc.Filters;
+using SERP.Framework.ApiUtils.Middlewares;
+using SERP.Framework.ApiUtils.Utils;
 
 namespace Project.MVC
 {
@@ -18,6 +21,12 @@ namespace Project.MVC
 
         public void ConfigureServices(IServiceCollection services)
         {
+            services.AddDataProtection();
+            services.AddHttpClient();
+            services.Add(ServiceDescriptor.Singleton(typeof(IExceptionFilter), typeof(ExceptionHandlingFilter)));
+            services.AddSingleton<IHttpContextAccessor, HttpContextAccessor>();
+            services.AddSingleton<IHttpRequestHelper, DefaultHttpRequestHelper>();
+            services.AddSingleton<ICookieHelper, CookieHelper>();
             // Add DbContext configuration
             services.AddDbContext<ProjectDbContext>(options =>
                 options.UseSqlServer(_configuration["DefaultConnection"]));

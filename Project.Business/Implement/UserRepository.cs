@@ -65,7 +65,7 @@ namespace Project.Business.Implement
 
         private IQueryable<UserEntity> BuildQuery(UserQueryModel queryModel)
         {
-            IQueryable<UserEntity> query = _context.Users.AsNoTracking().Where(x => x.Isdeleted != true);
+            IQueryable<UserEntity> query = _context.Users.AsNoTracking().Where(x => x.IsDeleted != true);
 
             if (queryModel.Id.HasValue)
             {
@@ -96,9 +96,9 @@ namespace Project.Business.Implement
                 query = query.Where((UserEntity x) => x.Email.Contains(fullTextSearch));
             }
 
-            if (!string.IsNullOrEmpty(queryModel.Type))
+            if (queryModel.Type.HasValue)
             {
-                query = query.Where(x => x.Type == queryModel.Type);
+                query = query.Where(x => x.Type == queryModel.Type.Value);
             }
 
             if (!string.IsNullOrEmpty(queryModel.Name))
@@ -181,7 +181,7 @@ namespace Project.Business.Implement
         {
             var exist = await FindAsync(Id);
             if (exist == null) throw new Exception(IUserRepository.MessageNoTFound);
-            exist.Isdeleted = true;
+            exist.IsDeleted = true;
             _context.Users.Update(exist);
             _context.SaveChangesAsync();
             return exist;
@@ -221,9 +221,9 @@ namespace Project.Business.Implement
                 query = query.Where(u => u.PhoneNumber == userQueryModel.PhoneNumber);
             }
 
-            if (!string.IsNullOrWhiteSpace(userQueryModel.Type))
+            if (userQueryModel.Type.HasValue)
             {
-                query = query.Where(u => u.Type == userQueryModel.Type);
+                query = query.Where(x => x.Type == userQueryModel.Type.Value);
             }
 
             return await query.ToListAsync();

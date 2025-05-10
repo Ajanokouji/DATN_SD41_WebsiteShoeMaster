@@ -4,6 +4,7 @@ using Project.Business.Implement;
 using Project.Business.Interface;
 using Project.Business.Model;
 using Project.Common;
+using Project.DbManagement;
 using Project.DbManagement.Entity;
 using System;
 using System.Collections.Generic;
@@ -43,7 +44,7 @@ namespace Project.MVC.Controllers
             {
                 Username = user.Username
             });
-            var userFound = listUserFoundByUsName?.FirstOrDefault(x =>x.Isdeleted == false);
+            var userFound = listUserFoundByUsName?.FirstOrDefault(x =>x.IsDeleted == false);
 
             //Nếu user tìm bằng username không tồn tại thì tìm tiếp bằng số điện thoại
             if (userFound == null)
@@ -52,7 +53,7 @@ namespace Project.MVC.Controllers
                 {
                     PhoneNumber = user.Username
                 });
-                userFound = listUserFoundBySdt?.FirstOrDefault(x => x.Isdeleted == false);
+                userFound = listUserFoundBySdt?.FirstOrDefault(x => x.IsDeleted == false);
 
                 //Nếu user tìm bằng SĐT không tồn tại thì tìm tiếp bằng Email
                 if (userFound == null)
@@ -61,7 +62,7 @@ namespace Project.MVC.Controllers
                     {
                         Email = user.Username
                     });
-                    userFound = listUserFoundByEmail?.FirstOrDefault(x => x.Isdeleted == false);
+                    userFound = listUserFoundByEmail?.FirstOrDefault(x => x.IsDeleted == false);
 
                     //Nếu user tìm bằng Email không tồn tại thì xác định user hoàn toàn không tồn tại
                     if (userFound == null)
@@ -87,7 +88,7 @@ namespace Project.MVC.Controllers
             }
 
             //Đăng nhập thành công
-            if (userFound.Type == "0") //Nếu type là Admin (Giả sử type = 0 là Admin)
+            if (userFound.Type ==UserTypeEnum.Admin) //Nếu type là Admin (Giả sử type = 0 là Admin)
             {
                 //Tạo session user
                 HttpContext.Session.SetString(UserConstants.UserSessionKey, JsonConvert.SerializeObject(userFound));
@@ -96,7 +97,7 @@ namespace Project.MVC.Controllers
                 TempData["ErrMs"] = "Đăng nhập thành công dưới quyền Admin";
                 return View(user);
             }
-            else if (userFound.Type == "1") //Nếu type là Khách hàng (Giả sử type = 1 là khách hàng)
+            else if (userFound.Type == UserTypeEnum.Customer) //Nếu type là Khách hàng (Giả sử type = 1 là khách hàng)
             {
                 string ms = "";
 
@@ -110,7 +111,7 @@ namespace Project.MVC.Controllers
                 if (!string.IsNullOrEmpty(cartSessionJson))
                 {
                     //Giải json session cart
-                    var cartSessions = JsonConvert.DeserializeObject<List<CartSession>>(cartSessionJson);
+                    var cartSessions = JsonConvert.DeserializeObject<List<CartItem>>(cartSessionJson);
                     //Nếu list session cart không trống
                     if (cartSessions != null && cartSessions.Any())
                     {
@@ -135,7 +136,7 @@ namespace Project.MVC.Controllers
                 TempData["ErrMs"] = "Đăng nhập thành công dưới quyền khách hàng " + ms;
                 return RedirectToAction("Index","Home");
             }
-            else if (userFound.Type == "2") //Nếu type là Nhân viên (Giả sử type = 2 là Nhân viên)
+            else if (userFound.Type == UserTypeEnum.User) //Nếu type là Nhân viên (Giả sử type = 2 là Nhân viên)
             {
                 //Tạo session user
                 HttpContext.Session.SetString(UserConstants.UserSessionKey, JsonConvert.SerializeObject(userFound));

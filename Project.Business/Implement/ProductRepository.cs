@@ -92,7 +92,7 @@ namespace Project.Business.Implement
 
         private IQueryable<ProductEntity> BuildQuery( ProductQueryModel queryModel)
         {
-            IQueryable<ProductEntity> query = _context.Products.AsNoTracking().Where(x => x.Isdeleted!=true);
+            IQueryable<ProductEntity> query = _context.Products.AsNoTracking().Where(x => x.IsDeleted!=true);
 
             if (queryModel.Id.HasValue)
             {
@@ -264,7 +264,7 @@ namespace Project.Business.Implement
         {
             var exist = await FindAsync(Id);
             if (exist==null) throw new Exception(IProductRepository.MessageNoTFound);
-            exist.Isdeleted=true;
+            exist.IsDeleted=true;
             _context.Products.Update(exist);
             _context.SaveChangesAsync();
             return exist;

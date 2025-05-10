@@ -8,10 +8,13 @@ namespace Project.Business.Model.VnPayments
 {
     public class PaymentInformationModel
     {
-        public string OrderType { get; set; }
-        public double Amount { get; set; }
-        public string OrderDescription { get; set; }
-        public string Name { get; set; }
+        public int? OrderType { get; set; } = 1;
+        public double? Amount { get; set; }
+        public Guid? BillId { get; set; }
+        public Guid? CustomerId { get; set; }
+        public string? OrderDescription { get; set; }
+        public string? CustomerName { get; set; }
+        public string? PayMethod { get; set; }
 
     }
 }

@@ -22,7 +22,7 @@ namespace Project.Business.Intercepter.Implement
             _customerBusiness=customerBusiness;
         }
 
-        public int Order { get ; set ; } =1;
+        public int Order { get ; set ; } =101;
 
         public async Task Intercept(BillEntity oldBillEntity , BillEntity updateBillEntity)
         {

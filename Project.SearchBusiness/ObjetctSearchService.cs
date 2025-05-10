@@ -46,7 +46,7 @@ namespace Project.SearchBusiness
             // Map base entity fields  
             res.Add(new StringField(nameof(productEntity.CreatedByUserId), productEntity.CreatedByUserId?.ToString() ?? string.Empty, Field.Store.YES));
             res.Add(new StringField(nameof(productEntity.LastModifiedByUserId), productEntity.LastModifiedByUserId?.ToString() ?? string.Empty, Field.Store.YES));
-            res.Add(new StringField(nameof(productEntity.Isdeleted), productEntity.Isdeleted?.ToString() ?? string.Empty, Field.Store.YES));
+            res.Add(new StringField(nameof(productEntity.IsDeleted), productEntity.IsDeleted?.ToString() ?? string.Empty, Field.Store.YES));
 
 
             long createdOnDateTicksValues = productEntity.CreatedOnDate.Value.Ticks;
@@ -105,7 +105,7 @@ namespace Project.SearchBusiness
             // Map base entity fields
             res.CreatedByUserId = Guid.TryParse(document.Get(nameof(ProductEntity.CreatedByUserId)), out var createdByUserId) ? createdByUserId : null;
             res.LastModifiedByUserId = Guid.TryParse(document.Get(nameof(ProductEntity.LastModifiedByUserId)), out var lastModifiedByUserId) ? lastModifiedByUserId : null;
-            res.Isdeleted = bool.TryParse(document.Get(nameof(ProductEntity.Isdeleted)), out var isDeleted) ? isDeleted : null;
+            res.IsDeleted = bool.TryParse(document.Get(nameof(ProductEntity.IsDeleted)), out var isDeleted) ? isDeleted : null;
 
             return res;
         }

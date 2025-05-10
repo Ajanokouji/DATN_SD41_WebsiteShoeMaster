@@ -25,6 +25,8 @@ namespace Project.DbManagement
         public DbSet<CustomersEntity> Customers { get; set; }
         public DbSet<ImageFileEntity> ImageFiles { get; set; }
 
+        public DbSet<Province> Provinces { get; set; }
+
         public DbSet<ProductCategoriesRelation> ProductCategoriesRelations { get; set; }
 
         public DbSet<VoucherProducts> VoucherProducts { get; set; }

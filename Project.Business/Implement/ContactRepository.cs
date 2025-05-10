@@ -65,7 +65,7 @@ namespace Project.Business.Implement
 
         private IQueryable<Contacts> BuildQuery(ContactQueryModel queryModel)
         {
-            IQueryable<Contacts> query = _context.Contacts.AsNoTracking().Where(x => x.Isdeleted != true);
+            IQueryable<Contacts> query = _context.Contacts.AsNoTracking().Where(x => x.IsDeleted != true);
 
             if (queryModel.Id.HasValue)
             {
@@ -149,7 +149,7 @@ namespace Project.Business.Implement
         {
             var exist = await FindAsync(id);
             if (exist == null) throw new Exception(IContactRepository.MessageNoTFound);
-            exist.Isdeleted = true;
+            exist.IsDeleted = true;
             _context.Contacts.Update(exist);
             await _context.SaveChangesAsync();
             return exist;

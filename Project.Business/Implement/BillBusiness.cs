@@ -9,6 +9,9 @@ using Project.Common.Constants;
 using Project.Business.ModelFactory;
 using Project.Business.Model.PatchModel;
 using Project.DbManagement.ViewModels;
+using Project.Business.Intercepter;
+using System;
+using static System.Net.Mime.MediaTypeNames;
 
 namespace Project.Business.Implement
 {
@@ -16,6 +19,7 @@ namespace Project.Business.Implement
     {
         private readonly IBillRepository _billRepository;
         private readonly IBillDetailsBusiness _billDetailsBusiness;
+        private readonly IEnumerable<IBillIntercepterAfterSave> _billIntercepterAfterSaves;
         private readonly IBillModelFactory _billModelFactory;
         private readonly IBillDetailModelFactory _billDetailModelFactory;
         private readonly IMemoryCache _cache;
@@ -26,6 +30,7 @@ namespace Project.Business.Implement
         public BillBusiness(
             IBillDetailModelFactory billDetailModelFactory,
             IBillRepository billRepository,
+             IEnumerable<IBillIntercepterAfterSave> billIntercepterAfterSaves,
             IBillModelFactory billModelFactory,
             IBillDetailsBusiness billDetailsBusiness, 
             IMemoryCache cache)
@@ -34,6 +39,7 @@ namespace Project.Business.Implement
             _billDetailModelFactory = billDetailModelFactory;
             _billRepository = billRepository;
             _billDetailsBusiness = billDetailsBusiness;
+            _billIntercepterAfterSaves = billIntercepterAfterSaves;
             _cache = cache;
             _logger = Log.ForContext<BillBusiness>();
             _cacheOptions = new MemoryCacheEntryOptions()
@@ -139,8 +145,20 @@ namespace Project.Business.Implement
                 RecipientEmail = exist.RecipientEmail,
                 LastModifiedOnDate = exist.LastModifiedOnDate,
                 UpdateBy = exist.UpdateBy,
+                PaymentMethod = exist.PaymentMethod,
+                FinalAmount= exist.FinalAmount,
+                Note = exist.Note,
+                Source = exist.Source,
                 LastModifiedByUserId = exist.LastModifiedByUserId
             };
+            if (!string.IsNullOrWhiteSpace(model.PaymentMethod))
+            {
+                update.PaymentMethod = model.PaymentMethod;
+            }
+            if (model.FinalAmount !=null)
+            {
+                update.FinalAmount = model.FinalAmount;
+            }
 
             if (!string.IsNullOrWhiteSpace(model.BillCode))
             {
@@ -249,7 +267,26 @@ namespace Project.Business.Implement
 
         public async Task<IEnumerable<BillEntity>> SaveAsync(IEnumerable<BillEntity> billEntities)
         {
-            return await _billRepository.SaveAsync(billEntities);
+            var oldEntities = new List<BillEntity>();
+
+             foreach(var bill in billEntities)
+            {
+                if (bill.Id != Guid.Empty)
+                {
+                    var oldEntity = await FindAsync( bill.Id);
+                    oldEntities.Add(oldEntity);
+                }
+            }
+           var result = await _billRepository.SaveAsync(billEntities);
+            foreach (var item in result)
+            {
+                foreach (var interceptors in _billIntercepterAfterSaves.OrderBy(x => x.Order))
+                {
+                    var old = oldEntities?.FirstOrDefault(x => x?.Id == item?.Id);
+                    await interceptors.Intercept( old, item);
+                }
+            }
+            return result;
         }
         public async Task<BillModel> CreateBill(BillModel model)
         {
@@ -263,7 +300,7 @@ namespace Project.Business.Implement
 
                 var billEntity = new BillEntity
                 {
-                    Id = Guid.NewGuid(),
+                    Id = model.Id,
                     BillCode = model.BillCode ?? await GenerateBillCode(),
                     CustomerId = model.CustomerId != null ? Guid.Parse(model.CustomerId.ToString()) : null,
                     RecipientName = model.CustomerName,
@@ -280,12 +317,14 @@ namespace Project.Business.Implement
                     CreatedOnDate = DateTime.Now
                 };
 
-                var savedBill = await _billRepository.SaveAsync(billEntity);
+                var savedBill = await SaveAsync(billEntity);
 
                 if (savedBill != null && model.BillDetails != null && model.BillDetails.Any())
                 {
                     await _billDetailsBusiness.CreateBillDetails( await _billDetailModelFactory.ConvertEntities( model.BillDetails), savedBill.Id);
                 }
+
+
 
                var result = await _billModelFactory.CreateModel(savedBill,true);
                 return result;
@@ -645,6 +684,19 @@ namespace Project.Business.Implement
         public BillViewModel GetPDBillById(Guid idBill)
         {
             return _billRepository.GetPDBillById(idBill);
+        }
+
+        public bool PaymentBill(PaymentBillRequest bill)
+        {
+            try
+            {
+                _billRepository.PaymentBill(bill);
+                return true;
+            }
+            catch
+            {
+                return false;
+            }
         }
     }
 }

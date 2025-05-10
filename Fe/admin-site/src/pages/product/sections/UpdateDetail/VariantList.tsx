@@ -14,11 +14,11 @@ import { Label } from "@/components/ui/label";
 
 interface VariantListProps {
   variants: {
-    id: string;
-    productId: string;
-    size: string;
-    sizeType: string;
-    lowestAsk: number;
+    group1: string;
+    group2: string;
+    price: string;
+    stock: number;
+    sku: string;
   }[];
   isEditing: boolean;
   onValueChange: (index: number, field: string, value: string | number) => void;
@@ -40,7 +40,7 @@ export const VariantList: React.FC<VariantListProps> = ({
         {isEditing && (
           <Button type="button" variant="outline" size="sm" onClick={onAdd}>
             <Plus className="h-4 w-4 mr-2" />
-            Thêm Variant
+            Thêm biến thể
           </Button>
         )}
       </div>
@@ -49,11 +49,13 @@ export const VariantList: React.FC<VariantListProps> = ({
         <Table>
           <TableHeader>
             <TableRow>
-              <TableHead>Size</TableHead>
-              <TableHead>Size Type</TableHead>
-              <TableHead>Lowest Ask</TableHead>
+              <TableHead>Màu sắc</TableHead>
+              <TableHead>Kích cỡ</TableHead>
+              <TableHead>Giá</TableHead>
+              <TableHead>Tồn kho</TableHead>
+              <TableHead>SKU</TableHead>
               {isEditing && (
-                <TableHead className="w-[100px]">Actions</TableHead>
+                <TableHead className="w-[100px]">Thao tác</TableHead>
               )}
             </TableRow>
           </TableHeader>
@@ -63,42 +65,63 @@ export const VariantList: React.FC<VariantListProps> = ({
                 <TableCell>
                   {isEditing ? (
                     <Input
-                      value={variant.size}
+                      value={variant.group1}
                       onChange={(e) =>
-                        onValueChange(index, "size", e.target.value)
+                        onValueChange(index, "group1", e.target.value)
                       }
                     />
                   ) : (
-                    variant.size
+                    variant.group1
                   )}
                 </TableCell>
                 <TableCell>
                   {isEditing ? (
                     <Input
-                      value={variant.sizeType}
+                      value={variant.group2}
                       onChange={(e) =>
-                        onValueChange(index, "sizeType", e.target.value)
+                        onValueChange(index, "group2", e.target.value)
                       }
                     />
                   ) : (
-                    variant.sizeType
+                    variant.group2
                   )}
                 </TableCell>
                 <TableCell>
                   {isEditing ? (
                     <Input
                       type="number"
-                      value={variant.lowestAsk}
+                      value={variant.price}
                       onChange={(e) =>
-                        onValueChange(
-                          index,
-                          "lowestAsk",
-                          Number(e.target.value)
-                        )
+                        onValueChange(index, "price", e.target.value)
                       }
                     />
                   ) : (
-                    variant.lowestAsk
+                    variant.price
+                  )}
+                </TableCell>
+                <TableCell>
+                  {isEditing ? (
+                    <Input
+                      type="number"
+                      value={variant.stock}
+                      onChange={(e) =>
+                        onValueChange(index, "stock", Number(e.target.value))
+                      }
+                    />
+                  ) : (
+                    variant.stock
+                  )}
+                </TableCell>
+                <TableCell>
+                  {isEditing ? (
+                    <Input
+                      value={variant.sku}
+                      onChange={(e) =>
+                        onValueChange(index, "sku", e.target.value)
+                      }
+                    />
+                  ) : (
+                    variant.sku
                   )}
                 </TableCell>
                 {isEditing && (
@@ -121,7 +144,12 @@ export const VariantList: React.FC<VariantListProps> = ({
           Không có biến thể sản phẩm
           {isEditing && (
             <div className="mt-2">
-              <Button type="button" variant="outline" size="sm" onClick={onAdd}>
+              <Button
+                type="button"
+                variant="outline"
+                size="sm"
+                onClick={onAdd}
+              >
                 <Plus className="h-4 w-4 mr-2" />
                 Thêm biến thể
               </Button>

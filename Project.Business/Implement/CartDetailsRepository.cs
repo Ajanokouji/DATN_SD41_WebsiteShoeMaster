@@ -69,7 +69,7 @@ namespace Project.Business.Implement
 
         private IQueryable<CartDetails> BuildQuery(CartDetailsQueryModel queryModel)
         {
-            IQueryable<CartDetails> query = _context.CartDetails.AsNoTracking().Where(x => x.Isdeleted != true);
+            IQueryable<CartDetails> query = _context.CartDetails.AsNoTracking().Where(x => x.IsDeleted != true);
 
             if (queryModel.Id.HasValue)
             {
@@ -195,7 +195,7 @@ namespace Project.Business.Implement
         {
             var exist = await FindAsync(Id);
             if (exist == null) throw new Exception(ICartDetailsRepository.MessageNoTFound);
-            exist.Isdeleted = true;
+            exist.IsDeleted = true;
             _context.CartDetails.Update(exist);
             _context.SaveChangesAsync();
             return exist;
@@ -209,14 +209,14 @@ namespace Project.Business.Implement
         public async Task<CartDetails> GetByCartAndProduct(Guid cartId, Guid productId)
         {
             return await _context.CartDetails
-                .Where(x => x.IdCart == cartId && x.IdProduct == productId && x.Isdeleted != true)
+                .Where(x => x.IdCart == cartId && x.IdProduct == productId && x.IsDeleted != true)
                 .FirstOrDefaultAsync();
         }
 
         public async Task<IEnumerable<CartDetails>> GetByCartId(Guid cartId)
         {
             return await _context.CartDetails
-                .Where(x => x.IdCart == cartId && !x.Isdeleted.Value)
+                .Where(x => x.IdCart == cartId && !x.IsDeleted.Value)
                 .ToListAsync();
         }
 

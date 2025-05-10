@@ -26,7 +26,11 @@
             <div class="col-lg-12">
                 <h5>Thông tin đặt hàng</h5>
                 <div class="checkout__form">
-                    <form asp-action="PlaceOrder" method="post">
+                    <form asp-controller="PaymentMethod" asp-action="Index" method="post">
+                        <input type="hidden" asp-for="BillId" />
+                        <input type="hidden" asp-for="SubTotal" />
+                        <input type="hidden" asp-for="Total" />
+
                         <div class="row">
                             <div class="col-lg-8">
                                 <div asp-validation-summary="ModelOnly" class="text-danger"></div>
@@ -51,15 +55,17 @@
                                     <input type="text" asp-for="CustomerInfo.Address" placeholder="Nhập địa chỉ">
                                     <span asp-validation-for="CustomerInfo.Address" class="text-danger"></span>
                                 </div>
-                                <div class="checkout__form__input">
-                                    <p>Thành phố <span>*</span></p>
-                                    <input type="text" asp-for="CustomerInfo.City" placeholder="Nhập thành phố">
-                                    <span asp-validation-for="CustomerInfo.City" class="text-danger"></span>
+                                <div class="checkout__input">
+                                    <p>Tỉnh/Thành phố <span>*</span></p>
+                                    <select id="provinceSelect" name="CustomerInfo.City" class="form-control" required>
+                                        <option value="">-- Chọn Tỉnh/Thành phố --</option>
+                                    </select>
                                 </div>
-                                <div class="checkout__form__input">
+                                <div class="checkout__input">
                                     <p>Quận/Huyện <span>*</span></p>
-                                    <input type="text" asp-for="CustomerInfo.District" placeholder="Nhập quận/huyện">
-                                    <span asp-validation-for="CustomerInfo.District" class="text-danger"></span>
+                                    <select id="districtSelect" name="CustomerInfo.District" class="form-control" required>
+                                        <option value="">-- Chọn Quận/Huyện --</option>
+                                    </select>
                                 </div>
                             </div>
                             <div class="col-lg-4">
@@ -94,7 +100,7 @@
                                         </div>
                                         <div id="voucherMessage"></div>
                                     </div>
-                                    <a asp-controller="PaymentMethod" asp-action="Index" class="primary-btn">Đặt hàng</a>
+                                    <button type="submit" class="primary-btn">Đặt hàng</button>
                                 </div>
                             </div>
                         </div>
@@ -110,7 +116,44 @@
         await Html.RenderPartialAsync("_ValidationScriptsPartial");
     }
     <script>
+
         $(document).ready(function () {
+
+             $.get('/api/Province/filter?AddressType=0&IsGetFull=true', function (res) {
+                const $province = $('#provinceSelect');
+                $province.empty().append('<option value="">Chọn Tỉnh / Thành phố</option>');
+                if (res && res.data && res.data.content) {
+                    res.data.content.forEach(p => {
+                        $province.append(`<option value="${p.code}">${p.nameWithType}</option>`);
+                    });
+                }
+            });
+
+            // Khi chọn tỉnh
+            $('#provinceSelect').on('change', function () {
+                const provinceCode = $(this).val();
+                const $district = $('#districtSelect');
+                const $ward = $('#wardSelect');
+                $district.empty().append('<option value="">Đang tải quận/huyện...</option>');
+                $ward.empty().append('<option value="">Vui lòng chọn huyện trước</option>');
+
+                if (provinceCode) {
+                    $.get(`/api/Province/filter?AddressType=1&ParentCode=${provinceCode}&IsGetFull=true`, function (res) {
+                        $district.empty().append('<option value="">Chọn Quận / Huyện</option>');
+                        if (res && res.data && res.data.content) {
+                            res.data.content.forEach(d => {
+                                $district.append(`<option value="${d.code}">${d.nameWithType}</option>`);
+                            });
+                        }
+                    });
+                } else {
+                    $district.empty().append('<option value="">Vui lòng chọn tỉnh trước</option>');
+                }
+            });
+
+
+
+
             $("#applyVoucher").click(function () {
                 var voucherCode = $("#voucherCode").val();
                 var totalAmount = @Model.Total;

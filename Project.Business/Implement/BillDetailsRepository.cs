@@ -66,7 +66,7 @@ public class BillDetailsRepository : IBillDetailsRepository
 
     private IQueryable<BillDetailsEntity> BuildQuery(BillDetailsQueryModel queryModel)
     {
-        IQueryable<BillDetailsEntity> query = _context.BillDetails.AsNoTracking().Where(x => x.Isdeleted != true);
+        IQueryable<BillDetailsEntity> query = _context.BillDetails.AsNoTracking().Where(x => x.IsDeleted != true);
 
         if (queryModel.Id.HasValue)
         {
@@ -200,7 +200,7 @@ public class BillDetailsRepository : IBillDetailsRepository
     {
         var exist = await FindAsync(Id);
         if (exist == null) throw new Exception(IBillDetailsRepository.MessageNotFound);
-        exist.Isdeleted = true;
+        exist.IsDeleted = true;
         _context.BillDetails.Update(exist);
         _context.SaveChangesAsync();
         return exist;
@@ -233,7 +233,8 @@ public class BillDetailsRepository : IBillDetailsRepository
                     BillId = request.IdBill,
                     ProductId = request.IdProduct,
                     Quantity = request.Quantity,
-                    Size = 1,
+                    Size = request.Size,
+                    Color = request.Color,
                     Price = Convert.ToDecimal(product.MetadataObj.GetMetadatavalue("MaxPrice")),
                     TotalPrice = 1,
                     Status = 0,
@@ -322,5 +323,24 @@ public class BillDetailsRepository : IBillDetailsRepository
         {
             throw new Exception("Delete Failed");
         }
+    }
+
+    public async Task<List<BillDetailsViewModel>> GetBillDetailsByIdBill(Guid idBill)
+    {
+        List<BillDetailsViewModel> lstBillDetails = await (from billDetails in _context.BillDetails
+            join product in _context.Products on billDetails.ProductId equals product.Id
+            where billDetails.BillId == idBill
+            select new BillDetailsViewModel()
+            {
+                Id = billDetails.Id,
+                IdBill = billDetails.BillId,
+                IdProduct = product.Id,
+                Name = product.Name,
+                Color = product.MetadataObj.GetMetadatavalue("Colorway"),
+                Size = product.MetadataObj.GetMetadatavalue("Size"),
+                Quantity = billDetails.Quantity,
+                Price = billDetails.Price,
+            }).ToListAsync();
+        return lstBillDetails;
     }
 }

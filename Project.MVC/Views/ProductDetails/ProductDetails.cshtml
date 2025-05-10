@@ -5,6 +5,7 @@
 @{
     ViewData["Title"] = "Chi tiết sản phẩm";
     Layout = "~/Views/Shared/_Layout.cshtml";
+  
 }
 
 <!-- Breadcrumb Begin -->
@@ -59,16 +60,15 @@
                         @for (int i = 0; i < selectedMediaObjs.Count; i++)
                         {
                             <a class="pt @(i == 0 ? "active" : "")" href="#product-1">
-                                <img src="@selectedMediaObjs[i]" alt="">
+                                <img src="@selectedMediaObjs[i]" alt="" />
                             </a>
                         }
-
                     </div>
                     <div class="product__details__slider__content">
                         <div class="product__details__pic__slider owl-carousel">
-                            @foreach(var imgUrl in selectedMediaObjs)
+                            @foreach (var imgUrl in selectedMediaObjs)
                             {
-                                <img data-hash="product-1" class="product__big__img" src="@imgUrl" alt="">
+                                <img data-hash="product-1" class="product__big__img" src="@imgUrl" alt="" />
                             }
                         </div>
                     </div>
@@ -85,16 +85,81 @@
                         <i class="fa fa-star"></i>
                         <span>( 138 đánh giá )</span>
                     </div>
-                    <div class="product__details__price">@Model.Product.MetadataObj.GetMetadatavalue("MinPrice") đ</div>
+                  
                     <p>@Model.Product.Description</p>
-                    <div class="product__details__button">
-                        <div class="d-flex align-items-center gap-2">
-                            <button id="t-btn-minus" class="btn  p-2" type="button">-</button>
-                            <input id="t-pro-quantity-input" type="number" value="1" min="1" class="form-control text-center" style="width: 50px;">
-                            <button id="t-btn-plus" class="btn  p-2" type="button">+</button>
-                        </div>
+                    <div class="product__details__widget">
+                        <div class="variant-selector">
+                            <div class="group">
+                                <label class="group-label">Giá Tiền</label>
+                                <div class="quantity-selector">
+                                    <input id="price" type="text" name="name" value="" readonly
+                                           class=" border-secondary rounded" />
+                                </div>
+                            </div>
 
-                        <a href="javascript:void(0);" class="cart-btn" 
+                            <div class="group">
+                                <label class="group-label">Màu Sắc</label>
+                                <div class="options" id="color-options">
+
+                                    @{
+                                        var colorVariants = Model.Product.VariantObjs?
+                                        .Where(x => x.Stock != 0)
+                                        .Select(y => y.Group1)
+                                        .Distinct()
+                                        .ToList() ?? new List<string>();
+
+                                        if (colorVariants != null)
+                                        {
+                                            foreach (var item in colorVariants)
+                                            {
+                                                <button class="option" data-value="@item">
+                                                    <img src="https://via.placeholder.com/32" alt="@item" />
+                                                    @item
+                                                </button>
+                                            }
+                                        }
+                                    }
+                                </div>
+                            </div>
+
+                            <div class="group">
+                                <label class="group-label">Kích Cỡ</label>
+                                <div class="options" id="size-options">
+
+                                    @{
+                                        var sizeVariants = Model.Product.VariantObjs?
+                                        .Where(x => x.Stock != 0)
+                                        .Select(y => y.Group2)
+                                        .Distinct()
+                                        .ToList() ?? new List<string>();
+
+                                        if (sizeVariants != null)
+                                        {
+                                            foreach (var item in sizeVariants)
+                                            {
+                                                <button class="option" data-value="@item" >
+                                                    <img src="https://via.placeholder.com/32" alt="@item" />
+                                                    @item
+                                                </button>
+                                            }
+                                        }
+                                    }
+                                </div>
+                            </div>
+
+                            <div class="group">
+                                <label class="group-label">Số Lượng</label>
+                                <div class="quantity-selector">
+                                    <button id="decrease">−</button>
+                                    <input type="text" id="quantity" value="1" readonly />
+                                    <button id="increase">+</button>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="product__details__button">
+                        <a href="javascript:void(0);" class="cart-btn"
                            onclick="addToCart('@Model.Product.Id')"
                            data-product-id="@Model.Product.Id"
                            data-product-name="@Model.Product.Name"
@@ -115,70 +180,6 @@
                            data-sku="@Model.Product.MetadataObj.GetMetadatavalue("SKU")">
                             <span class="icon_bag_alt"></span> Thêm vào giỏ hàng
                         </a>
-                        <ul>
-                            <li><a href="#"><span class="icon_heart_alt"></span></a></li>
-                            <li><a href="#"><span class="icon_adjust-horiz"></span></a></li>
-                        </ul>
-                    </div>
-                    <div class="product__details__widget">
-                        <ul>
-                            <li>
-                                <span>Tình trạng:</span>
-                                <div class="stock__checkbox">
-                                    <label for="stockin">
-                                        Còn hàng
-                                        <input type="checkbox" id="stockin">
-                                        <span class="checkmark"></span>
-                                    </label>
-                                </div>
-                            </li>
-                            <li>
-                                <span>Màu sắc có sẵn:</span>
-                            
-                                <div class="color__checkbox">
-
-                                    @{
-                                        var colors = Model.Product.MetadataObj.GetMetadatavalue("Colorway");
-                                        var listColors = colors.Split("/");
-                                        if (!string.IsNullOrEmpty(colors))
-                                        {
-                                            foreach (var item in listColors)
-                                            {
-                                                <label for="item">
-                                                    <input type="radio" name="color__radio" id="red" checked>
-                                                    <span class="checkmark"></span>
-                                                </label>
-                                            }
-                                        }
-                                    }
-                                </div>
-                            </li>
-                            <li>
-                                <span>Kích cỡ có sẵn:</span>
-                                <div class="size__btn">
-                                    <label for="xs-btn" class="active">
-                                        <input type="radio" id="xs-btn">
-                                        xs
-                                    </label>
-                                    <label for="s-btn">
-                                        <input type="radio" id="s-btn">
-                                        s
-                                    </label>
-                                    <label for="m-btn">
-                                        <input type="radio" id="m-btn">
-                                        m
-                                    </label>
-                                    <label for="l-btn">
-                                        <input type="radio" id="l-btn">
-                                        l
-                                    </label>
-                                </div>
-                            </li>
-                            <li>
-                                <span>Khuyến mãi:</span>
-                                <p>Miễn phí vận chuyển</p>
-                            </li>
-                        </ul>
                     </div>
                 </div>
             </div>
@@ -199,35 +200,14 @@
                         <div class="tab-pane active" id="tabs-1" role="tabpanel">
                             <h6>Mô tả</h6>
                             <p>
-                                Nemo enim ipsam voluptatem quia voluptas sit aspernatur aut odit aut loret fugit, sed
-                                quia consequuntur magni dolores eos qui ratione voluptatem sequi nesciunt loret.
-                                Neque porro lorem quisquam est, qui dolorem ipsum quia dolor si. Nemo enim ipsam
-                                voluptatem quia voluptas sit aspernatur aut odit aut loret fugit, sed quia ipsu
-                                consequuntur magni dolores eos qui ratione voluptatem sequi nesciunt. Nulla
-                                consequat massa quis enim.
-                            </p>
-                            <p>
-                                Lorem ipsum dolor sit amet, consectetuer adipiscing elit. Aenean commodo ligula eget
-                                dolor. Aenean massa. Cum sociis natoque penatibus et magnis dis parturient montes,
-                                nascetur ridiculus mus. Donec quam felis, ultricies nec, pellentesque eu, pretium
-                                quis, sem.
+                                @Model.Product.Description
                             </p>
                         </div>
                         <div class="tab-pane" id="tabs-2" role="tabpanel">
-                            <h6>Thông số kỹ thuật</h6>
+                            <h6>Thông số </h6>
                             <p>
                                 Nemo enim ipsam voluptatem quia voluptas sit aspernatur aut odit aut loret fugit, sed
                                 quia consequuntur magni dolores eos qui ratione voluptatem sequi nesciunt loret.
-                                Neque porro lorem quisquam est, qui dolorem ipsum quia dolor si. Nemo enim ipsam
-                                voluptatem quia voluptas sit aspernatur aut odit aut loret fugit, sed quia ipsu
-                                consequuntur magni dolores eos qui ratione voluptatem sequi nesciunt. Nulla
-                                consequat massa quis enim.
-                            </p>
-                            <p>
-                                Lorem ipsum dolor sit amet, consectetuer adipiscing elit. Aenean commodo ligula eget
-                                dolor. Aenean massa. Cum sociis natoque penatibus et magnis dis parturient montes,
-                                nascetur ridiculus mus. Donec quam felis, ultricies nec, pellentesque eu, pretium
-                                quis, sem.
                             </p>
                         </div>
                         <div class="tab-pane" id="tabs-3" role="tabpanel">
@@ -235,22 +215,13 @@
                             <p>
                                 Nemo enim ipsam voluptatem quia voluptas sit aspernatur aut odit aut loret fugit, sed
                                 quia consequuntur magni dolores eos qui ratione voluptatem sequi nesciunt loret.
-                                Neque porro lorem quisquam est, qui dolorem ipsum quia dolor si. Nemo enim ipsam
-                                voluptatem quia voluptas sit aspernatur aut odit aut loret fugit, sed quia ipsu
-                                consequuntur magni dolores eos qui ratione voluptatem sequi nesciunt. Nulla
-                                consequat massa quis enim.
-                            </p>
-                            <p>
-                                Lorem ipsum dolor sit amet, consectetuer adipiscing elit. Aenean commodo ligula eget
-                                dolor. Aenean massa. Cum sociis natoque penatibus et magnis dis parturient montes,
-                                nascetur ridiculus mus. Donec quam felis, ultricies nec, pellentesque eu, pretium
-                                quis, sem.
                             </p>
                         </div>
                     </div>
                 </div>
             </div>
         </div>
+
         <div class="row">
             <div class="col-lg-12 text-center">
                 <div class="related__title">
@@ -271,66 +242,93 @@
     </div>
 </section>
 <!-- Product Details Section End -->
-
 <!-- Instagram Begin -->
 @await Component.InvokeAsync("SocialMedial");
 <!-- Instagram End -->
-
 @section Scripts {
     <script>
-               $('#t-btn-minus').click(function() {
-            var currentValue = parseInt($('#t-pro-quantity-input').val());
-
-            // Giảm giá trị nếu lớn hơn 1
-            if (currentValue > 1) {
-                $('#t-pro-quantity-input').val(currentValue - 1);
+          let selectedColor = document.querySelector("#color-options .option.selected");
+          let selectedSize = document.querySelector("#size-options .option.selected");
+          var variants = @Html.Raw(Json.Serialize(Model.Product.VariantObjs
+            .Where(x => x.Stock != 0)
+            .Select(v => new
+            {
+                Color = v.Group1,
+                Size = v.Group2,
+                Price = v.Price
+            })));
+          function updatePrice() {
+            const variant = variants.find(v => v.color === selectedColor && selectedSize === v.size);
+             const quantity = parseInt(document.getElementById('quantity').value) || 1;
+            if (variant) {
+                  const totalPrice = variant.price * quantity;
+                document.getElementById('price').value = totalPrice.toLocaleString('vi-VN') + ' đ';
+            } else {
+                document.getElementById('price').value = '';
             }
+        }
+
+        document.querySelectorAll('#color-options .option').forEach(btn => {
+            btn.addEventListener('click', () => {
+                document.querySelectorAll('#color-options .option').forEach(b => b.classList.remove('selected'));
+                btn.classList.add('selected');
+                selectedColor = btn.getAttribute('data-value');
+                updatePrice();
+            });
         });
 
-        // Khi nhấn vào nút +
-        $('#t-btn-plus').click(function() {
-            var currentValue = parseInt($('#t-pro-quantity-input').val());
+        document.querySelectorAll('#size-options .option').forEach(btn => {
+            btn.addEventListener('click', () => {
+                document.querySelectorAll('#size-options .option').forEach(b => b.classList.remove('selected'));
+                btn.classList.add('selected');
+                selectedSize = btn.getAttribute('data-value');
+                updatePrice();
+            });
+        });
 
-            // Tăng giá trị
-            $('#t-pro-quantity-input').val(currentValue + 1);
+
+        document.getElementById("increase").addEventListener("click", () => {
+            const input = document.getElementById("quantity");
+            let val = parseInt(input.value);
+            if (!isNaN(val)) input.value = val + 1;
+            updatePrice();
+        });
+
+        document.getElementById("decrease").addEventListener("click", () => {
+            const input = document.getElementById("quantity");
+            let val = parseInt(input.value);
+            if (!isNaN(val) && val > 1) input.value = val - 1;
+            updatePrice();
         });
 
         function addToCart(productId) {
-            debugger
-             var quantity = $('#t-pro-quantity-input').val();
+            var quantity = $('#quantity').val();
             var $cartBtn = $('.cart-btn');
-            
-            var productData = {
-                productId: $cartBtn.data('product-id'),
-                productName: $cartBtn.data('product-name'),
-                productImage: $cartBtn.data('product-image'),
-                productCode: $cartBtn.data('product-code'),
-                brand: $cartBtn.data('brand'),
-                category: $cartBtn.data('category'),
-                description: $cartBtn.data('description'),
-                size: parseInt($cartBtn.data('size')),
-                color: $cartBtn.data('color'),
-                colorCode: $cartBtn.data('color-code'),
-                quantity: parseInt(quantity),
-                price: parseFloat($cartBtn.data('price')),
-                originalPrice: parseFloat($cartBtn.data('original-price')),
-                discountPrice: parseFloat($cartBtn.data('discount-price')),
-                discountPercent: parseInt($cartBtn.data('discount-percent')),
-                isInStock: $cartBtn.data('is-in-stock') === 'true',
-                stockQuantity: parseInt($cartBtn.data('stock-quantity')),
-                sku: $cartBtn.data('sku'),
-                createdDate: new Date().toISOString()
-            };
+
+
+
+         var productData = {
+            productId: $cartBtn.data('product-id'),
+            productName: $cartBtn.data('product-name'),
+            productImage: $cartBtn.data('product-image'),
+            price: parseFloat(document.getElementById('price').value?.replace(/\D/g, '') ?? 0) / parseInt(quantity),
+            quantity: parseInt(quantity),
+            size: selectedSize ?? '',
+            color: selectedColor ?? ''
+        };
+
+            console.log(JSON.stringify(productData));
             
             $.ajax({
                 url: '/Cart/AddToCart',
-                type: 'POST',
-                data: productData,
-                success: function(response) {
+                method: 'POST',
+                contentType: 'application/json',
+                data: JSON.stringify(productData),
+                 success: function(response) {
                     if(response.success) {
                         // Cập nhật số lượng giỏ hàng trên header
                         $('.cart-count').text(response.cartCount);
-                        
+
                         // Hiển thị thông báo thành công
                         Swal.fire({
                             title: 'Thành công!',

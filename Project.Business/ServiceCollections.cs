@@ -3,6 +3,9 @@ using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Project.Business.Implement;
+using Project.Business.Implementation;
+using Project.Business.Intercepter;
+using Project.Business.Intercepter.Implement;
 using Project.Business.Interface;
 using Project.Business.Interface.Project.Business.Interface;
 using Project.Business.Interface.Project.Business.Interface.Repositories;
@@ -34,6 +37,7 @@ namespace Project.Business
             services.AddScoped<IUserRepository, UserRepository>();
             services.AddScoped<ICustomerRepository, CustomerRepository>();
             services.AddScoped<IContactRepository, ContactRepository>();
+            services.AddScoped<IContentBaseRepository, ContentBaseRepository>();
             services.AddScoped<IVoucherRepository, VoucherRepository>();
             services.AddScoped<IVoucherDetailsRepository, VoucherDetailsRepository>();
             services.AddScoped<ICartDetailsRepository, CartDetailsRepository>();
@@ -52,6 +56,7 @@ namespace Project.Business
             services.AddScoped<IUserBusiness, UserBusiness>();
             services.AddScoped<ICustomerBusiness, CustomerBusiness>();
             services.AddScoped<IContactBusiness, ContactBusiness>();
+            services.AddScoped<IContentBaseBusiness, ContentBaseBusiness>();
             services.AddScoped<IVoucherBusiness, VoucherBusiness>();
             services.AddScoped<IVoucherDetailsBusiness, VoucherDetailsBusiness>();
             services.AddScoped<ICartDetailsBusiness, CartDetailsBusiness>();
@@ -70,6 +75,16 @@ namespace Project.Business
                 return new SqlConnection(connectionString);
             });
             services.AddScoped<IProductRepository, ProductDapperRepository>();
+
+            services.AddScoped<IProvinceRepository, ProvinceRepository>();
+            services.AddScoped<IProvinceBusiness, ProvinceBusiness>();
+
+
+            services.AddScoped<IBillIntercepterAfterSave, SendEmailAfterSaveBill>();
+
+            var emailSettings = configuration.GetSection("EmailSettings").Get<EmailSettings>();
+
+            services.AddSingleton(emailSettings);
 
 
             // Configure CORS

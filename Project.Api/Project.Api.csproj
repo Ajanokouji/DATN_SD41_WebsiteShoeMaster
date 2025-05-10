@@ -19,11 +19,8 @@
 
   <ItemGroup>
     <ProjectReference Include="..\Project.Business\Project.Business.csproj" />
+    <ProjectReference Include="..\Project.CommonApi\Project.CommonApi.csproj" />
     <ProjectReference Include="..\Project.DbManagement\Project.DbManagement.csproj" />
-  </ItemGroup>
-
-  <ItemGroup>
-    <Folder Include="wwwroot\user-blob\" />
   </ItemGroup>
 
 </Project>

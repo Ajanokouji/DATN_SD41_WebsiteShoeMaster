@@ -54,6 +54,7 @@ class ProductService {
 
   async createProductReq(userData: ProductReqDto): Promise<ProductResDto> {
     try {
+          
       const response = await httpClient.post<{ data: ProductResDto }>(
         this.endpoints.product,
         userData

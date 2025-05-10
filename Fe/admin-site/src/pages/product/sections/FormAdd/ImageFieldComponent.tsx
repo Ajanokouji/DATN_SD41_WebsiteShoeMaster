@@ -6,6 +6,7 @@ import { Button } from "@/components/ui/button";
 import { Plus } from "lucide-react";
 import { IoMdClose } from "react-icons/io";
 import { FormLabel } from "@/components/ui/form";
+import type { FileItem } from "@/types/file";
 
 interface ImageFieldProps {
   control: Control<ProductFormSchema>;

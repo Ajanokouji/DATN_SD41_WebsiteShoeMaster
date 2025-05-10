@@ -23,6 +23,7 @@
       <Folder Include="Areas\" />
       <Folder Include="wwwroot\addminAssets\" />
       <Folder Include="wwwroot\assets\dist\" />
+      <Folder Include="wwwroot\Email\" />
     </ItemGroup>
 
     <ItemGroup>
@@ -162,6 +163,8 @@
     </ItemGroup>
 
     <ItemGroup>
+      <ProjectReference Include="..\Project.CommonApi\Project.CommonApi.csproj" />
+      <ProjectReference Include="..\Project.Common\Project.Common.csproj" />
       <ProjectReference Include="..\Project.MvcModule\Project.MvcModule.csproj" />
     </ItemGroup>
 

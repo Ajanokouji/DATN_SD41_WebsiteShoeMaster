@@ -14,4 +14,5 @@ public interface IBillRepository : IRepository<BillEntity, BillQueryModel>
     public bool CreatePendingBill(Guid idEmployee);
     public bool DeletePendingBill(Guid idBill);
     public BillViewModel GetPDBillById(Guid idBill);
+    public bool PaymentBill(PaymentBillRequest bill);
 }

@@ -5,6 +5,7 @@ using Project.Business.Interface;
 using Project.Business.Model;
 using Project.Common;
 using Project.DbManagement.Entity;
+using Project.MVC.Models;
 using SERP.Framework.Entities.Metadata;
 using System;
 using System.Collections.Generic;
@@ -45,7 +46,7 @@ namespace Project.MVC.Controllers
                     });
 
                     //Lấy cart chưa bị xóa
-                    var cartFound = lstCartFound?.FirstOrDefault(x => x.Isdeleted == false);
+                    var cartFound = lstCartFound?.FirstOrDefault(x => x.IsDeleted == false);
                     //Ko thấy cart
                     if (cartFound == null)
                     {
@@ -55,7 +56,7 @@ namespace Project.MVC.Controllers
                     else //Tìm thấy
                     {
                         //Tìm cartDetail
-                        var lstCartDetailFound =  await _cartDetailsBusiness.GetByCartId(cartFound.Id);
+                        var lstCartDetailFound = await _cartDetailsBusiness.GetByCartId(cartFound.Id);
 
                         //Nếu cartDetail không rỗng
                         if (lstCartDetailFound != null && lstCartDetailFound.Any())
@@ -80,8 +81,8 @@ namespace Project.MVC.Controllers
                                         cartItemModel.Price = Convert.ToDecimal(avgPrice);
                                     }
 
-                                    //Chưa rõ lấy size như thế nào nên để tạm thời = 1
-                                    cartItemModel.Size = 1;
+             
+                                    cartItemModel.Size = string.Empty;
 
                                     //Lấy color
                                     string? color = productFound.MetadataObj?.FirstOrDefault(m => m.FieldName == "Colorway")?.FieldValues;
@@ -119,7 +120,7 @@ namespace Project.MVC.Controllers
                 return View(new List<CartItemModel>());
             }
 
-            var cartSessions = JsonConvert.DeserializeObject<List<CartSession>>(cartSessionJson);
+            var cartSessions = JsonConvert.DeserializeObject<List<CartItem>>(cartSessionJson);
             if (cartSessions == null || !cartSessions.Any())
             {
                 return View(new List<CartItemModel>());
@@ -135,91 +136,88 @@ namespace Project.MVC.Controllers
         }
 
         [HttpPost]
-        public async Task<IActionResult> AddToCart(Guid productId, string productName, string productImage, decimal price, int quantity, int size, string color)
+        public async Task<IActionResult> AddToCart([FromBody] AddToCartViewModel productData)
         {
-            //Kiểm tra đã có user đăng nhập chưa
             var userSessionJson = HttpContext.Session.GetString(UserConstants.UserSessionKey);
-            if (!string.IsNullOrEmpty(userSessionJson))
+            var isLoggedIn = !string.IsNullOrEmpty(userSessionJson);
+            var response = new { success = false, message = "Thêm vào giỏ hàng thất bại", count = 0 };
+
+            if (isLoggedIn)
             {
-                var userSessions = JsonConvert.DeserializeObject<UserEntity>(userSessionJson);
-                //Nếu userSessions khác null => đã có user đăng nhập
-                if (userSessions != null)
+                var user = JsonConvert.DeserializeObject<UserEntity>(userSessionJson);
+                if (user == null)
+                    return Json(response);
+
+                var cartDetails = new List<CartDetails>
                 {
-                    CartDetails cartDetails = new CartDetails
+                    new CartDetails
                     {
-                        Id = Guid.NewGuid(),
-                        IdProduct = productId,
-                        Quantity = quantity,
+                         Id = Guid.NewGuid(),
+                        SKU = productData.SKU ?? string.Empty,
+                        IdProduct = productData.ProductId ?? Guid.Empty,
+                        Quantity = productData.Quantity ?? 0,
+                        Size = productData.Size ?? string.Empty,
+                        Color = productData.Color ?? string.Empty,
                         IsOnSale = false
-                    };
-
-                    List<CartDetails> lstCartDetails = new List<CartDetails>();
-                    lstCartDetails.Add(cartDetails);
-
-                    var rs = await _cartBusiness.AddToCartDb(userSessions, lstCartDetails);
-
-                    if (!rs.IsSuccess)
-                    {
-                        return Json(new { success = rs.IsSuccess, message = rs.Message });
                     }
+                };
 
-                    var countResult = await _cartBusiness.GetCartDbCount(userSessions);
+                var result = await _cartBusiness.AddToCartDb(user, cartDetails);
+                if (!result.IsSuccess)
+                    return Json(new { success = false, message = result.Message });
 
-                    if (!countResult.IsSuccess)
-                    {
-                        return Json(new { success = rs.IsSuccess, message = rs.Message });
-                    }
+                var countResult = await _cartBusiness.GetCartDbCount(user);
+                if (!countResult.IsSuccess)
+                    return Json(new { success = true, message = result.Message, count = 0 });
 
-                    return Json(new { success = rs.IsSuccess, message = rs.Message, countResult.Data});
-                }
+                return Json(new { success = true, message = result.Message, count = countResult.Data });
             }
-
-            //Trường hợp chưa có user nào đăng nhập
-            var cartSessionJson = HttpContext.Session.GetString(CartConstants.CartSessionKey);
-            var cartSessions = string.IsNullOrEmpty(cartSessionJson)
-                ? new List<CartSession>()
-                : JsonConvert.DeserializeObject<List<CartSession>>(cartSessionJson);
-
-            var cartItem = new CartSession
+            else
             {
-                ProductId = productId,
-                ProductName = productName,
-                ProductImage = productImage,
-                Price = price,
-                Quantity = quantity,
-                Size = size,
-                Color = color
-            };
+                var cartSessionJson = HttpContext.Session.GetString(CartConstants.CartSessionKey);
+                var cartSessions = string.IsNullOrEmpty(cartSessionJson)
+                    ? new List<CartItem>()
+                    : JsonConvert.DeserializeObject<List<CartItem>>(cartSessionJson);
 
-            var result = await _cartBusiness.AddToCart(cartItem, cartSessions);
-            if (result.IsSuccess)
-            {
+                var cartItem = new CartItem
+                {
+
+                    ProductId = productData.ProductId ?? Guid.Empty,
+                    ProductName = productData.ProductName ?? string.Empty,
+                    ProductImage = productData.ProductImage ?? string.Empty,
+                    SKU= productData.SKU??string.Empty,
+                    Price = productData.Price ?? 0m,
+                    Total = productData.Total??0m,
+                    Quantity = productData.Quantity ?? 0,
+                    Size = productData.Size ?? string.Empty,
+                    Color = productData.Color ?? string.Empty
+                };
+
+                var result = await _cartBusiness.AddToCart(cartItem, cartSessions);
+                if (!result.IsSuccess)
+                    return Json(new { success = false, message = result.Message, count = cartSessions.Count });
+
                 HttpContext.Session.SetString(CartConstants.CartSessionKey, JsonConvert.SerializeObject(cartSessions));
-                
-                // Cập nhật số lượng sản phẩm trong giỏ hàng
+
                 var countResult = await _cartBusiness.GetCartCount(cartSessions);
                 if (countResult.IsSuccess)
-                {
                     HttpContext.Session.SetInt32(CartConstants.CartCountKey, countResult.Data);
-                }
 
-                // Cập nhật tổng tiền giỏ hàng
                 var cartItemsResult = await _cartBusiness.GetCartItems(cartSessions);
                 if (cartItemsResult.IsSuccess)
                 {
                     var totalResult = await _cartBusiness.CalculateCartTotal(cartItemsResult.Data);
                     if (totalResult.IsSuccess)
-                    {
                         HttpContext.Session.SetString(CartConstants.CartTotalKey, totalResult.Data.ToString());
-                    }
                 }
-            }
 
-            return Json(new { success = result.IsSuccess, message = result.Message, count = cartSessions.Count });
+                return Json(new { success = true, message = result.Message, count = cartSessions.Count });
+            }
         }
 
+
         [HttpPost]
-        public async Task<IActionResult> UpdateCart(Guid productId, int quantity, int size, string color)
+        public async Task<IActionResult> UpdateCart(Guid productId, int quantity, string size, string color)
         {
             //Kiểm tra đã có user đăng nhập chưa
             var userSessionJson = HttpContext.Session.GetString(UserConstants.UserSessionKey);
@@ -255,7 +253,7 @@ namespace Project.MVC.Controllers
                 return Json(new { success = false, message = "Giỏ hàng trống" });
             }
 
-            var cartSessions = JsonConvert.DeserializeObject<List<CartSession>>(cartSessionJson);
+            var cartSessions = JsonConvert.DeserializeObject<List<CartItem>>(cartSessionJson);
             if (cartSessions == null || !cartSessions.Any())
             {
                 return Json(new { success = false, message = "Giỏ hàng trống" });
@@ -272,7 +270,7 @@ namespace Project.MVC.Controllers
             if (result.IsSuccess)
             {
                 HttpContext.Session.SetString(CartConstants.CartSessionKey, JsonConvert.SerializeObject(cartSessions));
-                
+
                 // Cập nhật số lượng sản phẩm trong giỏ hàng
                 var countResult = await _cartBusiness.GetCartCount(cartSessions);
                 if (countResult.IsSuccess)
@@ -296,7 +294,7 @@ namespace Project.MVC.Controllers
         }
 
         [HttpPost]
-        public async Task<IActionResult> RemoveFromCart(Guid productId, int size)
+        public async Task<IActionResult> RemoveFromCart(Guid productId)
         {
             //Kiểm tra đã có user đăng nhập chưa
             var userSessionJson = HttpContext.Session.GetString(UserConstants.UserSessionKey);
@@ -324,17 +322,17 @@ namespace Project.MVC.Controllers
                 return Json(new { success = false, message = "Giỏ hàng trống" });
             }
 
-            var cartSessions = JsonConvert.DeserializeObject<List<CartSession>>(cartSessionJson);
+            var cartSessions = JsonConvert.DeserializeObject<List<CartItem>>(cartSessionJson);
             if (cartSessions == null || !cartSessions.Any())
             {
                 return Json(new { success = false, message = "Giỏ hàng trống" });
             }
 
-            var result = await _cartBusiness.RemoveFromCart(productId, size, cartSessions);
+            var result = await _cartBusiness.RemoveFromCart(productId, cartSessions);
             if (result.IsSuccess)
             {
                 HttpContext.Session.SetString(CartConstants.CartSessionKey, JsonConvert.SerializeObject(cartSessions));
-                
+
                 // Cập nhật số lượng sản phẩm trong giỏ hàng
                 var countResult = await _cartBusiness.GetCartCount(cartSessions);
                 if (countResult.IsSuccess)
@@ -380,7 +378,7 @@ namespace Project.MVC.Controllers
                 return Json(new { count = 0 });
             }
 
-            var cartSessions = JsonConvert.DeserializeObject<List<CartSession>>(cartSessionJson);
+            var cartSessions = JsonConvert.DeserializeObject<List<CartItem>>(cartSessionJson);
             if (cartSessions == null || !cartSessions.Any())
             {
                 return Json(new { count = 0 });
@@ -399,7 +397,7 @@ namespace Project.MVC.Controllers
                 return Json(new { total = 0 });
             }
 
-            var cartSessions = JsonConvert.DeserializeObject<List<CartSession>>(cartSessionJson);
+            var cartSessions = JsonConvert.DeserializeObject<List<CartItem>>(cartSessionJson);
             if (cartSessions == null || !cartSessions.Any())
             {
                 return Json(new { total = 0 });

@@ -46,7 +46,14 @@ namespace Project.Business.Interface
         /// <param name="contentId">The content id.</param>
         /// <returns>The content.</returns>
         Task<ProductEntity> FindAsync(Guid contentId);
-
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <param name="ProducId"></param>
+        /// <param name="size"></param>
+        /// <param name="color"></param>
+        /// <returns></returns>
+        Task<ProductEntity> UpdateProductVariants(Guid ProducId, Variant variant);
         /// <summary>
         /// Deletes a content.
         /// </summary>

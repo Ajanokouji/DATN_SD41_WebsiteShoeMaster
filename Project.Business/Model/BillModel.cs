@@ -7,11 +7,13 @@ using System.ComponentModel.DataAnnotations.Schema;
 namespace Project.Business.Model
 {
     public class BillModel: BillEntity
+
     {
         public string? CustomerName { get; set; }
         public string? CustomerPhone { get; set; }
         public string? CustomerEmail { get; set; }
         public string? CustomerAddress { get; set; }
+
 
         public List<BillDetailModel>? BillDetails { get; set; } = new List<BillDetailModel>();
     }
@@ -24,7 +26,8 @@ namespace Project.Business.Model
         public Guid? ProductId { get; set; }
         public string? ProductName { get; set; }
         public string? ProductImage { get; set; }
-        public int Size { get; set; }
+        public string? Size { get; set; }
+        public string? SKU { get; set; }
         public string? Color { get; set; }
         public int Quantity { get; set; }
         public decimal Price { get; set; }

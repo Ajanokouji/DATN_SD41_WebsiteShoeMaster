@@ -1,7 +1,9 @@
-﻿@model Project.Business.Model.PaymentViewModel
+﻿@using Project.Business.Model
+@model Project.Business.Model.PaymentViewModel
 
 @{
-    ViewData["Title"] = "Phương thức thanh toán";
+   ViewData["Title"] = "Phương thức thanh toán";
+   List<PaymentMethodModel> paymentMethodModels = ViewData["PaymentMethods"] as List<PaymentMethodModel> ?? new List<PaymentMethodModel>();
 }
 
 <!-- Breadcrumb Begin -->
@@ -84,11 +86,19 @@
                     </form> *@
                     <form asp-action="ProcessPayment" method="post">
                         <input type="hidden" asp-for="BillId" />
+                        <input type="hidden" asp-for="TotalAmount" />
+                        <input type="hidden" asp-for="PaymentInformationModel.Amount" />
+                        <input type="hidden" asp-for="PaymentInformationModel.BillId" />  
+                         <input type="hidden" asp-for="PaymentInformationModel.CustomerId" />  
+                         <input type="hidden" asp-for="PaymentInformationModel.OrderDescription" />  
+                         <input type="hidden" asp-for="PaymentInformationModel.CustomerName" />  
+                         <input type="hidden" asp-for="PaymentInformationModel.OrderType" />  
+                         <input type="hidden" asp-for="PaymentInformationModel.CustomerName" />
 
                         <div asp-validation-summary="ModelOnly" class="text-danger"></div>
 
                         <div class="checkout__payment__methods">
-                            @foreach (var method in Model.PaymentMethods)
+                            @foreach (var method in paymentMethodModels)
                             {
                                 <div class="payment-method">
                                     <input type="radio" id="@method.Code" asp-for="SelectedPaymentMethod" value="@method.Code" required>
