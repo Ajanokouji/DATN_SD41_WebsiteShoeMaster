@@ -17,7 +17,7 @@ import {
   SelectValue,
 } from "@/components/ui/select";
 import { VoucherFormSchema } from "./FormSchema";
-import { FaStore, FaCartShopping } from "react-icons/fa6";
+import { FaStore, FaCartShopping, FaAddressCard, FaPhone, FaEnvelope } from "react-icons/fa6";
 import { useAppDispatch } from "@/hooks/use-app-dispatch";
 import { useAppSelector } from "@/hooks/use-app-selector";
 import {
@@ -33,6 +33,10 @@ import {
 import Pagination from "@/components/Pagination";
 import { ProductDetailResDto, VariantObjs } from "@/types/product/product";
 import DetailProductSheet from "@/pages/product/sections/DetailProductSheet";
+import { selectUserPagination, selectUsers } from "@/redux/apps/voucherUser/voucherUserSelector";
+import { searchUser, setUserPage, setUserPageSize } from "@/redux/apps/voucherUser/voucherUserSlice";
+import { UserResDtoForSearch } from "@/types/voucherUser/voucherUser";
+import { FaHome } from "react-icons/fa";
 
 interface BasicInfoFieldsProps {
   control: Control<VoucherFormSchema>;
@@ -96,9 +100,6 @@ export const BasicInfoFields: React.FC<BasicInfoFieldsProps> = ({ control, vouch
     setProductPageSize(20);
     dispatch(clearProducts());
   }
-
-  const formatCurrency = (value: number) =>
-    new Intl.NumberFormat("en-us").format(value);
 
   const handleSubmitSearch = async () => {
     setIsSearching(true); // Bắt đầu tìm kiếm
@@ -178,7 +179,7 @@ export const BasicInfoFields: React.FC<BasicInfoFieldsProps> = ({ control, vouch
         const existingProduct = updatedProducts[existingProductIndex];
   
         // Kiểm tra xem biến thể đã tồn tại trong variantObjs chưa
-        const isVariantExists = existingProduct.variantObjs.some((v) => v.id === variant.id);
+        const isVariantExists = existingProduct.variantObjs.some((v) => v.sku === variant.sku);
   
         if (!isVariantExists) {
           // Nếu biến thể chưa tồn tại, thêm biến thể vào variantObjs
@@ -189,6 +190,49 @@ export const BasicInfoFields: React.FC<BasicInfoFieldsProps> = ({ control, vouch
         return updatedProducts;
       }
     });
+  };
+
+  const AddAllVariants = (product: ProductDetailResDto) => {
+    setProductsIsSelected((prev) => {
+      if (!prev) {
+        // Nếu danh sách ban đầu là null, thêm sản phẩm mới với tất cả biến thể
+        const newProduct = { ...product, variantObjs: [...product.variantObjs] };
+        setValue("productsIsSelected", [newProduct]); // Lưu vào form state
+        return [newProduct];
+      }
+
+      // Kiểm tra xem sản phẩm đã tồn tại trong danh sách chưa
+      const existingProductIndex = prev.findIndex((p) => p.id === product.id);
+
+      if (existingProductIndex === -1) {
+        // Nếu sản phẩm chưa tồn tại, thêm sản phẩm mới với tất cả biến thể
+        const newProduct = { ...product, variantObjs: [...product.variantObjs] };
+        const updatedProducts = [newProduct, ...prev];
+        setValue("productsIsSelected", updatedProducts); // Lưu vào form state
+        return updatedProducts;
+      } else {
+        // Nếu sản phẩm đã tồn tại, thêm các biến thể chưa có vào danh sách variantObjs
+        const updatedProducts = [...prev];
+        const existingProduct = updatedProducts[existingProductIndex];
+
+        // Lọc các biến thể chưa tồn tại
+        const newVariants = product.variantObjs.filter(
+          (variant) =>
+            !existingProduct.variantObjs.some((v) => v.sku === variant.sku)
+        );
+
+        // Thêm các biến thể mới vào danh sách variantObjs
+        existingProduct.variantObjs = [...existingProduct.variantObjs, ...newVariants];
+
+        setValue("productsIsSelected", updatedProducts); // Lưu vào form state
+        return updatedProducts;
+      }
+    });
+  };
+
+  const removeAllProducts = () => {
+    setProductsIsSelected(null); // Đặt danh sách về null
+    setValue("productsIsSelected", []); // Cập nhật giá trị trong form state
   };
 
   const removeProductInProductsIsSelected = (index: number) => {
@@ -220,6 +264,87 @@ export const BasicInfoFields: React.FC<BasicInfoFieldsProps> = ({ control, vouch
 
       return updatedProducts;
     });
+  };
+
+  // Thêm các trạng thái và logic tìm kiếm user
+  const [searchUserString, setSearchUserString] = useState<string>("");
+  const [inputSearchUserString, setInputSearchUserString] = useState<string>("");
+  const [isSearchingUser, setIsSearchingUser] = useState<boolean>(false);
+  const users = useAppSelector(selectUsers);
+  const userPagination = useAppSelector(selectUserPagination);
+
+  const handleSubmitSearchUser = async () => {
+    setIsSearchingUser(true); // Bắt đầu tìm kiếm
+    try {
+      await dispatch(
+        searchUser({
+          userName: inputSearchUserString,
+          CurrentPage: 1,
+          PageSize: userPagination.pageSize,
+        })
+      ).unwrap(); // Chờ kết quả từ Redux Thunk
+    } catch (error) {
+      console.error("Search user failed:", error); // Xử lý lỗi nếu có
+    } finally {
+      setIsSearchingUser(false); // Kết thúc tìm kiếm
+    }
+  };
+
+  const handleUserPageChange = async (newPage: number) => {
+    dispatch(setUserPage(newPage));
+    try {
+      await dispatch(
+        searchUser({
+          userName: inputSearchUserString,
+          CurrentPage: newPage,
+          PageSize: userPagination.pageSize,
+        })
+      ).unwrap(); // Chờ kết quả từ Redux Thunk
+    } catch (error) {
+      console.error("Search user failed:", error);
+    }
+  };
+
+  const handleUserPageSizeChange = async (newSize: number) => {
+    dispatch(setUserPageSize(newSize));
+    try {
+      await dispatch(
+        searchUser({
+          userName: inputSearchUserString,
+          CurrentPage: 1,
+          PageSize: newSize,
+        })
+      ).unwrap(); // Chờ kết quả từ Redux Thunk
+    } catch (error) {
+      console.error("Search user failed:", error);
+    }
+  };
+
+  //Thêm khách hàng áp dụng Voucher
+  const [selectedUsers, setSelectedUsers] = useState<UserResDtoForSearch[]>([]);
+  const addUserToSelectedList = (user: UserResDtoForSearch) => {
+    setSelectedUsers((prev) => {
+      // Kiểm tra nếu user đã tồn tại trong danh sách "Đã chọn"
+      const isUserAlreadySelected = prev.some((selectedUser) => selectedUser.id === user.id);
+      if (isUserAlreadySelected) return prev; // Nếu đã tồn tại, không thêm lại
+
+      const updatedUsers = [user, ...prev]; // Thêm user mới vào đầu danh sách
+      setValue("usersIsSelected", updatedUsers); // Lưu vào FormSchema
+      return updatedUsers;
+    });
+  };
+
+  const removeUserFromSelectedList = (userId: string) => {
+    setSelectedUsers((prev) => {
+      const updatedUsers = prev.filter((user) => user.id !== userId); // Loại bỏ user khỏi danh sách
+      setValue("usersIsSelected", updatedUsers); // Lưu vào FormSchema
+      return updatedUsers;
+    });
+  };
+
+  const clearAllSelectedUsers = () => {
+    setSelectedUsers([]); // Đặt danh sách về rỗng
+    setValue("usersIsSelected", []); // Cập nhật FormSchema
   };
 
   //Xem chi tiết sản phẩm
@@ -639,7 +764,7 @@ export const BasicInfoFields: React.FC<BasicInfoFieldsProps> = ({ control, vouch
 
                 {field.value === 0 && (
                   <div className="text-sm text-center text-gray-500 ml-32">
-                    Voucher này sẽ không được hiển thị công khai trên bất kỳ trang nào và chỉ những người được bạn cho phép mới có thể sử dụng được
+                    Voucher này sẽ không được hiển thị công khai và chỉ những khách hàng có tài khoản và được chọn mới có thể sử dụng
                   </div>
                   )
                 }
@@ -648,6 +773,222 @@ export const BasicInfoFields: React.FC<BasicInfoFieldsProps> = ({ control, vouch
             )}
           />
         </div>
+        
+        {/*Tìm kiếm khách hàng*/}
+        {watch("displaySettings") === 0 && (
+          <div className="mt-2 pb-5 ml-5">
+            <p className="text-sm font-semibold">Thêm tài khoản khách hàng</p>
+            <div className="mt-5 mr-5 border rounded p-5">
+              {/* Tìm kiếm user */}
+              <div className="flex items-center">
+                <Input
+                  placeholder="Tìm kiếm tài khoản khách hàng dựa trên tên tài khoản, tên khách hàng, số điện thoại, email, địa chỉ"
+                  value={inputSearchUserString}
+                  onChange={(e) => setInputSearchUserString(e.target.value)}
+                  onKeyDown={(e) => {
+                    if (e.key === "Enter") {
+                      e.preventDefault(); // Ngăn hành vi mặc định của phím Enter
+                      handleSubmitSearchUser(); // Gọi hàm tìm kiếm
+                    }
+                  }}
+                  className="flex-1"
+                />
+                <button
+                  type="button"
+                  onClick={handleSubmitSearchUser}
+                  className={`p-2 ml-2 text-sm w-32 rounded font-semibold ${
+                    isSearchingUser ? "bg-gray-400 cursor-not-allowed" : "bg-blue-500 hover:bg-blue-600 text-white"
+                  }`}
+                  disabled={isSearchingUser} // Disable nút khi đang tìm kiếm
+                >
+                  {isSearchingUser ? "Đang tìm..." : "Tìm kiếm"}
+                </button>
+              </div>
+
+              <div className="flex">
+                {/* Danh sách user */}
+                <div className="mt-4 border rounded p-2 w-[50%] h-[60vh]">
+                  <div className="text-center font-semibold mb-4 bg-gray-200 rounded p-1">Danh sách tài khoản khách hàng</div>
+                  {users !== null && users.length > 0 ? (
+                    <ul className="space-y-2 max-h-[50vh] overflow-y-auto">
+                      {users.map((user) => {
+                        // Kiểm tra nếu user đã tồn tại trong danh sách "Đã chọn"
+                        const isUserSelected = selectedUsers.some((selectedUser) => selectedUser.id === user.id);
+
+                        // Xác định trạng thái và lớp CSS
+                        const isActive = user?.isActive;
+                        let borderColor = "border-gray-400"; // Mặc định là xám
+                        let statusText = "UNDEFINED";
+                        let statusBgColor = "bg-gray-400";
+
+                        if (isActive === true) {
+                          borderColor = "border-green-500";
+                          statusText = "ACTIVE";
+                          statusBgColor = "bg-green-500";
+                        } else if (isActive === false) {
+                          borderColor = "border-red-500";
+                          statusText = "INACTIVE";
+                          statusBgColor = "bg-red-500";
+                        }
+
+                        return (
+                          <li
+                            key={user.id}
+                            className="p-4 border rounded shadow hover:bg-gray-100 relative"
+                          >
+                            <button
+                              onClick={() => addUserToSelectedList(user)}
+                              type="button"
+                              className={`absolute top-2 right-2 border rounded p-1 ${
+                                isUserSelected
+                                  ? "bg-gray-400 cursor-not-allowed"
+                                  : "bg-blue-500 text-white hover:bg-blue-600"
+                              } text-xs`}
+                              disabled={isUserSelected} // Disable nút nếu user đã được chọn
+                            >
+                              +
+                            </button>
+                            <div className="flex items-center">
+                              <div className="relative">
+                                <img
+                                  className={`w-16 h-16 border-2 rounded-full mr-5 ${borderColor}`}
+                                  src={user.avartarUrl || "https://static.vecteezy.com/system/resources/previews/009/292/244/non_2x/default-avatar-icon-of-social-media-user-vector.jpg"}
+                                  alt={user.name || "User"}
+                                />
+                                {/* Hiển thị trạng thái */}
+                                <span
+                                  className={`absolute px-1 bottom-0 left-1/2 transform -translate-x-1/2 text-xs font-semibold text-white rounded-full ${statusBgColor}`}
+                                >
+                                  {statusText}
+                                </span>
+                              </div>
+                              
+                              <div className="flex-1">
+                                <p className="flex text-start text-sm font-semibold">
+                                  <FaAddressCard className="mr-2 mt-1"/>{user.name} {user.username?"- " + user.username:""}
+                                </p>
+                                <p className="flex text-start text-sm text-gray-500">
+                                  <FaPhone className="mr-2 mt-1"/>{user.phoneNumber}
+                                </p>
+                                <p className="flex text-start text-sm text-gray-500">
+                                  <FaEnvelope className="mr-2 mt-1"/>{user.email}
+                                </p>
+                                <p className="flex text-start text-sm text-gray-500">
+                                  <FaHome className="mr-2 mt-1"/>{user.address}
+                                </p>
+                              </div>
+                            </div>
+                          </li>
+                        );
+                      })}
+                    </ul>
+                  ) : (
+                    <p className="text-gray-500">Không tìm thấy tài khoản khách hàng nào.</p>
+                  )}
+                </div>
+
+                {/* Danh sách đã chọn */}
+                <div className="ml-1 mt-4 border rounded p-2 w-[50%] h-[60vh]">
+                  <div className="text-center font-semibold mb-4 bg-gray-200 rounded p-1">Đã chọn</div>
+                  <div className="mb-2">
+                    {/* Nút xóa tất cả */}
+                    {selectedUsers.length > 0 && (
+                      <button
+                        onClick={clearAllSelectedUsers} // Gọi hàm xóa tất cả
+                        type="button"
+                        className="w-full p-1 bg-red-500 text-white rounded hover:bg-red-600"
+                      >
+                        Xóa tất cả
+                      </button>
+                    )}
+                  </div>
+                  {selectedUsers.length > 0 ? (
+                    <ul className="space-y-2 max-h-[44vh] overflow-y-auto">
+                      {selectedUsers.map((user) => {
+                        // Xác định trạng thái và lớp CSS
+                        const isActive = user?.isActive;
+                        let borderColor = "border-gray-400"; // Mặc định là xám
+                        let statusText = "UNDEFINED";
+                        let statusBgColor = "bg-gray-400";
+
+                        if (isActive === true) {
+                          borderColor = "border-green-500";
+                          statusText = "ACTIVE";
+                          statusBgColor = "bg-green-500";
+                        } else if (isActive === false) {
+                          borderColor = "border-red-500";
+                          statusText = "INACTIVE";
+                          statusBgColor = "bg-red-500";
+                        }
+
+                        return (
+                          <li
+                            key={user.id}
+                            className="p-4 border rounded shadow hover:bg-gray-100 relative"
+                          >
+                            <button
+                              onClick={() => removeUserFromSelectedList(user.id)}
+                              type="button"
+                              className="absolute top-2 right-2 border rounded p-1 bg-red-500 text-white hover:bg-red-600 text-xs"
+                            >
+                              X
+                            </button>
+                            <div className="flex items-center">
+                              <div className="relative">
+                                <img
+                                  className={`w-16 h-16 border-2 rounded-full mr-5 ${borderColor}`}
+                                  src={user.avartarUrl || "https://static.vecteezy.com/system/resources/previews/009/292/244/non_2x/default-avatar-icon-of-social-media-user-vector.jpg"}
+                                  alt={user.name || "User"}
+                                />
+                                {/* Hiển thị trạng thái */}
+                                <span
+                                  className={`absolute px-1 bottom-0 left-1/2 transform -translate-x-1/2 text-xs font-semibold text-white rounded-full ${statusBgColor}`}
+                                >
+                                  {statusText}
+                                </span>
+                              </div>
+                              
+                              <div className="flex-1">
+                                <p className="flex text-start text-sm font-semibold">
+                                  <FaAddressCard className="mr-2 mt-1"/>{user.name} {user.username?"- " + user.username:""}
+                                </p>
+                                <p className="flex text-start text-sm text-gray-500">
+                                  <FaPhone className="mr-2 mt-1"/>{user.phoneNumber}
+                                </p>
+                                <p className="flex text-start text-sm text-gray-500">
+                                  <FaEnvelope className="mr-2 mt-1"/>{user.email}
+                                </p>
+                                <p className="flex text-start text-sm text-gray-500">
+                                  <FaHome className="mr-2 mt-1"/>{user.address}
+                                </p>
+                              </div>
+                            </div>
+                          </li>
+                        );
+                      })}
+                    </ul>
+                  ) : (
+                    <p className="text-gray-500">Chưa có tài khoản khách hàng nào được chọn.</p>
+                  )}
+                </div>
+              </div>
+
+              {/* Phân trang */}
+              <form>
+                <Pagination                                   
+                  currentPage={userPagination.currentPage}
+                  totalPages={userPagination.totalPages}
+                  pageSize={userPagination.pageSize}
+                  totalRecords={userPagination.totalRecords}
+                  onPageChange={handleUserPageChange}
+                  onPageSizeChange={handleUserPageSizeChange}
+                />
+                <input required hidden/>
+              </form>
+            </div>
+          </div>
+          )}
+
         <div className="mt-5 ml-5">
           <div className="flex items-center gap-4">
             <FormLabel className="w-32">Sản phẩm áp dụng</FormLabel>
@@ -722,24 +1063,37 @@ export const BasicInfoFields: React.FC<BasicInfoFieldsProps> = ({ control, vouch
                   <p className="text-gray-500">Không tìm thấy sản phẩm nào.</p>
                 )}
               </div>
-              <div className="mt-4 border rounded p-2 w-[15%] mr-2">
-                <div className="text-center font-semibold mb-4 bg-gray-200 rounded p-1">
-                  Biến thể
-                </div>
-                <div className="max-h-[50vh] overflow-y-auto">
-                  {variantProduct !== null && variantProduct.variantObjs.length > 0 ? (
+            <div className="mt-4 border rounded p-2 w-[15%] mr-2">
+              <div className="text-center font-semibold mb-4 bg-gray-200 rounded p-1">
+                Biến thể
+              </div>
+              <div className="mb-2">
+                {/* Nút thêm hết */}
+                {variantProduct !== null && variantProduct.variantObjs.length > 0 ? (
+                  <button
+                    onClick={() => AddAllVariants(variantProduct)}
+                    type="button"
+                    className="w-full p-1 bg-blue-500 text-white rounded hover:bg-blue-600"
+                  >
+                    Thêm hết
+                  </button>
+                ): (<div></div>)}
+              </div>
+              <div className="max-h-[43vh] overflow-y-auto">
+                {variantProduct !== null && variantProduct.variantObjs.length > 0 ? (
+                  <>
                     <ul className="space-y-2">
                       {variantProduct.variantObjs.map((variant) => {
                         // Kiểm tra xem variant đã được thêm vào productsIsSelected hay chưa
                         const isVariantSelected = productsIsSelected?.some(
                           (product) =>
                             product.id === variantProduct.id && // Kiểm tra sản phẩm
-                            product.variantObjs.some((v) => v.id === variant.id) // Kiểm tra biến thể
+                            product.variantObjs.some((v) => v.sku === variant.sku) // Kiểm tra biến thể
                         );
-                    
+
                         return (
                           <li
-                            key={variant.id}
+                            key={variant.sku}
                             className="p-4 border rounded shadow hover:bg-gray-100 relative"
                           >
                             <button
@@ -756,73 +1110,91 @@ export const BasicInfoFields: React.FC<BasicInfoFieldsProps> = ({ control, vouch
                             </button>
                             <div className="flex items-center">
                               <div className="w-full">
-                                <h3 className="font-semibold">{variant.id}</h3>
-                                <p className="text-sm text-gray-500">
-                                  {variant.size} ({variant.sizeType})
-                                </p>
-                                <p className="text-sm text-gray-500">{formatCurrency(variant.lowestAsk)}$</p>
+                                <h3 className="font-semibold">{variant.sku}</h3>
+                                <p className="text-sm text-gray-500">{variant.price}$</p>
                               </div>
                             </div>
                           </li>
                         );
                       })}
                     </ul>
-                  ) : (
-                    <p className="text-gray-500">Không tìm thấy biến thể của sản phẩm này.</p>
-                  )}
-                </div>
-              </div>
-              <div className="mt-4 border rounded p-2 w-[50%]">
-                <div className="text-center font-semibold mb-4 bg-gray-200 rounded p-1">
-                  Đã thêm
-                </div>
-                <div className="max-h-[50vh] overflow-y-auto">
-                  {productsIsSelected !== null && productsIsSelected.length > 0 ? (
-                    <ul className="space-y-2">
-                      {productsIsSelected.map((product, index) => (
-                        <li 
-                          key={product.id}
-                          className="p-4 border rounded shadow hover:bg-gray-100 relative"
-                        >
-                          <button
-                            onClick={() => removeProductInProductsIsSelected(index)}
-                            type="button" 
-                            className="absolute top-2 right-2 border rounded p-1 bg-red-500 text-white hover:bg-red-600 text-xs"
-                          >
-                            X
-                          </button>
-                          <div className="flex items-center gap-4">
-                            <img className="w-[20%] rounded" src={product.imageUrl} alt={product.name} />
-                            <div className="flex-1">
-                              <h3 className="font-semibold">{product.name}</h3>
-                              <p className="text-sm text-gray-500">{product.code}</p>
-                            </div>
-                          </div>
-                          <div className="flex w-max-[40%] overflow-x-auto">
-                            {product.variantObjs.map((variant, index) => (
-                              <div className="min-w-[80px] relative p-2 border rounded mr-1" key={variant.id}>
-                                <button
-                                  onClick={() => removeVariantInProductsIsSelected(product.id, index)}
-                                  type="button"
-                                  className="absolute top-2 right-2 border rounded p-1 bg-red-500 text-white hover:bg-red-600 text-xs"
-                                >
-                                  X
-                                </button>
-                                <h3 className="font-semibold">{variant.id}</h3>
-                                <p className="text-sm text-gray-500">{variant.size} ({variant.sizeType})</p>
-                                <p className="text-sm text-gray-500">{formatCurrency(variant.lowestAsk)}$</p>
-                              </div>
-                            ))}
-                          </div>
-                        </li>
-                      ))}
-                    </ul>
-                  ) : (
-                    <p className="text-gray-500">Trống</p>
-                  )}
-                </div>
+                  </>
+                ) : (
+                  <p className="text-gray-500">Không tìm thấy biến thể của sản phẩm này.</p>
+                )}
               </div>
             </div>
+            <div className="mt-4 border rounded p-2 w-[48%]">
+              <div className="text-center font-semibold mb-4 bg-gray-200 rounded p-1">
+                Đã chọn
+              </div>
+              <div className="mb-2">
+                {/* Nút xóa tất cả */}
+                {productsIsSelected !== null && productsIsSelected.length > 0 ? (
+                  <button
+                    onClick={() => removeAllProducts()}
+                    type="button"
+                    className="w-full p-1 bg-red-500 text-white rounded hover:bg-red-600"
+                  >
+                    Xóa tất cả
+                  </button>
+                ): (<div></div>)}
+              </div>
+              <div className="max-h-[43vh] overflow-y-auto">
+                {productsIsSelected !== null && productsIsSelected.length > 0 ? (
+                  <ul className="space-y-2">
+                    {productsIsSelected.map((product, index) => (
+                      <li
+                        key={product.id}
+                        className="p-4 border rounded shadow hover:bg-gray-100 relative"
+                      >
+                        <button
+                          onClick={() => removeProductInProductsIsSelected(index)}
+                          type="button"
+                          className="absolute top-2 right-2 border rounded p-1 bg-red-500 text-white hover:bg-red-600 text-xs"
+                        >
+                          X
+                        </button>
+                        <div className="flex items-center gap-4">
+                          <img
+                            className="w-[20%] rounded"
+                            src={product.imageUrl}
+                            alt={product.name}
+                          />
+                          <div className="flex-1">
+                            <h3 className="font-semibold">{product.name}</h3>
+                            <p className="text-sm text-gray-500">{product.code}</p>
+                          </div>
+                        </div>
+                        <div className="flex w-max-[40%] overflow-x-auto">
+                          {product.variantObjs.map((variant, index) => (
+                            <div
+                              className="relative p-2 border rounded mr-1"
+                              key={variant.sku}
+                            >
+                              <button
+                                onClick={() =>
+                                  removeVariantInProductsIsSelected(product.id, index)
+                                }
+                                type="button"
+                                className="absolute top-2 right-2 border rounded p-1 bg-red-500 text-white hover:bg-red-600 text-xs"
+                              >
+                                X
+                              </button>
+                              <h3 className="font-semibold mr-6">{variant.sku}</h3>
+                              <p className="text-sm text-gray-500">{variant.price}$</p>
+                            </div>
+                          ))}
+                        </div>
+                      </li>
+                    ))}
+                  </ul>
+                ) : (
+                  <p className="text-gray-500">Trống</p>
+                )}
+              </div>
+            </div>
+          </div>
 
             <form>
               <Pagination                                   //fix lỗi form nhầm nút chuyển trang

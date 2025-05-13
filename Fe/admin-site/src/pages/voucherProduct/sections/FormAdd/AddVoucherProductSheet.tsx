@@ -1,5 +1,5 @@
 import { Button } from "@/components/ui/button";
-import React, { useEffect, useState } from "react";
+import React, { useEffect, useRef, useState } from "react";
 import { useAppDispatch } from "@/hooks/use-app-dispatch";
 import {
   Sheet,
@@ -43,12 +43,24 @@ const AddVoucherProductSheet: React.FC<AddVoucherProductSheetProps> = ({
     }
   }, [isOpen, dispatch]);
 
+  const errorRef = useRef<HTMLHeadingElement>(null); // Tạo ref cho phần tử hiển thị lỗi
+  
+  useEffect(() => {
+    if (errMs && errorRef.current) {
+      // Nếu có lỗi, cuộn đến phần tử hiển thị lỗi
+      errorRef.current.scrollIntoView({ behavior: "smooth", block: "center" });
+    }
+  }, [errMs]); // Theo dõi thay đổi của errMs
+
   const handleFormSubmit = async (values: ProductDetailResDto[] | null) => {
     setIsSubmitting(true);
     try {
       if(values === null || values.length <= 0)
       {
-        setErrMs("Vui lòng không để trống sản phẩm cần thêm");
+        setErrMs(""); // Đặt lại về rỗng để kích hoạt useEffect
+        setTimeout(() => {
+          setErrMs("Vui lòng không để trống sản phẩm cần thêm");
+        }, 0); // Đặt lỗi mới sau một khoảng thời gian ngắn
         return;
       }
       setErrMs("");
@@ -56,7 +68,10 @@ const AddVoucherProductSheet: React.FC<AddVoucherProductSheetProps> = ({
       //Check voucher tồn tại
       const voucherResponse = await dispatch(fetchVoucherById(voucherId)).unwrap();
       if ((!voucherResponse) || (voucherResponse && voucherResponse.isdeleted)) {
-        setErrMs("Không tìm thấy voucher");
+        setErrMs(""); // Đặt lại về rỗng để kích hoạt useEffect
+        setTimeout(() => {
+          setErrMs("Không tìm thấy Voucher! Vui lòng kiểm tra lại!");
+        }, 0); // Đặt lỗi mới sau một khoảng thời gian ngắn
         return;
       }
       setErrMs("");
@@ -65,7 +80,7 @@ const AddVoucherProductSheet: React.FC<AddVoucherProductSheetProps> = ({
         product.variantObjs.map((variant: VariantObjs) => ({
           voucherId: voucherId,
           productId: product.id,
-          varientProductId: variant.id,
+          varientProductId: variant.sku,
           createdByUserId: "3fa85f64-5717-4562-b3fc-2c963f66afa6",
           lastModifiedByUserId: "3fa85f64-5717-4562-b3fc-2c963f66afa6",
           lastModifiedOnDate: new Date().toISOString(),
@@ -77,9 +92,13 @@ const AddVoucherProductSheet: React.FC<AddVoucherProductSheetProps> = ({
       const voucherProductsFound = await dispatch(findVoucherProductsByVcidPidVaid(voucherProducts)).unwrap();
       if(voucherProductsFound !== null && voucherProductsFound.length > 0)
       {
-        setErrMs("Phát hiện trong danh sách sản phẩm cần thêm có sản phẩm/biến thể đã được thêm vào từ trước đó, vui lòng kiểm tra lại!");
+        setErrMs(""); // Đặt lại về rỗng để kích hoạt useEffect
+        setTimeout(() => {
+          setErrMs("Phát hiện trong danh sách sản phẩm đã chọn có biến thể của sản phẩm đã được thêm vào từ trước đó, vui lòng kiểm tra lại!");
+        }, 0); // Đặt lỗi mới sau một khoảng thời gian ngắn
         return;
       }
+      setErrMs("");
 
       var rs = await dispatch(createVoucherProduct(voucherProducts));
       if(createVoucherProduct.fulfilled.match(rs)){
@@ -100,9 +119,6 @@ const AddVoucherProductSheet: React.FC<AddVoucherProductSheetProps> = ({
   const [isSearching, setIsSearching] = useState<boolean>(false);
   const [variantProduct, setVariantProduct] = useState<ProductDetailResDto | null>(null);
   const [productsIsSelected, setProductsIsSelected] = useState<ProductDetailResDto[] | null>(null);
-
-  const formatCurrency = (value: number) =>
-    new Intl.NumberFormat("en-us").format(value);
   
   const handleSubmitSearch = async () => {
     setIsSearching(true); // Bắt đầu tìm kiếm
@@ -178,7 +194,7 @@ const AddVoucherProductSheet: React.FC<AddVoucherProductSheetProps> = ({
         const existingProduct = updatedProducts[existingProductIndex];
   
         // Kiểm tra xem biến thể đã tồn tại trong variantObjs chưa
-        const isVariantExists = existingProduct.variantObjs.some((v) => v.id === variant.id);
+        const isVariantExists = existingProduct.variantObjs.some((v) => v.sku === variant.sku);
   
         if (!isVariantExists) {
           // Nếu biến thể chưa tồn tại, thêm biến thể vào variantObjs
@@ -189,6 +205,89 @@ const AddVoucherProductSheet: React.FC<AddVoucherProductSheetProps> = ({
         return updatedProducts;
       }
     });
+  };
+
+  const AddAllVariants = async (product: ProductDetailResDto) => {
+    try {
+      // Tạo payload để kiểm tra các biến thể trong DB
+      const payload: VoucherProductReqDto[] = product.variantObjs.map((variant) => ({
+        voucherId: voucherId,
+        productId: product.id,
+        varientProductId: variant.sku,
+        createdByUserId: "3fa85f64-5717-4562-b3fc-2c963f66afa6", // GUID hợp lệ
+        lastModifiedByUserId: "3fa85f64-5717-4562-b3fc-2c963f66afa6", // GUID hợp lệ
+        lastModifiedOnDate: new Date().toISOString(), // Giá trị hợp lệ
+        createdOnDate: new Date().toISOString(), // Giá trị hợp lệ
+      }));
+
+      // Gọi API để kiểm tra các biến thể đã tồn tại trong DB
+      const existingVariants = await dispatch(
+        findVoucherProductsByVcidPidVaid(payload)
+      ).unwrap();
+
+      // Lọc các biến thể chưa tồn tại trong DB và chưa tồn tại trong danh sách `productsIsSelected`
+      const newVariants = product.variantObjs.filter(
+        (variant) =>
+          !existingVariants.some(
+            (existing) =>
+              existing.productId === product.id &&
+              existing.varientProductId === variant.sku
+          ) &&
+          !productsIsSelected?.some(
+            (selectedProduct) =>
+              selectedProduct.id === product.id &&
+              selectedProduct.variantObjs.some((v) => v.sku === variant.sku)
+          )
+      );
+
+      // Nếu không có biến thể mới nào để thêm, hiển thị thông báo và dừng xử lý
+      if (newVariants.length === 0) {
+        setErrMs(""); // Đặt lại về rỗng để kích hoạt useEffect
+        setTimeout(() => {
+          setErrMs("Tất cả các biến thể của sản phẩm này đã được thêm trước đó hoặc đang trong danh sách đã chọn.");
+        }, 0); // Đặt lỗi mới sau một khoảng thời gian ngắn
+        return;
+      }
+      setErrMs("");
+
+      // Thêm sản phẩm và các biến thể chưa tồn tại vào danh sách
+      setProductsIsSelected((prev) => {
+        if (!prev) {
+          const newProduct = { ...product, variantObjs: newVariants };
+          setValue("productsIsSelected", [newProduct]); // Lưu vào form state
+          return [newProduct];
+        }
+
+        // Kiểm tra xem sản phẩm đã tồn tại trong danh sách chưa
+        const existingProductIndex = prev.findIndex((p) => p.id === product.id);
+
+        if (existingProductIndex === -1) {
+          // Nếu sản phẩm chưa tồn tại, thêm sản phẩm mới với các biến thể chưa tồn tại
+          const newProduct = { ...product, variantObjs: newVariants };
+          const updatedProducts = [newProduct, ...prev];
+          setValue("productsIsSelected", updatedProducts); // Lưu vào form state
+          return updatedProducts;
+        } else {
+          // Nếu sản phẩm đã tồn tại, thêm các biến thể chưa có vào danh sách variantObjs
+          const updatedProducts = [...prev];
+          const existingProduct = updatedProducts[existingProductIndex];
+
+          // Thêm các biến thể mới vào danh sách variantObjs
+          existingProduct.variantObjs = [...existingProduct.variantObjs, ...newVariants];
+
+          setValue("productsIsSelected", updatedProducts); // Lưu vào form state
+          return updatedProducts;
+        }
+      });
+    } catch (error) {
+      console.error("Error checking existing variants:", error);
+      setErrMs("Đã xảy ra lỗi khi kiểm tra biến thể trong cơ sở dữ liệu.");
+    }
+  };
+
+  const removeAllProducts = () => {
+    setProductsIsSelected(null); // Đặt danh sách về null
+    setValue("productsIsSelected", []); // Cập nhật giá trị trong form state
   };
 
   const removeProductInProductsIsSelected = (index: number) => {
@@ -239,7 +338,7 @@ const AddVoucherProductSheet: React.FC<AddVoucherProductSheetProps> = ({
     const requestPayload: VoucherProductReqDto[] = initialVariants.map((variant) => ({
       voucherId: voucherId,
       productId: product.id,
-      varientProductId: variant.id,
+      varientProductId: variant.sku,
       createdByUserId: "3fa85f64-5717-4562-b3fc-2c963f66afa6", // GUID hợp lệ
       lastModifiedByUserId: "3fa85f64-5717-4562-b3fc-2c963f66afa6", // GUID hợp lệ
       lastModifiedOnDate: new Date().toISOString(), // Giá trị hợp lệ
@@ -271,7 +370,7 @@ const AddVoucherProductSheet: React.FC<AddVoucherProductSheetProps> = ({
       const requestPayload: VoucherProductReqDto[] = nextVariants.map((variant) => ({
         voucherId: voucherId,
         productId: variantProduct.id,
-        varientProductId: variant.id,
+        varientProductId: variant.sku,
         createdByUserId: "3fa85f64-5717-4562-b3fc-2c963f66afa6",
         lastModifiedByUserId: "3fa85f64-5717-4562-b3fc-2c963f66afa6",
         lastModifiedOnDate: new Date().toISOString(),
@@ -300,12 +399,12 @@ const AddVoucherProductSheet: React.FC<AddVoucherProductSheetProps> = ({
         (voucherProduct) =>
           voucherProduct.voucherId === voucherId &&
           voucherProduct.productId === variantProduct?.id &&
-          voucherProduct.varientProductId === variant.id
+          voucherProduct.varientProductId === variant.sku
       ) ||
       productsIsSelected?.some(
         (product) =>
           product.id === variantProduct?.id &&
-          product.variantObjs.some((v) => v.id === variant.id)
+          product.variantObjs.some((v) => v.sku === variant.sku)
       )
     );
   };
@@ -336,6 +435,11 @@ const AddVoucherProductSheet: React.FC<AddVoucherProductSheetProps> = ({
             }}
             className="space-y-6 overflow-auto"
             >
+
+            <h3 ref={errorRef} className="text-red-500 text-center">
+              {errMs}
+            </h3>
+
             <div className="p-5 m-5 border border-gray-300 rounded">
             {/* Tìm kiếm sản phẩm */}
             <div className="flex items-center">
@@ -380,7 +484,7 @@ const AddVoucherProductSheet: React.FC<AddVoucherProductSheetProps> = ({
                           <div className="ml-2">
                             <h3 className="font-semibold">{product.name}</h3>
                             <p className="text-sm text-gray-500">{product.code}</p>
-                            <button onClick={() => handleOpenDetail(product.id)} className="flex text-sm items-start text-blue-500 hover:text-blue-700" >
+                            <button onClick={() => handleOpenDetail(product.id)} type="button" className="flex text-sm items-start text-blue-500 hover:text-blue-700" >
                               Chi tiết
                             </button>
                           </div>
@@ -396,12 +500,24 @@ const AddVoucherProductSheet: React.FC<AddVoucherProductSheetProps> = ({
                 <div className="text-center font-semibold mb-4 bg-gray-200 rounded p-1">
                   Biến thể
                 </div>
-                <div className="max-h-[50vh] overflow-y-auto">
+                <div className="mb-2">
+                  {/* Nút thêm hết */}
+                  {variantProduct !== null && variantProduct.variantObjs.length > 0 ? (
+                    <button
+                      onClick={() => AddAllVariants(variantProduct)}
+                      type="button"
+                      className="w-full p-1 bg-blue-500 text-white rounded hover:bg-blue-600"
+                    >
+                      Thêm hết
+                    </button>
+                  ): (<div></div>)}
+                </div>
+                <div className="max-h-[43vh] overflow-y-auto">
                   {variantProduct !== null && visibleVariants.length > 0 ? (
                     <ul className="space-y-2">
                       {visibleVariants.map((variant) => (
                         <li
-                          key={variant.id}
+                          key={variant.sku}
                           className="p-4 border rounded shadow hover:bg-gray-100 relative"
                         >
                           <button
@@ -418,11 +534,8 @@ const AddVoucherProductSheet: React.FC<AddVoucherProductSheetProps> = ({
                           </button>
                           <div className="flex items-center">
                             <div className="w-full">
-                              <h3 className="font-semibold">{variant.id}</h3>
-                              <p className="text-sm text-gray-500">
-                                {variant.size} ({variant.sizeType})
-                              </p>
-                              <p className="text-sm text-gray-500">{formatCurrency(variant.lowestAsk)}$</p>
+                              <h3 className="font-semibold">{variant.sku}</h3>
+                              <p className="text-sm text-gray-500">{variant.price}$</p>
                             </div>
                           </div>
                         </li>
@@ -445,11 +558,23 @@ const AddVoucherProductSheet: React.FC<AddVoucherProductSheetProps> = ({
                     )}
                 </div>
               </div>
-              <div className="mt-4 border rounded p-2 w-[50%]">
+              <div className="mt-4 border rounded p-2 w-[48%]">
                 <div className="text-center font-semibold mb-4 bg-gray-200 rounded p-1">
-                  Đã thêm
+                  Đã chọn
                 </div>
-                <div className="max-h-[50vh] overflow-y-auto">
+                <div className="mb-2">
+                  {/* Nút xóa tất cả */}
+                  {productsIsSelected !== null && productsIsSelected.length > 0 ? (
+                    <button
+                      onClick={() => removeAllProducts()}
+                      type="button"
+                      className="w-full p-1 bg-red-500 text-white rounded hover:bg-red-600"
+                    >
+                      Xóa tất cả
+                    </button>
+                  ): (<div></div>)}
+                </div>
+                <div className="max-h-[43vh] overflow-y-auto">
                   {productsIsSelected !== null && productsIsSelected.length > 0 ? (
                     <ul className="space-y-2">
                       {productsIsSelected.map((product, index) => (
@@ -473,7 +598,7 @@ const AddVoucherProductSheet: React.FC<AddVoucherProductSheetProps> = ({
                           </div>
                           <div className="flex w-max-[40%] overflow-x-auto">
                             {product.variantObjs.map((variant, index) => (
-                              <div className="min-w-[80px] relative p-2 border rounded mr-1 hover:bg-gray-100 bg-white" key={variant.id}>
+                              <div className="relative p-2 border rounded mr-1 hover:bg-gray-100 bg-white" key={variant.sku}>
                                 <button
                                   onClick={() => removeVariantInProductsIsSelected(product.id, index)}
                                   type="button"
@@ -481,9 +606,8 @@ const AddVoucherProductSheet: React.FC<AddVoucherProductSheetProps> = ({
                                 >
                                   X
                                 </button>
-                                <h3 className="font-semibold">{variant.id}</h3>
-                                <p className="text-sm text-gray-500">{variant.size} ({variant.sizeType})</p>
-                                <p className="text-sm text-gray-500">{formatCurrency(variant.lowestAsk)}$</p>
+                                <h3 className="font-semibold mr-6">{variant.sku}</h3>
+                                <p className="text-sm text-gray-500">{variant.price}$</p>
                               </div>
                             ))}
                           </div>
@@ -509,8 +633,6 @@ const AddVoucherProductSheet: React.FC<AddVoucherProductSheetProps> = ({
               <input required hidden/>
             </form>
           </div>
-            <h3 className="text-red-500 text-center">{errMs}</h3>
-
             <div className="flex justify-end gap-2 pt-4">
               <Button type="submit" disabled={isSubmitting}>
                 {isSubmitting ? "Đang thêm..." : "Thêm"}
