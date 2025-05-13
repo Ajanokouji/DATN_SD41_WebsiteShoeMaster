@@ -132,7 +132,7 @@ const VoucherProducts: React.FC = () => {
     <>
       <section className="px-8">
         <Helmet>
-          <title>Chi tiết Voucher sản phẩm</title>
+          <title>Các sản phẩm áp dụng Voucher {voucher.voucherName}</title>
         </Helmet>
         <h2 className="text-2xl mb-2">
           Danh sách Sản phẩm áp dụng Voucher: {voucher.voucherName} {renderStatusDate()}
