@@ -324,12 +324,10 @@ public class BillRepository : IBillRepository
             foreach (var billDetails in listBilldetails)
             {
                 var product = _context.Products.SingleOrDefault(p => p.Id == billDetails.ProductId);
+                var variant = product.VariantObjs.FirstOrDefault(v => v.Group1 == billDetails.Color && v.Group2 == billDetails.Size);
                 if (product == null) continue;
 
-                int quantity = Convert.ToInt32(product.MetadataObj.GetMetadatavalue("Quantity"));
-                quantity += billDetails.Quantity;
-                product.MetadataObj.SetMetaFieldValue("Quantity", quantity.ToString());
-
+                variant.Stock += billDetails.Quantity;
                 _context.Products.Update(product);
             }
 
@@ -384,8 +382,8 @@ public class BillRepository : IBillRepository
                 IdProduct = prd.Id,
                 Image = prd.ImageUrl,
                 Name = prd.Name,
-                Color = prd.MetadataObj.GetMetadatavalue("Colorway"),
-                Size = prd.MetadataObj.GetMetadatavalue("Size"),
+                Color = bdt.Color,
+                Size = bdt.Size,
                 Quantity = bdt.Quantity,
                 Price = bdt.Price,
             }).AsEnumerable().Reverse().ToList();

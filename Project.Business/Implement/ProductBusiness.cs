@@ -330,7 +330,7 @@ namespace Project.Business.Implement
             return await _productRepository.GetProductDetailsById(idprd); 
         }
 
-        public async Task<List<ProductDetailsViewModel>> ListProductDetailsById(Guid idprd)
+        public async Task<List<ListProductDetailsViewModel>> ListProductDetailsById(Guid idprd)
         {
             return await _productRepository.ListProductDetailsById(idprd);
         }

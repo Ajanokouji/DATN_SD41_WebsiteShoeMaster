@@ -3,64 +3,104 @@
     // var lstPttt = ViewData["lstPttt"] as List<PhuongThucThanhToan>;
 }
 <div class="d-flex flex-column" style="height:100%">
-    <form class="row g-3 p-3 formthanhtoan">
+    <form class="row g-3 p-3 formthanhtoan" style="height: 800px; overflow-y:auto;">
         <div class="d-flex flex-row lh-1">
-            <div class="flex-fill text-start"><span id="nhanVien"></span>Employee: @Model.Employee</div>
+            <div class="flex-fill text-start"><span id="nhanVien"></span>Nhân viên: @Model.Employee</div>
             <div class="flex-fill text-end"><span id="ngay"></span>@Model.PaymentDate</div>
         </div>
         <hr/>
         <div class="d-flex flex-row lh-1">
-            <div class="flex-fill"><label for="inputName5" class="form-label ">Bill Code: @Model.BillCode</label></div>
+            <div class="flex-fill"><label for="inputName5" class="form-label ">Mã hóa đơn: @Model.BillCode</label></div>
         </div>
         <hr/>
         <div class="d-flex flex-row lh-1">
-            <div class="flex-fill"><label for="inputName5" class="form-label">Client</label></div>
+            <div class="flex-fill"><label for="inputName5" class="form-label">Khách hàng</label></div>
             <div class="flex-fill text-end"> <span id="tenkh">@Model.Client</span></div>
         </div>
         <hr/>
         <div class="d-flex flex-row lh-1">
-            <div class="flex-fill"><label class="form-label">Total Quantity</label></div>
+            <div class="flex-fill"><label for="inputName5" class="form-label">Sản phẩm</label></div>
+        </div>
+        <div>
+            @foreach (var item in Model.BillDetails)
+            {
+                <div class="d-flex flex-row lh-1" style="margin-top: 5px;">
+                    <div class="flex-fill">
+                        <label class="form-label">@item.Name x @item.Quantity</label>
+                    </div>
+                    <div class="flex-fill text-end">
+                        <span>@String.Format("{0:N0} đ", item.Price)</span>
+                    </div>
+                </div>
+            }
+        </div>
+        <hr/>
+        <div class="d-flex flex-row lh-1">
+            <div class="flex-fill"><label class="form-label">Tổng số lượng</label></div>
             <div class="flex-fill text-end"> <span id="soLuong">@Model.TotalQuantity</span></div>
         </div>
         <hr/>
         <div class="d-flex flex-row lh-1">
-            <div class="flex-fill"><label for="inputEmail5" class="form-label">Total Price</label></div>
+            <div class="flex-fill"><label for="inputEmail5" class="form-label">Tổng tiền</label></div>
             <div class="flex-fill text-end"> <input id="tongTienHang" value="@Model.TotalPrice" hidden /><span>@Model.TotalPrice?.ToString("n0")</span></div>
         </div>
         <hr/>
         <div class="d-flex flex-row lh-1">
-            <div class="flex-fill"><label for="inputEmail5" class="form-label">Voucher </label></div>
+            <div class="flex-fill"><label for="inputEmail5" class="form-label">Khuyến mãi</label></div>
             <div class="flex-fill text-end"><span id="giatrivoucher"></span></div>
         </div>
         <hr/>
         <div class="d-flex flex-row lh-1">
-            <div class="flex-fill"><label for="inputEmail5" class="form-label">Payment</label></div>
+            <div class="flex-fill"><label for="inputEmail5" class="form-label">Tổng tiền cần thanh toán</label></div>
             <div class="flex-fill text-end">
                 <span id="khachCanTra"></span>
             </div>
         </div>
         <hr/>
         <div class="d-flex flex-row lh-1">
-            <div class="flex-fill"><label for="inputState" class="form-label">Payment Method</label></div>
+            <div class="flex-fill"><label for="inputState" class="form-label">Phương thức thanh toán</label></div>
             <div class="flex-fill m-2">
-                <input class="form-check-input" type="radio" name="pttt" value="Cash" checked>
+                <input class="form-check-input" type="radio" name="pttt" id="radioCash" value="Cash" checked>
                 <label class="form-check-label" for="gridRadios1">
-                    Cash
+                    Tiền mặt
                 </label>
             </div>
             <div class="flex-fill m-2">
-                <input class="form-check-input" type="radio" name="pttt" value="VNPay" checked>
+                <input class="form-check-input" type="radio" name="pttt" id="radioVNPay" value="VNPay">
                 <label class="form-check-label" for="gridRadios1">
                     VNPay
                 </label>
             </div>
+        </div>
+        <!-- Khi chọn Tiền mặt -->
+        <div id="tienMatSection">
+            <hr />
+            <div class="d-flex flex-row lh-1">
+                <div class="flex-fill"><label class="form-label">Tiền khách đưa</label></div>
+                <div class="flex-fill text-end">
+                    <input type="number" id="tienKhachDua" style="margin-left: 300px; width: 150px; text-align: right;" class="form-control" placeholder="Nhập số tiền khách đưa" />
+                </div>
+            </div>
+            <hr />
+            <div class="d-flex flex-row lh-1">
+                <div class="flex-fill"><label class="form-label">Tiền trả lại</label></div>
+                <div class="flex-fill text-end">
+                    <span id="tienTraLai">0</span>
+                </div>
+            </div>
+        </div>
+
+        <!-- Khi chọn VNPay -->
+        <div id="vnpaySection" style="display: none;">
+            <hr />
+            <div class="text-center text-info">VNPay QRCode</div>
         </div>
         <hr/>
     </form>
 
     <div class="mt-auto text-danger" id="notification"></div>
     <div class="d-flex flex-row mt-auto">
-        <button type="button" onclick="thanhToan('@Model.Id')" class="btn btn-primary fw-bold btn-block w-100" style="height:60px; font-size:24px">THANH TOÁN</button>
+        <button type="button" onclick="thanhToan('@Model.Id')" class="btn btn-primary fw-bold btn-block w-100" style="height:60px; font-size:24px">Thanh toán</button>
     </div>
 </div>
 <script>
@@ -75,6 +115,34 @@
         // Sử dụng voucher
         $("#btn-voucher").on("click", function() {
             var voucher = $("#voucher").val();
+        });
+
+        // Kiểm tra chọn ban đầu
+        togglePaymentSection();
+
+        // Khi thay đổi phương thức thanh toán
+        $("input[name='pttt']").on("change", function () {
+            togglePaymentSection();
+        });
+
+        function togglePaymentSection() {
+            var selected = $("input[name='pttt']:checked").val();
+            if (selected === "Cash") {
+                $("#tienMatSection").show();
+                $("#vnpaySection").hide();
+            } else if (selected === "VNPay") {
+                $("#tienMatSection").hide();
+                $("#vnpaySection").show();
+            }
+        }
+
+        // Tính tiền trả lại mỗi khi nhập tiền khách đưa
+        $("#tienKhachDua").on("input", function () {
+            var tienKhachDua = parseInt($(this).val()) || 0;
+            var tienTraLai = tienKhachDua - tongtien;
+            $("#tienTraLai").text(tienTraLai.toLocaleString());
+
+            $("#tienTraLai").css("color", tienTraLai < 0 ? "red" : "green");
         });
     })
 </script>

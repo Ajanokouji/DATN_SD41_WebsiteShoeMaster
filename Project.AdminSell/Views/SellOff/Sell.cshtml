@@ -94,8 +94,7 @@
     <div class="modal-dialog" id="modalthanhtoan">
         <div class="modal-content" id="modalthanhtoan-content">
             <div class="modal-header" style="background-color: #343a40">
-                <h5 class="modal-title fw-700 text-white align-center">THANH TOÁN </h5>
-                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                <h5 class="modal-title fw-700 text-white align-center" style="margin-left: 230px;">THANH TOÁN</h5>
             </div>
             <div class="modal-body" id="thanhtoanbody">
             </div>
@@ -329,10 +328,10 @@
 
 
     //Thêm SP vào Hóa đơn
-    function addCTSP(idprd, price) {
+    function addCTSP(idprd, price, color, size) {
         var activeTab = $(".tabs-box .tab").filter(".active");
         var elementValue = activeTab.find("span").attr("value");
-        var request = {IdBill: elementValue, IdProduct: idprd, Price: price, Quantity: 1}
+        var request = {IdBill: elementValue, IdProduct: idprd, Price: price, Quantity: 1, Color: color, size: size}
         $.ajax({
             url: "/SellOff/AddProductToCart/",
             async: false,
