@@ -1,6 +1,6 @@
 import { Button } from "@/components/ui/button";
 import { Form } from "@/components/ui/form";
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import { useAppDispatch } from "@/hooks/use-app-dispatch";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
@@ -19,6 +19,9 @@ import VoucherProductReqDto from "@/types/voucherProduct/voucherProduct";
 import { createVoucherProduct } from "@/redux/apps/voucherProduct/voucherProductSlice"
 import { v4 as uuidv4 } from "uuid";
 import { VariantObjs } from "@/types/product/product";
+import VoucherUserReqDto from "@/types/voucherUser/voucherUser";
+import { createVoucherUsers } from "@/redux/apps/voucherUser/voucherUserSlice";
+import { clearUsers, setUserPage, setUserPageSize } from "@/redux/apps/voucherUser/voucherUserSlice";
 
 interface AddVoucherSheetProps {
   isOpen: boolean;
@@ -33,6 +36,14 @@ const AddVoucherSheet: React.FC<AddVoucherSheetProps> = ({
 }) => {
   const dispatch = useAppDispatch();
   const [isSubmitting, setIsSubmitting] = useState(false);
+  
+  useEffect(() => {
+      if (isOpen) {
+        setUserPage(0);
+        setUserPageSize(20);
+        dispatch(clearUsers()); // Xóa danh sách products khi form được mở
+      }
+    }, [isOpen, dispatch]);
 
   const form = useForm<VoucherFormSchema>({
     resolver: zodResolver(voucherFormSchema),
@@ -60,6 +71,7 @@ const AddVoucherSheet: React.FC<AddVoucherSheetProps> = ({
       maxDiscountAmount: undefined,
       redeemCount: undefined,
       productsIsSelected: null,
+      usersIsSelected: null,
     },
   });
 
@@ -126,6 +138,25 @@ const AddVoucherSheet: React.FC<AddVoucherSheetProps> = ({
 
       var createRs = await dispatch(createVoucher(voucherData));
       if (createVoucher.fulfilled.match(createRs)) {
+        ////Thêm VoucherUser
+        if(voucherData.displaySettings === 0 &&
+          values.usersIsSelected !== null &&
+          values.usersIsSelected.length > 0
+        ){
+          // Map usersIsSelected thành VoucherUserReqDto
+          const voucherUsers: VoucherUserReqDto[] = values.usersIsSelected.map((user) => ({
+            voucherId: voucherData.id,
+            userId: user.id,
+            createdByUserId: "3fa85f64-5717-4562-b3fc-2c963f66afa6", // GUID hợp lệ
+            lastModifiedByUserId: "3fa85f64-5717-4562-b3fc-2c963f66afa6", // GUID hợp lệ
+            lastModifiedOnDate: new Date().toISOString(), // Giá trị hợp lệ
+            createdOnDate: new Date().toISOString(), // Giá trị hợp lệ
+          }));
+
+          // Gửi danh sách voucherUsers lên API
+          await dispatch(createVoucherUsers(voucherUsers));
+        }
+
         ////Thêm voucherProduct
         if (
           voucherData.voucherType === 2 &&
@@ -137,7 +168,7 @@ const AddVoucherSheet: React.FC<AddVoucherSheetProps> = ({
             product.variantObjs.map((variant: VariantObjs) => ({
               voucherId: voucherData.id,
               productId: product.id,
-              varientProductId: variant.id,
+              varientProductId: variant.sku,
               createdByUserId: "3fa85f64-5717-4562-b3fc-2c963f66afa6",
               lastModifiedByUserId: "3fa85f64-5717-4562-b3fc-2c963f66afa6",
               lastModifiedOnDate: new Date().toISOString(),

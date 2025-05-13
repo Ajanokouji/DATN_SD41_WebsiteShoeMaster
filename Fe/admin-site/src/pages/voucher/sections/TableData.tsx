@@ -180,9 +180,15 @@ const VouchersTable: React.FC = () => {
           return (
             <div>
               <div>Voucher toàn shop</div>
-              <div>{row?.displaySettings === 1?"(Hiển thị nhiều nơi)":"(Không công khai)"}</div>
-              <div className="text-gray-500 italic">Áp dụng cho</div>
-              <div className="text-gray-500 italic">tất cả sản phẩm</div>
+
+              <div>{row?.displaySettings === 1?"Hiển thị nhiều nơi":"Không công khai"}</div>
+              {row?.displaySettings === 0?
+              <Link to={`/voucher-user/${row?.id}`} target="_blank" rel="noopener noreferrer"
+                className="text-blue-500 hover:text-blue-700 italic">
+                <div>Xem chi tiết</div>
+              </Link>
+              : ""
+              }
             </div>
           );
         }
@@ -190,12 +196,19 @@ const VouchersTable: React.FC = () => {
           return (
             <div>
               <div>Voucher sản phẩm</div>
-              <div>{row?.displaySettings === 1?"(Hiển thị nhiều nơi)":"(Không công khai)"}</div>
               <Link to={`/voucher-product/${row?.id}`} target="_blank" rel="noopener noreferrer"
-              className="text-blue-500 hover:text-blue-700 italic">
-                <div>Xem chi tiết các</div>
-                <div>sản phẩm áp dụng</div>
+                className="text-blue-500 hover:text-blue-700 italic">
+                <div>Xem chi tiết</div>
               </Link>
+
+              <div>{row?.displaySettings === 1?"Hiển thị nhiều nơi":"Không công khai"}</div>
+              {row?.displaySettings === 0?
+              <Link to={`/voucher-user/${row?.id}`} target="_blank" rel="noopener noreferrer"
+                className="text-blue-500 hover:text-blue-700 italic">
+                <div>Xem chi tiết</div>
+              </Link>
+              : ""
+              }
             </div>
           );
         }
