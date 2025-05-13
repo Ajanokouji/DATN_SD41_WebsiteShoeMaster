@@ -59,7 +59,7 @@ const baseSchema = z.object({
       .min(0, "Giá trị đơn hàng tối thiểu phải lớn hơn hoặc bằng 0")
   ),
 
-  description: z.string().optional(),
+  description: z.string().max(256, "Mô tả không được quá 256 ký tự").optional(),
 
   status: z.number(),
   voucherType: z.number(),
@@ -94,6 +94,7 @@ const baseSchema = z.object({
   displaySettings: z.number(),
   redeemCount: z.any(),
   productsIsSelected: z.array(z.any()).nullable(),
+  usersIsSelected: z.array(z.any()).nullable(),
 });
 
 export const voucherFormSchema = z
