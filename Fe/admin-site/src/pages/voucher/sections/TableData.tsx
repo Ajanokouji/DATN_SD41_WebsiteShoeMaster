@@ -20,6 +20,7 @@ import {
 } from "@/redux/apps/voucher/voucherSelector";
 import DetailVoucherSheet from "./UpdateDetail/DetailVoucherSheet";
 import { formatVietnamTime } from "@/utils/format";
+import { FaEye } from "react-icons/fa6";
 
 const VoucherTable = <T extends { id: string }>({
   headers,
@@ -60,25 +61,17 @@ const VouchersTable: React.FC = () => {
     setIsOpenUpdate(true);
     setSelectedVoucherId(id);
   };
-  
-  const renderDateRange = (startDate: string, endDate: string) => {
-    if(startDate.includes("T") && endDate.includes("T")) {
-      startDate = startDate.replace("T", " ").replace("Z", "");
-      endDate = endDate.replace("T", " ").replace("Z", "");
-    }
-    return `${formatVietnamTime(startDate)} - ${formatVietnamTime(endDate)}`;
-  };
 
   const renderDiscount = (voucher: VoucherResDto) => {
     if (voucher.discountAmount) {
-      return `${formatCurrency(voucher.discountAmount)}$`;
+      return `${formatCurrency(voucher.discountAmount)} VNĐ`;
     }
     return `${voucher.discountPercentage}%`;
   };
 
   const renderMaxDiscountAmount = (voucher: VoucherResDto) => {
     if (voucher.maxDiscountAmount) {
-      return `(Tối đa: ${formatCurrency(voucher.maxDiscountAmount)}$)`;
+      return `(Tối đa: ${formatCurrency(voucher.maxDiscountAmount)} VNĐ)`;
     }
   };
 
@@ -87,7 +80,7 @@ const VouchersTable: React.FC = () => {
 
   const renderMinimumOrderAmount = (voucher: VoucherResDto) => {
     if (voucher.minimumOrderAmount) {
-      return `${formatCurrency(voucher.minimumOrderAmount)}$`;
+      return `${formatCurrency(voucher.minimumOrderAmount)} VNĐ`;
     }
   };
 
@@ -184,8 +177,8 @@ const VouchersTable: React.FC = () => {
               <div>{row?.displaySettings === 1?"Hiển thị nhiều nơi":"Không công khai"}</div>
               {row?.displaySettings === 0?
               <Link to={`/voucher-user/${row?.id}`} target="_blank" rel="noopener noreferrer"
-                className="text-blue-500 hover:text-blue-700 italic">
-                <div>Xem chi tiết</div>
+                className="flex items-center justify-center text-blue-500 hover:text-blue-700">
+                <FaEye/>
               </Link>
               : ""
               }
@@ -197,15 +190,15 @@ const VouchersTable: React.FC = () => {
             <div>
               <div>Voucher sản phẩm</div>
               <Link to={`/voucher-product/${row?.id}`} target="_blank" rel="noopener noreferrer"
-                className="text-blue-500 hover:text-blue-700 italic">
-                <div>Xem chi tiết</div>
+                className="flex items-center justify-center text-blue-500 hover:text-blue-700">
+                <FaEye/>
               </Link>
 
               <div>{row?.displaySettings === 1?"Hiển thị nhiều nơi":"Không công khai"}</div>
               {row?.displaySettings === 0?
               <Link to={`/voucher-user/${row?.id}`} target="_blank" rel="noopener noreferrer"
-                className="text-blue-500 hover:text-blue-700 italic">
-                <div>Xem chi tiết</div>
+                className="flex items-center justify-center text-blue-500 hover:text-blue-700">
+                <FaEye/>
               </Link>
               : ""
               }
@@ -257,8 +250,93 @@ const VouchersTable: React.FC = () => {
       },
     },
     {
-      render: (_, row) =>
-        renderDateRange(row?.startDate || "", row?.endDate || ""),
+      render: (_, row) => {
+        const startDate = row?.startDate
+          ? row.startDate.replace("T", " ").replace("Z", "")
+          : "";
+        const endDate = row?.endDate
+          ? row.endDate.replace("T", " ").replace("Z", "")
+          : "";
+
+        const now = new Date().toISOString(); //Lấy giờ UTC hiện tại
+        const start = row?.startDate.replace(" ", "T") + "Z" || "";
+        const end = row?.endDate.replace(" ", "T") + "Z" || "";
+
+        let viTri = 0
+        if(now < start){
+          viTri = 1;
+        }else if(now >= start && now <= end){
+          viTri = 2;
+        }else if(now > end){
+          viTri = 3;
+        }
+
+        return (
+          <div className="flex space-y-2">
+            {/* Đường thẳng xuyên qua các điểm */}
+            <div className="relative flex flex-col">
+              {/* Đường thẳng */}
+              <div className="absolute ml-[7px] w-[2px] h-full bg-gray-500"></div>
+
+              {/* Sắp diễn ra */}
+              {viTri === 1 ? (
+              <div className="z-10 flex items-center space-x-2">
+                <div className="relative ml-[2px] flex items-center justify-center w-3 h-3 bg-gray-500 rounded-full">
+                  <span className="text-[10px] text-white font-semibold"></span>
+                </div>
+                <div className="text-sm text-gray-600 mt-0.5">
+                  Hiện tại
+                </div>
+              </div>
+              ):""}
+
+              {/* Điểm bắt đầu */}
+              <div className="z-10 flex items-center space-x-2">
+                <div className="relative flex items-center justify-center w-4 h-4 bg-blue-500 rounded-full">
+                  <span className="text-[10px] text-white font-semibold">BĐ</span>
+                </div>
+                <div className="text-sm text-gray-600 mt-0.5">
+                  {formatVietnamTime(startDate)}
+                </div>
+              </div>
+
+              {/* Đang diễn ra */}
+              {viTri === 2 ? (
+              <div className="z-10 flex items-center space-x-2">
+                <div className="relative ml-[2px] flex items-center justify-center w-3 h-3 bg-gray-500 rounded-full">
+                  <span className="text-[10px] text-white font-semibold"></span>
+                </div>
+                <div className="text-sm text-gray-600 mt-0.5">
+                  Hiện tại
+                </div>
+              </div>
+              ):""}
+
+              {/* Điểm kết thúc */}
+              <div className="z-10 flex items-center space-x-2">
+                <div className="relative flex items-center justify-center w-4 h-4 bg-red-500 rounded-full">
+                  <span className="text-[10px] text-white font-semibold">KT</span>
+                </div>
+                <div className="text-sm text-gray-600 mt-0.5">
+                  {formatVietnamTime(endDate)}
+                </div>
+              </div>
+
+              {/* Đã kết thúc */}
+              {viTri === 3 ? (
+              <div className="z-10 flex items-center space-x-2">
+                <div className="relative ml-[2px] flex items-center justify-center w-3 h-3 bg-gray-500 rounded-full">
+                  <span className="text-[10px] text-white font-semibold"></span>
+                </div>
+                <div className="text-sm text-gray-600 mt-0.5">
+                  Hiện tại
+                </div>
+              </div>
+              ):""}
+            </div>
+          </div>
+        );
+      },
     },
     {
       key: "status",

@@ -98,7 +98,7 @@ const AddVoucherSheet: React.FC<AddVoucherSheetProps> = ({
       }
 
       //Xác định chỉ có một trong hai discountAmount hoặc discountPercentage được nhập
-      if (values.discountType === "$") {
+      if (values.discountType === "VNĐ") {
         values.discountPercentage = undefined;
         values.maxDiscountAmount = undefined;
       } else {

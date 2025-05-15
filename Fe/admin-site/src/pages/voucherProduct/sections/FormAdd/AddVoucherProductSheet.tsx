@@ -535,7 +535,7 @@ const AddVoucherProductSheet: React.FC<AddVoucherProductSheetProps> = ({
                           <div className="flex items-center">
                             <div className="w-full">
                               <h3 className="font-semibold">{variant.sku}</h3>
-                              <p className="text-sm text-gray-500">{variant.price}$</p>
+                              <p className="text-sm text-gray-500">{variant.price} VNĐ</p>
                             </div>
                           </div>
                         </li>
@@ -607,7 +607,7 @@ const AddVoucherProductSheet: React.FC<AddVoucherProductSheetProps> = ({
                                   X
                                 </button>
                                 <h3 className="font-semibold mr-6">{variant.sku}</h3>
-                                <p className="text-sm text-gray-500">{variant.price}$</p>
+                                <p className="text-sm text-gray-500">{variant.price} VNĐ</p>
                               </div>
                             ))}
                           </div>

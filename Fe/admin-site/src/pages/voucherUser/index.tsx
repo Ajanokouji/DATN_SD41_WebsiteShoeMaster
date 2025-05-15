@@ -137,8 +137,19 @@ const VoucherUsers: React.FC = () => {
         <h2 className="text-2xl mb-2">
           Danh sách Tài khoản khách hàng áp dụng Voucher: {voucher.voucherName} {renderStatusDate()}
         </h2>
-        <div className="text-sm text-gray-500">
-          [ Mã Voucher: {voucher.code} ] [ Giảm giá: {voucher.discountAmount? formatCurrency(voucher.discountAmount) + "$" : formatCurrency(voucher.discountPercentage?voucher.discountPercentage:0) + "%" + " (Tối đa: " + formatCurrency(voucher.maxDiscountAmount?voucher.maxDiscountAmount:0) + "$)" } ] [ Giá trị đơn hàng tối thiểu: {voucher.minimumOrderAmount? formatCurrency(voucher.minimumOrderAmount) + "$" : "Không yêu cầu"} ] [ Thời gian lưu mã: {formatVietnamTime(voucher.startDate)} - {formatVietnamTime(voucher.endDate)} ] [ Tổng lượt sử dụng tối đa: {voucher.totalMaxUsage} ] [ Đã dùng: {voucher.redeemCount} ]
+        <div className="flex text-sm text-gray-500">
+          <div className="w-1/2">
+            - Mã Voucher: {voucher.code} <br/> 
+            - Loại Voucher: {voucher.voucherType === 1 ? "Voucher toàn shop" : "Voucher sản phẩm"} ({voucher.displaySettings === 0?"Không công khai":"Hiển thị nhiều nơi"}) <br/>
+            - Giảm giá: {voucher.discountAmount? formatCurrency(voucher.discountAmount) + " VNĐ" : formatCurrency(voucher.discountPercentage?voucher.discountPercentage:0) + "%" + " (Tối đa: " + formatCurrency(voucher.maxDiscountAmount?voucher.maxDiscountAmount:0) + " VNĐ)" } <br/>
+            - Giá trị đơn hàng tối thiểu: {voucher.minimumOrderAmount? formatCurrency(voucher.minimumOrderAmount) + " VNĐ" : "Không yêu cầu"}
+          </div>
+          <div className="w-1/2">
+            - Thời gian lưu mã: {formatVietnamTime(voucher.startDate)} - {formatVietnamTime(voucher.endDate)} <br/>
+            - Tổng lượt sử dụng tối đa: {voucher.totalMaxUsage} <br/>
+            - Đã dùng: {voucher.redeemCount} <br/>
+            - Trạng thái: {voucher.status === 0 ? "Dừng hoạt động" : voucher.status === 1 ? "Hoạt động" : "Không xác định"}
+          </div>
         </div>
         <Button onClick={() => handleOpenDialogAdd()} className="mt-4 px-4 py-2">
             Thêm tài khoản khách hàng

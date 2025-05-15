@@ -157,7 +157,7 @@ const VoucherProductsTable: React.FC<{ voucherId: string }> = ({ voucherId }) =>
         if (product && product.variantObjs) {
           const variant = product.variantObjs.find( v => v.sku === record?.varientProductId);
           if (variant) {
-            return <div>{variant.price}$</div>;
+            return <div>{variant.price} VNĐ</div>;
           } else {
             return <div>Không xác định</div>;
           }

@@ -47,10 +47,10 @@ export const BasicInfoFields: React.FC<BasicInfoFieldsProps> = ({ control, vouch
   const { watch, setValue, trigger } = useFormContext();
   const discountType = watch("discountType");
 
-  const handleDiscountTypeChange = (val: "$" | "%") => {
+  const handleDiscountTypeChange = (val: "VNĐ" | "%") => {
     setValue("discountType", val);
 
-    if (val === "$") {
+    if (val === "VNĐ") {
       trigger("discountAmount");
     } else {
       trigger("discountPercentage");
@@ -71,7 +71,7 @@ export const BasicInfoFields: React.FC<BasicInfoFieldsProps> = ({ control, vouch
   };
 
   useEffect(() => {
-    setValue("discountType", "$");
+    setValue("discountType", "VNĐ");
     setValue("status", 1);
     setValue("startDate", getLocalDateTimeString(new Date()));
     setValue("endDate", getLocalDateTimeString(new Date(Date.now() + 86400000)));
@@ -484,7 +484,7 @@ export const BasicInfoFields: React.FC<BasicInfoFieldsProps> = ({ control, vouch
         </div>
         <div className="mt-10 ml-5">
           <div className="mt-5">
-            {discountType === "$" && (
+            {discountType === "VNĐ" && (
               <FormField
                 control={control}
                 name="discountAmount"
@@ -506,13 +506,13 @@ export const BasicInfoFields: React.FC<BasicInfoFieldsProps> = ({ control, vouch
                         </FormControl>
                         <Select
                           value={discountType}
-                          onValueChange={(val) => handleDiscountTypeChange(val as "$" | "%")}
+                          onValueChange={(val) => handleDiscountTypeChange(val as "VNĐ" | "%")}
                         >
-                          <SelectTrigger className="w-16">
+                          <SelectTrigger className="w-20">
                             <SelectValue />
                           </SelectTrigger>
                           <SelectContent>
-                            <SelectItem value="$">$</SelectItem>
+                            <SelectItem value="VNĐ">VNĐ</SelectItem>
                             <SelectItem value="%">%</SelectItem>
                           </SelectContent>
                         </Select>
@@ -547,13 +547,13 @@ export const BasicInfoFields: React.FC<BasicInfoFieldsProps> = ({ control, vouch
                         </FormControl>
                         <Select
                           value={discountType}
-                          onValueChange={(val) => handleDiscountTypeChange(val as "$" | "%")}
+                          onValueChange={(val) => handleDiscountTypeChange(val as "VNĐ" | "%")}
                         >
                           <SelectTrigger className="w-16">
                             <SelectValue />
                           </SelectTrigger>
                           <SelectContent>
-                            <SelectItem value="$">$</SelectItem>
+                            <SelectItem value="VNĐ">VNĐ</SelectItem>
                             <SelectItem value="%">%</SelectItem>
                           </SelectContent>
                         </Select>
@@ -706,7 +706,7 @@ export const BasicInfoFields: React.FC<BasicInfoFieldsProps> = ({ control, vouch
                     <FormLabel className="w-32">Mô tả</FormLabel>
                     <FormControl className="flex-1">
                       <Textarea
-                        placeholder="Mô tả ngắn..."
+                        placeholder="Nhập mô tả dưới 256 ký tự"
                         {...field}
                         onChange={(e) => {
                           field.onChange(e);
@@ -1111,7 +1111,7 @@ export const BasicInfoFields: React.FC<BasicInfoFieldsProps> = ({ control, vouch
                             <div className="flex items-center">
                               <div className="w-full">
                                 <h3 className="font-semibold">{variant.sku}</h3>
-                                <p className="text-sm text-gray-500">{variant.price}$</p>
+                                <p className="text-sm text-gray-500">{variant.price} VNĐ</p>
                               </div>
                             </div>
                           </li>
@@ -1182,7 +1182,7 @@ export const BasicInfoFields: React.FC<BasicInfoFieldsProps> = ({ control, vouch
                                 X
                               </button>
                               <h3 className="font-semibold mr-6">{variant.sku}</h3>
-                              <p className="text-sm text-gray-500">{variant.price}$</p>
+                              <p className="text-sm text-gray-500">{variant.price} VNĐ</p>
                             </div>
                           ))}
                         </div>

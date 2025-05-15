@@ -100,7 +100,7 @@ const baseSchema = z.object({
 export const voucherFormSchema = z
   .discriminatedUnion("discountType", [
     z.object({
-      discountType: z.literal("$"),
+      discountType: z.literal("VNĐ"),
       discountAmount: discountAmountSchema,
       discountPercentage: z.any(),
       maxDiscountAmount: z.any(),
