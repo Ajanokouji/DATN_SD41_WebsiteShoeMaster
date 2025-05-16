@@ -139,6 +139,7 @@ namespace Project.Business.Implement
                     exist.PublishStartDate = entity.PublishStartDate;
                     exist.PublishEndDate = entity.PublishEndDate;
                     exist.IsPublish = entity.IsPublish;
+                    exist.Content = entity.Content;
                     exist.UpdateTracking(entity.Id);
 
                     _context.ContentBases.Update(exist);

@@ -9,4 +9,5 @@ public class PaySellOffViewModel
     public DateTime? PaymentDate { get; set; }
     public int TotalQuantity { get; set; }
     public decimal? TotalPrice { get; set; }
+    public List<BillDetailsViewModel> BillDetails { get; set; }
 }
