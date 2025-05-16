@@ -30,6 +30,7 @@ namespace Project.DbManagement
         public DbSet<ProductCategoriesRelation> ProductCategoriesRelations { get; set; }
 
         public DbSet<VoucherProducts> VoucherProducts { get; set; }
+        public DbSet<VoucherUsers> VoucherUsers { get; set; }
 
 
         public ProjectDbContext(DbContextOptions options) : base(options)

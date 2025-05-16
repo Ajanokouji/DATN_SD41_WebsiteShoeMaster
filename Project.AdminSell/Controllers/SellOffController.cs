@@ -111,6 +111,8 @@ public class SellOffController : Controller
                 IdProduct = request.IdProduct,
                 IdBill = request.IdBill,
                 Quantity = request.Quantity,
+                Color = request.Color,
+                Size = request.Size,
                 //DonGia = request.DonGia,//Thanh toán rồi mới lưu
             };
             var response = await _billDetailsBusiness.SaveBillDetails(billDetails);
@@ -190,6 +192,7 @@ public class SellOffController : Controller
             PaymentDate = DateTime.Now,
             TotalQuantity = quantity,
             TotalPrice = totalPrice,
+            BillDetails = lstBillDetails
         };
         return PartialView("_Pay", payBill);
     }
@@ -203,7 +206,7 @@ public class SellOffController : Controller
             PaymentDate = DateTime.Now,
             PaymentMethod = request.PaymentMethod,
             TotalPrice = request.TotalPrice,
-            status = "complete",
+            status = "Complete",
         };
         var response = _billBusiness.PaymentBill(billrequest);
         if (response == true)

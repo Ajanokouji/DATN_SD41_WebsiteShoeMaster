@@ -12,7 +12,7 @@ namespace Project.Business.Interface.Repositories
         
         public Task<List<ListProductSellViewModel>> GetAllProduct();
         public Task<ProductDetailsViewModel> GetProductDetailsById(Guid idprd);
-        public Task<List<ProductDetailsViewModel>> ListProductDetailsById(Guid idprd);
+        public Task<List<ListProductDetailsViewModel>> ListProductDetailsById(Guid idprd);
         public Task<List<ListProductSellViewModel>> SearchProduct(string keyword);
     }
 }
