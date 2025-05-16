@@ -20,16 +20,18 @@ namespace Project.Business.Implement
 
         public ProductRepository(ProjectDbContext context)
         {
-            _context=context;
+            _context = context;
         }
+
         public virtual async Task<ProductEntity> FindAsync(Guid id)
         {
-            var res = await _context.Products.AsNoTracking().FirstOrDefaultAsync(x=>x.Id==id);
+            var res = await _context.Products.AsNoTracking().FirstOrDefaultAsync(x => x.Id == id);
             return res;
         }
+
         public virtual async Task<IEnumerable<ProductEntity>> ListAllAsync(ProductQueryModel queryModel)
         {
-            var query = BuildQuery( queryModel);
+            var query = BuildQuery(queryModel);
             var resId = await query.Select(x => x.Id).ToListAsync();
             var res = await ListByIdsAsync(resId);
             return res;
@@ -46,8 +48,8 @@ namespace Project.Business.Implement
             ProductQueryModel productQueryModel = queryModel;
 
 
-            queryModel.Sort = QueryUtils.FormatSortInput(queryModel.Sort??"-CreatedOnDate");
-            IQueryable<ProductEntity> queryable = BuildQuery( queryModel);
+            queryModel.Sort = QueryUtils.FormatSortInput(queryModel.Sort ?? "-CreatedOnDate");
+            IQueryable<ProductEntity> queryable = BuildQuery(queryModel);
             string sortExpression = string.Empty;
             if (string.IsNullOrWhiteSpace(queryModel.Sort) || queryModel.Sort.Equals("-LastModifiedOnDate"))
             {
@@ -59,40 +61,42 @@ namespace Project.Business.Implement
             }
 
             //select columns
-            if (queryModel.IsSelectMetadata) {
+            if (queryModel.IsSelectMetadata)
+            {
                 queryable.Select(x => new
-                {
-                    x.Id,
-                    x.Code,
-                    x.Name,
-                    x.Status,
-                    x.ImageUrl,
-                    x.SortOrder,
-                    x.Description,
-                    x.MainCategoryId,
-                    x.RelatedObjectIds,
-                    x.RelatedIds,
-                    x.WorkFlowStates,
-                    x.PublicOnDate,
-                    x.CompleteName,
-                    x.CompleteCode,
-                    x.CompletePath,
-                    x.LabelsJson,
-                    x.LabelsObjs,
-                    x.CreatedByUserId,
-                    x.CreatedOnDate,
-                    x.LastModifiedByUserId,
-                    x.LastModifiedOnDate
-                }
+                    {
+                        x.Id,
+                        x.Code,
+                        x.Name,
+                        x.Status,
+                        x.ImageUrl,
+                        x.SortOrder,
+                        x.Description,
+                        x.MainCategoryId,
+                        x.RelatedObjectIds,
+                        x.RelatedIds,
+                        x.WorkFlowStates,
+                        x.PublicOnDate,
+                        x.CompleteName,
+                        x.CompleteCode,
+                        x.CompletePath,
+                        x.LabelsJson,
+                        x.LabelsObjs,
+                        x.CreatedByUserId,
+                        x.CreatedOnDate,
+                        x.LastModifiedByUserId,
+                        x.LastModifiedOnDate
+                    }
                 );
             }
 
-            return await queryable.GetPagedOrderAsync(queryModel.CurrentPage.Value, queryModel.PageSize.Value, sortExpression);
+            return await queryable.GetPagedOrderAsync(queryModel.CurrentPage.Value, queryModel.PageSize.Value,
+                sortExpression);
         }
 
-        private IQueryable<ProductEntity> BuildQuery( ProductQueryModel queryModel)
+        private IQueryable<ProductEntity> BuildQuery(ProductQueryModel queryModel)
         {
-            IQueryable<ProductEntity> query = _context.Products.AsNoTracking().Where(x => x.Isdeleted!=true);
+            IQueryable<ProductEntity> query = _context.Products.AsNoTracking().Where(x => x.Isdeleted != true);
 
             if (queryModel.Id.HasValue)
             {
@@ -109,9 +113,9 @@ namespace Project.Business.Implement
                 ExpressionStarter<ProductEntity> expressionStarter = LinqKit.PredicateBuilder.New<ProductEntity>();
                 foreach (string ts in queryModel.ListTextSearch)
                 {
-                    expressionStarter = expressionStarter.Or((ProductEntity p) => 
-                                                                p.Name.Contains(ts.ToLower()) ||
-                                                                p.Description.Contains(ts.ToLower()));
+                    expressionStarter = expressionStarter.Or((ProductEntity p) =>
+                        p.Name.Contains(ts.ToLower()) ||
+                        p.Description.Contains(ts.ToLower()));
                 }
 
                 query = query.Where(expressionStarter);
@@ -125,12 +129,12 @@ namespace Project.Business.Implement
 
             if (!string.IsNullOrEmpty(queryModel.MaSanPham))
             {
-                query = query.Where(x => x.Code==queryModel.MaSanPham);
+                query = query.Where(x => x.Code == queryModel.MaSanPham);
             }
 
             if (!string.IsNullOrEmpty(queryModel.WorkFlowStates))
             {
-                query = query.Where(x => x.WorkFlowStates==queryModel.WorkFlowStates);
+                query = query.Where(x => x.WorkFlowStates == queryModel.WorkFlowStates);
             }
 
             if (queryModel.MainCategoryId.HasValue)
@@ -140,7 +144,7 @@ namespace Project.Business.Implement
 
             if (!string.IsNullOrEmpty(queryModel.Status))
             {
-                query = query.Where(x => x.Status==queryModel.Status);
+                query = query.Where(x => x.Status == queryModel.Status);
             }
 
             if (!string.IsNullOrEmpty(queryModel.TenSanPham))
@@ -155,7 +159,8 @@ namespace Project.Business.Implement
 
             if (true)
             {
-                query =  query.Where(x => x.MetadataObj != null && x.MetadataObj.Any(m => m.FieldName == "Brand" && m.FieldValues == "Nike"));
+                query = query.Where(x =>
+                    x.MetadataObj != null && x.MetadataObj.Any(m => m.FieldName == "Brand" && m.FieldValues == "Nike"));
             }
 
             //if (queryModel.MetaDataQueries != null && queryModel.MetaDataQueries.Any())
@@ -189,24 +194,22 @@ namespace Project.Business.Implement
 
         public virtual async Task<ProductEntity> SaveAsync(ProductEntity product)
         {
-            var res = await SaveAsync(new [] { product });
+            var res = await SaveAsync(new[] { product });
             return res.FirstOrDefault();
-
         }
 
-        public virtual async Task<IEnumerable<ProductEntity>> SaveAsync( IEnumerable<ProductEntity>  productEntities)
+        public virtual async Task<IEnumerable<ProductEntity>> SaveAsync(IEnumerable<ProductEntity> productEntities)
         {
             var updated = new List<ProductEntity>();
-       try
+            try
             {
-
                 var x = _context.Database.GetDbConnection();
                 foreach (var product in productEntities)
                 {
                     var exist = await _context.Products
                         .AsNoTracking()
                         .FirstOrDefaultAsync(x =>
-                                x.Id==product.Id
+                            x.Id == product.Id
                         );
 
                     if (exist == null)
@@ -219,38 +222,40 @@ namespace Project.Business.Implement
                     else
                     {
                         _context.Entry(exist).State = EntityState.Detached;
-                        exist.ImageUrl= product.ImageUrl;
+                        exist.ImageUrl = product.ImageUrl;
                         exist.Name = product.Name;
-                        exist.Code=product.Code;
-                        exist.MainCategoryId=product.MainCategoryId;
-                        exist.CompletePath=product.CompletePath;
-                        exist.CompleteName=product.CompleteName;
-                        exist.CompleteCode=product.CompleteCode;
-                        exist.CreatedByUserId=product.CreatedByUserId;
-                        exist.LastModifiedByUserId=product.LastModifiedByUserId;
-                        exist.RelatedObjectIds=product.RelatedObjectIds;
-                        exist.MetadataObj=product.MetadataObj;
-                        exist.SortOrder=product.SortOrder;
-                        exist.LabelsObjs=product.LabelsObjs;
-                        exist.CreatedOnDate=exist.CreatedOnDate;
-                        exist.PublicOnDate=product.PublicOnDate;
-                        exist.Status=product.Status;
-                        exist.LastModifiedOnDate=product.LastModifiedOnDate;
-                        exist.WorkFlowStates=product.WorkFlowStates;
-                        exist.CreatedOnDate=product.CreatedOnDate;
+                        exist.Code = product.Code;
+                        exist.MainCategoryId = product.MainCategoryId;
+                        exist.CompletePath = product.CompletePath;
+                        exist.CompleteName = product.CompleteName;
+                        exist.CompleteCode = product.CompleteCode;
+                        exist.CreatedByUserId = product.CreatedByUserId;
+                        exist.LastModifiedByUserId = product.LastModifiedByUserId;
+                        exist.RelatedObjectIds = product.RelatedObjectIds;
+                        exist.MetadataObj = product.MetadataObj;
+                        exist.SortOrder = product.SortOrder;
+                        exist.LabelsObjs = product.LabelsObjs;
+                        exist.CreatedOnDate = exist.CreatedOnDate;
+                        exist.PublicOnDate = product.PublicOnDate;
+                        exist.Status = product.Status;
+                        exist.LastModifiedOnDate = product.LastModifiedOnDate;
+                        exist.WorkFlowStates = product.WorkFlowStates;
+                        exist.CreatedOnDate = product.CreatedOnDate;
                         exist.Description = product.Description;
-                        exist.MediaObjs=product.MediaObjs;
-                        exist.MediasJson=product.MediasJson;
-                        exist.VariantJson=product.VariantJson;
-                        exist.VariantObjs=product.VariantObjs;
+                        exist.MediaObjs = product.MediaObjs;
+                        exist.MediasJson = product.MediasJson;
+                        exist.VariantJson = product.VariantJson;
+                        exist.VariantObjs = product.VariantObjs;
 
                         product.UpdateTracking(product.Id);
                         _context.Products.Update(exist);
                         updated.Add(exist);
                     }
                 }
+
                 await _context.SaveChangesAsync();
-            }catch ( Exception ex)
+            }
+            catch (Exception ex)
             {
                 throw new ArgumentException(ex.Message, ex);
             }
@@ -259,12 +264,11 @@ namespace Project.Business.Implement
         }
 
 
-
         public virtual async Task<ProductEntity> DeleteAsync(Guid Id)
         {
             var exist = await FindAsync(Id);
-            if (exist==null) throw new Exception(IProductRepository.MessageNoTFound);
-            exist.Isdeleted=true;
+            if (exist == null) throw new Exception(IProductRepository.MessageNoTFound);
+            exist.Isdeleted = true;
             _context.Products.Update(exist);
             _context.SaveChangesAsync();
             return exist;
@@ -274,6 +278,7 @@ namespace Project.Business.Implement
         {
             throw new NotImplementedException();
         }
+
         public async Task<List<ListProductSellViewModel>> GetAllProduct()
         {
             return await (from products in _context.Products.AsNoTracking()
@@ -288,32 +293,62 @@ namespace Project.Business.Implement
 
         public async Task<ProductDetailsViewModel> GetProductDetailsById(Guid idprd)
         {
+            var products = await _context.Products.AsNoTracking().FirstOrDefaultAsync(x => x.Id == idprd);
+            var lstColor = products.VariantObjs?
+                .Where(x => x.Stock != 0)
+                .Select(y => y.Group1)
+                .Distinct()
+                .ToList() ?? new List<string>();
+
+            var lstSize = products.VariantObjs?
+                .Where(x => x.Stock != 0)
+                .Select(y => y.Group2)
+                .Distinct()
+                .ToList() ?? new List<string>();
+
             var result = await (from product in _context.Products.AsNoTracking()
                 where product.Id == idprd
                 select new ProductDetailsViewModel()
                 {
                     Id = product.Id,
                     Name = product.Name,
-                    Color = product.MetadataObj.GetMetadatavalue("Colorway"),
-                    Size = product.MetadataObj.GetMetadatavalue("Size"),
+                    lstColor = lstColor,
+                    lstSize = lstSize,
                 }).FirstOrDefaultAsync();
             return result;
         }
 
-        public async Task<List<ProductDetailsViewModel>> ListProductDetailsById(Guid idprd)
+        public async Task<List<ListProductDetailsViewModel>> ListProductDetailsById(Guid idprd)
         {
-            var result = await (from product in _context.Products.AsNoTracking()
-                where product.Id == idprd
-                select new ProductDetailsViewModel()
-                {
-                    Id = product.Id,
-                    Name = product.Name,
-                    Color = product.MetadataObj.GetMetadatavalue("Colorway"),
-                    Size = product.MetadataObj.GetMetadatavalue("Size"),
-                    Quantity = product.MetadataObj.GetMetadatavalue("Quantity"),
-                    Image = product.ImageUrl,
-                    Price = product.MetadataObj.GetMetadatavalue("MaxPrice")
-                }).ToListAsync();
+            // var result = await (from product in _context.Products.AsNoTracking()
+            //     where product.Id == idprd
+            //     select new ListProductDetailsViewModel()
+            //     {
+            //         Id = product.Id,
+            //         Name = product.Name,
+            //         Color = product.MetadataObj.GetMetadatavalue("Colorway"),
+            //         Size = product.MetadataObj.GetMetadatavalue("Size"),
+            //         Quantity = product.MetadataObj.GetMetadatavalue("Quantity"),
+            //         Image = product.ImageUrl,
+            //         Price = product.MetadataObj.GetMetadatavalue("MaxPrice")
+            //     }).ToListAsync();
+
+            var product = await _context.Products.AsNoTracking()
+                .FirstOrDefaultAsync(p => p.Id == idprd);
+
+            if (product == null || product.VariantObjs == null || !product.VariantObjs.Any())
+                return new List<ListProductDetailsViewModel>();
+
+            var result = product.VariantObjs.Select(v => new ListProductDetailsViewModel
+            {
+                Id = product.Id,
+                Name = product.Name,
+                Color = v.Group1,
+                Size = v.Group2,
+                Quantity = v.Stock?.ToString() ?? "0",
+                Image = product.ImageUrl,
+                Price = v.Price
+            }).ToList();
             return result;
         }
 
@@ -321,7 +356,7 @@ namespace Project.Business.Implement
         {
             if (string.IsNullOrEmpty(keyword))
             {
-                 GetAllProduct();
+                GetAllProduct();
             }
 
             // Chuyển từ khóa và các trường dữ liệu về chữ thường để tìm kiếm không phân biệt chữ hoa chữ thường
