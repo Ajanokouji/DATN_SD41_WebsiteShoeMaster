@@ -30,7 +30,8 @@
         </div>
         <div class="checkout__form">
             <h4>Thông tin thanh toán</h4>
-            <form id="checkoutForm" asp-action="PlaceOrder" asp-controller="Checkout" method="post">
+            <form id="checkoutForm"  method="post">
+                <input type="hidden" asp-for="BillId" required>
                 <div class="row">
                     <div class="col-lg-8 col-md-6">
                         <div class="row">
@@ -95,7 +96,7 @@
                                 }
                             </ul>
                             <div class="checkout__order__subtotal">
-                                Tạm tính <span>@Model.SubTotal.ToString("N0") VNĐ</span>
+                                Tạm tính <span >@Model.SubTotal.ToString("N0") VNĐ</span>
                             </div>
                             <div class="checkout__order__total">
                                 Tổng tiền <span>@Model.Total.ToString("N0") VNĐ</span>

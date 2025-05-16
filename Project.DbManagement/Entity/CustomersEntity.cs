@@ -15,34 +15,34 @@ namespace Project.DbManagement
 
         public Guid? TTTHIDMain { get; set; }
 
-        [NotMapped]
-        public List<Guid> TTLHRelatedIds { get; set; }
+        //[NotMapped]
+        //public List<Guid> TTLHRelatedIds { get; set; }
 
-        [Column(TypeName = "nvarchar(max)")]
-        public string? TTLHRelateIdsJson
-        {
-            get
-            {
-                return TTLHRelatedIds == null ? null : JsonConvert.SerializeObject(TTLHRelatedIds);
-            }
-            set
-            {
-                if (string.IsNullOrWhiteSpace(value))
-                {
-                    TTLHRelatedIds = null;
-                    return;
-                }
-                try
-                {
-                    TTLHRelatedIds = JsonConvert.DeserializeObject<List<Guid>>(value);
-                }
-                catch (JsonReaderException ex)
-                {
-                    // Handle the exception or log the error
-                    TTLHRelatedIds = null;
-                }
-            }
-        }
+        //[Column(TypeName = "nvarchar(max)")]
+        //public string? TTLHRelateIdsJson
+        //{
+        //    get
+        //    {
+        //        return TTLHRelatedIds == null ? null : JsonConvert.SerializeObject(TTLHRelatedIds);
+        //    }
+        //    set
+        //    {
+        //        if (string.IsNullOrWhiteSpace(value))
+        //        {
+        //            TTLHRelatedIds = null;
+        //            return;
+        //        }
+        //        try
+        //        {
+        //            TTLHRelatedIds = JsonConvert.DeserializeObject<List<Guid>>(value);
+        //        }
+        //        catch (JsonReaderException ex)
+        //        {
+        //            // Handle the exception or log the error
+        //            TTLHRelatedIds = null;
+        //        }
+        //    }
+        //}
 
         [Column(TypeName = "nvarchar(256)")]
         public string? Name { get; set; }
@@ -61,6 +61,7 @@ namespace Project.DbManagement
 
         [Column(TypeName = "nvarchar(128)")]
         public string? UserName { get; set; }
+        public bool? IsAnonymous { get; set; } = true;
 
         [NotMapped]
         public int TotalOrders { get; set; }

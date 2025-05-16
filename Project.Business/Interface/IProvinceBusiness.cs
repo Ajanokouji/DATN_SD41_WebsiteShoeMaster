@@ -1,6 +1,6 @@
-﻿using Project.DbManagement.Entity;
-using Project.DbManagement.ViewModels;
-using SERP.Dictionary.Models;
+﻿using Project.Business.Model;
+using Project.DbManagement.Entity;
+
 using SERP.Framework.Common;
 
 namespace Project.Business.Interface

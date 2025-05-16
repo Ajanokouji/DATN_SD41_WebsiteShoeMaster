@@ -1,72 +1,148 @@
 ﻿using Microsoft.AspNetCore.Mvc;
+using Newtonsoft.Json;
 using Project.Business.Interface.Services;
 using Project.Business.Model;
 using Project.Business.Model.VnPayments;
+using Project.Common.Constants;
+using Project.Common;
+using Project.Business.Interface;
+using SERP.Framework.Models;
+using Project.Business.Implement;
+using Project.DbManagement;
+using Project.DbManagement.Enum;
+using Project.DbManagement.Entity;
 
 namespace Project.MVC.Controllers
 {
     public class PaymentMethodController : Controller
     {
         private readonly IVnPayService _vnPayService;
+        private readonly IBillBusiness _billBusiness;
+        private readonly ICartBusiness _cartBusiness;
+        private readonly IUserBusiness _userBusiness;
+        private readonly ICustomerBusiness _customerBusiness;
+        private const string CartSessionKey = "CartSession";
 
-        public PaymentMethodController(IVnPayService vnPayService)
+        public PaymentMethodController(ICustomerBusiness customerBusiness,IVnPayService vnPayService, IBillBusiness billBusiness, ICartBusiness cartBusiness, IUserBusiness userBusiness)
         {
-            _vnPayService = vnPayService;
+            _customerBusiness= customerBusiness;
+            _vnPayService =vnPayService;
+            _billBusiness=billBusiness;
+            _cartBusiness=cartBusiness;
+            _userBusiness=userBusiness;
         }
-        private List<PaymentMethodModel> GetPaymentMethods()
+
+        [HttpPost]
+        public async Task<IActionResult> Index(CheckoutViewModel  model)
         {
-            return new List<PaymentMethodModel>
+
+            var paymentMethods = new List<PaymentMethodModel>
             {
                 new PaymentMethodModel { Code = "COD", Name = "Thanh toán khi nhận hàng" },
                 new PaymentMethodModel { Code = "Banking", Name = "Chuyển khoản ngân hàng" },
                 new PaymentMethodModel { Code = "VNPay", Name = "VNPay" }
             };
-        }
 
-        public IActionResult Index()
-        {
-            var model = new PaymentViewModel
+            ViewData["PaymentMethods"] = paymentMethods;
+
+            var viewModel = new PaymentViewModel()
             {
-                PaymentMethods = GetPaymentMethods(),
-                TotalAmount = 1000000
+                TotalAmount = model.Total,
+                PaymentInformationModel= new PaymentInformationModel()
+                {
+                    Amount = (double?)model.Total,
+                    CustomerName=model.CustomerInfo.FullName,
+                    OrderDescription = model.Description??string.Empty,
+                    BillId = model.BillId,
+                },
             };
-            return View(model);
+
+            var cartSession = HttpContext.Session.GetString(CartSessionKey);
+            if (string.IsNullOrEmpty(cartSession))
+            {
+                return Json(new { success = false, message = "Giỏ hàng trống" });
+            }
+
+            var cartSessions = JsonConvert.DeserializeObject<List<CartItem>>(cartSession);
+            var cartItemsResult = await _cartBusiness.GetCartItems(cartSessions);
+            if (!cartItemsResult.IsSuccess || cartItemsResult.Data == null || !cartItemsResult.Data.Any())
+            {
+                return Json(new { success = false, message = "Giỏ hàng trống" });
+            }
+
+            // Tạo đơn hàng
+            var billModel = new BillModel
+            {
+                Id = model.BillId.Value,
+                CustomerId = model.CustomerInfo.UserId??Guid.NewGuid(),
+                CustomerName = model.CustomerInfo.FullName,
+                CustomerPhone = model.CustomerInfo.PhoneNumber,
+                CustomerEmail = model.CustomerInfo.Email,
+                CustomerAddress = $"{model.CustomerInfo.Address}, {model.CustomerInfo.District}, {model.CustomerInfo.City}",
+                Note = model.CustomerInfo.Notes,
+                Source= Source.Website,
+                Status = BillConstants.PendingConfirmation,
+                PaymentStatus = BillConstants.PaymentStatusUnpaid,
+                BillDetails = cartItemsResult.Data.Select(item => new BillDetailModel
+                {
+                    ProductId = item.ProductId,
+                    ProductName = item.ProductName,
+                    ProductImage = item.ProductImage,
+                    SKU = item.SKU,
+                    Size = item.Size,
+                    Color = item.Color,
+                    Quantity = item.Quantity,
+                    Price = item.Price,
+                    TotalPrice = item.Total
+                }).ToList(),
+                TotalAmount = cartItemsResult.Data.Sum(x => x.Total)
+            };
+
+            var bill = await _billBusiness.CreateBill(billModel);
+
+            var existCustomer = await _customerBusiness.FindAsync(model.CustomerInfo.UserId ?? billModel.CustomerId.Value);
+            if (existCustomer == null)
+            {
+                await _customerBusiness.SaveAsync(new CustomersEntity()
+                {
+                    Id=  billModel.CustomerId.Value,
+                    Name =  model.CustomerInfo.FullName,
+                    PhoneNumber =  model.CustomerInfo.PhoneNumber,
+                    Email = model.CustomerInfo.Email,
+                    Address=  $"{model.CustomerInfo.Address}, {model.CustomerInfo.District}, {model.CustomerInfo.City}",
+                });
+
+                await _userBusiness.CreateUserFromCustomerInfo(model.CustomerInfo);
+            }
+
+
+            return View(viewModel);
         }
 
         [HttpPost]
         public IActionResult ProcessPayment(PaymentViewModel model)
         {
-            //if (!ModelState.IsValid)
-            //{
-            //    model.PaymentMethods = GetPaymentMethods();
-            //    return View("Index", model);
-            //}
-
+           
             var selectedMethod = model.SelectedPaymentMethod;
 
             if (selectedMethod == "VNPay")
             {
-                var paymentInfo = new PaymentInformationModel
-                {
-                    Amount = 1000000,
-                    Name = "Khách hàng A",
-                    OrderDescription = "Thanh toán đơn hàng ShoeMaster",
-                    OrderType = "other"
-                };
 
-                TempData["VnPayModel"] = Newtonsoft.Json.JsonConvert.SerializeObject(paymentInfo);
+                model.PaymentInformationModel.PayMethod = "VNPay";
+                TempData["VnPayModel"] = Newtonsoft.Json.JsonConvert.SerializeObject(model.PaymentInformationModel);
                 return RedirectToAction("VnPayRedirect");
             }
             else if (selectedMethod == "COD")
             {
-                return RedirectToAction("Success");
+                model.PaymentInformationModel.PayMethod = "COD";
+                return RedirectToAction("ThankYou", "Checkout", new { billId = model.BillId});
             }
             else if (selectedMethod == "Banking")
             {
+                model.PaymentInformationModel.PayMethod = "Banking";
                 return RedirectToAction("BankingInfo");
             }
 
-            model.PaymentMethods = GetPaymentMethods();
             return View("Index", model);
         }
 
@@ -76,10 +152,7 @@ namespace Project.MVC.Controllers
                 return RedirectToAction("Index");
 
             var model = Newtonsoft.Json.JsonConvert.DeserializeObject<PaymentInformationModel>(json);
-
-
             var paymentUrl = _vnPayService.CreatePaymentUrl(model, HttpContext);
-
 
             return Redirect(paymentUrl);
         }

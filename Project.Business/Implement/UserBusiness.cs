@@ -5,6 +5,7 @@ using Project.Common;
 using Project.DbManagement.Entity;
 using SERP.Framework.Common;
 using Serilog;
+using Project.DbManagement;
 
 namespace Project.Business.Implement
 {
@@ -77,7 +78,7 @@ namespace Project.Business.Implement
                 CreatedOnDate = exist.CreatedOnDate,
                 LastModifiedByUserId = exist.LastModifiedByUserId,
                 LastModifiedOnDate = exist.LastModifiedOnDate,
-                Isdeleted = exist.Isdeleted
+                IsDeleted = exist.IsDeleted
             };
 
             if (!string.IsNullOrWhiteSpace(model.Username))
@@ -122,100 +123,48 @@ namespace Project.Business.Implement
             return await _userRepository.SaveAsync(users);
         }
 
-        public async Task<ServiceResult<UserEntity>> GetUserByEmail(string email)
+        public async Task<UserEntity> GetUserByEmail(string email)
         {
             try
             {
-                if (string.IsNullOrEmpty(email))
-                {
-                    return new ServiceResult<UserEntity>
-                    {
-                        IsSuccess = false,
-                        Message = "Email không được để trống"
-                    };
-                }
 
                 var users = await _userRepository.ListAllAsync(new UserQueryModel { Email = email });
                 var user = users.FirstOrDefault();
 
-                if (user == null)
-                {
-                    return new ServiceResult<UserEntity>
-                    {
-                        IsSuccess = false,
-                        Message = "Không tìm thấy người dùng với email này"
-                    };
-                }
-
-                return new ServiceResult<UserEntity>
-                {
-                    IsSuccess = true,
-                    Data = user,
-                    Message = "Tìm thấy người dùng"
-                };
+                return user;
             }
             catch (Exception ex)
             {
                 _logger.Error(ex, "Lỗi khi tìm người dùng theo email {Email}", email);
-                return new ServiceResult<UserEntity>
-                {
-                    IsSuccess = false,
-                    Message = $"Lỗi khi tìm người dùng: {ex.Message}"
-                };
+                throw new Exception($"Lỗi khi tìm người dùng theo email: {ex.Message}");
             }
         }
 
-        public async Task<ServiceResult<UserEntity>> CreateUserFromCustomerInfo(CustomerInfoModel customerInfo)
+        public async Task<UserEntity> CreateUserFromCustomerInfo(CustomerInfoModel customerInfo)
         {
             try
             {
-                if (customerInfo == null)
-                {
-                    return new ServiceResult<UserEntity>
-                    {
-                        IsSuccess = false,
-                        Message = "Thông tin khách hàng không được để trống"
-                    };
-                }
-
-                // Kiểm tra xem người dùng đã tồn tại chưa
-                var existingUserResult = await GetUserByEmail(customerInfo.Email);
-                if (existingUserResult.IsSuccess)
-                {
-                    return existingUserResult;
-                }
-
                 // Tạo người dùng mới
                 var newUser = new UserEntity
                 {
-                    Id = Guid.NewGuid(),
-                    Type = "Customer",
+                    Id = customerInfo.UserId??Guid.NewGuid(),
+                    Type = UserTypeEnum.Customer,
                     Username = customerInfo.Email,
                     Name = customerInfo.FullName,
                     PhoneNumber = customerInfo.PhoneNumber,
                     Email = customerInfo.Email,
-                    Password = "", // Mật khẩu trống, có thể gửi email để thiết lập sau
-                    CreatedOnDate = DateTime.Now,
-                    Isdeleted = false
+                    Address = customerInfo.Address,
+                    IsDeleted = false
                 };
 
                 var savedUser = await SaveAsync(newUser);
 
-                return new ServiceResult<UserEntity>
-                {
-                    IsSuccess = true,
-                    Data = savedUser,
-                    Message = "Tạo người dùng mới thành công"
-                };
+                return savedUser;
             }
             catch (Exception ex)
             {
                 _logger.Error(ex, "Lỗi khi tạo người dùng mới từ thông tin khách hàng");
-                return new ServiceResult<UserEntity>
-                {
-                    IsSuccess = false,
-                    Message = $"Lỗi khi tạo người dùng: {ex.Message}"
-                };
+               throw new Exception($"Lỗi khi tạo người dùng mới từ thông tin khách hàng: {ex.Message}");
             }
         }
 

@@ -170,7 +170,7 @@ public class SellOffController : Controller
     public async Task<IActionResult> ViewPayment(Guid id)
     {
         var bill = _billBusiness.GetPDBillById(id);
-        var lstBillDetails = await _billDetailsBusiness.GetBillDetailsByIdBill(id);
+        var lstBillDetails = await _billDetailsBusiness.ListAllByIdBill(id);
         //Kiểm tra là hóa đơn của khách có tài khoản không?
         var client = "Customer";
         var loginInfor = new UserEntity();

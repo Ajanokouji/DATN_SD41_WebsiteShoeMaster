@@ -57,7 +57,7 @@ namespace Project.Business.Implement
 
         private IQueryable<CategoriesEntity> BuildQuery(CategoriesQueryModel queryModel)
         {
-            IQueryable<CategoriesEntity> query = _context.Categories.AsNoTracking().Where(x => x.Isdeleted != true);
+            IQueryable<CategoriesEntity> query = _context.Categories.AsNoTracking().Where(x => x.IsDeleted != true);
 
             if (queryModel.Id.HasValue)
             {
@@ -152,7 +152,7 @@ namespace Project.Business.Implement
         {
             var exist = await FindAsync(id);
             if (exist == null) throw new Exception(ICategoriesRepository.MessageNoTFound);
-            exist.Isdeleted = true;
+            exist.IsDeleted = true;
             _context.Categories.Update(exist);
             await _context.SaveChangesAsync();
             return exist;

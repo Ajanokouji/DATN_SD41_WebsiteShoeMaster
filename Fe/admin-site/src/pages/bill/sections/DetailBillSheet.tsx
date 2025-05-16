@@ -7,11 +7,11 @@ import {
 import { useAppSelector } from "@/hooks/use-app-selector";
 import { selectBill } from "@/redux/apps/bill/billSelector";
 import { useAppDispatch } from "@/hooks/use-app-dispatch";
-import { fetchBillById, patchBill, updateBill } from "@/redux/apps/bill/billSlice";
+import { fetchBillById, updateBill } from "@/redux/apps/bill/billSlice";
 import { Badge } from "@/components/ui/badge";
 import { Separator } from "@/components/ui/separator";
 import { Button } from "@/components/ui/button";
-import { Printer, Download, FileText } from "lucide-react";
+import { Printer, Download } from "lucide-react";
 import { formatVietnamTime } from "@/utils/format";
 import {
   Select,

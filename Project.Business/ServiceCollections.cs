@@ -4,6 +4,8 @@ using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Project.Business.Implement;
 using Project.Business.Implementation;
+using Project.Business.Intercepter;
+using Project.Business.Intercepter.Implement;
 using Project.Business.Interface;
 using Project.Business.Interface.Project.Business.Interface;
 using Project.Business.Interface.Project.Business.Interface.Repositories;
@@ -76,8 +78,15 @@ namespace Project.Business
             });
             services.AddScoped<IProductRepository, ProductDapperRepository>();
 
-            services.AddScoped<IDistrictRepository, DistrictRepository>();
-            services.AddScoped<IDistrictBusiness, DistrictBusiness>();
+            services.AddScoped<IProvinceRepository, ProvinceRepository>();
+            services.AddScoped<IProvinceBusiness, ProvinceBusiness>();
+
+
+            services.AddScoped<IBillIntercepterAfterSave, SendEmailAfterSaveBill>();
+
+            var emailSettings = configuration.GetSection("EmailSettings").Get<EmailSettings>();
+
+            services.AddSingleton(emailSettings);
 
 
             // Configure CORS

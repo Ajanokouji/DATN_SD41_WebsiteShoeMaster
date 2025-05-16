@@ -41,7 +41,7 @@ namespace Project.Business.Implement
             entity.Id = Guid.NewGuid();
             entity.CreatedOnDate = DateTime.Now;
             entity.LastModifiedOnDate = DateTime.Now;
-            entity.Isdeleted = false;
+            entity.IsDeleted = false;
 
             _context.ContentBases.Add(entity);
             await _context.SaveChangesAsync();

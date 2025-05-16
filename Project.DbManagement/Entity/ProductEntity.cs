@@ -199,7 +199,10 @@ namespace Project.DbManagement.Entity
 
         public string? Group2 { get; set; } = string.Empty;
 
-        public string? Size { get; set; } = string.Empty;
+        public string? Size
+        {get;set;
+        }
+
 
         public string? Price { get; set; } = string.Empty;
         public int? Stock { get; set; }

@@ -15,8 +15,7 @@ namespace Project.DbManagement.Entity
     {
         [Key]
         public Guid Id { get; set; }
-        [Column(TypeName = "nvarchar(50)")]
-        public string Type { get; set; }
+        public UserTypeEnum Type { get; set; }
 
         [Column(TypeName = "nvarchar(256)")]
         public string? Username { get; set; }
@@ -44,37 +43,5 @@ namespace Project.DbManagement.Entity
 
         public bool? IsActive { get; set; } = true;
 
-        [NotMapped]
-        public virtual List<MetaField> MetadataObj { get; set; }
-
-        public virtual string MetadataJson
-        {
-            get
-            {
-                if (MetadataObj != null)
-                {
-                    return JsonSerializer.Serialize(MetadataObj, JsonSerializerOptionConstants.JavaScriptEncoderOption);
-                }
-
-                return null;
-            }
-            set
-            {
-                if (string.IsNullOrWhiteSpace(value))
-                {
-                    MetadataObj = null;
-                    return;
-                }
-
-                try
-                {
-                    MetadataObj = JsonSerializer.Deserialize<List<MetaField>>(value, JsonSerializerOptionConstants.DefaultOption);
-                }
-                catch (Exception value2)
-                {
-                    Console.WriteLine(value2);
-                }
-            }
-        }
     }
 }

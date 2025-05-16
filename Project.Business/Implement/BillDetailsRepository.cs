@@ -67,7 +67,7 @@ public class BillDetailsRepository : IBillDetailsRepository
 
     private IQueryable<BillDetailsEntity> BuildQuery(BillDetailsQueryModel queryModel)
     {
-        IQueryable<BillDetailsEntity> query = _context.BillDetails.AsNoTracking().Where(x => x.Isdeleted != true);
+        IQueryable<BillDetailsEntity> query = _context.BillDetails.AsNoTracking().Where(x => x.IsDeleted != true);
 
         if (queryModel.Id.HasValue)
         {
@@ -201,7 +201,7 @@ public class BillDetailsRepository : IBillDetailsRepository
     {
         var exist = await FindAsync(Id);
         if (exist == null) throw new Exception(IBillDetailsRepository.MessageNotFound);
-        exist.Isdeleted = true;
+        exist.IsDeleted = true;
         _context.BillDetails.Update(exist);
         _context.SaveChangesAsync();
         return exist;

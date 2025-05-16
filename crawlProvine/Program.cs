@@ -27,16 +27,16 @@ namespace ProvinceCrawler
             services.AddDbContext<ProjectDbContext>(options =>
        options.UseSqlServer("Server=.\\SQLEXPRESS; Database=DATN_SHOEMASTER;MultipleActiveResultSets=true;TrustServerCertificate=True;Integrated Security=True;Connection Timeout=360;"));
 
+            services.AddScoped<IProvinceRepository, ProvinceRepository>();
+            services.AddScoped<IProvinceBusiness, ProvinceBusiness>();
 
-            services.AddScoped<IDistrictRepository, DistrictRepository>();
-            services.AddScoped<IDistrictBusiness, DistrictBusiness>();
             services.AddTransient<ProvinceCrawlerService>();
-            services.AddTransient<DistrictCrawlerService>();
+            services.AddTransient<CrawlerService>();
 
             var serviceProvider = services.BuildServiceProvider();
 
             //ISourceCrawler crawler = serviceProvider.GetRequiredService<ProvinceCrawlerService>();
-            ISourceCrawler crawler = serviceProvider.GetRequiredService<DistrictCrawlerService>();
+            ISourceCrawler crawler = serviceProvider.GetRequiredService<CrawlerService>();
 
 
 

@@ -35,6 +35,6 @@ namespace Project.DbManagement.Entity
             LastModifiedOnDate = DateTime.UtcNow;
             LastModifiedByUserId = userId;
         }
-        public bool? Isdeleted { get; set; } =false;
+        public bool? IsDeleted { get; set; } =false;
     }
 }

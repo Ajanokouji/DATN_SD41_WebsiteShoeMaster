@@ -49,8 +49,9 @@ export interface VariantObjs {
   group1: string,
   group2: string,
   price: string,
-  stock: string,
+  stock: number,
   sku: string,
+  imgUrl :string
 }
 export interface ProductResDto {
   id: string;

@@ -65,7 +65,7 @@ namespace Project.Business.Implement
 
         private IQueryable<CustomersEntity> BuildQuery(CustomerQueryModel queryModel)
         {
-            IQueryable<CustomersEntity> query = _context.Customers.AsNoTracking().Where(x => x.Isdeleted != true);
+            IQueryable<CustomersEntity> query = _context.Customers.AsNoTracking().Where(x => x.IsDeleted != true);
 
             if (queryModel.Id.HasValue)
             {
@@ -163,7 +163,7 @@ namespace Project.Business.Implement
         {
             var exist = await FindAsync(id);
             if (exist == null) throw new Exception(ICustomerRepository.MessageNoTFound);
-            exist.Isdeleted = true;
+            exist.IsDeleted = true;
             _context.Customers.Update(exist);
             await _context.SaveChangesAsync();
             return exist;

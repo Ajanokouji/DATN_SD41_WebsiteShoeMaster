@@ -1,4 +1,5 @@
 ﻿using Project.Common;
+using Project.DbManagement;
 using SERP.Framework.Common;
 
 namespace Project.Business.Model
@@ -10,6 +11,6 @@ namespace Project.Business.Model
         public string? Email { get; set; }
         public string? AvartarUrl { get; set; }
         public string? PhoneNumber { get; set; }
-        public string? Type { get; set; }
+        public UserTypeEnum? Type { get; set; }
     }
 }

@@ -69,7 +69,7 @@ namespace Project.Business.Implement
 
         private IQueryable<VoucherProducts> BuildQuery(VoucherProductsQueryModel queryModel)
         {
-            IQueryable<VoucherProducts> query = _context.VoucherProducts.AsNoTracking().Where(x => x.Isdeleted != true);
+            IQueryable<VoucherProducts> query = _context.VoucherProducts.AsNoTracking().Where(x => x.IsDeleted != true);
 
             if (queryModel.Id.HasValue)
             {
@@ -173,7 +173,7 @@ namespace Project.Business.Implement
         {
             var exist = await FindAsync(Id);
             if (exist == null) throw new Exception(IVoucherProductsRepository.MessageNotFound);
-            exist.Isdeleted = true;
+            exist.IsDeleted = true;
             _context.VoucherProducts.Update(exist);
             await _context.SaveChangesAsync();
             return exist;
@@ -197,7 +197,7 @@ namespace Project.Business.Implement
         {
             return await _context.Products
                 .AsNoTracking()
-                .Where(x => ids.Contains(x.Id) && x.Isdeleted == false)
+                .Where(x => ids.Contains(x.Id) && x.IsDeleted == false)
                 .ToListAsync();
         }
 
@@ -212,7 +212,7 @@ namespace Project.Business.Implement
                     EF.Functions.Collate(p.Code, "Latin1_General_CI_AI").ToLower().Contains(searchStringNormal) ||
                     EF.Functions.Collate(p.Description, "Latin1_General_CI_AI").ToLower().Contains(searchStringNormal));
 
-            queryable = queryable.Where(p => p.Isdeleted == false);
+            queryable = queryable.Where(p => p.IsDeleted == false);
 
             return await queryable.GetPagedOrderAsync(queryModel.CurrentPage.Value, queryModel.PageSize.Value, string.Empty);
         }
@@ -248,7 +248,7 @@ namespace Project.Business.Implement
                     .Where(v => v.VoucherId == voucherProduct.VoucherId
                              && v.ProductId == voucherProduct.ProductId
                              && v.VarientProductId == voucherProduct.VarientProductId
-                             && v.Isdeleted == false)
+                             && v.IsDeleted == false)
                     .FirstOrDefault();
 
                 if (voucherProductFind != null)

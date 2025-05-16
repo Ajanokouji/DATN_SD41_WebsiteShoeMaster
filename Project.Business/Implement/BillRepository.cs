@@ -23,7 +23,7 @@ public class BillRepository : IBillRepository
 
     public async Task<BillEntity> FindAsync(Guid id)
     {
-        var res = await _context.Bills.FindAsync(id);
+        var res = await _context.Bills.AsNoTracking().FirstOrDefaultAsync(x=>x.Id==id);
         return res;
     }
 
@@ -65,7 +65,7 @@ public class BillRepository : IBillRepository
 
     private IQueryable<BillEntity> BuildQuery(BillQueryModel queryModel)
     {
-        IQueryable<BillEntity> query = _context.Bills.AsNoTracking().Where(x => x.Isdeleted != true);
+        IQueryable<BillEntity> query = _context.Bills.AsNoTracking().Where(x => x.IsDeleted != true);
 
         if (queryModel.Id.HasValue)
         {
@@ -275,7 +275,7 @@ public class BillRepository : IBillRepository
     {
         var exist = await FindAsync(Id);
         if (exist == null) throw new Exception(IBillRepository.MessageNotFound);
-        exist.Isdeleted = true;
+        exist.IsDeleted = true;
         _context.Bills.Update(exist);
         _context.SaveChangesAsync();
         return exist;
