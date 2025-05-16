@@ -20,7 +20,7 @@ export const productFormSchema = z.object({
       price: z.string(),
       stock: z.number(),
       sku: z.string(),
-      imageUrl : z.string().optional()
+      imgUrl : z.string().optional()
     })
   ),
   metadataObj: z.array(

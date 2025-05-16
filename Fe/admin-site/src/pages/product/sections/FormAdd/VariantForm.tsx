@@ -5,6 +5,7 @@ import { UseFormReturn } from "react-hook-form";
 import { X, Plus } from "lucide-react";
 import { ProductFormSchema } from "./FormSchema";
 
+import {ImageIconSelector} from "./ImageIconSelectorProps"
 interface Option {
   id: string;
   parentId?: string | null;
@@ -18,215 +19,243 @@ interface VariantFormProps {
   mode?: "create" | "edit";
 }
 
+
+const validateSku = (sku: string): string | null => {
+  if (!sku) return "SKU không được để trống";
+  if (!/^[A-Z0-9-]{3,20}$/.test(sku)) 
+    return "SKU chỉ gồm chữ hoa, số, dấu '-', dài 3-20 ký tự";
+  return null;
+};
+
 interface CombinationData {
   group1: string;
   group2: string;
   price: string;
   stock: number;
   sku: string;
-  imgUrl: string;
+  imgUrl?: string;
 }
+
+// 👉 Hàm chuẩn hoá: bỏ dấu tiếng Việt + ký tự đặc biệt, trả về UPPER-CASE slug
+const normalizeText = (txt: string) =>
+  txt
+    .trim()
+    .toUpperCase()
+    .normalize("NFD")
+    .replace(/\p{Diacritic}/gu, "")
+    .replace(/[^A-Z0-9]+/g, "-")
+    .replace(/(^-|-$)/g, "");
 
 export const VariantForm: React.FC<VariantFormProps> = ({ form }) => {
   const [options, setOptions] = useState<Option[]>([]);
   const [isColorGroupDisabled, setIsColorGroupDisabled] = useState(false);
   const [isSizeGroupDisabled, setIsSizeGroupDisabled] = useState(false);
   const [showDefaultInputs, setShowDefaultInputs] = useState(true);
+
   const [combinationData, setCombinationData] = useState<CombinationData[]>([]);
-
-  const areValuesEmpty = () => {
-    return options.every((option) => option.values.length === 0);
-  };
-
-  const isAnyButtonDisabled = () => {
-    return isColorGroupDisabled || isSizeGroupDisabled;
-  };
+  const [skuErrors, setSkuErrors] = useState<Record<number, string>>({});
+  const areValuesEmpty = () => options.every((o) => o.values.length === 0);
+  const isAnyButtonDisabled = () => isColorGroupDisabled || isSizeGroupDisabled;
 
   useEffect(() => {
     setShowDefaultInputs(areValuesEmpty() && !isAnyButtonDisabled());
   }, [options, isColorGroupDisabled, isSizeGroupDisabled]);
 
-  const handleAddGroup = (name: string, disableCallback: () => void) => {
-    if (options.find((o) => o.name === name)) return;
-    setOptions([
-      ...options,
+ 
+  const handleAddGroup = (name: string, disable: () => void) => {
+    if (options.some((o) => o.name === name)) return;
+    setOptions((prev) => [
+      ...prev,
       { id: crypto.randomUUID(), parentId: null, name, values: [] },
     ]);
-    disableCallback();
+    disable();
   };
 
   const handleRemoveOption = (id: string) => {
-    const option = options.find((o) => o.id === id);
-    if (option?.name === "Màu sắc") setIsColorGroupDisabled(false);
-    if (option?.name === "Kích cỡ") setIsSizeGroupDisabled(false);
-    setOptions(options.filter((o) => o.id !== id));
+    const opt = options.find((o) => o.id === id);
+    if (opt?.name === "Màu sắc") setIsColorGroupDisabled(false);
+    if (opt?.name === "Kích cỡ") setIsSizeGroupDisabled(false);
+    setOptions((prev) => prev.filter((o) => o.id !== id));
   };
 
-  const handleValueChange = (optionId: string, valueId: string, value: string) => {
-    setOptions(options.map((o) =>
-      o.id === optionId
-        ? {
-            ...o,
-            values: o.values.map((v) =>
-              v.id === valueId ? { ...v, value } : v
-            ),
-          }
-        : o
-    ));
+  const handleValueChange = (
+    optionId: string,
+    valueId: string,
+    value: string
+  ) => {
+    setOptions((prev) =>
+      prev.map((o) =>
+        o.id === optionId
+          ? {
+              ...o,
+              values: o.values.map((v) =>
+                v.id === valueId ? { ...v, value } : v
+              ),
+            }
+          : o
+      )
+    );
   };
 
   const handleAddValue = (optionId: string) => {
-    setOptions(options.map((o) =>
-      o.id === optionId
-        ? {
-            ...o,
-            values: [
-              ...o.values,
-              {
-                id: crypto.randomUUID(),
-                value: "",
-                parentId: optionId,
-              },
-            ],
-          }
-        : o
-    ));
+    setOptions((prev) =>
+      prev.map((o) =>
+        o.id === optionId
+          ? {
+              ...o,
+              values: [
+                ...o.values,
+                { id: crypto.randomUUID(), value: "", parentId: optionId },
+              ],
+            }
+          : o
+      )
+    );
   };
 
   const handleRemoveValue = (optionId: string, valueId: string) => {
-    setOptions(options.map((o) =>
-      o.id === optionId
-        ? { ...o, values: o.values.filter((v) => v.id !== valueId) }
-        : o
-    ));
+    setOptions((prev) =>
+      prev.map((o) =>
+        o.id === optionId
+          ? { ...o, values: o.values.filter((v) => v.id !== valueId) }
+          : o
+      )
+    );
   };
 
+  /* ------------------ Sinh combinations ----------------- */
   const generateCombinations = (): CombinationData[] => {
     const colorOption = options.find((o) => o.name === "Màu sắc");
     const sizeOption = options.find((o) => o.name === "Kích cỡ");
-
     const colorValues = colorOption?.values ?? [];
     const sizeValues = sizeOption?.values ?? [];
-    if (colorValues.length === 0 && sizeValues.length === 0) return [];
 
-    if (colorValues.length > 0 && sizeValues.length === 0) {
+    if (!colorValues.length && !sizeValues.length) return [];
+
+    // Một chiều
+    if (colorValues.length && !sizeValues.length)
       return colorValues.map((v) => ({
         group1: v.value,
         group2: "",
         price: "",
         stock: 0,
         sku: "",
-        imgUrl: ""
+        imgUrl: "",
       }));
-    }
 
-    if (colorValues.length === 0 && sizeValues.length > 0) {
+    if (!colorValues.length && sizeValues.length)
       return sizeValues.map((v) => ({
         group1: "",
         group2: v.value,
         price: "",
         stock: 0,
         sku: "",
-        imgUrl: ""
+        imgUrl: "",
       }));
-    }
 
-    const combinations: CombinationData[] = [];
-    colorValues.forEach((color) => {
-      sizeValues.forEach((size) => {
-        combinations.push({
-          group1: color.value,
-          group2: size.value,
+    // Hai chiều
+    const out: CombinationData[] = [];
+    colorValues.forEach((c) =>
+      sizeValues.forEach((s) =>
+        out.push({
+          group1: c.value,
+          group2: s.value,
           price: "",
           stock: 0,
           sku: "",
-          imgUrl: ""
-        });
-      });
-    });
-
-    return combinations;
+          imgUrl: "",
+        })
+      )
+    );
+    return out;
   };
 
+  
   useEffect(() => {
-    const combinations = generateCombinations();
-    setCombinationData(combinations);
-    form.setValue("variantObjs", combinations);
+    const combos = generateCombinations();
+    setCombinationData(combos);
+    form.setValue("variantObjs", combos);
   }, [options]);
 
+ 
   const handleCombinationChange = (
-    index: number,
+    idx: number,
     field: keyof CombinationData,
     value: string
   ) => {
+    
     const updated = [...combinationData];
-  
-    switch (field) {
-      case "stock":
-        updated[index][field] = Number(value);
-        break;
-      case "price":
-      case "sku":
-      case "group1":
-      case "group2":
-        updated[index][field] = value;
-        break;
-      default:
-        // This should never happen
-        throw new Error(`Unhandled field: ${field}`);
+    updated[idx] = {
+      ...updated[idx],
+      [field]: field === "stock" ? Number(value) : value,
+    };
+    
+    setCombinationData(updated);
+    form.setValue("variantObjs", updated);
+
+    // Validate nếu là sku
+    if (field === "sku") {
+      const errorMsg = validateSku(value);
+      setSkuErrors((prev) => ({ ...prev, [idx]: errorMsg || "" }));
     }
-  
+    console.log(form.getValues("variantObjs"))
+  };
+
+ 
+  const handleGenerateSkus = () => {
+    const baseCodeRaw = form.getValues("code") || "SP";
+    const base = normalizeText(baseCodeRaw);
+
+    const updated = combinationData.map((it) => {
+      const g1 = normalizeText(it.group1);
+      const g2 = normalizeText(it.group2);
+      const sku = [base, g1, g2].filter(Boolean).join("-");
+      return { ...it, sku };
+    });
+
     setCombinationData(updated);
     form.setValue("variantObjs", updated);
   };
-  
 
 
-  const group1RowSpans: { [key: string]: number } = {};
+  const group1RowSpans: Record<string, number> = {};
   combinationData.forEach((c) => {
     group1RowSpans[c.group1] = (group1RowSpans[c.group1] || 0) + 1;
   });
 
+  /* ---------------------- Render ------------------------ */
   return (
     <div className="p-4 border rounded space-y-4">
       <h2 className="text-lg font-semibold">Phân loại hàng</h2>
 
+      {/* ------ Buttons thêm nhóm ------ */}
       <div className="flex gap-4">
         <Button
           type="button"
-          onClick={() =>
-            handleAddGroup("Màu sắc", () => setIsColorGroupDisabled(true))
-          }
+          onClick={() => handleAddGroup("Màu sắc", () => setIsColorGroupDisabled(true))}
           disabled={isColorGroupDisabled}
           variant="outline"
         >
-          <Plus size={16} className="mr-2" />
-          Tạo nhóm phân loại Màu sắc
+          <Plus size={16} className="mr-2" />Tạo nhóm Màu sắc
         </Button>
         <Button
           type="button"
-          onClick={() =>
-            handleAddGroup("Kích cỡ", () => setIsSizeGroupDisabled(true))
-          }
+          onClick={() => handleAddGroup("Kích cỡ", () => setIsSizeGroupDisabled(true))}
           disabled={isSizeGroupDisabled}
           variant="outline"
         >
-          <Plus size={16} className="mr-2" />
-          Tạo nhóm phân loại Kích cỡ
+          <Plus size={16} className="mr-2" />Tạo nhóm Kích cỡ
         </Button>
       </div>
 
-      {options.map((option) => (
-
-        <div
-          key={option.id}
-          className="border p-3 rounded bg-gray-50 mt-4 space-y-2"
-        >
+      {/* ------ Danh sách option & value ------ */}
+      {options.map((opt) => (
+        <div key={opt.id} className="border p-3 rounded bg-gray-50 mt-4 space-y-2">
           <div className="flex items-center gap-2">
-            <Input value={option.name} disabled className="w-1/3" />
+            <Input value={opt.name} disabled className="w-1/3" />
             <Button
               type="button"
-              onClick={() => handleRemoveOption(option.id)}
+              onClick={() => handleRemoveOption(opt.id)}
               variant="ghost"
               size="icon"
               className="ml-auto text-gray-500"
@@ -235,20 +264,17 @@ export const VariantForm: React.FC<VariantFormProps> = ({ form }) => {
             </Button>
           </div>
           <div className="flex flex-wrap gap-2">
-            {option.values.map((val) => (
+            {opt.values.map((val) => (
               <div key={val.id} className="relative">
                 <Input
                   value={val.value}
                   placeholder="Giá trị phân loại"
-
-                  onChange={(e) =>
-                    handleValueChange(option.id, val.id, e.target.value)
-                  }
+                  onChange={(e) => handleValueChange(opt.id, val.id, e.target.value)}
                   className="pr-6"
                 />
                 <Button
                   type="button"
-                  onClick={() => handleRemoveValue(option.id, val.id)}
+                  onClick={() => handleRemoveValue(opt.id, val.id)}
                   size="icon"
                   variant="ghost"
                   className="absolute top-1 right-1 text-gray-500"
@@ -257,19 +283,14 @@ export const VariantForm: React.FC<VariantFormProps> = ({ form }) => {
                 </Button>
               </div>
             ))}
-            <Button
-              type="button"
-              size="sm"
-              variant="ghost"
-              onClick={() => handleAddValue(option.id)}
-            >
-              <Plus size={14} className="mr-1" />
-              Thêm giá trị
+            <Button type="button" size="sm" variant="ghost" onClick={() => handleAddValue(opt.id)}>
+              <Plus size={14} className="mr-1" />Thêm giá trị
             </Button>
           </div>
         </div>
       ))}
 
+      {/* ------ Inputs mặc định khi chưa có nhóm ------ */}
       {showDefaultInputs && (
         <div className="mt-4 space-y-2">
           <Input placeholder="Nhập giá trị mặc định 1" />
@@ -277,9 +298,15 @@ export const VariantForm: React.FC<VariantFormProps> = ({ form }) => {
         </div>
       )}
 
+      {/* ------ Table combinations ------ */}
       {combinationData.length > 0 && (
         <div className="mt-4 border rounded-lg p-4 space-y-2">
           <h3 className="font-semibold mb-2">Danh sách phân loại hàng</h3>
+
+          <Button type="button" variant="outline" className="mb-2" onClick={handleGenerateSkus}>
+            Sinh SKU tự động
+          </Button>
+
           <table className="w-full border-collapse">
             <thead>
               <tr className="bg-gray-100">
@@ -287,55 +314,51 @@ export const VariantForm: React.FC<VariantFormProps> = ({ form }) => {
                 <th className="border p-2 text-left">Kích cỡ</th>
                 <th className="border p-2 text-left">Giá</th>
                 <th className="border p-2 text-left">Kho hàng</th>
-                <th className="border p-2 text-left">SKU phân loại</th>
+                <th className="border p-2 text-left">SKU</th>
+                <th className="border p-2 text-left">Hỉnh ảnh</th>
               </tr>
             </thead>
             <tbody>
-              {combinationData.map((combination, index) => {
-
-                const isFirst =
-                  index === 0 ||
-                  combination.group1 !== combinationData[index - 1].group1;
-                const rowSpan = group1RowSpans[combination.group1];
-
+              {combinationData.map((c, idx) => {
+                const isFirst = idx === 0 || c.group1 !== combinationData[idx - 1].group1;
+                const rowSpan = group1RowSpans[c.group1];
                 return (
-                  <tr key={index}>
+                  <tr key={idx}>
                     {isFirst && (
-
-                      <td
-                        className="border p-2 align-middle"
-                        rowSpan={rowSpan}
-                      >
-                        {combination.group1}
+                      <td className="border p-2 align-middle" rowSpan={rowSpan}>
+                        {c.group1}
                       </td>
                     )}
-                    <td className="border p-2">{combination.group2}</td>
+                    <td className="border p-2">{c.group2}</td>
                     <td className="border p-2">
                       <Input
-                        value={combination.price}
-                        onChange={(e) =>
-                          handleCombinationChange(index, "price", e.target.value)
-                        }
+                        value={c.price}
+                        onChange={(e) => handleCombinationChange(idx, "price", e.target.value)}
                         placeholder="Giá"
                       />
                     </td>
                     <td className="border p-2">
                       <Input
-                        value={combination.stock.toString()}
-                        onChange={(e) =>
-                          handleCombinationChange(index, "stock", e.target.value)
-                        }
+                        value={c.stock.toString()}
+                        onChange={(e) => handleCombinationChange(idx, "stock", e.target.value)}
                         placeholder="Kho"
                       />
                     </td>
                     <td className="border p-2">
                       <Input
-                        value={combination.sku}
-                        onChange={(e) =>
-                          handleCombinationChange(index, "sku", e.target.value)
-                        }
+                        value={c.sku}
+                        onChange={(e) => handleCombinationChange(idx, "sku", e.target.value)}
                         placeholder="SKU"
+                        className={skuErrors[idx] ? "border-red-500" : ""}
                       />
+                      {skuErrors[idx] && (
+                        <p className="text-xs text-red-600 mt-1">{skuErrors[idx]}</p>
+                      )}
+                    </td>
+                    <td  className="border p-2">
+                    <ImageIconSelector 
+                          value={c.imgUrl}
+                          onChange={(value) => handleCombinationChange(idx, "imgUrl", value)} className="my-4" />
                     </td>
                   </tr>
                 );

@@ -10,7 +10,6 @@ import {
 } from "@/components/ui/form";
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
-import { ProductFormSchema } from "./FormSchema";
 import {
   Select,
   SelectContent,
@@ -18,6 +17,7 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
+import { ProductFormSchema } from "./FormSchema";
 
 interface BasicInfoFieldsProps {
   control: Control<ProductFormSchema>;
@@ -31,6 +31,28 @@ const formatType = (name: string) => {
     .replace(/[^a-z0-9]+/g, "-")
     .replace(/(^-|-$)/g, "");
 };
+
+export const slugify = (str: string) =>
+  str
+    .trim()
+    .toUpperCase()
+    .normalize("NFD")
+    .replace(/\p{Diacritic}/gu, "")
+    .replace(/[^A-Z0-9]+/g, "-")
+    .replace(/(^-|-$)/g, "");
+
+export const buildSku = ({
+  base,
+  color,
+  size,
+}: {
+  base: string;
+  color?: string;
+  size?: string;
+}) =>
+  [slugify(base), slugify(color || ""), slugify(size || "")]
+    .filter(Boolean)
+    .join("-");
 
 export const BasicInfoFields: React.FC<BasicInfoFieldsProps> = ({
   control,
@@ -64,6 +86,7 @@ export const BasicInfoFields: React.FC<BasicInfoFieldsProps> = ({
       completeCodeField.onChange(codeValue + " complete");
     }
   }, [codeValue, completeCodeField]);
+
   return (
     <>
       <div className="grid grid-cols-2 gap-4">
@@ -113,8 +136,9 @@ export const BasicInfoFields: React.FC<BasicInfoFieldsProps> = ({
           </FormItem>
         )}
       />
+
       <div className="grid grid-cols-2 gap-4">
-        <FormField
+        {/* <FormField
           control={control}
           name="sortOrder"
           render={({ field }) => (
@@ -136,7 +160,8 @@ export const BasicInfoFields: React.FC<BasicInfoFieldsProps> = ({
               <FormMessage />
             </FormItem>
           )}
-        />
+        /> */}
+
         <FormField
           control={control}
           name="status"
