@@ -24,6 +24,7 @@ interface CombinationData {
   price: string;
   stock: number;
   sku: string;
+  imgUrl: string;
 }
 
 export const VariantForm: React.FC<VariantFormProps> = ({ form }) => {
@@ -115,6 +116,7 @@ export const VariantForm: React.FC<VariantFormProps> = ({ form }) => {
         price: "",
         stock: 0,
         sku: "",
+        imgUrl: ""
       }));
     }
 
@@ -125,6 +127,7 @@ export const VariantForm: React.FC<VariantFormProps> = ({ form }) => {
         price: "",
         stock: 0,
         sku: "",
+        imgUrl: ""
       }));
     }
 
@@ -137,6 +140,7 @@ export const VariantForm: React.FC<VariantFormProps> = ({ form }) => {
           price: "",
           stock: 0,
           sku: "",
+          imgUrl: ""
         });
       });
     });

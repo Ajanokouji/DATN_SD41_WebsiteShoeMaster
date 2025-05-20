@@ -46,7 +46,7 @@ namespace Project.MVC.Controllers
                     });
 
                     //Lấy cart chưa bị xóa
-                    var cartFound = lstCartFound?.FirstOrDefault(x => x.Isdeleted == false);
+                    var cartFound = lstCartFound?.FirstOrDefault(x => x.IsDeleted == false);
                     //Ko thấy cart
                     if (cartFound == null)
                     {
@@ -152,11 +152,12 @@ namespace Project.MVC.Controllers
                 {
                     new CartDetails
                     {
-                        Id = Guid.NewGuid(),
-                        IdProduct = productData.ProductId.Value,
-                        Quantity = productData.Quantity,
-                        Size = productData.Size,
-                        Color = productData.Color,
+                         Id = Guid.NewGuid(),
+                        SKU = productData.SKU ?? string.Empty,
+                        IdProduct = productData.ProductId ?? Guid.Empty,
+                        Quantity = productData.Quantity ?? 0,
+                        Size = productData.Size ?? string.Empty,
+                        Color = productData.Color ?? string.Empty,
                         IsOnSale = false
                     }
                 };
@@ -180,10 +181,13 @@ namespace Project.MVC.Controllers
 
                 var cartItem = new CartItem
                 {
+
                     ProductId = productData.ProductId ?? Guid.Empty,
                     ProductName = productData.ProductName ?? string.Empty,
                     ProductImage = productData.ProductImage ?? string.Empty,
+                    SKU= productData.SKU??string.Empty,
                     Price = productData.Price ?? 0m,
+                    Total = productData.Total??0m,
                     Quantity = productData.Quantity ?? 0,
                     Size = productData.Size ?? string.Empty,
                     Color = productData.Color ?? string.Empty

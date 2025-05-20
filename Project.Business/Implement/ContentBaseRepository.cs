@@ -72,7 +72,7 @@ namespace Project.Business.Implement
         private IQueryable<ContentBase> BuildQuery(ContentBaseQueryModel queryModel)
         {
 
-            var query = _context.ContentBases.AsNoTracking().Where(x => x.Isdeleted == false);
+            var query = _context.ContentBases.AsNoTracking().Where(x => x.IsDeleted == false);
 
             if (queryModel.Id.HasValue)
             {
@@ -139,6 +139,7 @@ namespace Project.Business.Implement
                     exist.PublishStartDate = entity.PublishStartDate;
                     exist.PublishEndDate = entity.PublishEndDate;
                     exist.IsPublish = entity.IsPublish;
+                    exist.Content = entity.Content;
                     exist.UpdateTracking(entity.Id);
 
                     _context.ContentBases.Update(exist);
@@ -155,7 +156,7 @@ namespace Project.Business.Implement
         {
             var exist = await FindAsync(id);
             if (exist == null) throw new Exception("Content not found.");
-            exist.Isdeleted = true;
+            exist.IsDeleted = true;
             _context.ContentBases.Update(exist);
             await _context.SaveChangesAsync();
             return exist;

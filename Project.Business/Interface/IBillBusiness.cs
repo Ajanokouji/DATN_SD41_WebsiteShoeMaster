@@ -23,11 +23,11 @@ public interface IBillBusiness
     
     Task<IEnumerable<BillEntity>> DeleteAsync(Guid[] deleteIds);
 
-    Task<BillEntity> SaveAsync(BillEntity article);
+    Task<BillEntity> SaveAsync(BillEntity  billEntity);
 
     Task<IEnumerable<BillEntity>> SaveAsync(IEnumerable<BillEntity> article);
 
-    Task<BillEntity> PatchAsync(BillPatchModel article);
+    Task<BillEntity> PatchAsync(BillPatchModel  model);
 
     Task <BillModel> CreateBill(BillModel model);
     Task <BillModel> GetBillById(Guid id);

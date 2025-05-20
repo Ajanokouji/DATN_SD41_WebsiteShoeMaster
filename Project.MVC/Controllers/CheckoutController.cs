@@ -3,6 +3,8 @@ using Newtonsoft.Json;
 using Project.Business.Interface;
 using Project.Business.Interface.Services;
 using Project.Business.Model;
+using Project.Business.Model.PatchModel;
+using Project.Business.Model.VnPayments;
 using Project.Common;
 using Project.Common.Constants;
 using Project.DbManagement.Entity;
@@ -19,6 +21,7 @@ namespace Project.MVC.Controllers
     public class CheckoutController : Controller
     {
         private readonly IBillBusiness _billBusiness;
+        private readonly IProductBusiness _productBusiness;
         private readonly ICartBusiness _cartBusiness;
         private readonly IBillDetailsBusiness _billDetailsBusiness;
         private readonly IVnPayService _vnPayService;
@@ -28,10 +31,12 @@ namespace Project.MVC.Controllers
         public CheckoutController(
             IBillBusiness billBusiness,
             ICartBusiness cartBusiness,
+            IProductBusiness productBusiness,
             IBillDetailsBusiness billDetailsBusiness,
             IVnPayService vnPayService,
             IUserBusiness userBusiness)
         {
+            _productBusiness = productBusiness;
             _billBusiness = billBusiness;
             _cartBusiness = cartBusiness;
             _billDetailsBusiness = billDetailsBusiness;
@@ -62,10 +67,20 @@ namespace Project.MVC.Controllers
 
             var model = new CheckoutViewModel
             {
+                BillId= Guid.NewGuid(),
                 CartItems = cartItemsResult.Data,
                 CustomerInfo = new CustomerInfoModel(),
                 SubTotal = cartItemsResult.Data.Sum(x => x.Total),
-                Total = cartItemsResult.Data.Sum(x => x.Total)
+                Total = cartItemsResult.Data.Sum(x => x.Total),
+                //PaymentViewModel = new PaymentViewModel()
+                //{
+                //    BillId = Guid.NewGuid(),
+                //    PaymentInformationModel = new PaymentInformationModel()
+                //    {
+                //        OrderId = Guid.NewGuid(),
+
+                //    }
+                //}
             };
 
             return View(model);
@@ -102,7 +117,7 @@ namespace Project.MVC.Controllers
                     CustomerEmail = model.CustomerInfo.Email,
                     CustomerAddress = $"{model.CustomerInfo.Address}, {model.CustomerInfo.District}, {model.CustomerInfo.City}",
                     Note = model.CustomerInfo.Notes,
-                    PaymentMethod = model.PaymentMethod,
+                    PaymentMethod = model.paymentMethodModel.Code,
                     Status = BillConstants.PendingConfirmation,
                     PaymentStatus = BillConstants.PaymentStatusUnpaid,
                     BillDetails = cartItemsResult.Data.Select(item => new BillDetailModel
@@ -131,7 +146,7 @@ namespace Project.MVC.Controllers
                 }
 
                 // Nếu thanh toán COD, xóa giỏ hàng và chuyển đến trang cảm ơn
-                if (model.PaymentMethod == "COD")
+                if (model.paymentMethodModel.Code == "COD")
                 {
                     // Cập nhật trạng thái đơn hàng
                    // await _billBusiness.UpdateBillStatus(bill.Id.Value, BillConstants.StatusConfirmed);
@@ -139,10 +154,10 @@ namespace Project.MVC.Controllers
                     // Xóa giỏ hàng
                     HttpContext.Session.Remove(CartSessionKey);
 
-                    return RedirectToAction("ThankYou",new { orderId  = bill.Id });
+                    return RedirectToAction("ThankYou",new { billId = bill.Id });
                 }
                 // Nếu thanh toán VNPay, trả về orderId để client tạo URL thanh toán
-                else if (model.PaymentMethod == "VNPay")
+                else if (model.paymentMethodModel.Code == "VNPay")
                 {
                     return Json(new { success = true, orderId = bill.Id });
                 }
@@ -157,73 +172,25 @@ namespace Project.MVC.Controllers
             }
         }
 
-        public async Task<IActionResult> ThankYou(string orderId)
+        public async Task<IActionResult> ThankYou(Guid billId)
         {
-            if (string.IsNullOrEmpty(orderId))
+            if (billId == null)
             {
                 return RedirectToAction("Index", "Home");
             }
 
-            var billId = Guid.Parse(orderId);
-            var bill = await _billBusiness.GetBillById(billId);
+             var bill = await _billBusiness.GetBillById(billId);
+
             if (bill == null)
             {
                 return RedirectToAction("Index", "Home");
             }
-
+            HttpContext.Session.Remove(CartSessionKey);
             return View(bill);
         }
 
-        [HttpGet]
-        public async Task<IActionResult> VNPayReturn()
-        {
-            var queryString = Request.QueryString.Value;
-            
-            try
-            {
-                var vnPayData = new Dictionary<string, string>();
-                var queryParams = Request.Query;
-                
-                foreach (var param in queryParams)
-                {
-                    vnPayData.Add(param.Key, param.Value);
-                }
-                
-                // Kiểm tra kết quả thanh toán từ VNPay
-                var responseCode = vnPayData.ContainsKey("vnp_ResponseCode") ? vnPayData["vnp_ResponseCode"] : "";
-                var transactionId = vnPayData.ContainsKey("vnp_TxnRef") ? vnPayData["vnp_TxnRef"] : "";
-                
-                if (string.IsNullOrEmpty(transactionId))
-                {
-                    TempData["ErrorMessage"] = "Không tìm thấy mã đơn hàng";
-                    return RedirectToAction("Index", "Cart");
-                }
-                
-                var billId = Guid.Parse(transactionId);
-                
-                if (responseCode == "00")
-                {
-                    // Cập nhật trạng thái đơn hàng thành công
-                    await _billBusiness.UpdateBillStatus(billId, BillConstants.Paid);
-                    
-                    // Xóa giỏ hàng
-                    HttpContext.Session.Remove(CartSessionKey);
-                    
-                    return RedirectToAction("ThankYou", new { orderId = billId });
-                }
-                else
-                {
-                    // Thanh toán thất bại, chuyển về trang giỏ hàng
-                    TempData["ErrorMessage"] = "Thanh toán thất bại: Mã lỗi " + responseCode;
-                    return RedirectToAction("Index", "Cart");
-                }
-            }
-            catch (Exception ex)
-            {
-                TempData["ErrorMessage"] = "Xử lý thanh toán gặp lỗi: " + ex.Message;
-                return RedirectToAction("Index", "Cart");
-            }
-        }
+     
+
 
         [HttpPost]
         public async Task<IActionResult> ApplyVoucher(string voucherCode, decimal totalAmount)
@@ -250,12 +217,35 @@ namespace Project.MVC.Controllers
             }
         }
 
-        [HttpGet]
-        public IActionResult PaymentCallbackVnpay()
+        public async Task<IActionResult> PaymentCallbackVnpay()
         {
-            var response = _vnPayService.PaymentExecute(Request.Query);
+            var response = _vnPayService.GetPaymentResult(Request.Query);
+            var paymentInformationModel = JsonConvert.DeserializeObject<PaymentInformationModel>(response.OrderDescription);
+            if (response.Success)
+            {
+               var bill= await _billBusiness.PatchAsync(new BillPatchModel()
+                {
+                    Id = paymentInformationModel.BillId.Value,
+                    PaymentStatus = BillConstants.PaymentStatusPaid,
+                    PaymentMethod =paymentInformationModel.PayMethod,
+                    Status = BillConstants.Paid,
+                });
 
-            return Json(response);
+                var billDetail = _billDetailsBusiness.GetBillDetailsByBillId(bill.Id);
+
+
+            }
+            else
+            {
+                await _billBusiness.PatchAsync(new BillPatchModel()
+                {
+                    Id = paymentInformationModel.BillId.Value,
+                    PaymentStatus = BillConstants.PaymentStatusUnpaid,
+                    PaymentMethod = paymentInformationModel.PayMethod,
+                    Status = BillConstants.Cancelled,
+                });
+            }
+                return RedirectToAction("ThankYou", new { billId = paymentInformationModel.BillId });
         }
     }
 }

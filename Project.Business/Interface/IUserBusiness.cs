@@ -77,14 +77,14 @@ namespace Project.Business.Interface
         /// </summary>
         /// <param name="email">Email người dùng</param>
         /// <returns>Thông tin người dùng</returns>
-        Task<ServiceResult<UserEntity>> GetUserByEmail(string email);
+        Task<UserEntity> GetUserByEmail(string email);
 
         /// <summary>
         /// Tạo người dùng mới từ thông tin khách hàng
         /// </summary>
         /// <param name="customerInfo">Thông tin khách hàng</param>
         /// <returns>Thông tin người dùng đã tạo</returns>
-        Task<ServiceResult<UserEntity>> CreateUserFromCustomerInfo(CustomerInfoModel customerInfo);
+        Task<UserEntity> CreateUserFromCustomerInfo(CustomerInfoModel customerInfo);
 
         /// <summary>
         /// Cập nhật thông tin người dùng

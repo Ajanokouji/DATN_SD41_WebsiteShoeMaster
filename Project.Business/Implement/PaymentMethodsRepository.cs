@@ -65,7 +65,7 @@ namespace Project.Business.Implement
 
         private IQueryable<PaymentMethods> BuildQuery(PaymentMethodsQueryModel queryModel)
         {
-            IQueryable<PaymentMethods> query = _context.PaymentMethods.AsNoTracking().Where(x => x.Isdeleted != true);
+            IQueryable<PaymentMethods> query = _context.PaymentMethods.AsNoTracking().Where(x => x.IsDeleted != true);
 
             if (queryModel.Id.HasValue)
             {
@@ -192,7 +192,7 @@ namespace Project.Business.Implement
         {
             var exist = await FindAsync(Id);
             if (exist == null) throw new Exception(IPaymentMethodsRepository.MessageNoTFound);
-            exist.Isdeleted = true;
+            exist.IsDeleted = true;
             _context.PaymentMethods.Update(exist);
             _context.SaveChangesAsync();
             return exist;

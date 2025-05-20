@@ -75,7 +75,10 @@ const AddProductSheet: React.FC<AddProductSheetProps> = ({
         publicOnDate: values.createdOnDate || new Date().toISOString(),
         metadataObj: values.metadataObj || [],
         labelsObjs: values.labelsObjs || [],
-        variantObjs: values.variantObjs || [],
+        variantObjs: values.variantObjs?.map(variant => ({
+          ...variant,
+          imgUrl: variant.imageUrl || "",
+        })) || [],
       };
 
       await dispatch(createProduct(productData));

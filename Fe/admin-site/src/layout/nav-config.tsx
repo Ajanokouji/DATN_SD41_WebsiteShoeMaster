@@ -80,6 +80,12 @@ const navConfig: NavConfigItem[] = [
     icon: LuSettings,
     color: "#3b82f6",
   },
+  {
+    title: "Tin tức",
+    path: "/contentBase",
+    icon: LuSettings,
+    color: "#3b82f6",
+  },
 ];
 
 export default navConfig;

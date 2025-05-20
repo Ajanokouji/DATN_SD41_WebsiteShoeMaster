@@ -97,7 +97,7 @@ namespace Project.Business.Implement
 
         private IQueryable<ProductEntity> BuildQuery(ProductQueryModel queryModel)
         {
-            IQueryable<ProductEntity> query = _context.Products.AsNoTracking().Where(x => x.Isdeleted != true);
+            IQueryable<ProductEntity> query = _context.Products.AsNoTracking().Where(x => x.IsDeleted!=true);
 
             if (queryModel.Id.HasValue)
             {
@@ -114,9 +114,9 @@ namespace Project.Business.Implement
                 ExpressionStarter<ProductEntity> expressionStarter = LinqKit.PredicateBuilder.New<ProductEntity>();
                 foreach (string ts in queryModel.ListTextSearch)
                 {
-                    expressionStarter = expressionStarter.Or((ProductEntity p) =>
-                        p.Name.Contains(ts.ToLower()) ||
-                        p.Description.Contains(ts.ToLower()));
+                    expressionStarter = expressionStarter.Or((ProductEntity p) => 
+                                                                p.Name.Contains(ts.ToLower()) ||
+                                                                p.Description.Contains(ts.ToLower()));
                 }
 
                 query = query.Where(expressionStarter);
@@ -160,8 +160,7 @@ namespace Project.Business.Implement
 
             if (true)
             {
-                query = query.Where(x =>
-                    x.MetadataObj != null && x.MetadataObj.Any(m => m.FieldName == "Brand" && m.FieldValues == "Nike"));
+                query =  query.Where(x => x.MetadataObj != null && x.MetadataObj.Any(m => m.FieldName == "Brand" && m.FieldValues == "Nike"));
             }
 
             //if (queryModel.MetaDataQueries != null && queryModel.MetaDataQueries.Any())
@@ -269,7 +268,7 @@ namespace Project.Business.Implement
         {
             var exist = await FindAsync(Id);
             if (exist == null) throw new Exception(IProductRepository.MessageNoTFound);
-            exist.Isdeleted = true;
+            exist.IsDeleted=true;
             _context.Products.Update(exist);
             _context.SaveChangesAsync();
             return exist;

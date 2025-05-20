@@ -17,7 +17,6 @@ namespace Project.DbManagement.Entity
         public string? ContentType { get; set; } = null!;        // Kiểu MIME (ví dụ: image/jpeg, image/png)
         public long? FileSize { get; set; }                      // Kích thước file (bytes)
         public string? UploadedBy { get; set; }
-        public bool? Isdeleted { get; set; } = false; // Người upload (nếu có)
     }
 
 }

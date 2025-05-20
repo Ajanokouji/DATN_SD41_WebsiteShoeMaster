@@ -53,11 +53,6 @@ const AddCategorySheet: React.FC<AddCategorySheetProps> = ({
   };
 
 
-  const handleCategorySelect = (categoryId: string) => {
-    form.setValue("parentId", categoryId);
-  };
-
-
   const handleSubmit = async (values: CategoryFormSchema) => {
     setIsSubmitting(true);
     try {

@@ -97,7 +97,7 @@ namespace Project.Business.Implement
 
         private IQueryable<Voucher> BuildQuery(VoucherQueryModel queryModel)
         {
-            IQueryable<Voucher> query = _context.Vouchers.AsNoTracking().Where(x => x.Isdeleted != true);
+            IQueryable<Voucher> query = _context.Vouchers.AsNoTracking().Where(x => x.IsDeleted != true);
 
             if (queryModel.Id.HasValue)
             {
@@ -289,7 +289,7 @@ namespace Project.Business.Implement
         {
             var exist = await FindAsync(Id);
             if (exist == null) throw new Exception(IVoucherRepository.MessageNotFound);
-            exist.Isdeleted = true;
+            exist.IsDeleted = true;
             _context.Vouchers.Update(exist);
             await _context.SaveChangesAsync(); //Thêm await fix lỗi xóa
             return exist;
@@ -321,14 +321,14 @@ namespace Project.Business.Implement
             {
                 bool isExist = await _context.Vouchers
                     .AsNoTracking()
-                    .AnyAsync(x => x.Code.Trim().ToLower() == code.Trim().ToLower() && x.Id != voucherId.Value && x.Isdeleted == false);
+                    .AnyAsync(x => x.Code.Trim().ToLower() == code.Trim().ToLower() && x.Id != voucherId.Value && x.IsDeleted == false);
                 return isExist;
             }
             else //Nếu voucherId ko giá trị thì nghĩa là đang muốn kiểm tra khi tạo mới
             {
                 bool isExist = await _context.Vouchers
                     .AsNoTracking()
-                    .AnyAsync(x => x.Code.Trim().ToLower() == code.Trim().ToLower() && x.Isdeleted == false);
+                    .AnyAsync(x => x.Code.Trim().ToLower() == code.Trim().ToLower() && x.IsDeleted == false);
                 return isExist;
             }
         }

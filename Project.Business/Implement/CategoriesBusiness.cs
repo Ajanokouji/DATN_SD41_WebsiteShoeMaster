@@ -90,7 +90,7 @@ namespace Project.Business.Implement
                 CreatedOnDate = exist.CreatedOnDate,
                 LastModifiedByUserId = exist.LastModifiedByUserId,
                 LastModifiedOnDate = exist.LastModifiedOnDate,
-                Isdeleted = exist.Isdeleted
+                IsDeleted = exist.IsDeleted
             };
 
             if (!string.IsNullOrWhiteSpace(model.Name))
