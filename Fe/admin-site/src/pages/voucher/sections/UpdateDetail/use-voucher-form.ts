@@ -50,7 +50,10 @@ export const useVoucherForm = (
       discountPercentage: undefined,
       description: "",
       minimumOrderAmount: undefined,
-      discountType: "$",
+      discountType: "VNĐ",
+      totalMaxUsage: undefined,
+      maxUsagePerCustomer: undefined,
+      maxDiscountAmount: undefined,
     }
   });
 
@@ -66,7 +69,7 @@ export const useVoucherForm = (
         startDate: startDateLocal,
         endDate: endDateLocal,
         code: voucher.code || "",
-        discountType: voucher.discountAmount ? "$" : "%",
+        discountType: voucher.discountAmount ? "VNĐ" : "%",
         discountAmount: voucher.discountAmount || undefined,
         discountPercentage: voucher.discountPercentage || undefined,
         minimumOrderAmount: voucher.minimumOrderAmount || undefined,
@@ -74,6 +77,9 @@ export const useVoucherForm = (
         description: voucher.description || "",
         voucherType: voucher.voucherType || 1,
         isdeleted: voucher.isdeleted || false,
+        totalMaxUsage: voucher.totalMaxUsage || undefined,
+        maxUsagePerCustomer: voucher.maxUsagePerCustomer || undefined,
+        maxDiscountAmount: voucher.maxDiscountAmount || undefined,
         createdByUserId: voucher.createdByUserId || "3fa85f64-5717-4562-b3fc-2c963f66afa6",
         lastModifiedByUserId: voucher.lastModifiedByUserId || "3fa85f64-5717-4562-b3fc-2c963f66afa6",
         lastModifiedOnDate: voucher.lastModifiedOnDate || new Date().toISOString(),
@@ -91,27 +97,45 @@ export const useVoucherForm = (
     }
   }, [dispatch, voucherId]);
 
+  const [errorMessage, setErrorMessage] = useState<string | null>(null);
   const handleSubmit = async (value: VoucherFormSchema) => {
     try {
-      const resultAction = await dispatch(checkVoucherCodeExist({ code: value.code.trim(), voucherId: voucherId.trim() }));
-        if (checkVoucherCodeExist.fulfilled.match(resultAction)) {
-          const isExist = resultAction.payload;
+      //Kiểm tra voucher có tồn tại không
+      const resultAction0 = await dispatch(fetchVoucherById(voucherId.trim()));
+      if (fetchVoucherById.fulfilled.match(resultAction0)) {
+        const voucherFound = resultAction0.payload;
 
-          if (isExist) {
-            methods.setError("code", {
-              type: "manual",
-              message: "Mã voucher đã tồn tại",
-            });
-            return;
-          }
-        }
-        else{
-          console.error("Lỗi trong quá trình kiểm tra mã voucher:", resultAction.error.message);
+        if (!voucherFound || (voucherFound && voucherFound.isdeleted)) {
+          setErrorMessage("Voucher không tồn tại! Vui lòng kiểm tra lại!");
           return;
         }
+      }
+      else{
+        console.error("Lỗi trong quá trình kiểm tra mã voucher:", resultAction0.error.message);
+        return;
+      }
+      setErrorMessage(null);
+
+      //Check code đã tồn tại chưa
+      const resultAction = await dispatch(checkVoucherCodeExist({ code: value.code.trim(), voucherId: voucherId.trim() }));
+      if (checkVoucherCodeExist.fulfilled.match(resultAction)) {
+        const isExist = resultAction.payload;
+
+        if (isExist) {
+          methods.setError("code", {
+            type: "manual",
+            message: "Mã voucher đã tồn tại",
+          });
+          return;
+        }
+      }
+      else{
+        console.error("Lỗi trong quá trình kiểm tra mã voucher:", resultAction.error.message);
+        return;
+      }
 
       //Xác định chỉ có một trong hai discountAmount hoặc discountPercentage được nhập
-      if (value.discountType === "$") {
+      if (value.discountType === "VNĐ") {
         value.discountPercentage = undefined;
       } else {
         value.discountAmount = undefined;
@@ -148,5 +172,6 @@ export const useVoucherForm = (
     isLoading,
     methods,
     handleSubmit,
+    errorMessage,
   };
 };

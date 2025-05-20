@@ -24,16 +24,17 @@
         </div>
         <div class="search-product d-flex align-items-center">
             <div class="search-bar">
-
-                <form class="search-form d-flex align-items-center">
-                    <input type="text" name="search" style="outline: none;" id="search" value="@Model.NameClient"
-                           placeholder="Phone number">
+                <form class="search-form d-flex align-items-center" id="customer-search-form">
+                    <input type="text" id="searchClientInput" name="query" style="outline: none;" id="search"
+                           value="@Model.NameClient"
+                           placeholder="Nhập số điện thoại khách hàng" autocomplete="off">
                     <button type="button" title="Thêm mới khách hàng" data-bs-toggle="modal"
                             data-bs-target="#themkhachhang#"><i class="fa-regular fa-plus" style="color: #a6a8ab;"></i>
                     </button>
+                    <div id="customer-suggestions" class="list-group position-absolute" style="z-index:1000;"></div>
                 </form>
                 <div>
-                    <ul class="list-group pt-2" id="result"></ul>
+                    <ul class="list-group pt-2" id="result"><div id="customer-suggestions"></div></ul>
                 </div>
             </div>
         </div>
@@ -102,7 +103,7 @@
 
     <div class="cthd d-flex flex-column mt-2" style="height:570px;">
         @{
-            var index = Model.listBillDetails.Count;
+            var index = 1;
             var tsl = 0;
             var ttien = 0;
         }
@@ -112,12 +113,14 @@
                 <div class="cart-item p-2">
                     <div class="cell-order">@index</div>
                     <div class="cell-active">
-                        <img src="@item.Image" style="display: block; object-fit: cover;background-position: center; height: 50px; width: auto">
+                        <img src="@item.Image"
+                             style="display: block; object-fit: cover;background-position: center; height: 50px; width: auto">
                     </div>
-                        <div class="cell-content" style="margin-left: 20px; display: flex;">
+                    <div class="cell-content" style="margin-left: 20px; display: flex;">
                         <div class="cell-content-top">
                             @* <div class="cell-code">Code</div> *@
-                            <div class="cell-name">@item.Name
+                            <div>
+                                <div class="cell-name">@item.Name</div>
                                 <span class="badge bg-danger" style="color:#fff; font-weight:600">@item.Color - @item.Size</span>
                             </div>
                         </div>
@@ -140,7 +143,7 @@
                         </button>
                     </div>
                 </div>
-                index--;
+                index++;
                 tsl += @item.Quantity;
                 ttien += (int)((decimal)item.Quantity * (decimal)item.Price);
             }
@@ -207,14 +210,68 @@
             $("#result").html('');
         });
     });
+    var selectedCustomer = null;
+
+    $("#searchClientInput").on("input", function () {
+        var q = $(this).val().trim();
+        if (q.length < 2) {
+            $("#customer-suggestions").empty();
+            return;
+        }
+        $.getJSON('/SellOff/SearchCustomers', {query: q})
+            .done(function (data) {
+                var html = data.map(function (c) {
+                    return `<a href="#" class="list-group-item list-group-item-action"
+                           data-id="${c.id}" data-name="${c.name}" data-phone-number="${c.phoneNumber}">
+                           ${c.name} — ${c.phoneNumber}
+                        </a>`;
+                }).join('');
+                $("#customer-suggestions").html(html).show();
+            });
+    });
+
+    // Khi chọn 1 khách hàng
+    $("#customer-suggestions").on("click", "a", function (e) {
+        e.preventDefault();
+        var $a = $(this);
+        selectedCustomer = {
+            id: $a.data("id"),
+            name: $a.data("name"),
+            phonenumber: $a.data("phoneNumber")
+        };
+        // Cập nhật input, ẩn suggestion
+        $("#searchClientInput").val(`${selectedCustomer.name} - ${selectedCustomer.phonenumber}`);
+        $("#customer-suggestions").hide();
+
+        // Lưu vào hidden field để gửi cùng form
+        $("#CustomerId").val(selectedCustomer.id);
+    });
+
+    // Ẩn khi click ra ngoài
+    $(document).click(function (e) {
+        if (!$(e.target).closest('#customer-search-form').length) {
+            $("#customer-suggestions").hide();
+        }
+    });
     // Mở modal thanh toán
     $("#btnThanhToan").on("click", function () {
         var activeTab = $(".tabs-box .tab").filter(".active");
         var elementValue = activeTab.find("span").attr("value");
         console.log(elementValue);
-        $("#thanhtoanbody").load("/SellOff/ViewPayment/" + elementValue);
-        $("#thanhtoan").modal("show");
+
+        // Load partial view và sau khi load xong thì cập nhật thông tin khách hàng
+        $("#thanhtoanbody").load("/SellOff/ViewPayment/" + elementValue, function () {
+            // Gọi sau khi load xong _pay.cshtml
+            if (selectedCustomer) {
+                $("#tenkh").text(selectedCustomer.name);
+                $("#sdtkh").text(selectedCustomer.phonenumber);
+            }
+
+            // Mở modal sau khi load xong
+            $("#thanhtoan").modal("show");
+        });
     });
+
 
     //Thêm nhanh khách hàng
     $("#btn-saveKH").on("click", function () {
@@ -307,14 +364,14 @@
             success: function (response) {
                 if (response.success) {
                     gethdct('@Model.Id');
-                    toastr.success('Cập nhật thành công', 'Success', { timeOut: 300 });
+                    toastr.success('Cập nhật thành công', 'Success', {timeOut: 300});
                 } else {
-                    toastr.error(response.message || 'Cập nhật thất bại', 'Error', { timeOut: 300 });
+                    toastr.error(response.message || 'Cập nhật thất bại', 'Error', {timeOut: 300});
                     gethdct('@Model.Id');
                 }
             },
             error: function (xhr, status, error) {
-                toastr.error('Cập nhật thất bại', 'Lỗi Ajax', { timeOut: 300 });
+                toastr.error('Cập nhật thất bại', 'Lỗi Ajax', {timeOut: 300});
             }
         });
     }

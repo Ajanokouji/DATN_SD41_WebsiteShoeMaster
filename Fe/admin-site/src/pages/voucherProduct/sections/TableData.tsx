@@ -92,9 +92,6 @@ const VoucherProductsTable: React.FC<{ voucherId: string }> = ({ voucherId }) =>
     }
   }, [dispatch, voucherProducts]);
 
-  const formatCurrency = (value: number) =>
-    new Intl.NumberFormat("en-us").format(value);
-
   const renderDate = (date: string) => {
     if(date.includes("T")) {
       date = date.replace("T", " ").replace("Z", "");
@@ -105,7 +102,6 @@ const VoucherProductsTable: React.FC<{ voucherId: string }> = ({ voucherId }) =>
   const headers = [
     { label: "Tên sản phẩm / Mã sản phẩm" },
     { label: "Mã biến thể" },
-    { label: "Kích cỡ" },
     { label: "Giá" },
     { label: "Ngày áp Voucher" },
     { label: "Thao tác"},
@@ -159,25 +155,9 @@ const VoucherProductsTable: React.FC<{ voucherId: string }> = ({ voucherId }) =>
       render: (_: any, record?: VoucherProductResDto) => {
         const product = products.find((product) => product.id === _);
         if (product && product.variantObjs) {
-          const variant = product.variantObjs.find( v => v.id === record?.varientProductId);
+          const variant = product.variantObjs.find( v => v.sku === record?.varientProductId);
           if (variant) {
-            return <div>{variant.size} ({variant.sizeType})</div>;
-          } else {
-            return <div>Không xác định</div>;
-          }
-        } else {
-          return <div>Không xác định</div>;
-        }
-      },
-    },
-    {
-      key: "productId",
-      render: (_: any, record?: VoucherProductResDto) => {
-        const product = products.find((product) => product.id === _);
-        if (product && product.variantObjs) {
-          const variant = product.variantObjs.find( v => v.id === record?.varientProductId);
-          if (variant) {
-            return <div>{formatCurrency(variant.lowestAsk)}$</div>;
+            return <div>{variant.price} VNĐ</div>;
           } else {
             return <div>Không xác định</div>;
           }

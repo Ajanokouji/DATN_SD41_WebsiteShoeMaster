@@ -4,6 +4,7 @@
 }
 <div class="d-flex flex-column" style="height:100%">
     <form class="row g-3 p-3 formthanhtoan" style="height: 800px; overflow-y:auto;">
+        <input type="hidden" id="hiddenOrderId" value="@Model.Id"/>
         <div class="d-flex flex-row lh-1">
             <div class="flex-fill text-start"><span id="nhanVien"></span>Nhân viên: @Model.Employee</div>
             <div class="flex-fill text-end"><span id="ngay"></span>@Model.PaymentDate</div>
@@ -14,8 +15,13 @@
         </div>
         <hr/>
         <div class="d-flex flex-row lh-1">
-            <div class="flex-fill"><label for="inputName5" class="form-label">Khách hàng</label></div>
-            <div class="flex-fill text-end"> <span id="tenkh">@Model.Client</span></div>
+            <div class="flex-fill"><label for="inputName5" class="form-label">Tên khách hàng</label></div>
+            <div class="flex-fill text-end"><span id="tenkh">Vô danh tiểu tốt từ đâu đến?</span></div>
+        </div>
+        <hr/>
+        <div class="d-flex flex-row lh-1">
+            <div class="flex-fill"><label for="inputName5" class="form-label">Số diện thoại khách hàng</label></div>
+            <div class="flex-fill text-end"><span id="sdtkh"></span></div>
         </div>
         <hr/>
         <div class="d-flex flex-row lh-1">
@@ -37,12 +43,13 @@
         <hr/>
         <div class="d-flex flex-row lh-1">
             <div class="flex-fill"><label class="form-label">Tổng số lượng</label></div>
-            <div class="flex-fill text-end"> <span id="soLuong">@Model.TotalQuantity</span></div>
+            <div class="flex-fill text-end"><span id="soLuong">@Model.TotalQuantity</span></div>
         </div>
         <hr/>
         <div class="d-flex flex-row lh-1">
             <div class="flex-fill"><label for="inputEmail5" class="form-label">Tổng tiền</label></div>
-            <div class="flex-fill text-end"> <input id="tongTienHang" value="@Model.TotalPrice" hidden /><span>@Model.TotalPrice?.ToString("n0")</span></div>
+            <div class="flex-fill text-end"><input id="tongTienHang" value="@Model.TotalPrice"
+                                                   hidden/><span>@Model.TotalPrice?.ToString("n0")</span></div>
         </div>
         <hr/>
         <div class="d-flex flex-row lh-1">
@@ -60,7 +67,7 @@
         <div class="d-flex flex-row lh-1">
             <div class="flex-fill"><label for="inputState" class="form-label">Phương thức thanh toán</label></div>
             <div class="flex-fill m-2">
-                <input class="form-check-input" type="radio" name="pttt" id="radioCash" value="Cash" checked>
+                <input class="form-check-input" type="radio" name="pttt" id="radioCash" value="Tiền mặt" checked>
                 <label class="form-check-label" for="gridRadios1">
                     Tiền mặt
                 </label>
@@ -74,14 +81,15 @@
         </div>
         <!-- Khi chọn Tiền mặt -->
         <div id="tienMatSection">
-            <hr />
+            <hr/>
             <div class="d-flex flex-row lh-1">
                 <div class="flex-fill"><label class="form-label">Tiền khách đưa</label></div>
                 <div class="flex-fill text-end">
-                    <input type="number" id="tienKhachDua" style="margin-left: 300px; width: 150px; text-align: right;" class="form-control" placeholder="Nhập số tiền khách đưa" />
+                    <input type="number" id="tienKhachDua" style="margin-left: 250px; width: 150px; text-align: right;"
+                           class="form-control"/>
                 </div>
             </div>
-            <hr />
+            <hr/>
             <div class="d-flex flex-row lh-1">
                 <div class="flex-fill"><label class="form-label">Tiền trả lại</label></div>
                 <div class="flex-fill text-end">
@@ -92,28 +100,32 @@
 
         <!-- Khi chọn VNPay -->
         <div id="vnpaySection" style="display: none;">
-            <hr />
-            <div class="text-center text-info">VNPay QRCode</div>
+            <hr/>
+            <div class="text-center">
+                <img id="vnpayQRCode" src="" alt="VNPay QRCode"/>
+            </div>
         </div>
         <hr/>
     </form>
 
     <div class="mt-auto text-danger" id="notification"></div>
     <div class="d-flex flex-row mt-auto">
-        <button type="button" onclick="thanhToan('@Model.Id')" class="btn btn-primary fw-bold btn-block w-100" style="height:60px; font-size:24px">Thanh toán</button>
+        <button type="button" onclick="thanhToan('@Model.Id')" class="btn btn-primary fw-bold btn-block w-100"
+                style="height:60px; font-size:24px">Thanh toán
+        </button>
     </div>
 </div>
 <script>
-    $(document).ready(function(){
+    $(document).ready(function () {
         var tongtien = parseInt('@Model.TotalPrice');
         $("#khachCanTra").text(tongtien);
         // Sử dụng điểm tích
-        $("#diemKHSD").keyup(function(){
+        $("#diemKHSD").keyup(function () {
             var tienkhachtra = tongtien;
-            $("#khachCanTra").text(tienkhachtra.tolocalString());
+            $("#khachCanTra").text(tienkhachtra.toLocaleString());
         });
         // Sử dụng voucher
-        $("#btn-voucher").on("click", function() {
+        $("#btn-voucher").on("click", function () {
             var voucher = $("#voucher").val();
         });
 
@@ -127,12 +139,13 @@
 
         function togglePaymentSection() {
             var selected = $("input[name='pttt']:checked").val();
-            if (selected === "Cash") {
+            if (selected === "Tiền mặt") {
                 $("#tienMatSection").show();
                 $("#vnpaySection").hide();
             } else if (selected === "VNPay") {
                 $("#tienMatSection").hide();
                 $("#vnpaySection").show();
+                redirect();
             }
         }
 
@@ -144,5 +157,55 @@
 
             $("#tienTraLai").css("color", tienTraLai < 0 ? "red" : "green");
         });
+
+        function showInvoicePreview(billId) {
+            const modal = document.getElementById("invoiceModal");
+            const container = document.getElementById("invoicePreviewContainer");
+
+            // Load nội dung hóa đơn
+            fetch(`/SellOff/InvoicePreview/${billId}`)
+                .then(response => response.text())
+                .then(html => {
+                    container.innerHTML = html;
+                    modal.style.display = "block";
+                })
+                .catch(err => {
+                    console.error("Lỗi khi tải hóa đơn:", err);
+                    alert("Không thể hiển thị hóa đơn");
+                });
+        }
+
+        function redirect() {
+            var totalprice = $("#khachCanTra").text().replaceAll(",", "").trim();
+            var orderId = $("#hiddenOrderId").val(); // lấy ID đơn hàng từ input ẩn
+
+            $.ajax({
+                url: "/SellOff/CreateVnPayQr",
+                type: 'GET',
+                data: {
+                    orderId: orderId,
+                    amount: totalprice
+                },
+                success: function (res) {
+                    if (res.paymentUrl) {
+                        toastr.success("Chuyển hướng đến VNPay");
+                        window.open(res.paymentUrl, '_blank'); // lưu ý dùng paymentUrl đúng tên
+                    } else {
+                        toastr.error("Không lấy được link thanh toán VNPay");
+                    }
+                },
+                error: function () {
+                    toastr.error("Lỗi khi tạo link thanh toán VNPay");
+                }
+            });
+
+            @*function redirect() {
+                var totalprice = $("#khachCanTra").text().replaceAll(",", "").trim();
+                var orderId = $("#hiddenOrderId").val();
+
+                // Dùng window.location thay vì ajax
+                window.location.href = `/SellOff/CreateVnPayQr?orderId=${orderId}&amount=${totalprice}`;
+             }*@
+        }
     })
 </script>
