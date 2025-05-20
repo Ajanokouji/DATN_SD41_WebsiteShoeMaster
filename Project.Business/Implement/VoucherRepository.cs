@@ -130,7 +130,7 @@ namespace Project.Business.Implement
                 query = query.Where(x => x.VoucherName.Contains(queryModel.ten_giam_gia));
             }
 
-            if (queryModel.loai_giam_gia >= 0)
+            if (queryModel.loai_giam_gia !=null)
             {
                 query = query.Where(x => x.VoucherType == queryModel.loai_giam_gia);
             }

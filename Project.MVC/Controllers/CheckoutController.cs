@@ -14,6 +14,7 @@ using StackExchange.Redis;
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Net.WebSockets;
 using System.Threading.Tasks;
 
 namespace Project.MVC.Controllers
@@ -21,6 +22,7 @@ namespace Project.MVC.Controllers
     public class CheckoutController : Controller
     {
         private readonly IBillBusiness _billBusiness;
+        private readonly IVoucherBusiness _voucherBusiness;
         private readonly IProductBusiness _productBusiness;
         private readonly ICartBusiness _cartBusiness;
         private readonly IBillDetailsBusiness _billDetailsBusiness;
@@ -30,6 +32,7 @@ namespace Project.MVC.Controllers
 
         public CheckoutController(
             IBillBusiness billBusiness,
+            IVoucherBusiness voucherBusiness,
             ICartBusiness cartBusiness,
             IProductBusiness productBusiness,
             IBillDetailsBusiness billDetailsBusiness,
@@ -38,6 +41,7 @@ namespace Project.MVC.Controllers
         {
             _productBusiness = productBusiness;
             _billBusiness = billBusiness;
+            _voucherBusiness = voucherBusiness;
             _cartBusiness = cartBusiness;
             _billDetailsBusiness = billDetailsBusiness;
             _vnPayService = vnPayService;
@@ -189,28 +193,56 @@ namespace Project.MVC.Controllers
             return View(bill);
         }
 
-     
 
-
-        [HttpPost]
-        public async Task<IActionResult> ApplyVoucher(string voucherCode, decimal totalAmount)
+        public async Task<IActionResult> CheckBillStatus(string billCode)
         {
-            if (string.IsNullOrEmpty(voucherCode))
+            if (string.IsNullOrEmpty(billCode))
             {
-                return Json(new { isSuccess = false, message = "Vui lòng nhập mã giảm giá" });
+                return View("OrderNotFound");
             }
 
-            try
+            var bill = await _billBusiness.GetBillByCode(billCode);
+
+            if (bill != null)
             {
-                var discountAmount = await _billBusiness.ApplyVoucher(voucherCode, totalAmount);
-                
-                return Json(new { 
-                    isSuccess = discountAmount > 0,
-                    message = discountAmount > 0 ? "Áp dụng mã giảm giá thành công" : "Mã giảm giá không hợp lệ",
-                    discountAmount = discountAmount,
-                    newTotal = totalAmount - discountAmount
-                });
+                return View("ThankYou", bill);
             }
+            else
+            {
+                return View("OrderNotFound");
+            }
+        }
+        [HttpPost]
+        //public async Task<IActionResult> ApplyVoucher(string voucherCode)
+        //{
+
+        //    if (string.IsNullOrEmpty(voucherCode))
+        //    {
+        //        return Json(new { isSuccess = false, message = "Vui lòng nhập mã giảm giá" });
+        //    }
+
+        //    try
+        //    {
+
+        //        var voucher = await _voucherBusiness.FindByCodeAsync(voucherCode);
+        //        if (voucher ==null)
+        //            return Json(new { isSuccess = false, message = "Voucher không tìm thấy" });
+
+        //        var voucherType = voucher.VoucherType;
+
+        //        var cartSessionJson = HttpContext.Session.GetString(CartConstants.CartSessionKey);
+        //        var cartSessions = string.IsNullOrEmpty(cartSessionJson)
+        //            ? new List<CartItem>()
+        //            : JsonConvert.DeserializeObject<List<CartItem>>(cartSessionJson);
+
+        //        var OrderAmount = cartSessions.Sum(x => x.Total);
+
+        //        if (voucher.MinimumOrderAmount != null && OrderAmount<voucher.MinimumOrderAmount)
+        //        {
+        //            Json(new { isSuccess = false, message = "Voucher không đủ điều kiện để dùng" });
+        //        } 
+
+        //    }
             catch (Exception ex)
             {
                 return Json(new { isSuccess = false, message = ex.Message });
@@ -231,8 +263,25 @@ namespace Project.MVC.Controllers
                     Status = BillConstants.Paid,
                 });
 
-                var billDetail = _billDetailsBusiness.GetBillDetailsByBillId(bill.Id);
+                var billDetails = await _billDetailsBusiness.GetBillDetailsByBillId(bill.Id);
 
+        
+               if(billDetails!=null&& billDetails.Any())
+                {
+                    foreach (var item in billDetails)
+                    {
+                        var product = await _productBusiness.FindAsync(item.ProductId.Value);
+                        if (product != null)
+                        {
+                            var existVariant = product.VariantObjs?.FirstOrDefault(x => x.Sku==item.SKU);
+                            await _productBusiness.PatchVariantStockBySKUAsync(product.Id, new Variant()
+                            {
+                                Stock = existVariant.Stock - item.Quantity,
+                                Sku = item.SKU,
+                            });
+                        }
+                    }
+                }
 
             }
             else

@@ -136,7 +136,7 @@ const AddVoucherSheet: React.FC<AddVoucherSheetProps> = ({
         voucherData.endDate = new Date(values.endDate.replace("T", " ") + ":00").toISOString();
       }
 
-      var createRs = await dispatch(createVoucher(voucherData));
+      const createRs = await dispatch(createVoucher(voucherData));
       if (createVoucher.fulfilled.match(createRs)) {
         ////Thêm VoucherUser
         if(voucherData.displaySettings === 0 &&
@@ -173,7 +173,7 @@ const AddVoucherSheet: React.FC<AddVoucherSheetProps> = ({
               lastModifiedByUserId: "3fa85f64-5717-4562-b3fc-2c963f66afa6",
               lastModifiedOnDate: new Date().toISOString(),
               createdOnDate: new Date().toISOString(),
-            }))
+            })) 
           );
         
           // Create voucherProduct

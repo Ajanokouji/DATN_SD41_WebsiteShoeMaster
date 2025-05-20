@@ -186,6 +186,12 @@ public class SellOffController : Controller
         {
             loginInfor = JsonConvert.DeserializeObject<UserEntity>(session);
         }
+        // Chuyển đổi BillDetailsEntity sang BillDetailsViewModel
+        var billDetailsViewModels = new List<BillDetailsViewModel>();
+        foreach (var detail in lstBillDetails)
+        {
+            billDetailsViewModels.Add(await ConvertToViewModel(detail));
+        }
 
         var quantity = lstBillDetails.Sum(c => c.Quantity);
         var totalPrice = lstBillDetails.Sum(c => c.Quantity * c.Price);
@@ -199,7 +205,7 @@ public class SellOffController : Controller
             PaymentDate = DateTime.Now,
             TotalQuantity = quantity,
             TotalPrice = totalPrice,
-            BillDetails = lstBillDetails
+            BillDetails = billDetailsViewModels
         };
         return PartialView("_Pay", payBill);
     }
@@ -246,7 +252,7 @@ public class SellOffController : Controller
     public async Task<IActionResult> InvoicePreview(Guid id)
     {
         var bill = _billBusiness.GetPDBillById(id);
-        var lstBillDetails = await _billDetailsBusiness.GetBillDetailsByIdBill(id);
+        var lstBillDetails = await _billDetailsBusiness.ListAllByIdBill(id);
         //Kiểm tra là hóa đơn của khách có tài khoản không?
         var client = "Customer";
         var loginInfor = new UserEntity();
@@ -258,7 +264,12 @@ public class SellOffController : Controller
 
         var quantity = lstBillDetails.Sum(c => c.Quantity);
         var totalPrice = lstBillDetails.Sum(c => c.Quantity * c.Price);
-        //ViewData["lstPttt"] = listpttt;
+        // Chuyển đổi BillDetailsEntity sang BillDetailsViewModel
+        var billDetailsViewModels = new List<BillDetailsViewModel>();
+        foreach (var detail in lstBillDetails)
+        {
+            billDetailsViewModels.Add(await ConvertToViewModel(detail));
+        }
         var payBill = new PaySellOffViewModel()
         {
             Id = bill.Id,
@@ -268,9 +279,26 @@ public class SellOffController : Controller
             PaymentDate = DateTime.Now,
             TotalQuantity = quantity,
             TotalPrice = totalPrice,
-            BillDetails = lstBillDetails
+            BillDetails = billDetailsViewModels
         };
         return PartialView("_BillPreview", payBill);
+    }
+
+    private async Task<BillDetailsViewModel> ConvertToViewModel(BillDetailsEntity billDetailsEntity)
+    {
+        var res = new BillDetailsViewModel()
+        {
+            Color = billDetailsEntity.Color,
+            Size = billDetailsEntity.Size,
+            Id = billDetailsEntity.Id,
+            IdBill = billDetailsEntity.BillId,
+            IdProduct = billDetailsEntity.ProductId,
+            Image = billDetailsEntity.ProductImage,
+            Name = billDetailsEntity.ProductName,
+            Quantity = billDetailsEntity.Quantity,
+            Price = billDetailsEntity.Price
+        };
+        return res;
     }
     
     [HttpGet]

@@ -65,6 +65,7 @@ const AddProductSheet: React.FC<AddProductSheetProps> = ({
     console.log("Form is submitting with values:", values);
     setIsSubmitting(true);
     try {
+      
       const productData: ProductReqDto = {
         ...values,
         sortOrder: String(values.sortOrder || 0),
@@ -77,7 +78,7 @@ const AddProductSheet: React.FC<AddProductSheetProps> = ({
         labelsObjs: values.labelsObjs || [],
         variantObjs: values.variantObjs?.map(variant => ({
           ...variant,
-          imgUrl: variant.imageUrl || "",
+          imgUrl: variant.imgUrl || ""
         })) || [],
       };
 

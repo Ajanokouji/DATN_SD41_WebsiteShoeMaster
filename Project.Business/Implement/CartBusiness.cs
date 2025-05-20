@@ -394,7 +394,8 @@ namespace Project.Business.Implement
                     Price = item.Price,
                     Quantity = item.Quantity,
                     Size = item.Size,
-                    Color = item.Color
+                    Color = item.Color,
+                    SKU= item.SKU
                 }).ToList();
 
                 return new ServiceResult<List<CartItemModel>>
