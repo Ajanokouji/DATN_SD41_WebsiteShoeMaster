@@ -14,6 +14,7 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Xml;
+using Project.DbManagement.ViewModels;
 using static System.Net.Mime.MediaTypeNames;
 
 namespace Project.Business.Implement
@@ -157,6 +158,25 @@ namespace Project.Business.Implement
             }
             await _context.SaveChangesAsync();
             return updated;
+        }
+
+        public async Task<List<CustomerViewModel>> GetCustomerByPhoneNumber(string phoneNumber)
+        {
+            var customer = await _context.Customers.FirstOrDefaultAsync(c => c.PhoneNumber == phoneNumber);
+
+            if (customer == null) return new List<CustomerViewModel>();
+
+            var result = new List<CustomerViewModel>
+            {
+                new CustomerViewModel
+                {
+                    Id = customer.Id,
+                    Name = customer.Name,
+                    PhoneNumber = customer.PhoneNumber
+                }
+            };
+
+            return result;
         }
 
         public async Task<CustomersEntity> DeleteAsync(Guid id)
