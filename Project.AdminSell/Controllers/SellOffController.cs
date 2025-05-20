@@ -1,8 +1,10 @@
 ﻿using System.Diagnostics;
+using System.Net;
 using Microsoft.AspNetCore.Mvc;
 using Newtonsoft.Json;
 using Project.AdminSell.Models;
 using Project.Business.Interface;
+using Project.Business.Libraries;
 using Project.Business.Model;
 using Project.DbManagement;
 using Project.DbManagement.Entity;
@@ -16,14 +18,19 @@ public class SellOffController : Controller
     private readonly IBillBusiness _billBusiness;
     private readonly IProductBusiness _productBusiness;
     private readonly IBillDetailsBusiness _billDetailsBusiness;
+    private readonly ICustomerBusiness _customerBusiness;
+    private const string vnp_TmnCode = "BG41PLRJ";       // ví dụ: ABCDEF01
+    private const string vnp_HashSecret = "Z2KAB0MGR42X4UMOQU3MKEU2IHVOP3H3"; // ví dụ: 1a2b3c...
+    private const string vnp_Url = "https://sandbox.vnpayment.vn/paymentv2/vpcpay.html"; // Dùng sandbox thì đổi thành sandbox
 
     public SellOffController(ILogger<SellOffController> logger, IBillBusiness billBusiness,
-        IProductBusiness productBusiness, IBillDetailsBusiness billDetailsBusiness)
+        IProductBusiness productBusiness, IBillDetailsBusiness billDetailsBusiness, ICustomerBusiness customerBusiness)
     {
         _logger = logger;
         _billBusiness = billBusiness;
         _productBusiness = productBusiness;
         _billDetailsBusiness = billDetailsBusiness;
+        _customerBusiness = customerBusiness;
     }
 
     [HttpGet]
@@ -215,6 +222,91 @@ public class SellOffController : Controller
         }
         else
             return Json(new { success = false, message = "Payment Fails" });
+    }
+    
+    [HttpGet]
+    public async Task<IActionResult> SearchCustomers(string query)
+    {
+        try
+        {
+            if (string.IsNullOrWhiteSpace(query))
+                return Json(new List<CustomerViewModel>());
+
+            var result = await _customerBusiness.GetCustomerByPhoneNumber(query);
+
+            return Json(result);
+        }
+        catch (Exception ex)
+        {
+            return StatusCode(500, "Lỗi: " + ex.Message);
+        }
+    }
+    
+    [HttpGet]
+    public async Task<IActionResult> InvoicePreview(Guid id)
+    {
+        var bill = _billBusiness.GetPDBillById(id);
+        var lstBillDetails = await _billDetailsBusiness.GetBillDetailsByIdBill(id);
+        //Kiểm tra là hóa đơn của khách có tài khoản không?
+        var client = "Customer";
+        var loginInfor = new UserEntity();
+        string? session = HttpContext.Session.GetString("LoginInfor");
+        if (session != null)
+        {
+            loginInfor = JsonConvert.DeserializeObject<UserEntity>(session);
+        }
+
+        var quantity = lstBillDetails.Sum(c => c.Quantity);
+        var totalPrice = lstBillDetails.Sum(c => c.Quantity * c.Price);
+        //ViewData["lstPttt"] = listpttt;
+        var payBill = new PaySellOffViewModel()
+        {
+            Id = bill.Id,
+            BillCode = bill.BillCode,
+            Client = client,
+            Employee = loginInfor.Name,
+            PaymentDate = DateTime.Now,
+            TotalQuantity = quantity,
+            TotalPrice = totalPrice,
+            BillDetails = lstBillDetails
+        };
+        return PartialView("_BillPreview", payBill);
+    }
+    
+    [HttpGet]
+    public IActionResult CreateVnPayQr(string orderId, decimal amount)
+    {
+        string returnUrl = Url.Action("VnPayReturn", "SellOff", null, Request.Scheme);
+
+        var vnPay = new VnPayLibrary();
+        vnPay.AddRequestData("vnp_Version", "2.1.0");
+        vnPay.AddRequestData("vnp_Command", "pay");
+        vnPay.AddRequestData("vnp_TmnCode", vnp_TmnCode);
+        vnPay.AddRequestData("vnp_Amount", ((long)amount * 100).ToString()); // VNPay nhân 100
+        vnPay.AddRequestData("vnp_CurrCode", "VND");
+        vnPay.AddRequestData("vnp_TxnRef", orderId);
+        vnPay.AddRequestData("vnp_OrderInfo", $"Thanh toán đơn hàng {orderId}");
+        vnPay.AddRequestData("vnp_OrderType", "billpayment");
+        vnPay.AddRequestData("vnp_Locale", "vn");
+        vnPay.AddRequestData("vnp_ReturnUrl", returnUrl);
+        vnPay.AddRequestData("vnp_IpAddr", HttpContext.Connection.RemoteIpAddress?.ToString());
+        vnPay.AddRequestData("vnp_CreateDate", DateTime.Now.ToString("yyyyMMddHHmmss"));
+
+        string paymentUrl = vnPay.CreateRequestUrl(vnp_Url, vnp_HashSecret);
+        return Json(new { paymentUrl = paymentUrl });
+    }
+    
+    [HttpGet]
+    public IActionResult VnPayReturn()
+    {
+        // Ở đây bạn có thể lấy các tham số query string trả về từ VNPay như:
+        var vnpAmount = Request.Query["vnp_Amount"];
+        var vnpTxnRef = Request.Query["vnp_TxnRef"];
+        var vnpResponseCode = Request.Query["vnp_ResponseCode"];
+        // ... xử lý logic thanh toán, xác thực secure hash, cập nhật trạng thái đơn hàng...
+
+        // Tạm thời trả về thông báo đơn giản
+        return Content($"Thanh toán VNPay trả về: Amount={vnpAmount}, TxnRef={vnpTxnRef}, ResponseCode={vnpResponseCode}");
     }
 
     [ResponseCache(Duration = 0, Location = ResponseCacheLocation.None, NoStore = true)]

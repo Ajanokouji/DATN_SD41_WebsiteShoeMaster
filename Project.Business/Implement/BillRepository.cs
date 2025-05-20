@@ -375,6 +375,7 @@ public class BillRepository : IBillRepository
         List<BillDetailsViewModel> listBillDetails = (from bdt in _context.BillDetails
             join prd in _context.Products on bdt.ProductId equals prd.Id
             where bdt.BillId == idBill
+            orderby bdt.CreatedOnDate descending
             select new BillDetailsViewModel()
             {
                 Id = bdt.Id,

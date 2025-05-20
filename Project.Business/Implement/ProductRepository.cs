@@ -9,6 +9,7 @@ using SERP.Framework.Common;
 using SERP.Framework.Common.Extensions;
 using SERP.Framework.DB.Extensions;
 using Microsoft.EntityFrameworkCore.SqlServer;
+using Newtonsoft.Json;
 using Project.Common;
 using Project.DbManagement.ViewModels;
 
@@ -281,14 +282,54 @@ namespace Project.Business.Implement
 
         public async Task<List<ListProductSellViewModel>> GetAllProduct()
         {
-            return await (from products in _context.Products.AsNoTracking()
-                select new ListProductSellViewModel()
+            var products = await _context.Products.AsNoTracking().ToListAsync();
+
+            var result = products.Select(product =>
+            {
+                List<Variant>? variants = null;
+
+                try
                 {
-                    Id = products.Id,
-                    Image = products.ImageUrl,
-                    Name = products.Name,
-                    Price = products.MetadataObj.GetMetadatavalue("MaxPrice")
-                }).ToListAsync();
+                    if (!string.IsNullOrWhiteSpace(product.VariantJson))
+                        variants = JsonConvert.DeserializeObject<List<Variant>>(product.VariantJson);
+                }
+                catch
+                {
+                    variants = null;
+                }
+
+                string priceRange = "0ᴠɴᴅ";
+
+                if (variants != null && variants.Count > 0)
+                {
+                    var prices = variants
+                        .Select(v => decimal.TryParse(v.Price, out var p) ? p : (decimal?)null)
+                        .Where(p => p.HasValue)
+                        .Select(p => p.Value)
+                        .ToList();
+
+                    if (prices.Count > 0)
+                    {
+                        var min = prices.Min();
+                        var max = prices.Max();
+
+                        priceRange = min == max 
+                            ? $"{min:N0}ᴠɴᴅ"
+                            : $"{min:N0}ᴠɴᴅ ~ {max:N0}ᴠɴᴅ";
+                    }
+                }
+
+                return new ListProductSellViewModel
+                {
+                    Id = product.Id,
+                    ProductCode = product.Code,
+                    Image = product.ImageUrl,
+                    Name = product.Name,
+                    Price = priceRange
+                };
+            }).ToList();
+
+            return result;
         }
 
         public async Task<ProductDetailsViewModel> GetProductDetailsById(Guid idprd)
@@ -354,27 +395,65 @@ namespace Project.Business.Implement
 
         public async Task<List<ListProductSellViewModel>> SearchProduct(string keyword)
         {
-            if (string.IsNullOrEmpty(keyword))
+            if (string.IsNullOrWhiteSpace(keyword))
             {
-                GetAllProduct();
+                return await GetAllProduct();
             }
 
-            // Chuyển từ khóa và các trường dữ liệu về chữ thường để tìm kiếm không phân biệt chữ hoa chữ thường
             keyword = keyword.ToLower();
 
-            var products = await (from product in _context.Products
-                    where (product.Name.ToLower().Contains(keyword) || product.Code.ToLower().Contains(keyword))
-                    select new ListProductSellViewModel()
-                    {
-                        Id = product.Id,
-                        Image = product.ImageUrl,
-                        Name = product.Name,
-                        Price = product.MetadataObj.GetMetadatavalue("MaxPrice")
-                    })
+            var products = await _context.Products
                 .AsNoTracking()
+                .Where(p =>
+                    (p.Name.ToLower().Contains(keyword)) ||
+                    (p.Code.ToLower().Contains(keyword)))
                 .ToListAsync();
 
-            return products;
+            var result = products.Select(product =>
+            {
+                List<Variant>? variants = null;
+
+                try
+                {
+                    if (!string.IsNullOrWhiteSpace(product.VariantJson))
+                        variants = JsonConvert.DeserializeObject<List<Variant>>(product.VariantJson);
+                }
+                catch
+                {
+                    variants = null;
+                }
+
+                string priceRange = "0ᴠɴᴅ";
+
+                if (variants != null && variants.Count > 0)
+                {
+                    var prices = variants
+                        .Select(v => decimal.TryParse(v.Price, out var p) ? p : (decimal?)null)
+                        .Where(p => p.HasValue)
+                        .Select(p => p.Value)
+                        .ToList();
+
+                    if (prices.Count > 0)
+                    {
+                        var min = prices.Min();
+                        var max = prices.Max();
+
+                        priceRange = min == max
+                            ? $"{min:N0}ᴠɴᴅ"
+                            : $"{min:N0}ᴠɴᴅ ~ {max:N0}ᴠɴᴅ";
+                    }
+                }
+
+                return new ListProductSellViewModel
+                {
+                    Id = product.Id,
+                    ProductCode = product.Code,
+                    Image = product.ImageUrl,
+                    Name = product.Name,
+                    Price = priceRange
+                };
+            }).ToList();
+            return result;
         }
     }
 }

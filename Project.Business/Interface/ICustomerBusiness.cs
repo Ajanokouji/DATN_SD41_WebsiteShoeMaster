@@ -5,6 +5,7 @@ using SERP.Framework.Common;
 using System;
 using System.Collections.Generic;
 using System.Threading.Tasks;
+using Project.DbManagement.ViewModels;
 
 namespace Project.Business.Interface
 {
@@ -82,5 +83,7 @@ namespace Project.Business.Interface
         /// <param name="Customers"></param>
         /// <returns></returns>
         Task<CustomersEntity> PatchAsync(CustomersEntity Customers);
+        
+        Task<List<CustomerViewModel>> GetCustomerByPhoneNumber(string phoneNumber);
     }
 }

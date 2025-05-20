@@ -68,7 +68,7 @@
                 <div class="search-product d-flex align-items-center">
                     <div class="search-bar" style="width: 530px;">
                         <form class="search-form d-flex align-items-center" style="margin-top: 9px;">
-                            <input type="text" id="searchInput" name="query" placeholder="Search.."
+                            <input type="text" id="searchProductInput" name="query" placeholder="Nhập tên sản phẩm hoặc mã sản phẩm"
                                    title="Enter search keyword">
                             <button type="" title="Tìm kiếm"><i class="bi bi-search"></i></button>
                         </form>
@@ -119,12 +119,12 @@
 <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
 
 <script>
-    var pageSizesp = 10;// Tối đa 10sp 1 trang
+    var pageSizesp = 8;// Tối đa 10sp 1 trang
     var pageIndexsp = 1;//Trang ban đầu
     $(document).ready(function () {
         LoadProduct();
         // Sự kiện input khi người dùng nhập vào ô tìm kiếm
-        $("#searchInput").on("input", function () {
+        $("#searchProductInput").on("input", function () {
             searchProduct();  // Gọi hàm searchProduct khi người dùng nhập
         });
         activeTab(0);
@@ -172,9 +172,10 @@
                                                                 <img src="${response.data[i].image}" class="img-fluid rounded-start" alt="...">
                                                             </div>
                                                             <div class="product-detail d-flex flex-column flex-grow-1">
+                                                                <span class="product-name mt-1">${response.data[i].productCode}</span>
                                                                 <span class="product-name mt-1">${response.data[i].name}</span>
                                                                 <div class="product-infor mt-auto">
-                                                                    <span style="flex-basis:100%"><b style="color:#ff0000;font-size:14px; font-weight:700">${response.data[i].price.toLocaleString()}đ</b></span>
+                                                                    <span style="flex-basis:100%"><b style="color:#ff0000;font-size:14px; font-weight:700">${response.data[i].price.toLocaleString()}</b></span>
                                                                 </div>
                                                             </div>
                                                     </li>
@@ -205,7 +206,16 @@
     
     // Search san pham
     function searchProduct() {
-        var keyword = $("#searchInput").val().trim();  // Lấy từ khóa tìm kiếm
+        var keyword = $("#searchProductInput").val().trim();  // Lấy từ khóa tìm kiếm
+        if (keyword === "") {
+            // Nếu không có keyword thì load lại sản phẩm bình thường
+            $("#pagingsp").show();  // hiện lại phân trang
+            LoadProduct(pageIndexsp);
+            return;
+        }
+
+        // Có keyword thì ẩn phân trang đi
+        $("#pagingsp").hide();
         $.ajax({
             url: "/SellOff/SearchProduct",  // Đổi URL thành SearchProduct
             type: "GET",
@@ -224,9 +234,10 @@
                             <img src="${response.data[i].image}" class="img-fluid rounded-start" alt="...">
                         </div>
                         <div class="product-detail d-flex flex-column flex-grow-1">
+                            <span class="product-name mt-1">${response.data[i].productCode}</span>
                             <span class="product-name mt-1">${response.data[i].name}</span>
                             <div class="product-infor mt-auto">
-                                <span style="flex-basis:100%"><b style="color:#ff0000;font-size:14px; font-weight:700">${response.data[i].price.toLocaleString()}đ</b></span>
+                                <span style="flex-basis:100%"><b style="color:#ff0000;font-size:14px; font-weight:700">${response.data[i].price.toLocaleString()}</b></span>
                             </div>
                         </div>
                     </li>
