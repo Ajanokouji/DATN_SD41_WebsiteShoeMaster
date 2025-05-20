@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from "react";
-import VoucherProductsTable from "./sections/TableData";
+import VoucherUsersTable from "./sections/TableData";
 import { useParams } from "react-router-dom";
 import { useAppDispatch } from "@/hooks/use-app-dispatch";
 import { useAppSelector } from "@/hooks/use-app-selector";
@@ -8,10 +8,10 @@ import { selectVoucher } from "@/redux/apps/voucher/voucherSelector";
 import { Helmet } from "react-helmet-async";
 import { formatVietnamTime } from "@/utils/format";
 import { Button } from "@/components/ui/button";
-import AddVoucherProductSheet from "./sections/FormAdd/AddVoucherProductSheet";
+import AddVoucherUserSheet from "./sections/FormAdd/AddVoucherUserSheet";
 import { useForm } from "react-hook-form";
 
-const VoucherProducts: React.FC = () => {
+const VoucherUsers: React.FC = () => {
   const methods = useForm();
   //open form add
   const [isOpenAdd, setIsOpenAdd] = useState(false);
@@ -115,10 +115,10 @@ const VoucherProducts: React.FC = () => {
     );
   }
 
-  if (voucher.voucherType === 1) {
+  if (voucher.displaySettings === 1) {
     return (
       <div className="text-center text-red-500">
-        Đây là "Voucher toàn shop" áp dụng cho toàn bộ sản phẩm trong cửa hàng!
+        Đây là "Voucher hiển thị nhiều nơi" áp dụng cho toàn bộ khách hàng!
         Vui lòng kiểm tra lại!
       </div>
     );
@@ -132,10 +132,10 @@ const VoucherProducts: React.FC = () => {
     <>
       <section className="px-8">
         <Helmet>
-          <title>Các sản phẩm áp dụng Voucher {voucher.voucherName}</title>
+          <title>Các tài khoản khách hàng áp dụng Voucher {voucher.voucherName}</title>
         </Helmet>
         <h2 className="text-2xl mb-2">
-          Danh sách Sản phẩm áp dụng Voucher: {voucher.voucherName} {renderStatusDate()}
+          Danh sách Tài khoản khách hàng áp dụng Voucher: {voucher.voucherName} {renderStatusDate()}
         </h2>
         <div className="flex text-sm text-gray-500">
           <div className="w-1/2">
@@ -152,12 +152,12 @@ const VoucherProducts: React.FC = () => {
           </div>
         </div>
         <Button onClick={() => handleOpenDialogAdd()} className="mt-4 px-4 py-2">
-            Thêm sản phẩm
+            Thêm tài khoản khách hàng
         </Button>
-        <VoucherProductsTable voucherId={voucherId} />
+        <VoucherUsersTable voucherId={voucherId} />
 
         {isOpenAdd && (
-          <AddVoucherProductSheet
+          <AddVoucherUserSheet
             isOpen={isOpenAdd}
             onClose={() => setIsOpenAdd(false)}
             voucherId={voucherId}
@@ -169,4 +169,4 @@ const VoucherProducts: React.FC = () => {
   );
 };
 
-export default VoucherProducts;
+export default VoucherUsers;
