@@ -6,18 +6,23 @@ namespace Project.Business.Model
 {
     public class CheckoutViewModel
     {
-        public CustomerInfoModel CustomerInfo { get; set; }
-        public List<CartItemModel> CartItems { get; set; }
-        public string PaymentMethod { get; set; }
+        public Guid? BillId { get; set; }
+        public CustomerInfoModel? CustomerInfo { get; set; }
+        public List<CartItemModel>? CartItems { get; set; }
         
+        //public PaymentViewModel?  PaymentViewModel { get; set; }
+
+        public PaymentMethodModel paymentMethodModel { get; set; }
+
         public decimal SubTotal { get; set; }
         public decimal Total { get; set; }
+        public string? Description { get; set; }
         
         public CheckoutViewModel()
         {
             CustomerInfo = new CustomerInfoModel();
             CartItems = new List<CartItemModel>();
-            PaymentMethod = "COD";
+
         }
     }
 } 

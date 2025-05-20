@@ -13,6 +13,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
 using System.Transactions;
+using Project.DbManagement.ViewModels;
 
 namespace Project.Business.Implement
 {
@@ -392,7 +393,11 @@ namespace Project.Business.Implement
                 throw;
             }
         }
-
+        
+        public async Task<List<CustomerViewModel>> GetCustomerByPhoneNumber(string phoneNumber)
+        {
+            return  await _customerRepository.GetCustomerByPhoneNumber(phoneNumber);
+        }
    
     }
 

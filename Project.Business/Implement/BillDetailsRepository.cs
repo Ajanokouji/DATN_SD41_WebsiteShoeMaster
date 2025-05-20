@@ -6,6 +6,7 @@ using SERP.Framework.Business;
 using SERP.Framework.DB.Extensions;
 using LinqKit;
 using Nest;
+using Newtonsoft.Json;
 using Project.Business.Interface.Repositories;
 using Project.Common;
 using Project.DbManagement.Entity;
@@ -66,7 +67,7 @@ public class BillDetailsRepository : IBillDetailsRepository
 
     private IQueryable<BillDetailsEntity> BuildQuery(BillDetailsQueryModel queryModel)
     {
-        IQueryable<BillDetailsEntity> query = _context.BillDetails.AsNoTracking().Where(x => x.Isdeleted != true);
+        IQueryable<BillDetailsEntity> query = _context.BillDetails.AsNoTracking().Where(x => x.IsDeleted != true);
 
         if (queryModel.Id.HasValue)
         {
@@ -200,7 +201,7 @@ public class BillDetailsRepository : IBillDetailsRepository
     {
         var exist = await FindAsync(Id);
         if (exist == null) throw new Exception(IBillDetailsRepository.MessageNotFound);
-        exist.Isdeleted = true;
+        exist.IsDeleted = true;
         _context.BillDetails.Update(exist);
         _context.SaveChangesAsync();
         return exist;
@@ -210,22 +211,33 @@ public class BillDetailsRepository : IBillDetailsRepository
     {
         throw new NotImplementedException();
     }
+
     public async Task<bool> SaveBillDetails(BillDetailsRequest request)
     {
         try
         {
-            // Kiểm tra sp tồn tại trong hóa đơn này chưa
-            var prdDtExist = _context.BillDetails.Where(c => c.BillId == request.IdBill)
-                .Any(c => c.ProductId == request.IdProduct);
-            if (prdDtExist != true) //k tồn tại -> chưa có hdct-> tạo
+            var product = _context.Products.Find(request.IdProduct);
+            // Kiểm tra sản phẩm đã tồn tại trong hóa đơn chưa
+            var prdDtExist = _context.BillDetails
+                .Any(b => b.BillId == request.IdBill 
+                          && b.ProductId == request.IdProduct 
+                          && b.Color == request.Color 
+                          && b.Size == request.Size);
+
+            if (product == null || product.VariantObjs == null)
+                return false;
+
+            // Tìm variant tương ứng với màu sắc và kích cỡ
+            var variant = product.VariantObjs
+                .FirstOrDefault(v => v.Group1 == request.Color && v.Group2 == request.Size);
+
+            if (variant == null || variant.Stock < request.Quantity)
+                return false;
+
+            // Thêm mới chi tiết hóa đơn nếu chưa có
+            if (!prdDtExist)
             {
                 var guid = Guid.NewGuid();
-                var product = _context.Products.Find(request.IdProduct);
-                int quantityExist = Convert.ToInt32(product.MetadataObj.GetMetadatavalue("Quantity"));
-                if (quantityExist < request.Quantity)
-                {
-                    return false;
-                }
                 var billDetails = new BillDetailsEntity()
                 {
                     Id = guid,
@@ -235,39 +247,36 @@ public class BillDetailsRepository : IBillDetailsRepository
                     Quantity = request.Quantity,
                     Size = request.Size,
                     Color = request.Color,
-                    Price = Convert.ToDecimal(product.MetadataObj.GetMetadatavalue("MaxPrice")),
-                    TotalPrice = 1,
+                    Price = Convert.ToDecimal(variant.Price),
+                    TotalPrice = Convert.ToDecimal(variant.Price) * request.Quantity,
                     Status = 0,
                 };
+
                 await _context.BillDetails.AddAsync(billDetails);
                 await _context.SaveChangesAsync();
-                //Trừ số lượng CTSP
-                int quantity = Convert.ToInt32(product.MetadataObj.GetMetadatavalue("Quantity"));
-                quantity -= request.Quantity;
-                product.MetadataObj.SetMetaFieldValue("Quantity", quantity.ToString());
+
+                //Trừ số lượng product
+                variant.Stock -= request.Quantity;
                 _context.Products.Update(product);
                 await _context.SaveChangesAsync();
                 return true;
             }
-            else
+            else // Nếu đã có, cập nhật số lượng và tổng giá
             {
                 var exist = _context.BillDetails
-                    .Where(c => c.ProductId == request.IdProduct && c.BillId == request.IdBill)
-                    .FirstOrDefault();
-                var product = _context.Products.Find(request.IdProduct);
-                int quantity = Convert.ToInt32(product.MetadataObj.GetMetadatavalue("Quantity"));
-                if (quantity <= 0)
-                {
+                    .FirstOrDefault(c => c.ProductId == request.IdProduct && c.BillId == request.IdBill
+                                                                          && c.Color == request.Color &&
+                                                                          c.Size == request.Size);
+
+                if (exist == null)
                     return false;
-                }
+
                 exist.Quantity += request.Quantity;
-                //exist.DonGia = request.DonGia;
+                exist.TotalPrice = exist.Quantity * Convert.ToDecimal(variant.Price);
                 _context.BillDetails.Update(exist);
                 await _context.SaveChangesAsync();
-
-                //Thay đổi số lượng ctsp
-                quantity -= request.Quantity;
-                product.MetadataObj.SetMetaFieldValue("Quantity", quantity.ToString());
+                //Trừ số lượng product
+                variant.Stock -= request.Quantity;
                 _context.Products.Update(product);
                 await _context.SaveChangesAsync();
                 return true;
@@ -285,14 +294,18 @@ public class BillDetailsRepository : IBillDetailsRepository
         {
             var billDetails = _context.BillDetails.Find(idBillDetails);
             var product = _context.Products.Find(billDetails.ProductId);
-            
-            int CurrentQuantity = Convert.ToInt32(product.MetadataObj.GetMetadatavalue("Quantity"));
+            var variant = product.VariantObjs
+                .FirstOrDefault(v => v.Group1 == billDetails.Color && v.Group2 == billDetails.Size);
+            int CurrentQuantity = Convert.ToInt32(variant.Stock);
             int returnQuantity = billDetails.Quantity - quantity;
             int value = CurrentQuantity += returnQuantity;
             if (value < 0) throw new Exception("Số lượng sản phẩm không đủ");
-            product.MetadataObj.SetMetaFieldValue("Quantity", value.ToString());
+            variant.Stock = value;
             billDetails.Quantity = quantity;
             _context.Products.Update(product);
+            _context.BillDetails.Update(billDetails);
+            await _context.SaveChangesAsync();
+            billDetails.TotalPrice = billDetails.Quantity * billDetails.Price;
             _context.BillDetails.Update(billDetails);
             await _context.SaveChangesAsync();
             return billDetails;
@@ -311,9 +324,11 @@ public class BillDetailsRepository : IBillDetailsRepository
             if (billDetails == null) throw new Exception("Not Found");
             int billDetailsQuantity = billDetails.Quantity;
             var product = await _context.Products.FindAsync(billDetails.ProductId);
-            int productQuantity = Convert.ToInt32(product.MetadataObj.GetMetadatavalue("Quantity"));
+            var variant = product.VariantObjs
+                .FirstOrDefault(v => v.Group1 == billDetails.Color && v.Group2 == billDetails.Size);
+            int productQuantity = Convert.ToInt32(variant.Stock);
             int updateQuantity = productQuantity + billDetailsQuantity;
-            product.MetadataObj.SetMetaFieldValue("Quantity", updateQuantity.ToString());
+            variant.Stock = updateQuantity;
             _context.Products.Update(product);
             _context.BillDetails.Remove(billDetails);
             await _context.SaveChangesAsync();
@@ -336,8 +351,8 @@ public class BillDetailsRepository : IBillDetailsRepository
                 IdBill = billDetails.BillId,
                 IdProduct = product.Id,
                 Name = product.Name,
-                Color = product.MetadataObj.GetMetadatavalue("Colorway"),
-                Size = product.MetadataObj.GetMetadatavalue("Size"),
+                Color = billDetails.Color,
+                Size = billDetails.Size,
                 Quantity = billDetails.Quantity,
                 Price = billDetails.Price,
             }).ToListAsync();

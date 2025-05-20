@@ -63,7 +63,7 @@ namespace Project.Business.Implement
 
         private IQueryable<ProductCategoriesRelation> BuildQuery(ProductCategoriesRelationQueryModel queryModel)
         {
-            IQueryable<ProductCategoriesRelation> query = _context.ProductCategoriesRelations.AsNoTracking().Where(x => x.Isdeleted == false);
+            IQueryable<ProductCategoriesRelation> query = _context.ProductCategoriesRelations.AsNoTracking().Where(x => x.IsDeleted == false);
 
             if (queryModel.Id.HasValue)
             {
@@ -170,7 +170,7 @@ namespace Project.Business.Implement
         {
             var exist = await FindAsync(id);
             if (exist == null) throw new Exception(IProductCategoriesRelationRepository.MessageNoTFound);
-            exist.Isdeleted = true;
+            exist.IsDeleted = true;
             _context.ProductCategoriesRelations.Update(exist);
             await _context.SaveChangesAsync();
             return exist;

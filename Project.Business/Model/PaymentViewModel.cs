@@ -1,3 +1,4 @@
+using Project.Business.Model.VnPayments;
 using System;
 using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
@@ -14,7 +15,8 @@ namespace Project.Business.Model
         [Display(Name = "Phương thức thanh toán")]
         public string SelectedPaymentMethod { get; set; }
         
-        public List<PaymentMethodModel> PaymentMethods { get; set; }
+        public PaymentInformationModel PaymentInformationModel { get; set; }
+
     }
 
     public class PaymentMethodModel

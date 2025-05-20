@@ -237,7 +237,7 @@ namespace Project.Business.Implement
                         CreatedOnDate = exist.CreatedOnDate,
                         LastModifiedByUserId = exist.LastModifiedByUserId,
                         LastModifiedOnDate = DateTime.UtcNow,
-                        Isdeleted = exist.Isdeleted
+                        IsDeleted = exist.IsDeleted
                     };
 
                     var result = await SaveAsync(update);
@@ -699,7 +699,7 @@ namespace Project.Business.Implement
                     CreatedOnDate = DateTime.Now,
                     LastModifiedByUserId = user.Id,
                     LastModifiedOnDate = DateTime.Now,
-                    Isdeleted = false
+                    IsDeleted = false
                 };
 
                 //Tạo mới cart cho user
@@ -714,7 +714,7 @@ namespace Project.Business.Implement
                     CreatedOnDate = DateTime.Now,
                     LastModifiedByUserId = user.Id,
                     LastModifiedOnDate = DateTime.Now,
-                    Isdeleted = false
+                    IsDeleted = false
                 };
 
                 try
@@ -761,7 +761,7 @@ namespace Project.Business.Implement
                 CreatedOnDate = DateTime.Now,
                 LastModifiedByUserId = user.Id,
                 LastModifiedOnDate = DateTime.Now,
-                Isdeleted = false
+                IsDeleted = false
             }).ToList();
 
             //Tìm các cartDetail
@@ -888,7 +888,7 @@ namespace Project.Business.Implement
                     CreatedOnDate = DateTime.Now,
                     LastModifiedByUserId = user.Id,
                     LastModifiedOnDate = DateTime.Now,
-                    Isdeleted = false
+                    IsDeleted = false
                 };
 
                 //Tạo mới cart cho user
@@ -903,7 +903,7 @@ namespace Project.Business.Implement
                     CreatedOnDate = DateTime.Now,
                     LastModifiedByUserId = user.Id,
                     LastModifiedOnDate = DateTime.Now,
-                    Isdeleted = false
+                    IsDeleted = false
                 };
 
                 try
@@ -1141,7 +1141,7 @@ namespace Project.Business.Implement
                     CreatedOnDate = DateTime.Now,
                     LastModifiedByUserId = user.Id,
                     LastModifiedOnDate = DateTime.Now,
-                    Isdeleted = false
+                    IsDeleted = false
                 };
 
                 //Tạo mới cart cho user
@@ -1156,7 +1156,7 @@ namespace Project.Business.Implement
                     CreatedOnDate = DateTime.Now,
                     LastModifiedByUserId = user.Id,
                     LastModifiedOnDate = DateTime.Now,
-                    Isdeleted = false
+                    IsDeleted = false
                 };
 
                 try
@@ -1276,7 +1276,7 @@ namespace Project.Business.Implement
                     CreatedOnDate = DateTime.Now,
                     LastModifiedByUserId = user.Id,
                     LastModifiedOnDate = DateTime.Now,
-                    Isdeleted = false
+                    IsDeleted = false
                 };
 
                 //Tạo mới cart cho user
@@ -1291,7 +1291,7 @@ namespace Project.Business.Implement
                     CreatedOnDate = DateTime.Now,
                     LastModifiedByUserId = user.Id,
                     LastModifiedOnDate = DateTime.Now,
-                    Isdeleted = false
+                    IsDeleted = false
                 };
 
                 try

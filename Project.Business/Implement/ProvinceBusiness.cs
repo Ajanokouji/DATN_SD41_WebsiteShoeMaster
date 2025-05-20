@@ -1,8 +1,8 @@
 ﻿using Project.Business.Interface;
 using Project.Business.Interface.Repositories;
+using Project.Business.Model;
 using Project.DbManagement.Entity;
-using Project.DbManagement.ViewModels;
-using SERP.Dictionary.Models;
+
 using SERP.Framework.Common;
 
 namespace Project.Business.Implementation

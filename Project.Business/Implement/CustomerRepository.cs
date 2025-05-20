@@ -14,6 +14,7 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Xml;
+using Project.DbManagement.ViewModels;
 using static System.Net.Mime.MediaTypeNames;
 
 namespace Project.Business.Implement
@@ -65,7 +66,7 @@ namespace Project.Business.Implement
 
         private IQueryable<CustomersEntity> BuildQuery(CustomerQueryModel queryModel)
         {
-            IQueryable<CustomersEntity> query = _context.Customers.AsNoTracking().Where(x => x.Isdeleted != true);
+            IQueryable<CustomersEntity> query = _context.Customers.AsNoTracking().Where(x => x.IsDeleted != true);
 
             if (queryModel.Id.HasValue)
             {
@@ -159,11 +160,30 @@ namespace Project.Business.Implement
             return updated;
         }
 
+        public async Task<List<CustomerViewModel>> GetCustomerByPhoneNumber(string phoneNumber)
+        {
+            var customer = await _context.Customers.FirstOrDefaultAsync(c => c.PhoneNumber == phoneNumber);
+
+            if (customer == null) return new List<CustomerViewModel>();
+
+            var result = new List<CustomerViewModel>
+            {
+                new CustomerViewModel
+                {
+                    Id = customer.Id,
+                    Name = customer.Name,
+                    PhoneNumber = customer.PhoneNumber
+                }
+            };
+
+            return result;
+        }
+
         public async Task<CustomersEntity> DeleteAsync(Guid id)
         {
             var exist = await FindAsync(id);
             if (exist == null) throw new Exception(ICustomerRepository.MessageNoTFound);
-            exist.Isdeleted = true;
+            exist.IsDeleted = true;
             _context.Customers.Update(exist);
             await _context.SaveChangesAsync();
             return exist;

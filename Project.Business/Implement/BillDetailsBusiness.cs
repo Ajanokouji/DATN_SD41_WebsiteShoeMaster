@@ -382,7 +382,7 @@ public class BillDetailsBusiness : IBillDetailsBusiness
 
             var entities = billDetails.Select(detail => new BillDetailsEntity
             {
-                Id = Guid.NewGuid(),
+                Id =detail.Id,
                 BillId = billId,
                 ProductId = detail.ProductId,
                 ProductImage = detail.ProductImage,
@@ -393,7 +393,8 @@ public class BillDetailsBusiness : IBillDetailsBusiness
                 Color=  detail.Color,
                 LastModifiedOnDate = detail.LastModifiedOnDate,
                 Notes = detail.Notes,
-                Isdeleted = false,
+                IsDeleted = false,
+                SKU = detail.SKU,
                 ProductName = detail.ProductName,
                 Size = detail.Size,
                 TotalPrice = detail.TotalPrice,
@@ -456,8 +457,16 @@ public class BillDetailsBusiness : IBillDetailsBusiness
         return result;
     }
 
-    public async Task<List<BillDetailsViewModel>> GetBillDetailsByIdBill(Guid idBill)
+    public async Task<IEnumerable<BillDetailsEntity>> ListAllByIdBill(Guid idBill)
     {
-        return await _billDetailsRepository.GetBillDetailsByIdBill(idBill);
+        return await _billDetailsRepository.ListAllAsync(new BillDetailsQueryModel()
+        {
+            BillId = idBill
+        });
+    }
+
+    public async Task<IEnumerable<BillDetailModel>> ListAllByBillId(Guid idBill)
+    {
+        return (IEnumerable<BillDetailModel>)await _billDetailsRepository.GetBillDetailsByIdBill(idBill);
     }
 }

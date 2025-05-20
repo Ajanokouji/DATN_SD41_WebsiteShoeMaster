@@ -84,8 +84,14 @@
                                             }
                                         </td>
                                         <td class="cart__quantity">
-                                            <div class="pro-qty">
-                                                <input type="number" class="quantity-input" value="@item.Quantity" min="1" max="@item.StockQuantity">
+                                            <div class="input-group input-group-sm quantity-selector" style="max-width:150px">
+                                                <button class="btn btn-outline-secondary btn-decrease" type="button">−</button>
+                                                <input type="text"
+                                                       class="form-control text-center quantity-input"
+                                                       value="@item.Quantity"
+                                                       data-productprice="@item.Price"
+                                                       max="@item.StockQuantity" />
+                                                <button class="btn btn-outline-secondary btn-increase" type="button">+</button>
                                             </div>
                                         </td>
                                         <td class="cart__total">@item.Total.ToString("N0") VNĐ</td>
@@ -142,25 +148,34 @@
 @section Scripts {
     <script>
         $(document).ready(function () {
-            // Tăng số lượng
-            $('.pro-qty .qtybtn').on('click', function () {
-                var $button = $(this);
-                var $input = $button.parent().find('input');
-                var oldValue = $input.val();
-                var maxValue = parseInt($input.attr('max'));
-                
-                if ($button.hasClass('inc')) {
-                    if (oldValue < maxValue) {
-                        var newVal = parseFloat(oldValue) + 1;
-                        $input.val(newVal);
-                        updateItemTotal($button.closest('tr'));
-                    }
-                } else {
-                    if (oldValue > 1) {
-                        var newVal = parseFloat(oldValue) - 1;
-                        $input.val(newVal);
-                        updateItemTotal($button.closest('tr'));
-                    }
+         // Tăng số lượng
+                function updateItemTotal($row) {
+                var unitPrice = parseFloat($row.find('.quantity-input').data('productprice')) || 0;
+                var quantity = parseInt($row.find('.quantity-input').val()) || 0;
+                var total = unitPrice * quantity;
+                $row.find('.cart__total').text(formatCurrency(total) + ' VNĐ');
+                updateCartTotal();
+            }
+
+                $(document).on('click', '.btn-increase', function () {
+                var $row = $(this).closest('tr');
+                var $input = $row.find('.quantity-input');
+                var val = parseInt($input.val()) || 0;
+                var max = parseInt($input.attr('max')) || 10000;
+                if (val < max) {
+                    $input.val(val + 1);
+                    updateItemTotal($row);
+                }
+            });
+
+            // Giảm số lượng
+            $(document).on('click', '.btn-decrease', function () {
+                var $row = $(this).closest('tr');
+                var $input = $row.find('.quantity-input');
+                var val = parseInt($input.val()) || 1;
+                if (val > 1) {
+                    $input.val(val - 1);
+                    updateItemTotal($row);
                 }
             });
 

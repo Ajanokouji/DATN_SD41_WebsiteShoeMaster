@@ -60,7 +60,7 @@ namespace Project.Business.Implement
 
         private IQueryable<Cart> BuildQuery(CartQueryModel queryModel)
         {
-            IQueryable<Cart> query = _context.Carts.AsNoTracking().Where(x => x.Isdeleted != true);
+            IQueryable<Cart> query = _context.Carts.AsNoTracking().Where(x => x.IsDeleted != true);
 
             if (queryModel.Id.HasValue)
             {
@@ -181,7 +181,7 @@ namespace Project.Business.Implement
         {
             var exist = await FindAsync(Id);
             if (exist == null) throw new Exception(ICartRepository.MessageNoTFound);
-            exist.Isdeleted = true;
+            exist.IsDeleted = true;
             _context.Carts.Update(exist);
             _context.SaveChangesAsync();
             return exist;
@@ -195,7 +195,7 @@ namespace Project.Business.Implement
         public async Task<Cart> GetCartByUserId(Guid userId)
         {
             return await _context.Carts
-                .Where(x => x.IdUser == userId && !x.Isdeleted.Value && x.Status == 1)
+                .Where(x => x.IdUser == userId && !x.IsDeleted.Value && x.Status == 1)
                 .OrderByDescending(x => x.LastModifiedOnDate)
                 .FirstOrDefaultAsync();
         }

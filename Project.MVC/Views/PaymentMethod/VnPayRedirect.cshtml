@@ -2,7 +2,7 @@
 
 <form method="post" asp-action="CreatePaymentUrlVnpay" asp-controller="VNPay">
     <input type="hidden" name="Amount" value="@Model.Amount" />
-    <input type="hidden" name="Name" value="@Model.Name" />
+    <input type="hidden" name="Name" value="@Model.CustomerName" />
     <input type="hidden" name="OrderDescription" value="@Model.OrderDescription" />
     <input type="hidden" name="OrderType" value="@Model.OrderType" />
     <button type="submit" style="display:none">Redirecting...</button>

@@ -30,7 +30,7 @@ namespace Project.DbManagement
 
         [Column(TypeName = "nvarchar(512)")]
         public string? ProductImage { get; set; }
-
+        public string ?SKU { get; set; }
         public string Size { get; set; }
 
         [Column(TypeName = "nvarchar(50)")]

@@ -232,7 +232,7 @@ namespace Project.Business.Implement
                         CreatedOnDate = exist.CreatedOnDate,
                         Description = model.Description ?? exist.Description,
                         ImageUrl = model.ImageUrl ?? exist.ImageUrl,
-                        Isdeleted = exist.Isdeleted,
+                        IsDeleted = exist.IsDeleted,
                         LabelsJson = model.LabelsJson ?? exist.LabelsJson,
                         LabelsObjs = model.LabelsObjs ?? exist.LabelsObjs,
                         LastModifiedByUserId = exist.LastModifiedByUserId,
@@ -330,7 +330,7 @@ namespace Project.Business.Implement
             return await _productRepository.GetProductDetailsById(idprd); 
         }
 
-        public async Task<List<ProductDetailsViewModel>> ListProductDetailsById(Guid idprd)
+        public async Task<List<ListProductDetailsViewModel>> ListProductDetailsById(Guid idprd)
         {
             return await _productRepository.ListProductDetailsById(idprd);
         }
@@ -338,6 +338,35 @@ namespace Project.Business.Implement
         public Task<List<ListProductSellViewModel>> SearchProduct(string keyword)
         {
             return _productRepository.SearchProduct(keyword);
+        }
+
+        public async Task<ProductEntity> UpdateProductVariants(Guid ProducId, Variant variant)
+        {
+            var exist = await _productRepository.FindAsync(ProducId);
+            if (exist == null)
+            {
+                throw new Exception("Product Not Founded");
+            }
+
+            if (exist.VariantObjs == null || !exist.VariantObjs.Any())
+            {
+                throw new Exception("No variants found for this product.");
+            }
+
+            var updateVariant = exist.VariantObjs.FirstOrDefault(x => x.Sku == variant.Sku);
+            if (updateVariant == null)
+            {
+                throw new Exception("Variant Not Found");
+            }
+
+            // Update the properties
+            updateVariant.Price = variant.Price;
+            updateVariant.Size = variant.Size;
+            updateVariant.Stock = variant.Stock;
+
+            // Save the updated product entity
+            var result = await SaveAsync(exist);
+            return result;
         }
     }
 }

@@ -34,15 +34,16 @@ namespace Project.Business.ModelFactory.Implement
             CreatedOnDate= model.CreatedOnDate,
             LastModifiedOnDate = model.LastModifiedOnDate,
             Notes = model.Notes,
+            SKU=model.SKU,
             Status = model.Status,
             Size = model.Size,
             LastModifiedByUserId = model.LastModifiedByUserId,
             Price= model .Price,
-               ProductImage = model.ProductImage,
-               Isdeleted =model.Isdeleted,
-               ProductName=     model.ProductName,
-               Quantity = model.Quantity,
-               TotalPrice = model.TotalPrice
+            ProductImage = model.ProductImage,
+            IsDeleted =model.IsDeleted,
+            ProductName=     model.ProductName,
+            Quantity = model.Quantity,
+            TotalPrice = model.TotalPrice
            };
             return res;
         }
@@ -64,7 +65,7 @@ namespace Project.Business.ModelFactory.Implement
                 LastModifiedByUserId = entity.LastModifiedByUserId,
                 Price= entity.Price,
                 ProductImage = entity.ProductImage,
-                Isdeleted =entity.Isdeleted,
+                IsDeleted =entity.IsDeleted,
                 ProductName=     entity.ProductName,
                 Quantity = entity.Quantity,
                 TotalPrice = entity.TotalPrice

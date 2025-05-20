@@ -4,6 +4,8 @@ using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Project.Business.Implement;
 using Project.Business.Implementation;
+using Project.Business.Intercepter;
+using Project.Business.Intercepter.Implement;
 using Project.Business.Interface;
 using Project.Business.Interface.Project.Business.Interface;
 using Project.Business.Interface.Project.Business.Interface.Repositories;
@@ -44,6 +46,7 @@ namespace Project.Business
             services.AddScoped<ICategoriesRepository, CategoriesRepository>();
             services.AddScoped<IImageFileRepository, ImageFileRepository>();
             services.AddScoped<IVoucherProductsRepository, VoucherProductRepository>();
+            services.AddScoped<IVoucherUsersRepository, VoucherUsersRepository>();
 
             // Register Business Services
 
@@ -63,6 +66,7 @@ namespace Project.Business
             services.AddScoped<ICategoriesBusiness, CategoriesBusiness>();
             services.AddScoped<IImageFileBusiness, ImageFileBusiness>();
             services.AddScoped<IVoucherProductsBusiness, VoucherProductsBusiness>();
+            services.AddScoped<IVoucherUsersBusiness, VoucherUsersBusiness>();
 
             services.AddScoped<IBillModelFactory, BillModelFactory>();
             services.AddScoped<IBillDetailModelFactory, BillDetailModelFactory>();
@@ -74,8 +78,15 @@ namespace Project.Business
             });
             services.AddScoped<IProductRepository, ProductDapperRepository>();
 
-            services.AddScoped<IDistrictRepository, DistrictRepository>();
-            services.AddScoped<IDistrictBusiness, DistrictBusiness>();
+            services.AddScoped<IProvinceRepository, ProvinceRepository>();
+            services.AddScoped<IProvinceBusiness, ProvinceBusiness>();
+
+
+            services.AddScoped<IBillIntercepterAfterSave, SendEmailAfterSaveBill>();
+
+            var emailSettings = configuration.GetSection("EmailSettings").Get<EmailSettings>();
+
+            services.AddSingleton(emailSettings);
 
 
             // Configure CORS

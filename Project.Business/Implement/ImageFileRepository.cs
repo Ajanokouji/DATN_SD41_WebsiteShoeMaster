@@ -25,7 +25,7 @@ namespace Project.Business.Implement
 
         public async Task<ImageFileEntity> FindAsync(Guid id)
         {
-            return await _context.ImageFiles.AsNoTracking().FirstOrDefaultAsync(x => x.Id == id && x.Isdeleted ==false);
+            return await _context.ImageFiles.AsNoTracking().FirstOrDefaultAsync(x => x.Id == id && x.IsDeleted ==false);
         }
 
         public async Task<ImageFileEntity> SaveAsync(ImageFileEntity imageFile)
@@ -56,7 +56,7 @@ namespace Project.Business.Implement
         {
             var exist = await FindAsync(id);
             if (exist == null) throw new Exception("ImageFile not found");
-            exist.Isdeleted = true;
+            exist.IsDeleted = true;
             _context.ImageFiles.Update(exist);
             await _context.SaveChangesAsync();
             return exist;
@@ -70,7 +70,7 @@ namespace Project.Business.Implement
 
         private  IQueryable<ImageFileEntity> BuildQuery(ImageFileQueryModel imageFileQueryModel)
         {
-            IQueryable<ImageFileEntity> query = _context.ImageFiles.AsNoTracking().Where(x=>x.Isdeleted==false);
+            IQueryable<ImageFileEntity> query = _context.ImageFiles.AsNoTracking().Where(x=>x.IsDeleted==false);
 
             if (imageFileQueryModel.Id != Guid.Empty)
             {
@@ -137,7 +137,7 @@ namespace Project.Business.Implement
 
         public async Task<IEnumerable<ImageFileEntity>> ListByIdsAsync(IEnumerable<Guid> ids)
         {
-            var query = _context.ImageFiles.AsNoTracking().Where(x => ids.Contains(x.Id)&& x.Isdeleted==false);
+            var query = _context.ImageFiles.AsNoTracking().Where(x => ids.Contains(x.Id)&& x.IsDeleted==false);
             return await query.ToListAsync();
         }
 

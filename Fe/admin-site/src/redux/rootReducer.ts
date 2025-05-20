@@ -11,6 +11,7 @@ import messageReducer from "../redux/apps/message/messageSlice";
 import fileReducer from "./apps/file/fileSlice";
 import VoucherProductReducer from "../redux/apps/voucherProduct/voucherProductSlice";
 import VoucherUserReducer from "../redux/apps/voucherUser/voucherUserSlice";
+import contentBaseReducer from "./apps/contentBase/contentBaseSlice";
 
 const rootReducer = combineReducers({
 //   auth: authReducer,
@@ -25,6 +26,7 @@ const rootReducer = combineReducers({
   file: fileReducer,
   voucherProduct: VoucherProductReducer,
   voucherUser: VoucherUserReducer,
+  contentBase: contentBaseReducer,
 });
 
 export default rootReducer;

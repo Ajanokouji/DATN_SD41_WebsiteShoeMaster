@@ -85,14 +85,15 @@
                         <i class="fa fa-star"></i>
                         <span>( 138 đánh giá )</span>
                     </div>
-                    <div class="product__details__price">@Model.Product.MetadataObj.GetMetadatavalue("MinPrice") đ</div>
+                  
                     <p>@Model.Product.Description</p>
                     <div class="product__details__widget">
                         <div class="variant-selector">
                             <div class="group">
                                 <label class="group-label">Giá Tiền</label>
                                 <div class="quantity-selector">
-                                    <input id="price" type="type" name="name" value="" readonly />
+                                    <input id="price" type="text" name="name" value="" readonly
+                                           class=" border-secondary rounded" />
                                 </div>
                             </div>
 
@@ -258,8 +259,10 @@
             })));
           function updatePrice() {
             const variant = variants.find(v => v.color === selectedColor && selectedSize === v.size);
+             const quantity = parseInt(document.getElementById('quantity').value) || 1;
             if (variant) {
-                document.getElementById('price').value = variant.price.toLocaleString('vi-VN') + ' đ';
+                  const totalPrice = variant.price * quantity;
+                document.getElementById('price').value = totalPrice.toLocaleString('vi-VN') + ' đ';
             } else {
                 document.getElementById('price').value = '';
             }
@@ -288,12 +291,14 @@
             const input = document.getElementById("quantity");
             let val = parseInt(input.value);
             if (!isNaN(val)) input.value = val + 1;
+            updatePrice();
         });
 
         document.getElementById("decrease").addEventListener("click", () => {
             const input = document.getElementById("quantity");
             let val = parseInt(input.value);
             if (!isNaN(val) && val > 1) input.value = val - 1;
+            updatePrice();
         });
 
         function addToCart(productId) {
@@ -306,14 +311,14 @@
             productId: $cartBtn.data('product-id'),
             productName: $cartBtn.data('product-name'),
             productImage: $cartBtn.data('product-image'),
-            price: parseFloat(document.getElementById('price').value?.replace(/\D/g, '') ?? 0),
+            price: parseFloat(document.getElementById('price').value?.replace(/\D/g, '') ?? 0) / parseInt(quantity),
             quantity: parseInt(quantity),
             size: selectedSize ?? '',
             color: selectedColor ?? ''
         };
 
             console.log(JSON.stringify(productData));
-            debugger
+            
             $.ajax({
                 url: '/Cart/AddToCart',
                 method: 'POST',

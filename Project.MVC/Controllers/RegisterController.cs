@@ -4,6 +4,7 @@ using Project.Business.Implement;
 using Project.Business.Interface;
 using Project.Business.Model;
 using Project.Common;
+using Project.DbManagement;
 using Project.DbManagement.Entity;
 using System;
 using System.Collections.Generic;
@@ -59,7 +60,7 @@ namespace Project.MVC.Controllers
                 var lstUserFoundByUserName = _userBusiness.LocUserTheoNhieuDK(new UserQueryModel
                 {
                     Username = user.Username
-                }).Result.Where(u => u.Isdeleted == false);
+                }).Result.Where(u => u.IsDeleted == false);
                 //Nếu đã tồn tại
                 if (lstUserFoundByUserName.Any())
                 {
@@ -74,7 +75,7 @@ namespace Project.MVC.Controllers
                 var lstUserFoundByPhone = _userBusiness.LocUserTheoNhieuDK(new UserQueryModel
                 {
                     PhoneNumber = user.PhoneNumber
-                }).Result.Where(u => u.Isdeleted == false);
+                }).Result.Where(u => u.IsDeleted == false);
 
                 //Nếu đã tồn tại
                 if (lstUserFoundByPhone.Any())
@@ -90,7 +91,7 @@ namespace Project.MVC.Controllers
                 var lstUserFoundByEmail = _userBusiness.LocUserTheoNhieuDK(new UserQueryModel
                 {
                     Email = user.Email
-                }).Result.Where(u => u.Isdeleted == false);
+                }).Result.Where(u => u.IsDeleted == false);
 
                 //Nếu đã tồn tại
                 if (lstUserFoundByEmail.Any())
@@ -102,9 +103,8 @@ namespace Project.MVC.Controllers
 
             //Tạo mới user
             user.Id = Guid.NewGuid();
-            user.Type = "1";    //Giả sử Type Khách hàng là 1
+            user.Type = UserTypeEnum.Customer;    //Giả sử Type Khách hàng là 1
             user.IsActive = true;
-            user.MetadataJson = "[]";
 
             try
             {
