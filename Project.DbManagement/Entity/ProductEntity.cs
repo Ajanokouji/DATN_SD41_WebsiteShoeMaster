@@ -193,7 +193,7 @@ namespace Project.DbManagement.Entity
     {
         public string? Sku { get; set; } = string.Empty;
                                                                                                                                                                                                                                                                                        
-        public string? ImageUrl { get; set; } = string.Empty;
+        public string? ImgUrl { get; set; } = string.Empty;
 
         public string? Group1 { get; set; } = string.Empty;
 

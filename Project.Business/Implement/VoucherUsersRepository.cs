@@ -70,7 +70,7 @@ namespace Project.Business.Implement
 
         private IQueryable<VoucherUsers> BuildQuery(VoucherUsersQueryModel queryModel)
         {
-            IQueryable<VoucherUsers> query = _context.VoucherUsers.AsNoTracking().Where(x => x.Isdeleted != true);
+            IQueryable<VoucherUsers> query = _context.VoucherUsers.AsNoTracking().Where(x => x.IsDeleted != true);
 
             if (queryModel.Id.HasValue)
             {
@@ -149,7 +149,7 @@ namespace Project.Business.Implement
         {
             var exist = await FindAsync(Id);
             if (exist == null) throw new Exception(IVoucherUsersRepository.MessageNotFound);
-            exist.Isdeleted = true;
+            exist.IsDeleted = true;
             _context.VoucherUsers.Update(exist);
             await _context.SaveChangesAsync(); //Thêm await fix lỗi xóa
             return exist;
@@ -181,8 +181,8 @@ namespace Project.Business.Implement
                     EF.Functions.Collate(p.Address, "Latin1_General_CI_AI").ToLower().Contains(searchStringNormal) ||
                     EF.Functions.Collate(p.Email, "Latin1_General_CI_AI").ToLower().Contains(searchStringNormal));
 
-            queryable = queryable.Where(p => p.Isdeleted == false);
-            queryable = queryable.Where(p => p.Type == "1");
+            queryable = queryable.Where(p => p.IsDeleted == false);
+            queryable = queryable.Where(p => p.Type == UserTypeEnum.Customer);
 
             return await queryable.GetPagedOrderAsync(queryModel.CurrentPage.Value, queryModel.PageSize.Value, string.Empty);
         }
@@ -213,7 +213,7 @@ namespace Project.Business.Implement
         {
             return await _context.Users
                 .AsNoTracking()
-                .Where(x => ids.Contains(x.Id) && x.Isdeleted == false)
+                .Where(x => ids.Contains(x.Id) && x.IsDeleted == false)
                 .ToListAsync();
         }
 
@@ -226,7 +226,7 @@ namespace Project.Business.Implement
                 var voucherUserFind = _context.VoucherUsers
                     .Where(v => v.VoucherId == voucherUser.VoucherId
                              && v.UserId == voucherUser.UserId
-                             && v.Isdeleted == false)
+                             && v.IsDeleted == false)
                     .FirstOrDefault();
 
                 if (voucherUserFind != null)
