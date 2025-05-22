@@ -74,6 +74,7 @@ namespace Project.Business.Interface
         /// <returns></returns>
         Task<Cart> PatchAsync(Cart cart);
         Task<ServiceResult<List<CartItemModel>>> GetCartItems(List<CartItem> cartSessions);
+        Task<List<CartItemModel>> GetCartItemsByUserId(Guid userId);
         Task<ServiceResult<decimal>> CalculateCartTotal(List<CartItemModel> cartItems);
         Task<ServiceResult<int>> GetCartCount(List<CartItem> cartSessions);
         Task<ServiceResult<bool>> AddToCart(CartItem cartItem, List<CartItem> currentCart);
@@ -82,7 +83,7 @@ namespace Project.Business.Interface
         Task<ServiceResult<bool>> ClearCart();
 
         Task<ServiceResult<bool>> AddCartSessionToCartDb(UserEntity user, List<CartItemModel> lstCartItemModel);
-        Task<ServiceResult<bool>> AddToCartDb(UserEntity user, List<CartDetails> lstCartDetails);
+        Task<ServiceResult<bool>> AddToCartAsync(Guid userId, List<CartDetails> lstCartDetails);
         Task<ServiceResult<int>> GetCartDbCount(UserEntity user);
         Task<ServiceResult<bool>> UpdateCartDb(UserEntity user, List<CartDetails> lstCartDetails);
         Task<ServiceResult<bool>> RemoveFromCartDb(UserEntity user, Guid productId);

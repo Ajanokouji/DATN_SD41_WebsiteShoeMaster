@@ -8,14 +8,8 @@ using Project.Business.Model.VnPayments;
 using Project.Common;
 using Project.Common.Constants;
 using Project.DbManagement.Entity;
-using Project.MVC.Models;
-using SERP.Framework.Constants.Constants;
-using StackExchange.Redis;
-using System;
 using System.Collections.Generic;
-using System.Linq;
-using System.Net.WebSockets;
-using System.Threading.Tasks;
+
 
 namespace Project.MVC.Controllers
 {
@@ -56,35 +50,41 @@ namespace Project.MVC.Controllers
         [HttpGet]
         public async Task<IActionResult> Index()
         {
-            var cartSession = HttpContext.Session.GetString(CartSessionKey);
-            if (string.IsNullOrEmpty(cartSession))
+            var data = new List<CartItemModel>();
+            var user = JsonConvert.DeserializeObject<UserEntity>(HttpContext.Session.GetString("UserSession"));
+
+            if (user != null)
             {
-                return RedirectToAction("Index", "Cart");
+                data = (await _cartBusiness.GetCartItemsByUserId(user.Id));
+            }
+            else
+            {
+                var cartSession = HttpContext.Session.GetString(CartSessionKey);
+                if (!string.IsNullOrEmpty(cartSession))
+                {
+                    data = JsonConvert.DeserializeObject<List<CartItemModel>>(cartSession);
+                }
             }
 
-            var cartSessions = JsonConvert.DeserializeObject<List<CartItem>>(cartSession);
-            var cartItemsResult = await _cartBusiness.GetCartItems(cartSessions);
-            if (!cartItemsResult.IsSuccess || cartItemsResult.Data == null || !cartItemsResult.Data.Any())
+            if (data == null || !data.Any())
             {
                 return RedirectToAction("Index", "Cart");
             }
 
             var model = new CheckoutViewModel
             {
-                BillId= Guid.NewGuid(),
-                CartItems = cartItemsResult.Data,
-                CustomerInfo = new CustomerInfoModel(),
-                SubTotal = cartItemsResult.Data.Sum(x => x.Total),
-                Total = cartItemsResult.Data.Sum(x => x.Total),
-                //PaymentViewModel = new PaymentViewModel()
-                //{
-                //    BillId = Guid.NewGuid(),
-                //    PaymentInformationModel = new PaymentInformationModel()
-                //    {
-                //        OrderId = Guid.NewGuid(),
-
-                //    }
-                //}
+                BillId = Guid.NewGuid(),
+                CartItems =data,
+                CustomerInfo = new CustomerInfoModel()
+                {
+                    Address=user.Address??string.Empty,
+                    Email=user.Email??string.Empty,
+                    FullName=user.Name ?? string.Empty,
+                    PhoneNumber=user.PhoneNumber ?? string.Empty,
+                    UserId=user.Id
+                },
+                SubTotal = data.Sum(x => x.Total),
+                Total = data.Sum(x => x.Total),
             };
 
             return View(model);
