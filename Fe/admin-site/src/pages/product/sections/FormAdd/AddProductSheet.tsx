@@ -65,7 +65,7 @@ const AddProductSheet: React.FC<AddProductSheetProps> = ({
     console.log("Form is submitting with values:", values);
     setIsSubmitting(true);
     try {
-      debugger
+      
       const productData: ProductReqDto = {
         ...values,
         sortOrder: String(values.sortOrder || 0),

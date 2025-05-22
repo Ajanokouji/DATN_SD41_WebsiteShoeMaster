@@ -68,33 +68,7 @@ namespace Project.Business.Implement
             var bill = await _billRepository.GetAllAsync(queryModel);
             if (bill != null)
             {
-                var billDetail = await _billDetailsBusiness.GetAllAsync(new BillDetailsQueryModel()
-                {
-                    BillIds = bill.Content.Select(x => x.Id).ToList()
-                });
-
-                res.Content = bill.Content.Select(x => new BillModel()
-                {
-                    Id = x.Id,
-                    BillCode = x.BillCode,
-                    CustomerId = x.CustomerId,
-                    RecipientName = x.RecipientName,
-                    RecipientPhone = x.RecipientPhone,
-                    RecipientEmail = x.RecipientEmail,
-                    RecipientAddress = x.RecipientAddress,
-                    TotalAmount = x.TotalAmount,
-                    DiscountAmount = x.DiscountAmount,
-                    AmountAfterDiscount = x.AmountAfterDiscount,
-                    AmountToPay = x.AmountToPay,
-                    Status = x.Status,
-                    PaymentStatus = x.PaymentStatus,
-                    CreatedOnDate = x.CreatedOnDate,
-                    LastModifiedOnDate = x.LastModifiedOnDate,
-                    UpdateBy = x.UpdateBy,
-
-                    LastModifiedByUserId = x.LastModifiedByUserId,
-                    BillDetails = billDetail?.Content?.Where(y => y.BillId == x.Id).ToList() ?? new List<BillDetailModel>()
-                }).ToList();
+                res.Content = await _billModelFactory.CreateModels(bill.Content, true);
             }
 
             return res;
@@ -144,7 +118,6 @@ namespace Project.Business.Implement
                 CreatedOnDate = exist.CreatedOnDate,
                 RecipientEmail = exist.RecipientEmail,
                 LastModifiedOnDate = exist.LastModifiedOnDate,
-                UpdateBy = exist.UpdateBy,
                 PaymentMethod = exist.PaymentMethod,
                 FinalAmount= exist.FinalAmount,
                 Note = exist.Note,
@@ -250,11 +223,6 @@ namespace Project.Business.Implement
                 update.LastModifiedOnDate = model.LastModifiedOnDate;
             }
 
-            if (!string.IsNullOrWhiteSpace(model.UpdateBy))
-            {
-                update.UpdateBy = model.UpdateBy;
-            }
-
 
             return await SaveAsync(update);
         }
@@ -312,6 +280,16 @@ namespace Project.Business.Implement
                     FinalAmount = model.FinalAmount,
                     VoucherCode = model.VoucherCode,
                     Status = model.Status,
+                    Source= model.Source,
+                    AmountAfterDiscount = model.AmountAfterDiscount,
+                    AmountToPay = model.AmountToPay,
+                    CreatedByUserId = model.CreatedByUserId,
+                    EmployeeId = model.EmployeeId,
+                    OrderId = model.OrderId,
+                    LastModifiedOnDate = model.LastModifiedOnDate,
+                    Note = model.Note,
+                    VoucherId =  model.VoucherId,
+                    PaymentMethodId =  model.PaymentMethodId,
                     PaymentMethod = model.PaymentMethod,
                     PaymentStatus = model.PaymentStatus,
                     CreatedOnDate = DateTime.Now
@@ -377,31 +355,7 @@ namespace Project.Business.Implement
                 {
                     return null;
                 }
-
-
-                var billDetails = await _billDetailsBusiness.GetBillDetailsByBillId(bill.Id);
-
-                var result = new BillModel
-                {
-                    Id = bill.Id,
-                    BillCode = bill.BillCode,
-                    CustomerId = bill.CustomerId != null ? bill.CustomerId : null,
-                    CustomerName = bill.RecipientName,
-                    CustomerPhone = bill.RecipientPhone,
-                    CustomerEmail = bill.RecipientEmail,
-                    CustomerAddress = bill.RecipientAddress,
-                    TotalAmount = bill.TotalAmount,
-                    DiscountAmount = bill.DiscountAmount,
-                    FinalAmount = bill.FinalAmount,
-                    VoucherCode = bill.VoucherCode,
-                    Note = bill.Note,
-                    Status = bill.Status,
-                    PaymentMethod = bill.PaymentMethod,
-                    PaymentStatus = bill.PaymentStatus,
-                    CreatedOnDate = bill.CreatedOnDate.Value,
-                    LastModifiedOnDate = bill.LastModifiedOnDate,
-                    BillDetails = billDetails
-                };
+                var result = await _billModelFactory.CreateModel(bill, true);
 
                 return result;
             }
@@ -425,26 +379,7 @@ namespace Project.Business.Implement
 
                 }
 
-                var result = bills.Select(bill => new BillModel
-                {
-                    Id = bill.Id,
-                    BillCode = bill.BillCode,
-                    CustomerId = bill.CustomerId != null ? bill.CustomerId : null,
-                    CustomerName = bill.RecipientName,
-                    CustomerPhone = bill.RecipientPhone,
-                    CustomerEmail = bill.RecipientEmail,
-                    CustomerAddress = bill.RecipientAddress,
-                    TotalAmount = bill.TotalAmount,
-                    DiscountAmount = bill.DiscountAmount,
-                    FinalAmount = (decimal)bill.FinalAmount,
-                    VoucherCode = bill.VoucherCode,
-                    Note = bill.Note,
-                    Status = bill.Status,
-                    PaymentMethod = bill.PaymentMethod,
-                    PaymentStatus = bill.PaymentStatus,
-                    CreatedOnDate = bill.CreatedOnDate.Value,
-                    LastModifiedOnDate = bill.LastModifiedOnDate
-                }).ToList();
+                var result = await _billModelFactory.CreateModels(bills);
 
                 return result;
             }
@@ -697,6 +632,12 @@ namespace Project.Business.Implement
             {
                 return false;
             }
+        }
+
+        public async Task<BillEntity> FindByCodeAsync(string billCode)
+        {
+            var res = await _billRepository.FindByCodeAsync(billCode);
+            return res;
         }
     }
 }

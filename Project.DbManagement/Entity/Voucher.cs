@@ -6,6 +6,7 @@ using System.Threading.Tasks;
 using System.ComponentModel.DataAnnotations;
 using Project.DbManagement.Entity;
 using System.ComponentModel.DataAnnotations.Schema;
+using Project.DbManagement.Enum;
 
 namespace Project.DbManagement
 {
@@ -20,7 +21,9 @@ namespace Project.DbManagement
         [Column(TypeName = "nvarchar(256)")]
         public string VoucherName { get; set; }
 
-        public int? VoucherType { get; set; }
+        public string? ImageUrl { get; set; }
+
+        public VocherTypeEnum? VoucherType { get; set; }
         public DateTime? StartDate { get; set; }
         public DateTime? EndDate { get; set; }
         public int? Status { get; set; }

@@ -66,6 +66,9 @@
                                             <img src="@item.ProductImage" alt="@item.ProductName" style="max-width: 90px;">
                                             <div class="cart__product__item__title">
                                                 <h6>@item.ProductName</h6>
+                                                <span>SIZE: @item.Size</span>
+                                                <span>Màu sắc: @item.Color</span>
+                                                <span>SKU: @item.SKU</span>
                                                 @if (item.DiscountPercent > 0)
                                                 {
                                                     <p class="discount">Giảm giá: @item.DiscountPercent%</p>
@@ -121,10 +124,9 @@
                         <div class="col-lg-6">
                             <div class="discount__content">
                                 <h6>Mã giảm giá</h6>
-                                <form action="#">
-                                    <input type="text" placeholder="Nhập mã giảm giá">
-                                    <button type="submit" class="site-btn">Áp dụng</button>
-                                </form>
+                                <input type="text" id="voucherCode" placeholder="Nhập mã giảm giá">
+                                <button type="button" id="applyVoucherBtn" class="site-btn">Áp dụng</button>
+                                <div id="voucherMessage" class="mt-2" style="font-size:14px;"></div>
                             </div>
                         </div>
                         <div class="col-lg-4 offset-lg-2">
@@ -132,6 +134,7 @@
                                 <h6>Tổng giỏ hàng</h6>
                                 <ul>
                                     <li>Tạm tính <span id="subtotal">@Model.Sum(x => x.Price * x.Quantity).ToString("N0") VNĐ</span></li>
+                                    <li>Giảm <span id="discount">0 VNĐ</span></li>
                                     <li>Tổng tiền <span id="total">@Model.Sum(x => x.Price * x.Quantity).ToString("N0") VNĐ</span></li>
                                 </ul>
                                 <a asp-controller="Checkout" asp-action="Index" class="primary-btn">Tiến hành thanh toán</a>

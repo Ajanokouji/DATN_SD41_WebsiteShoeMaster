@@ -16,7 +16,6 @@
                 <div class="breadcrumb__links">
                     <a asp-controller="Home" asp-action="Index"><i class="fa fa-home"></i>Trang chủ</a>
                     <a href="#">@Model.Product.MetadataObj.GetMetadatavalue("Brand")</a>
-                    <span></span>
                 </div>
             </div>
         </div>
@@ -95,6 +94,9 @@
                                     <input id="price" type="text" name="name" value="" readonly
                                            class=" border-secondary rounded" />
                                 </div>
+
+                                <label class="group-label mt-1">Kho </label>
+                                <span id="stock-value" class="ml-1">0</span>
                             </div>
 
                             <div class="group">
@@ -104,7 +106,7 @@
                                     @{
                                         var colorVariants = Model.Product.VariantObjs?
                                         .Where(x => x.Stock != 0)
-                                        .Select(y => y.Group1)
+                                        .Select(y => y.Group1 )
                                         .Distinct()
                                         .ToList() ?? new List<string>();
 
@@ -113,7 +115,7 @@
                                             foreach (var item in colorVariants)
                                             {
                                                 <button class="option" data-value="@item">
-                                                    <img src="https://via.placeholder.com/32" alt="@item" />
+                                                    <img src="@(Model.Product.VariantObjs.FirstOrDefault(x => x.Group1 == item)?.ImgUrl ?? string.Empty)" alt="@item" style="max-width:40px; max-height:40px;" />
                                                     @item
                                                 </button>
                                             }
@@ -137,8 +139,15 @@
                                         {
                                             foreach (var item in sizeVariants)
                                             {
-                                                <button class="option" data-value="@item" >
-                                                    <img src="https://via.placeholder.com/32" alt="@item" />
+                                                <button class="option" data-value="@item">
+                                                    @{
+                                                        var check = Model.Product.VariantObjs.Any(x => !string.IsNullOrEmpty(x.Group1));
+                                                        var imgUrl = string.Empty;
+                                                        if (!check)
+                                                        {
+                                                            <img src="@(Model.Product.VariantObjs.FirstOrDefault(x => x.Group2 == item)?.ImgUrl ?? string.Empty)" alt="@item" />
+                                                        }
+                                                    }
                                                     @item
                                                 </button>
                                             }
@@ -255,7 +264,9 @@
             {
                 Color = v.Group1,
                 Size = v.Group2,
-                Price = v.Price
+                Price = v.Price,
+               Stock = v.Stock,
+               Sku = v.Sku
             })));
           function updatePrice() {
             const variant = variants.find(v => v.color === selectedColor && selectedSize === v.size);
@@ -263,6 +274,7 @@
             if (variant) {
                   const totalPrice = variant.price * quantity;
                 document.getElementById('price').value = totalPrice.toLocaleString('vi-VN') + ' đ';
+                 document.getElementById('stock-value').textContent = variant.stock;
             } else {
                 document.getElementById('price').value = '';
             }
@@ -314,8 +326,16 @@
             price: parseFloat(document.getElementById('price').value?.replace(/\D/g, '') ?? 0) / parseInt(quantity),
             quantity: parseInt(quantity),
             size: selectedSize ?? '',
-            color: selectedColor ?? ''
-        };
+            color: selectedColor ?? '',
+            SKU: (() => {
+                debugger
+                if (Array.isArray(variants)) {
+                    const variant = variants.find(v => v.color === selectedColor && v.size === selectedSize);
+                    return variant ? variant.sku || '' : '';
+                }
+                return '';
+            })()
+         };
 
             console.log(JSON.stringify(productData));
             

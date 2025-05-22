@@ -62,9 +62,7 @@ namespace Project.Business.ModelFactory.Implement
                 RecipientEmail = model.RecipientEmail,
                 RecipientName = model.RecipientName,
                 RecipientPhone = model.RecipientPhone,
-                UpdateBy = model.UpdateBy,
                 VoucherId = model.VoucherId
-
             };
             return res;
         }
@@ -93,12 +91,16 @@ namespace Project.Business.ModelFactory.Implement
                 EmployeeId = enitity.EmployeeId,
                 IsDeleted = enitity.IsDeleted,
                 Note = enitity.Note,
+                CustomerAddress = enitity.RecipientAddress,
+                CustomerEmail = enitity.RecipientEmail,
+                CustomerName = enitity.RecipientName,
+                CustomerPhone = enitity.RecipientPhone,
+                Source = enitity.Source,
                 OrderId = enitity.OrderId,
                 PaymentMethodId = enitity.PaymentMethodId,
                 RecipientEmail = enitity.RecipientEmail,
                 RecipientName = enitity.RecipientName,
                 RecipientPhone = enitity.RecipientPhone,
-                UpdateBy = enitity.UpdateBy,
                 VoucherId = enitity.VoucherId
             };
             return res;
@@ -121,6 +123,18 @@ namespace Project.Business.ModelFactory.Implement
                 foreach (var entity in entities)
                 {
                     res.Add( await CreateModel(entity));
+                }
+            }
+            return res;
+        }
+
+        public async Task<List<BillModel>> CreateModels(IEnumerable<BillEntity> entities, bool getBillDetails)
+        {
+            var res = new List<BillModel>();
+            {
+                foreach (var entity in entities)
+                {
+                    res.Add(await CreateModel(entity,getBillDetails));
                 }
             }
             return res;

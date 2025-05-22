@@ -19,6 +19,9 @@ public interface IBillBusiness
 
     Task<BillEntity> FindAsync(Guid contentId);
 
+
+    Task<BillEntity> FindByCodeAsync(string billCode);
+
     Task<BillEntity> DeleteAsync(Guid contentId);
     
     Task<IEnumerable<BillEntity>> DeleteAsync(Guid[] deleteIds);

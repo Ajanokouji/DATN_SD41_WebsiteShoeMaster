@@ -245,6 +245,7 @@ namespace Project.Business.Implement
                         SortOrder = model.SortOrder ?? exist.SortOrder,
                         Status = model.Status ?? exist.Status,
                         Name = model.Name ?? exist.Name,
+                        VariantObjs = model.VariantObjs ?? exist.VariantObjs,
                         WorkFlowStates = model.WorkFlowStates ?? exist.WorkFlowStates
                     };
 
@@ -340,9 +341,12 @@ namespace Project.Business.Implement
             return _productRepository.SearchProduct(keyword);
         }
 
-        public async Task<ProductEntity> UpdateProductVariants(Guid ProducId, Variant variant)
+
+
+        public async Task<ProductEntity> PatchVariantStockBySKUAsync(Guid productId, Variant variant)
         {
-            var exist = await _productRepository.FindAsync(ProducId);
+            var exist = await _productRepository.FindAsync(productId);
+
             if (exist == null)
             {
                 throw new Exception("Product Not Founded");
@@ -359,13 +363,16 @@ namespace Project.Business.Implement
                 throw new Exception("Variant Not Found");
             }
 
-            // Update the properties
-            updateVariant.Price = variant.Price;
-            updateVariant.Size = variant.Size;
+            // Cập nhật các thuộc tính của variant tìm được bằng variant truyền vào
+            //updateVariant.Price = variant.Price;
+            //updateVariant.Size = variant.Size;
             updateVariant.Stock = variant.Stock;
+            //updateVariant.Group1 = variant.Group1;
+            //updateVariant.Group2 = variant.Group2;
+            //updateVariant.ImgUrl = variant.ImgUrl;
 
-            // Save the updated product entity
-            var result = await SaveAsync(exist);
+            // Lưu lại product đã cập nhật variant
+            var result = await PatchAsync(exist);
             return result;
         }
     }

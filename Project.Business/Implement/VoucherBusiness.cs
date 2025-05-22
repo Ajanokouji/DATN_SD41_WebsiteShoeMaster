@@ -359,5 +359,11 @@ namespace Project.Business.Implement
                 throw;
             }
         }
+
+        public Task<Voucher> FindByCodeAsync(string code)
+        {
+            var res = _voucherRepository.FindByCodeAsync(code);
+            return res;
+        }
     }
 }

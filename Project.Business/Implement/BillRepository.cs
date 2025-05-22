@@ -188,10 +188,6 @@ public class BillRepository : IBillRepository
             query = query.Where(x => x.LastModifiedOnDate == queryModel.last_modifi_on_date);
         }
 
-        if (!string.IsNullOrEmpty(queryModel.update_by))
-        {
-            query = query.Where(x => x.UpdateBy == queryModel.update_by);
-        }
 
         if (!string.IsNullOrEmpty(queryModel.ghi_chu))
         {
@@ -255,7 +251,6 @@ public class BillRepository : IBillRepository
                 exist.CreatedOnDate = bill.CreatedOnDate;
                 exist.RecipientEmail = bill.RecipientEmail;
                 exist.LastModifiedOnDate = bill.LastModifiedOnDate;
-                exist.UpdateBy = bill.UpdateBy;
                 exist.Note = bill.Note;
                 exist.LastModifiedByUserId = bill.LastModifiedByUserId;
 
@@ -426,5 +421,11 @@ public class BillRepository : IBillRepository
         _context.Bills.Update(update);
         _context.SaveChanges();
         return true;
+    }
+
+    public async Task<BillEntity> FindByCodeAsync(string billCode)
+    {
+        var res = await _context.Bills.FirstOrDefaultAsync(x => x.BillCode==billCode &&x.IsDeleted != true);
+        return res;
     }
 }

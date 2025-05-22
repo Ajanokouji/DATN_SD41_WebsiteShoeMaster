@@ -13,6 +13,7 @@ namespace Project.Business.ModelFactory
         Task<BillModel> CreateModel(BillEntity entity);
         Task<BillModel> CreateModel(BillEntity entity, bool getBillDetail =false);
         Task<List<BillModel>> CreateModels(IEnumerable<BillEntity> entities);
+        Task<List<BillModel>> CreateModels(IEnumerable<BillEntity> entities, bool getBillDetail = false);
         Task<BillEntity> ConvertEntity(BillModel entity);
         Task<List<BillEntity>> ConvertEntities(IEnumerable<BillModel> entities);
     }
