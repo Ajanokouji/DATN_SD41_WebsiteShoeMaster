@@ -141,6 +141,13 @@ namespace Project.Business.Implement
 
             foreach (var user in users)
             {
+                // Fix lỗi tracking
+                var local = _context.Users.Local.FirstOrDefault(x => x.Id == user.Id);
+                if (local != null)
+                {
+                    _context.Entry(local).State = EntityState.Detached;
+                }
+
                 var exist = await _context.Users
                     .AsNoTracking()
                     .FirstOrDefaultAsync(x =>
@@ -164,6 +171,7 @@ namespace Project.Business.Implement
                     exist.Name = user.Name;
                     exist.PhoneNumber = user.PhoneNumber;
                     exist.Email = user.Email;
+                    exist.Address = user.Address;
                     exist.AvartarUrl = user.AvartarUrl;
                     exist.Password = user.Password;
                     exist.UserDetailJson = user.UserDetailJson;

@@ -71,6 +71,7 @@ namespace Project.Business.Implement
                 Name = exist.Name,
                 PhoneNumber = exist.PhoneNumber,
                 Email = exist.Email,
+                Address = exist.Address,
                 AvartarUrl = exist.AvartarUrl,
                 Password = exist.Password,
                 UserDetailJson = exist.UserDetailJson,

@@ -6,32 +6,157 @@
 }
 
 <div class="contact__form container d-flex justify-content-center align-items-center" style="min-height: 104vh">
-    <div class="card shadow-lg p-4" style="width: 400px; border-radius: 10px;">
-        <div class="text-center mb-3">
+    <div class="card shadow-lg p-4" style="width: 500px; border-radius: 10px;">
+        <div class="text-center mb-4">
             <h2>Đăng nhập</h2>
         </div>
 
-        @if (TempData["ErrMs"] != null)
+        @if (TempData["ErrLoginMs"] != null && !String.IsNullOrWhiteSpace(TempData["ErrLoginMs"].ToString()))
         {
-            <div>
-                <p class="text-danger mt-2 text-center">@TempData["ErrMs"]</p>
+            <div class="alert alert-danger text-center">
+                @TempData["ErrLoginMs"]
             </div>
         }
 
         <form asp-controller="Login" asp-action="Login" method="post">
             <div class="form-group mt-2">
                 <label><i class="fa fa-user"></i> Tên đăng nhập/Số điện thoại/Email</label>
-                <input asp-for="Username" class="m-0" placeholder="Nhập Tên đăng nhập/Số điện thoại/Email" required />
+                <input asp-for="Username" name="Username" id="usernameField" class="m-0" placeholder="Nhập Tên đăng nhập/Số điện thoại/Email" />
+                <p class="error-message text-center" style="color: red; font-size: 13px;"></p>
             </div>
 
-            <div class="form-group m-0 p-0">
-                <label><i class="fa fa-lock"></i> Mật khẩu:</label>
-                <input asp-for="Password" type="password" placeholder="Nhập mật khẩu" required />
+            <div class="form-group">
+                <label><i class="fa fa-lock"></i> Mật khẩu <span class="text-danger">*</span></label>
+                <div class="input-group">
+                    <input class="form-control" asp-for="Password" name="Password" type="password" placeholder="Nhập mật khẩu" id="passwordField" />
+                    <button type="button" class="btn btn-outline-secondary toggle-password" data-target="#passwordField">
+                        <i class="fa fa-eye"></i>
+                    </button>
+                </div>
+                <p class="error-message text-center" style="color: red; font-size: 13px;"></p>
             </div>
 
             <div class="d-flex justify-content-center">
                 <button type="submit" class="site-btn mt-3"> Đăng nhập </button>
             </div>
         </form>
+
+        <div class="text-center mt-3">
+            <p>Bạn chưa có tài khoản? <a asp-action="Register" asp-controller="Register">Đăng ký ngay</a></p>
+        </div>
     </div>
 </div>
+
+<style>
+    .toggle-password {
+        outline: none !important;
+        box-shadow: none !important;
+        border-color: #e1e1e1 !important;
+    }
+
+    #confirmPasswordField:focus,
+    .toggle-password:focus {
+        outline: none !important;
+        box-shadow: none !important;
+        border-color: #e1e1e1 !important;
+    }
+
+    #passwordField:focus,
+    .toggle-password:focus {
+        outline: none !important;
+        box-shadow: none !important;
+        border-color: #e1e1e1 !important;
+    }
+</style>
+
+@section Scripts {
+    <script>
+    document.addEventListener("DOMContentLoaded", function () {
+        const form = document.querySelector("form");
+
+        // Hiển thị lỗi
+        function showError(input, message) {
+            let errorElement = input.closest(".form-group").querySelector(".error-message");
+            if (errorElement) {
+                errorElement.textContent = message;
+            }
+        }
+
+        // Xóa lỗi khi người dùng nhập lại đúng
+        function clearError(input) {
+            let errorElement = input.closest(".form-group").querySelector(".error-message");
+            if (errorElement) {
+                errorElement.textContent = "";
+            }
+        }
+
+        // Kiểm tra từng input khi nhập
+        function validateInput(input) {
+            let isValid = true;
+
+            const password = document.querySelector("[name='Password']").value.trim();
+            const username = document.querySelector("[name='Username']").value.trim();
+
+            switch (input.name) {
+                case "Username":
+                    if (username === "") {
+                        showError(input, "Tên đăng nhập/Số điện thoại/Email không được để trống.");
+                        isValid = false;
+                    } else {
+                        clearError(input);
+                    }
+                    break;
+                case "Password":
+                    if (password === "") {
+                        showError(input, "Mật khẩu không được để trống.");
+                        isValid = false;
+                    } else {
+                        clearError(input);
+                    }
+                    break;
+            }
+
+            return isValid;
+        }
+
+        // Gán sự kiện `input` cho từng ô nhập liệu
+        document.querySelectorAll("input").forEach(input => {
+            input.addEventListener("input", function () {
+                validateInput(input);
+            });
+        });
+
+        // Kiểm tra lỗi khi submit form
+        form.addEventListener("submit", function (event) {
+            let isValid = true;
+
+            document.querySelectorAll("input").forEach(input => {
+                const valid = validateInput(input);
+                if (!valid) {
+                    isValid = false;
+                }
+            });
+
+            if (!isValid) {
+                event.preventDefault(); // Ngăn form submit nếu có lỗi
+            }
+        });
+
+        // Hiện/ẩn mật khẩu
+        document.querySelectorAll(".toggle-password").forEach(button => {
+            button.addEventListener("click", function () {
+                const target = document.querySelector(this.getAttribute("data-target"));
+                if (target.type === "password") {
+                    target.type = "text";
+                    this.querySelector("i").classList.remove("fa-eye");
+                    this.querySelector("i").classList.add("fa-eye-slash");
+                } else {
+                    target.type = "password";
+                    this.querySelector("i").classList.remove("fa-eye-slash");
+                    this.querySelector("i").classList.add("fa-eye");
+                }
+            });
+        });
+    });
+    </script>
+}
