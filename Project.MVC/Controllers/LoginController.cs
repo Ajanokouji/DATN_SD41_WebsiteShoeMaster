@@ -26,6 +26,12 @@ namespace Project.MVC.Controllers
 
         public IActionResult Login()
         {
+            if (TempData["LoginUserData"] != null && !String.IsNullOrWhiteSpace(TempData["LoginUserData"].ToString()))
+            {
+                var user = JsonConvert.DeserializeObject<UserEntity>(TempData["LoginUserData"].ToString());
+                return View(user);
+            }
+
             return View();
         }
 
@@ -35,8 +41,9 @@ namespace Project.MVC.Controllers
             //Check trống
             if(user.Username == null || user.Password == null)
             {
-                TempData["ErrMs"] = "Tên đăng nhập hoặc mật khẩu không được để trống";
-                return View(user);
+                TempData["ErrLoginMs"] = "Tên đăng nhập hoặc mật khẩu không được để trống";
+                TempData["LoginUserData"] = JsonConvert.SerializeObject(user);
+                return RedirectToAction("Login");
             }
 
             //Tìm user dựa trên username
@@ -67,8 +74,9 @@ namespace Project.MVC.Controllers
                     //Nếu user tìm bằng Email không tồn tại thì xác định user hoàn toàn không tồn tại
                     if (userFound == null)
                     {
-                        TempData["ErrMs"] = "Thông tin đăng nhập chưa chính xác, vui lòng kiểm tra lại";
-                        return View(user);
+                        TempData["ErrLoginMs"] = "Thông tin đăng nhập chưa chính xác, vui lòng kiểm tra lại";
+                        TempData["LoginUserData"] = JsonConvert.SerializeObject(user);
+                        return RedirectToAction("Login");
                     }
                 }
             }
@@ -76,15 +84,17 @@ namespace Project.MVC.Controllers
             //Password đúng
             if (userFound.Password != user.Password)
             {
-                TempData["ErrMs"] = "Thông tin đăng nhập chưa chính xác, vui lòng kiểm tra lại";
-                return View(user);
+                TempData["ErrLoginMs"] = "Thông tin đăng nhập chưa chính xác, vui lòng kiểm tra lại";
+                TempData["LoginUserData"] = JsonConvert.SerializeObject(user);
+                return RedirectToAction("Login");
             }
 
             //Check Active
             if (userFound.IsActive == false)
             {
-                TempData["ErrMs"] = "Tài khoản đã bị tạm dừng hoạt động";
-                return View(user);
+                TempData["ErrLoginMs"] = "Tài khoản đã bị tạm dừng hoạt động";
+                TempData["LoginUserData"] = JsonConvert.SerializeObject(user);
+                return RedirectToAction("Login");
             }
 
             //Đăng nhập thành công
@@ -94,8 +104,8 @@ namespace Project.MVC.Controllers
                 HttpContext.Session.SetString(UserConstants.UserSessionKey, JsonConvert.SerializeObject(userFound));
 
                 //Mới in ra thông báo Chưa thực hiện chuyển hướng
-                TempData["ErrMs"] = "Đăng nhập thành công dưới quyền Admin";
-                return View(user);
+                TempData["ErrLoginMs"] = "Đăng nhập thành công dưới quyền Admin";
+                return RedirectToAction("Login");
             }
             else if (userFound.Type == UserTypeEnum.Customer) //Nếu type là Khách hàng (Giả sử type = 1 là khách hàng)
             {
@@ -115,12 +125,12 @@ namespace Project.MVC.Controllers
                     //Nếu list session cart không trống
                     if (cartSessions != null && cartSessions.Any())
                     {
-                        //Lấy thông tin sản phẩm trong cart session
+                        //Lấy thông tin sản phẩm trong cart Db
                         var cartItemsResult = await _cartBusiness.GetCartItems(cartSessions);
                         //Lấy thành công
                         if (cartItemsResult.IsSuccess)
                         {
-                            //Thêm cart item của cart session vào cart của user
+                            //Thêm cart item của cart session vào cart Db của user
                             var rs = await _cartBusiness.AddCartSessionToCartDb(userFound, cartItemsResult.Data);
 
                             //Xóa session cart
@@ -132,8 +142,7 @@ namespace Project.MVC.Controllers
                     }
                 }
 
-                //Mới in ra thông báo Chưa thực hiện chuyển hướng
-                TempData["ErrMs"] = "Đăng nhập thành công dưới quyền khách hàng " + ms;
+                //Chuyển hướng tới trang chủ
                 return RedirectToAction("Index","Home");
             }
             else if (userFound.Type == UserTypeEnum.User) //Nếu type là Nhân viên (Giả sử type = 2 là Nhân viên)
@@ -142,15 +151,23 @@ namespace Project.MVC.Controllers
                 HttpContext.Session.SetString(UserConstants.UserSessionKey, JsonConvert.SerializeObject(userFound));
 
                 //Mới in ra thông báo Chưa thực hiện chuyển hướng
-                TempData["ErrMs"] = "Đăng nhập thành công dưới quyền Nhân viên";
+                TempData["ErrLoginMs"] = "Đăng nhập thành công dưới quyền Nhân viên";
                 return View(user);
             }
             else
             {
                 //Không xác định được quyền user
-                TempData["ErrMs"] = "Lỗi không xác định được quyền user";
+                TempData["ErrLoginMs"] = "Lỗi không xác định được quyền user";
                 return View(user);
             }
+        }
+
+        public IActionResult Logout()
+        {
+            //Xóa session user
+            HttpContext.Session.Remove(UserConstants.UserSessionKey);
+            //Chuyển hướng về trang chủ
+            return RedirectToAction("Login");
         }
     }
 }
