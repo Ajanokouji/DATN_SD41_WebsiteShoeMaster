@@ -212,7 +212,7 @@ namespace Project.MVC.Controllers
                 return View("OrderNotFound");
             }
         }
-        [HttpPost]
+        //[HttpPost]
         //public async Task<IActionResult> ApplyVoucher(string voucherCode)
         //{
 
@@ -243,11 +243,11 @@ namespace Project.MVC.Controllers
         //        } 
 
         //    }
-            catch (Exception ex)
-            {
-                return Json(new { isSuccess = false, message = ex.Message });
-            }
-        }
+            //catch (Exception ex)
+            //{
+            //    return Json(new { isSuccess = false, message = ex.Message });
+            //}
+        
 
         public async Task<IActionResult> PaymentCallbackVnpay()
         {

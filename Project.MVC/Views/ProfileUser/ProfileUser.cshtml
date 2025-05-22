@@ -1,89 +1,288 @@
-﻿
+﻿@model Project.DbManagement.Entity.UserEntity
+
 @{
-    ViewData["Title"] = "Index";
-    Layout = "~/ProfileUser/Shared/_Layout.cshtml";
+    ViewData["Title"] = "Hồ sơ";
+    Layout = "~/Views/Shared/_Layout.cshtml";
 }
-<div class="profile-container">
-    <div class="sidebar">
-        <div class="profile-header">
-            <img src="/assets/img/avt.jpg" alt="Profile Picture">
-            <div>
-                <h3>KangHy</h3>
-                <a href="#">Sửa Hồ Sơ</a>
-            </div>
-        </div>
-        <ul>
 
-            <li>
-                <a href="#" class="active">Tài Khoản Của Tôi</a>
-                <ul class="submenu">
-                </ul>
-            </li>
-        </ul>
+@if (TempData["ErrProfileUserMs"] != null && !String.IsNullOrWhiteSpace(TempData["ErrProfileUserMs"].ToString()))
+{
+    <div class="alert alert-danger text-center mt-5 mb-5">
+        @TempData["ErrProfileUserMs"]
     </div>
+}
+else
+{
+    <div class="d-flex justify-content-center align-items-center mt-5 mb-5" style="min-height: 100vh;">
+        <div class="card shadow-lg p-4" style="max-width: 900px; width: 100%; border-radius: 10px;">
+            <h2 class="text-center mb-4">Hồ Sơ Của Tôi</h2>
 
-    <div class="content">
-        <h2>Hồ Sơ Của Tôi</h2>
-        <p>Quản lý thông tin hồ sơ để bảo mật tài khoản</p>
-        <br>
-        <div class="form-and-picture">
-            <div class="form-section">
-                <div class="form-group">
-                    <label for="username">Tên đăng nhập</label>
-                    <input type="text" id="username" value="KangHy" disabled>
-                </div>
+            @if (TempData["ErrProfileUserUpdateMs"] != null && !String.IsNullOrWhiteSpace(TempData["ErrProfileUserUpdateMs"].ToString()))
+            {
+                <div class="alert alert-danger text-center">@TempData["ErrProfileUserUpdateMs"]</div>
+            }
+            @if (TempData["SuccessProfileUserUpdateMs"] != null && !String.IsNullOrWhiteSpace(TempData["SuccessProfileUserUpdateMs"].ToString()))
+            {
+                <div class="alert alert-success text-center">@TempData["SuccessProfileUserUpdateMs"]</div>
+            }
 
-                <div class="form-group">
-                    <label for="name">Tên</label>
-                    <input type="text" id="name">
-                </div>
+            <form id="profileForm" method="post" enctype="multipart/form-data" asp-action="ProfileUser" asp-controller="ProfileUser">
+                <div class="row">
+                    <!-- Avatar -->
+                    <div class="col-md-4 text-center d-flex flex-column justify-content-center align-items-center">
+                        <div class="d-flex mb-2">
+                            <!--Đơn hàng của tôi-->
+                            <a asp-action="profileuser" asp-controller="profileuser" target="_blank" class="animation-icon">
+                                <i class="fa fa-shopping-bag fa-2x mr-4" style="color:#ca1515;" title="Đơn hàng của tôi"></i>
+                            </a>
 
-                <div class="form-group">
-                    <label for="email">Email</label>
-                    <input type="email" id="email" value="Ka*******.com">
-                </div>
+                            <!--Voucher của tôi-->
+                            <a asp-action="profileuser" asp-controller="profileuser" target="_blank" class="animation-icon">
+                                <i class="fa fa-ticket fa-2x" style="color:#ca1515;" title="Voucher của tôi"></i>
+                            </a>
+                        </div>
 
-                <div class="form-group">
-                    <label for="phone">Số điện thoại</label>
-                    <input type="text" id="phone" value="********45">
-                </div>
-                <div class="form-group">
-                    <label for="phone">Địa chỉ</label>
-                    <input type="text" id="phone" value="Hà Nội">
-                </div>
-                <div class="form-group">
-                    <label>Giới tính</label>
-                    <div class="form-row">
-                        <label><input type="radio" name="gender" value="male"> Nam</label>
-                        <label><input type="radio" name="gender" value="female"> Nữ</label>
-                        <label><input type="radio" name="gender" value="other"> Khác</label>
+                        <img id="avatarPreview" src="@(!String.IsNullOrWhiteSpace(Model.AvartarUrl)?Model.AvartarUrl:"https://static.vecteezy.com/system/resources/previews/009/292/244/non_2x/default-avatar-icon-of-social-media-user-vector.jpg")" alt="Profile Picture"
+                             class="img-thumbnail rounded-circle mb-3"
+                             style="width: 150px; height: 150px; object-fit: cover;">
+                        <h5 id="displayName">@Model.Name</h5>
+
+                        <button type="button" id="btnChooseImage" class="btn btn-outline-secondary btn-sm mt-2 d-none"
+                                onclick="document.getElementById('avatarInput').click();">
+                            Chọn ảnh
+                        </button>
+
+                        <button type="button" id="btnEdit" class="btn btn-outline-primary mt-2">Sửa Hồ Sơ</button>
+                        
+                        <div id="actionButtons" class="mt-2 d-none">
+                            <button type="submit" class="btn btn-sm btn-success me-2">Lưu</button>
+                            <button type="button" class="btn btn-sm btn-secondary" onclick="cancelEdit()">Hủy</button>
+                        </div>
+                    </div>
+
+                    <!-- Thông tin cá nhân -->
+                    <div class="col-md-8 text-center">
+                        <input type="file" name="AvatarFile" id="avatarInput" accept="image/*" class="form-control-file d-none" onchange="previewAvatar(event)">
+                        <input type="hidden" name="Id" value="@Model.Id" />
+
+                        <div class="form-group mb-4 mt-4">
+                            <label for="username"><i class="fa fa-user"></i> Tên đăng nhập</label>
+                            <input type="text" id="username" name="Username" class="form-control text-center" value="@Model.Username" disabled>
+                        </div>
+
+                        <div class="form-group mb-4">
+                            <label for="name"><i class="fa fa-user"></i> Tên</label>
+                            <input type="text" id="name" name="Name" class="form-control text-center" value="@Model.Name" disabled>
+                            <div id="nameError" class="text-danger small mt-1 d-none"></div>
+                        </div>
+
+                        <div class="form-group mb-4">
+                            <label for="phone"><i class="fa fa-phone"></i> Số điện thoại</label>
+                            <input type="text" id="phone" name="PhoneNumber" class="form-control text-center" value="@Model.PhoneNumber" disabled>
+                            <div id="phoneError" class="text-danger small mt-1 d-none"></div>
+                        </div>
+
+                        <div class="form-group mb-4">
+                            <label for="email"><i class="fa fa-envelope"></i> Email</label>
+                            <input type="text" id="email" name="Email" class="form-control text-center" value="@Model.Email" disabled>
+                            <div id="emailError" class="text-danger small mt-1 d-none"></div>
+                        </div>
+
+                        <div class="form-group mb-4">
+                            <label for="address"><i class="fa fa-map-marker"></i> Địa chỉ</label>
+                            <input type="text" id="address" name="Address" class="form-control text-center" value="@Model.Address" disabled>
+                        </div>
                     </div>
                 </div>
-
-                <div class="form-group">
-                    <label for="birthdate">Ngày sinh</label>
-                    <div class="form-row1">
-                        <select id="day">
-                            <option>Ngày</option>
-                        </select>
-                        <select id="month">
-                            <option>Tháng</option>
-                        </select>
-                        <select id="year">
-                            <option>Năm</option>
-                        </select>
-                    </div>
-                </div>
-
-                <button class="save-button">Lưu</button>
-            </div>
-
-            <div class="profile-picture">
-                <img src="/assets/img/avt.jpg" alt="Profile Picture">
-                <button class="save-button1">Chọn Ảnh</button>
-                <p>Dung lượng file tối đa 1 MB. Định dạng: JPEG, PNG</p>
-            </div>
+            </form>
         </div>
-
     </div>
-</div>
+
+    <style>
+        input:focus{
+            outline: none !important;
+            box-shadow: none !important;
+            border-color: #e1e1e1 !important;
+        }
+
+        /*Hiệu ứng động khi hover vào icon Đơn hàng của tôi và Voucher của tôi*/
+        .animation-icon {
+            position: relative;
+            display: inline-block;
+            overflow: hidden;
+            transition: transform 0.3s ease;
+        }
+
+        /* Phóng to khi hover */
+        .animation-icon:hover {
+            transform: scale(1.1);
+        }
+
+        /* Ánh sáng mặc định ẩn đi */
+        .animation-icon::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: -100%;
+            width: 200%;
+            height: 100%;
+            background: linear-gradient(
+                120deg,
+                rgba(255, 255, 255, 0) 40%,
+                rgba(255, 255, 255, 0.4) 50%,
+                rgba(255, 255, 255, 0) 60%
+            );
+            transform: rotate(25deg);
+            pointer-events: none;
+            opacity: 0;
+        }
+
+        .animation-icon:hover::before {
+            animation: shine 0.6s ease-in-out;
+            opacity: 1;
+        }
+
+        @@keyframes shine {
+            from {
+                left: -100%;
+            }
+            to {
+                left: 100%;
+            }
+        }
+    </style>
+
+    <script>
+        const phoneRegex = /^0[0-9]{9}$/;
+        const emailRegex = /^[a-zA-Z0-9._%+-]+@@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$/;
+
+        const editButton = document.getElementById("btnEdit");
+        const actionButtons = document.getElementById("actionButtons");
+        const chooseImageButton = document.getElementById("btnChooseImage");
+        const avatarInput = document.getElementById("avatarInput");
+
+        const form = document.getElementById("profileForm");
+        const inputs = Array.from(form.querySelectorAll("input.form-control")).filter(i => i.id !== "username");
+
+        const originalValues = {};
+
+        function saveOriginalValues() {
+            inputs.forEach(input => {
+                originalValues[input.id] = input.value;
+            });
+        }
+
+        function restoreOriginalValues() {
+            inputs.forEach(input => {
+                input.value = originalValues[input.id];
+            });
+
+            const avatarUrl = originalValues["avatarUrl"];
+            const defaultAvatar = 'https://static.vecteezy.com/system/resources/previews/009/292/244/non_2x/default-avatar-icon-of-social-media-user-vector.jpg';
+
+            document.getElementById("avatarPreview").src = avatarUrl && avatarUrl.trim() !== "" ? avatarUrl : defaultAvatar;
+
+            document.getElementById("displayName").innerText = originalValues["name"];
+            hideErrors();
+        }
+
+        function hideErrors() {
+            document.getElementById("emailError").classList.add("d-none");
+            document.getElementById("phoneError").classList.add("d-none");
+            document.getElementById("nameError").classList.add("d-none");
+        }
+
+        editButton.addEventListener("click", () => {
+            saveOriginalValues();
+            inputs.forEach(input => input.disabled = false);
+            editButton.classList.add("d-none");
+            actionButtons.classList.remove("d-none");
+            chooseImageButton.classList.remove("d-none");
+            hideErrors();
+        });
+
+        function cancelEdit() {
+            inputs.forEach(input => input.disabled = true);
+            editButton.classList.remove("d-none");
+            actionButtons.classList.add("d-none");
+            chooseImageButton.classList.add("d-none");
+            restoreOriginalValues();
+        }
+
+        function previewAvatar(event) {
+            const input = event.target;
+            const preview = document.getElementById('avatarPreview');
+
+            if (input.files && input.files[0]) {
+                const reader = new FileReader();
+                reader.onload = function (e) {
+                    preview.src = e.target.result;
+                }
+                reader.readAsDataURL(input.files[0]);
+            }
+        }
+
+        // Real-time validation
+        const emailInput = document.getElementById("email");
+        const phoneInput = document.getElementById("phone");
+        const emailError = document.getElementById("emailError");
+        const phoneError = document.getElementById("phoneError");
+        const nameInput = document.getElementById("name");
+        const nameError = document.getElementById("nameError");
+
+        nameInput.addEventListener("input", () => {
+            if (nameInput.value.trim() === "") {
+                nameError.innerText = "Tên không được để trống.";
+                nameError.classList.remove("d-none");
+            } else {
+                nameError.classList.add("d-none");
+            }
+        });
+
+        emailInput.addEventListener("input", () => {
+            const emailValue = emailInput.value.trim();
+            if (emailValue !== "" && !emailRegex.test(emailValue)) {
+                emailError.innerText = "Email không hợp lệ.";
+                emailError.classList.remove("d-none");
+            } else {
+                emailError.classList.add("d-none");
+            }
+        });
+
+        phoneInput.addEventListener("input", () => {
+            const phoneValue = phoneInput.value.trim();
+            if (phoneValue !== "" && !phoneRegex.test(phoneValue)) {
+                phoneError.innerText = "Số điện thoại phải bắt đầu bằng 0 và có 10 chữ số.";
+                phoneError.classList.remove("d-none");
+            } else {
+                phoneError.classList.add("d-none");
+            }
+        });
+
+        form.addEventListener("submit", function (e) {
+            let isValid = true;
+
+            if (nameInput.value.trim() === "") {
+                nameError.innerText = "Tên không được để trống.";
+                nameError.classList.remove("d-none");
+                isValid = false;
+            }
+
+            if (emailInput.value.trim() !== "" && !emailRegex.test(emailInput.value.trim())) {
+                emailError.innerText = "Email không hợp lệ.";
+                emailError.classList.remove("d-none");
+                isValid = false;
+            }
+
+            if (phoneInput.value.trim() !== "" && !phoneRegex.test(phoneInput.value.trim())) {
+                phoneError.innerText = "Số điện thoại phải bắt đầu bằng 0 và có 10 chữ số.";
+                phoneError.classList.remove("d-none");
+                isValid = false;
+            }
+
+            if (!isValid) {
+                e.preventDefault();
+            }
+        });
+    </script>
+}

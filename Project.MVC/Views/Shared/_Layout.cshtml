@@ -1,7 +1,18 @@
 ﻿@using Project.Common
 @using Project.MvcModule;
+@using Project.DbManagement.Entity;
+@using Newtonsoft.Json;
+@using Project.Business.Interface;
+@using Project.Business.Implement;
 @{
     var cartCount = Context.Session.GetInt32(CartConstants.CartCountKey) ?? 0;
+
+    var userJson = Context.Session.GetString(UserConstants.UserSessionKey);
+    UserEntity user = null;
+    if (userJson != null && !String.IsNullOrWhiteSpace(userJson))
+    {
+        user = JsonConvert.DeserializeObject<UserEntity>(userJson);
+    }
 }
 <!DOCTYPE html>
 <html lang="zxx">
@@ -17,10 +28,10 @@
     <!-- Google Font -->
     <link href="https://fonts.googleapis.com/css2?family=Cookie&display=swap" rel="stylesheet">
     <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@400;500;600;700;800;900&display=swap"
-          rel="stylesheet">
+    rel="stylesheet">
 
     <!-- Css Styles -->
-	<link rel="stylesheet" href="~/assets/styles/bootstrap.min.css" type="text/css">
+    <link rel="stylesheet" href="~/assets/styles/bootstrap.min.css" type="text/css">
     <link rel="stylesheet" href="~/assets/styles/font-awesome.min.css" type="text/css">
     <link rel="stylesheet" href="~/assets/styles/elegant-icons.css" type="text/css">
     <link rel="stylesheet" href="~/assets/styles/jquery-ui.min.css" type="text/css">
@@ -61,10 +72,25 @@
             <a href="./index.html"><img src="~/assets/images/logo.png" alt=""></a>
         </div>
         <div id="mobile-menu-wrap"></div>
-        <div class="offcanvas__auth">
-            <a asp-controller="Login" asp-action="Login">Đăng Nhập</a>
-            <a asp-controller="Register" asp-action="Register">Đăng Ký</a>
-        </div>
+        @if (user != null)
+        {
+            <div class="user-menu-container-offcanvas" style="display: inline-flex; align-items: center; position: relative; cursor: pointer;">
+                <img src="@(!String.IsNullOrWhiteSpace(user.AvartarUrl)?user.AvartarUrl:"https://static.vecteezy.com/system/resources/previews/009/292/244/non_2x/default-avatar-icon-of-social-media-user-vector.jpg")" class="user-avatar border rounded-circle" style="width:70px; height:70px; object-fit: cover;" alt="user-avater">
+                <div class="user-links" style="display: none; margin-left: 10px; background: #fff; border: 1px solid #ccc; padding: 10px; border-radius: 5px; box-shadow: 0 0 5px rgba(0,0,0,0.2); position: absolute; top: 0px; left: 80px; white-space: nowrap;">
+                    <a asp-controller="ProfileUser" asp-action="ProfileUser" style="display: block; margin-bottom: 5px; color:black;">Hồ sơ của tôi</a>
+                    <a asp-controller="ProfileUser" asp-action="ProfileUser" style="display: block; margin-bottom: 5px; color:black;">Đơn hàng của tôi</a>
+                    <a asp-controller="ProfileUser" asp-action="ProfileUser" style="display: block; margin-bottom: 5px; color:black;">Voucher của tôi</a>
+                    <a asp-controller="Login" asp-action="Logout" style="display: block; color:black;">Đăng xuất</a>
+                </div>
+            </div>
+        }
+        else
+        {
+            <div class="offcanvas__auth">
+                <a asp-controller="Login" asp-action="Login">Đăng Nhập</a>
+                <a asp-controller="Register" asp-action="Register">Đăng Ký</a>
+            </div>
+        }
     </div>
     <!-- Offcanvas Menu End -->
     <!-- Header Section Begin -->
@@ -96,10 +122,13 @@
                 </div>
                 <div class="col-lg-3">
                     <div class="header__right">
-                        <div class="header__right__auth">
-                            <a asp-controller="Login" asp-action="Login">Đăng Nhập</a>
-                            <a asp-controller="Register" asp-action="Register">Đăng Ký</a>
-                        </div>
+                        @if(user == null)
+                        {
+                            <div class="header__right__auth">
+                                <a asp-controller="Login" asp-action="Login">Đăng Nhập</a>
+                                <a asp-controller="Register" asp-action="Register">Đăng Ký</a>
+                            </div>
+                        }
                         <ul class="header__right__widget">
                             <li><span class="icon_search search-switch"></span></li>
                             <li>
@@ -114,6 +143,21 @@
                                     <div class="tip cart-count">@cartCount</div>
                                 </a>
                             </li>
+                            @if (user != null)
+                            {
+                                <li class="ml-2">
+
+                                    <div class="user-menu-container-headeraccesskey" style="position:absolute; top: 10px; right:-25px; height:50px; width:50px;">
+                                        <img src="@(!String.IsNullOrWhiteSpace(user.AvartarUrl)?user.AvartarUrl:"https://static.vecteezy.com/system/resources/previews/009/292/244/non_2x/default-avatar-icon-of-social-media-user-vector.jpg")" class="user-avatar border rounded-circle" style="width:50px; height:50px; object-fit: cover;" alt="user-avater">
+                                        <div class="user-links" style="display: none; margin-left: 10px; background: #fff; border: 1px solid #ccc; padding: 10px; border-radius: 5px; box-shadow: 0 0 5px rgba(0,0,0,0.2); position: absolute; top: 65px; left: -150px; z-index:999; white-space: nowrap;">
+                                            <a asp-controller="ProfileUser" asp-action="ProfileUser" style="display: block; margin-bottom: 5px; color:black;">Hồ sơ của tôi</a>
+                                            <a asp-controller="ProfileUser" asp-action="ProfileUser" style="display: block; margin-bottom: 5px; color:black;">Đơn hàng của tôi</a>
+                                            <a asp-controller="ProfileUser" asp-action="ProfileUser" style="display: block; margin-bottom: 5px; color:black;">Voucher của tôi</a>
+                                            <a asp-controller="Login" asp-action="Logout" style="display: block; color:black;">Đăng xuất</a>
+                                        </div>
+                                    </div>
+                                </li>
+                            }
                         </ul>
                     </div>
                 </div>
@@ -224,6 +268,35 @@
     <script>
         const tudong_chatbox = new TuDongChat('B5fDS4gtolOdI17iUjHAl')
         tudong_chatbox.initial()
+    </script>
+    <script>
+        // Toggle display of user links when clicking avatar
+        document.querySelectorAll('.user-avatar').forEach(avatar => {
+            avatar.addEventListener('click', function (event) {
+                event.stopPropagation(); // Ngăn sự kiện lan ra ngoài
+                const links = this.nextElementSibling;
+                if (links.style.display === 'none' || links.style.display === '') {
+                    // Ẩn tất cả trước khi hiển thị cái đang click
+                    document.querySelectorAll('.user-avatar').forEach(av => {
+                        const l = av.nextElementSibling;
+                        if (l) l.style.display = 'none';
+                    });
+                    links.style.display = 'block';
+                } else {
+                    links.style.display = 'none';
+                }
+            });
+        });
+
+        // Ẩn menu khi click ra ngoài
+        document.addEventListener('click', function (event) {
+            document.querySelectorAll('.user-avatar').forEach(avatar => {
+                const links = avatar.nextElementSibling;
+                if (links && !avatar.contains(event.target) && !links.contains(event.target)) {
+                    links.style.display = 'none';
+                }
+            });
+        });
     </script>
     @await RenderSectionAsync("Scripts", required: false)
 </body>

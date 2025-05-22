@@ -1,0 +1,34 @@
+﻿@* Views/Shared/Components/Vouchers/Default.cshtml *@
+<link href="~/css/vouchers.css" rel="stylesheet" />
+
+<div class="container">
+    <div class="row g-3">
+        @for (int i = 0; i < 4; i++)  // render 8 thẻ mẫu
+        {
+            <div class="col-12 col-sm-6 col-md-4 col-lg-3">
+                <div class="voucher-card border rounded shadow-sm h-100 d-flex flex-column">
+                    <div class="voucher-left bg-teal text-white text-center p-2">
+                        <div class="label bg-danger text-white px-2 py-1 d-inline-block mb-1 small">Khách hàng mới</div>
+                        <div class="main-text fw-bold">FREE SHIP</div>
+                        <div class="desc small">Giảm tới đa 300K</div>
+                    </div>
+                    <div class="voucher-right p-2 position-relative flex-grow-1 d-flex flex-column justify-content-between">
+                        <div>
+                            <div class="badge bg-warning text-dark mb-1 small">⚡ Số lượng có hạn</div>
+                            <p class="mb-1 small"><strong>Giảm</strong> tối đa <strong>₫300k</strong></p>
+                            <p class="mb-2 small">Đơn Tối Thiểu ₫0</p>
+                            <div class="progress mb-2" style="height: 5px;">
+                                <div class="progress-bar bg-danger" style="width: 40%"></div>
+                            </div>
+                            <div class="d-flex align-items-center justify-content-between">
+                                <small class="text-danger">Đang hết nhanh</small>
+                                <a href="#" class="text-primary text-decoration-none small">Điều Kiện</a>
+                            </div>
+                        </div>
+                        <button class="btn btn-sm btn-teal mt-2 w-100">Lưu</button>
+                    </div>
+                </div>
+            </div>
+        }
+    </div>
+</div>

@@ -24,6 +24,12 @@ namespace Project.MVC.Controllers
 
         public IActionResult Register()
         {
+            if (TempData["RegisterUserData"] != null && !String.IsNullOrWhiteSpace(TempData["RegisterUserData"].ToString()))
+            {
+                var user = JsonConvert.DeserializeObject<UserEntity>(TempData["RegisterUserData"].ToString());
+                return View(user);
+            }
+
             return View();
         }
 
@@ -65,7 +71,9 @@ namespace Project.MVC.Controllers
                 if (lstUserFoundByUserName.Any())
                 {
                     TempData["ErrRegMs"] = "Tên đăng nhập đã tồn tại";
-                    return View(user);
+                    TempData["SuccessRegMs"] = "";
+                    TempData["RegisterUserData"] = JsonConvert.SerializeObject(user);
+                    return RedirectToAction("Register");
                 }
             }
 
@@ -81,7 +89,9 @@ namespace Project.MVC.Controllers
                 if (lstUserFoundByPhone.Any())
                 {
                     TempData["ErrRegMs"] = "SĐT đã được sử dụng";
-                    return View(user);
+                    TempData["RegisterUserData"] = JsonConvert.SerializeObject(user);
+                    TempData["SuccessRegMs"] = "";
+                    return RedirectToAction("Register");
                 }
             }
 
@@ -97,7 +107,9 @@ namespace Project.MVC.Controllers
                 if (lstUserFoundByEmail.Any())
                 {
                     TempData["ErrRegMs"] = "Email đã được sử dụng";
-                    return View(user);
+                    TempData["RegisterUserData"] = JsonConvert.SerializeObject(user);
+                    TempData["SuccessRegMs"] = "";
+                    return RedirectToAction("Register");
                 }
             }
 
@@ -112,13 +124,17 @@ namespace Project.MVC.Controllers
             }
             catch (Exception ex)
             {
-                TempData["ErrRegMs"] = $"Lỗi: {ex.Message}";
-                return View(user);
+                TempData["ErrRegMs"] = "Xảy ra lỗi trong quá trình đăng ký tài khoản! Vui lòng thử lại!";
+                TempData["RegisterUserData"] = JsonConvert.SerializeObject(user);
+                TempData["SuccessRegMs"] = "";
+                return RedirectToAction("Register");
             }
 
             //Đăng ký thành công
-            TempData["ErrRegMs"] = $"Đăng ký tài khoản thành công";
-            return View();
+            TempData["SuccessRegMs"] = "Đăng ký tài khoản thành công";
+            TempData["RegisterUserData"] = "";
+            TempData["ErrRegMs"] = "";
+            return RedirectToAction("Register");
         }
     }
 }
