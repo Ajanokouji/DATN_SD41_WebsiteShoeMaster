@@ -5,7 +5,7 @@
 @{
     ViewData["Title"] = "Chi tiết sản phẩm";
     Layout = "~/Views/Shared/_Layout.cshtml";
-  
+
 }
 
 <!-- Breadcrumb Begin -->
@@ -84,7 +84,7 @@
                         <i class="fa fa-star"></i>
                         <span>( 138 đánh giá )</span>
                     </div>
-                  
+
                     <p>@Model.Product.Description</p>
                     <div class="product__details__widget">
                         <div class="variant-selector">
@@ -106,7 +106,7 @@
                                     @{
                                         var colorVariants = Model.Product.VariantObjs?
                                         .Where(x => x.Stock != 0)
-                                        .Select(y => y.Group1 )
+                                        .Select(y => y.Group1)
                                         .Distinct()
                                         .ToList() ?? new List<string>();
 
@@ -242,10 +242,10 @@
        {
            QueryModel = new ProductQueryModel()
            {
-               PageSize=4,
-               MainCategoryId=Model.Product.MainCategoryId
+               PageSize = 4,
+               MainCategoryId = Model.Product.MainCategoryId
            },
-           ViewName="BlockProductsByFilter"
+           ViewName = "BlockProductsByFilter"
        })
         </div>
     </div>
@@ -259,15 +259,15 @@
           let selectedColor = document.querySelector("#color-options .option.selected");
           let selectedSize = document.querySelector("#size-options .option.selected");
           var variants = @Html.Raw(Json.Serialize(Model.Product.VariantObjs
-            .Where(x => x.Stock != 0)
-            .Select(v => new
-            {
-                Color = v.Group1,
-                Size = v.Group2,
-                Price = v.Price,
-               Stock = v.Stock,
-               Sku = v.Sku
-            })));
+        .Where(x => x.Stock != 0)
+        .Select(v => new
+        {
+        Color = v.Group1,
+        Size = v.Group2,
+        Price = v.Price,
+        Stock = v.Stock,
+        Sku = v.Sku
+        })));
           function updatePrice() {
             const variant = variants.find(v => v.color === selectedColor && selectedSize === v.size);
              const quantity = parseInt(document.getElementById('quantity').value) || 1;
@@ -338,7 +338,7 @@
          };
 
             console.log(JSON.stringify(productData));
-            
+
             $.ajax({
                 url: '/Cart/AddToCart',
                 method: 'POST',
