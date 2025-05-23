@@ -1,0 +1,48 @@
+﻿@using Project.MVC.ImageExtractor
+@model List<Project.DbManagement.Entity.ContentBase>
+
+@foreach (var item in Model)
+{
+    var images = HtmlImageExtractor.ExtractImageSources(item.Content ?? "");
+
+    <div class="col-lg-4 col-md-4 col-sm-6 mb-4">
+        @if (images.Any())
+        {
+            <div id="carousel-@item.Id" class="carousel slide" data-bs-ride="carousel" style="margin-bottom: 10px;">
+                <div class="carousel-inner">
+                    @for (int i = 0; i < images.Count; i++)
+                    {
+                        <div class="carousel-item @(i == 0 ? "active" : "")">
+                            <img src="@images[i]" style="width: 100%; height: 220px; object-fit: cover;" />
+                        </div>
+                    }
+                </div>
+                @if (images.Count > 1)
+                {
+                    <button class="carousel-control-prev" type="button" data-bs-target="#carousel-@item.Id" data-bs-slide="prev">
+                        <span class="carousel-control-prev-icon" aria-hidden="true"></span>
+                        <span class="visually-hidden">Previous</span>
+                    </button>
+                    <button class="carousel-control-next" type="button" data-bs-target="#carousel-@item.Id" data-bs-slide="next">
+                        <span class="carousel-control-next-icon" aria-hidden="true"></span>
+                        <span class="visually-hidden">Next</span>
+                    </button>
+                }
+            </div>
+        }
+        else
+        {
+            <div style="background-image: url('/assets/images/blog/blog-7.jpg'); height: 220px; background-size: cover; background-position: center; margin-bottom: 10px;"></div>
+        }
+
+        <h6 style="margin: 0 0 5px 0; font-weight: normal;">
+            <a asp-controller="News" asp-action="Detail" asp-route-id="@item.Id" style="text-decoration: none; color: inherit;">
+                @item.Title
+            </a>
+        </h6>
+
+        <ul style="margin: 0; padding-left: 0; list-style: none; color: #666; font-size: 0.9rem;">
+            <li>@item.PublishStartDate?.ToString("dd/MM/yyyy")</li>
+        </ul>
+    </div>
+}

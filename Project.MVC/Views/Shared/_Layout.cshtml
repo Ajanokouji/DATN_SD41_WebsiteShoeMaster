@@ -69,7 +69,7 @@
             </li>
         </ul>
         <div class="offcanvas__logo">
-            <a href="./index.html"><img src="~/assets/images/logo.png" alt=""></a>
+            <a href="./index.html"><img src="~/assets/images/logo.jpg" alt="" style="width: 100px;"></a>
         </div>
         <div id="mobile-menu-wrap"></div>
         @if (user != null)
@@ -99,27 +99,42 @@
             <div class="row">
                 <div class="col-xl-3 col-lg-2">
                     <div class="header__logo">
-                        <a asp-controller="Home" asp-action="Index"><img src="~/assets/images/logo.png" alt=""></a>
+                        <a asp-controller="Home" asp-action="Index">
+                            <img src="~/assets/images/logo.jpg" alt="" style="width: 100px;">
+                        </a>
                     </div>
+
                 </div>
+                @{
+                    var currentController = ViewContext.RouteData.Values["controller"]?.ToString();
+                    var currentAction = ViewContext.RouteData.Values["action"]?.ToString();
+                }
                 <div class="col-xl-6 col-lg-7">
                     <nav class="header__menu">
                         <ul>
-                            <li class="active"><a asp-controller="Home" asp-action="Index">Trang chủ</a></li>
-                            <li><a asp-controller="ListProducts" asp-action="ListProducts">Cửa Hàng</a></li>
-                            <li>
-                                <a href="#">Pages</a>
+                            <li class="@(currentController == "Home" ? "active" : "")">
+                                <a asp-controller="Home" asp-action="Index">Trang chủ</a>
+                            </li>
+                            <li class="@(currentController == "ListProducts" ? "active" : "")">
+                                <a asp-controller="ListProducts" asp-action="ListProducts">Cửa Hàng</a>
+                            </li>
+                           @*  <li class="@(currentController == "Cart" || currentController == "Checkout" ? "active" : "")">
                                 <ul class="dropdown">
-                                    <li><a asp-controller="ProductDetails" asp-action="ProductDetails">Sản Phẩm Chi Tiết</a></li>
                                     <li><a asp-controller="Cart" asp-action="Cart">Giỏ Hàng</a></li>
                                     <li><a asp-controller="Checkout" asp-action="Checkout">Checkout</a></li>
                                 </ul>
+                            </li> *@
+                            <li class="@(currentController == "News" ? "active" : "")">
+                                <a asp-controller="News" asp-action="News">Tin Mới</a>
                             </li>
-                            <li><a asp-controller="News" asp-action="News">Tin Mới</a></li>
-                            <li><a asp-controller="About" asp-action="About">Về Chúng Tôi</a></li>
+                            <li class="@(currentController == "About" ? "active" : "")">
+                                <a asp-controller="About" asp-action="About">Về Chúng Tôi</a>
+                            </li>
                         </ul>
                     </nav>
                 </div>
+
+
                 <div class="col-lg-3">
                     <div class="header__right">
                         @if(user == null)
@@ -176,11 +191,10 @@
                 <div class="col-lg-4 col-md-6 col-sm-7">
                     <div class="footer__about">
                         <div class="footer__logo">
-                            <a asp-controller="Home" asp-action="Index"><img src="~/assets/images/logo.png" alt=""></a>
+                            <a asp-controller="Home" asp-action="Index"><img src="~/assets/images/logo.jpg" style="width: 200px" alt=""></a>
                         </div>
                         <p>
-                            Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt
-                            cilisis.
+                            ShoeMaster-Vững bước trên mỗi hành trình
                         </p>
                         <div class="footer__payment">
                             <a href="#"><img src="~/assets/images/payment/payment-1.png" alt=""></a>
@@ -193,32 +207,32 @@
                 </div>
                 <div class="col-lg-2 col-md-3 col-sm-5">
                     <div class="footer__widget">
-                        <h6>Quick links</h6>
+                        <h6>Đường dẫn</h6>
                         <ul>
-                            <li><a asp-controller="About" asp-action="About">About</a></li>
-                            <li><a asp-controller="News" asp-action="News">News</a></li>
-                            <li><a href="#">Contact</a></li>
-                            <li><a href="#">FAQ</a></li>
+                            <li><a asp-controller="About" asp-action="About">Về chúng tôi</a></li>
+                            <li><a asp-controller="News" asp-action="News">Tin tức</a></li>
+                            <li><a href="#">Liên hệ</a></li>
+                            <li><a href="#">Câu hỏi thường gặp</a></li>
                         </ul>
                     </div>
                 </div>
                 <div class="col-lg-2 col-md-3 col-sm-4">
                     <div class="footer__widget">
-                        <h6>Account</h6>
+                        <h6>Tài Khoản</h6>
                         <ul>
-                            <li><a href="#">My Account</a></li>
-                            <li><a href="#">Orders Tracking</a></li>
-                            <li><a href="#">Checkout</a></li>
-                            <li><a href="#">Wishlist</a></li>
-                        </ul>
+                            <li><a href="#">Tài khoản</a></li>
+                            <li><a href="#">Kiểm tra vận đơn</a></li>
+                            <li><a href="#">Thanh toán</a></li>
+@*                             <li><a href="#">Wishlist</a></li>
+ *@                        </ul>
                     </div>
                 </div>
                 <div class="col-lg-4 col-md-8 col-sm-8">
                     <div class="footer__newslatter">
-                        <h6>NEWSLETTER</h6>
+                        <h6>Nhận thông tin khuyến mại</h6>
                         <form action="#">
                             <input type="text" placeholder="Email">
-                            <button type="submit" class="site-btn">Subscribe</button>
+                            <button type="submit" class="site-btn">Đăng ký</button>
                         </form>
                         <div class="footer__social">
                             <a href="#"><i class="fa fa-facebook"></i></a>
