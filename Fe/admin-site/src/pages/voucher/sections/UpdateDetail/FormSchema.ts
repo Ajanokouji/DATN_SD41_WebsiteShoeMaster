@@ -68,6 +68,7 @@ const baseSchema = z.object({
   lastModifiedByUserId: z.string(),
   createdOnDate: z.string(),
   lastModifiedOnDate: z.string(),
+  imageUrl: z.string().nullable(),
 
   totalMaxUsage: z.preprocess(
     (val) => (val === "" || val === undefined ? undefined : Number(val)),

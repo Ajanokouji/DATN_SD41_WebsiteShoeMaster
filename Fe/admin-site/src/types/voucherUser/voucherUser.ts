@@ -30,7 +30,7 @@ export interface VoucherUserFilterParams extends PaginationParams {
 //User for search
 export interface UserResDtoForSearch {
   id: string;
-  type: string;
+  type: number;
   username?: string;
   name?: string;
   phoneNumber?: string;
