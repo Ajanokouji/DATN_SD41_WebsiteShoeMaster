@@ -69,7 +69,6 @@
       <None Include="wwwroot\assets\images\instagram\insta-4.jpg" />
       <None Include="wwwroot\assets\images\instagram\insta-5.jpg" />
       <None Include="wwwroot\assets\images\instagram\insta-6.jpg" />
-      <None Include="wwwroot\assets\images\logo.png" />
       <None Include="wwwroot\assets\images\payment\payment-1.png" />
       <None Include="wwwroot\assets\images\payment\payment-2.png" />
       <None Include="wwwroot\assets\images\payment\payment-3.png" />
