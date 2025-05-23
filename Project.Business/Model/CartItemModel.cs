@@ -4,6 +4,9 @@ namespace Project.Business.Model
 {
     public class CartItemModel
     {
+        public Guid Id { get; set; }
+        public Guid CartId { get; set; }
+
         public Guid ProductId { get; set; }
         public string ProductName { get; set; }
         public string ProductImage { get; set; }

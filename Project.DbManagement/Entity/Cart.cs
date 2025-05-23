@@ -15,11 +15,11 @@ namespace Project.DbManagement.Entity
 
         public Guid IdUser { get; set; }
 
-        public Guid IdContact { get; set; }
+        public Guid? IdContact { get; set; }
 
-        public int Status { get; set; }
+        public int? Status { get; set; }
 
         [Column(TypeName = "nvarchar(1024)")]
-        public string Description { get; set; }
+        public string? Description { get; set; }
     }
 }
