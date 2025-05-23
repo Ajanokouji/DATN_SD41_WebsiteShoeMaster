@@ -170,11 +170,6 @@ namespace Project.Business.Implement
                 query = query.Where(x => x.MaxUsagePerCustomer == queryModel.MaxUsagePerCustomer);
             }
 
-            if (queryModel.DisplaySettings >= 0)
-            {
-                query = query.Where(x => x.DisplaySettings == queryModel.DisplaySettings);
-            }
-
             if (queryModel.MaxDiscountAmount >= 0)
             {
                 query = query.Where(x => x.MaxDiscountAmount == queryModel.MaxDiscountAmount);
@@ -270,9 +265,9 @@ namespace Project.Business.Implement
                     exist.Status = voucher.Status;
                     exist.TotalMaxUsage = voucher.TotalMaxUsage;
                     exist.MaxUsagePerCustomer = voucher.MaxUsagePerCustomer;
-                    exist.DisplaySettings = voucher.DisplaySettings;
                     exist.MaxDiscountAmount = voucher.MaxDiscountAmount;
                     exist.RedeemCount = voucher.RedeemCount;
+                    exist.ImageUrl = voucher.ImageUrl;
 
                     exist.UpdateTracking(voucher.Id);
                     _context.Vouchers.Update(exist);

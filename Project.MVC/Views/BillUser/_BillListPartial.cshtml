@@ -1,0 +1,43 @@
+﻿@using SERP.Framework.Common
+
+@model Pagination<Project.DbManagement.BillEntity>
+
+@if (Model.Content == null || !Model.Content.Any())
+{
+    <tr>
+        <td colspan="5" class="text-center">
+            <div>
+                Trống
+            </div>
+        </td>
+    </tr>
+}
+else
+{
+    @foreach (var bill in Model.Content)
+    {
+        <tr data-bill-id="@bill.Id" class="text-center align-middle">
+            <td>@bill.BillCode</td>
+            <td>@bill.CreatedOnDate?.ToString("dd/MM/yyyy HH:mm")</td>
+            <td>@String.Format("{0:N0} VNĐ", bill.TotalAmount)</td>
+            <td>
+                @bill.Status
+            </td>
+            <td>
+                <button class="btn btn-outline-primary btn-sm btnViewDetails" data-bill-id="@bill.Id">
+                    <i class="fa fa-eye"></i> Xem chi tiết
+                </button>
+            </td>
+        </tr>
+        <tr class="bill-details-row bg-light" style="display:none;">
+            <td colspan="5" class="p-4">
+                <div class="bill-details-container text-muted">
+                    <div class="spinner-border text-primary" role="status">
+                        <span class="visually-hidden"></span>
+                    </div>
+                    <p class="mt-2">Đang tải chi tiết đơn hàng...</p>
+                </div>
+            </td>
+        </tr>
+    }
+}

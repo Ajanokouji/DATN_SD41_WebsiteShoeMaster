@@ -39,8 +39,6 @@ namespace Project.DbManagement
         public int? TotalMaxUsage { get; set; }
         //Số lượt sử dụng tối đa trên mỗi khách hàng
         public int? MaxUsagePerCustomer { get; set; }
-        //Thiết lập hiển thị: Hiển thị nhiều nơi | Chia sẻ thông qua mã voucher
-        public int? DisplaySettings { get; set; }
         //Số tiền giảm giá tối đa đối với voucher giảm theo phần trăm
         public decimal? MaxDiscountAmount { get; set; }
         //Tổng Số lượt đã sử dụng voucher

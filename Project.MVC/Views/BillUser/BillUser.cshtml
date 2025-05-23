@@ -1,0 +1,286 @@
+﻿@using SERP.Framework.Common
+
+@model Pagination<Project.DbManagement.BillEntity>
+
+@{
+    ViewData["Title"] = "Đơn hàng của tôi";
+    Layout = "~/Views/Shared/_Layout.cshtml";
+}
+
+@if (TempData["ErrBillUserMs"] != null && !String.IsNullOrWhiteSpace(TempData["ErrBillUserMs"].ToString()))
+{
+    <div class="alert alert-danger text-center mt-5 mb-5">
+        @TempData["ErrBillUserMs"]
+    </div>
+}
+else
+{
+    <div class="contact__form container d-flex justify-content-center align-items-center mt-5 mb-5">
+        <div class="card shadow-lg p-5" style="width: 1000px; border-radius: 10px;">
+            <h2 class="text-center">Đơn Hàng Của Tôi</h2>
+
+            <div class="mt-5 d-flex justify-content-end items-center">
+                <div>
+                    <label for="statusFilter">Lọc theo trạng thái:</label>
+                    <select id="statusFilter" class="form-select w-auto d-inline-block ms-2" style="height:35px;">
+                        <option value="">Tất cả</option>
+                        <option value="PendingConfirmation">Chờ xác nhận</option>
+                        <option value="Confirmed">Đã xác nhận</option>
+                        <option value="Rejected">Bị từ chối</option>
+                        <option value="Paid">Đã thanh toán</option>
+                        <option value="Packed">Đã đóng gói</option>
+                        <option value="Shipping">Đang vận chuyển</option>
+                        <option value="Delivered">Đã giao hàng</option>
+                        <option value="Completed">Hoàn thành</option>
+                        <option value="Cancelled">Đã hủy</option>
+                        <option value="DeliveryFailed">Giao hàng thất bại</option>
+                        <option value="ReturnProcessing">Đang xử lý hoàn trả</option>
+                        <option value="Returned">Đã hoàn trả</option>
+                    </select>
+                </div>
+            </div>
+
+            <table class="table table-bordered mt-2">
+                <thead>
+                    <tr class="text-center">
+                        <th>Mã đơn hàng</th>
+                        <th>Ngày tạo</th>
+                        <th>Tổng tiền</th>
+                        <th>Trạng thái</th>
+                        <th>Hành động</th>
+                    </tr>
+                </thead>
+                <tbody id="billListBody">
+                    <!--Loading ms-->
+                    <tr id="loadingRow" style="display: none;" class="text-center">
+                        <td colspan="5">
+                            <div class="spinner-border text-primary" role="status">
+                                <span class="visually-hidden"></span>
+                            </div>
+                            <p class="mt-2">Đang tải danh sách đơn hàng...</p>
+                        </td>
+                    </tr>
+
+                    @if (Model.Content == null || !Model.Content.Any())
+                    {
+                        <tr class="text-center">
+                            <td colspan="5">Trống</td>
+                        </tr>
+                    }
+                    else
+                    {
+                        @foreach (var bill in Model.Content)
+                        {
+                            <tr data-bill-id="@bill.Id" class="text-center align-middle">
+                                <td>@bill.BillCode</td>
+                                <td>@bill.CreatedOnDate?.ToString("dd/MM/yyyy HH:mm")</td>
+                                <td>@String.Format("{0:N0} VNĐ", bill.TotalAmount)</td>
+                                <td>
+                                    @bill.Status
+                                </td>
+                                <td>
+                                    <button class="btn btn-outline-primary btn-sm btnViewDetails" data-bill-id="@bill.Id">
+                                        <i class="fa fa-eye"></i> Xem chi tiết
+                                    </button>
+                                </td>
+                            </tr>
+                            <tr class="bill-details-row bg-light" style="display:none;">
+                                <td colspan="5" class="p-4">
+                                    <div class="bill-details-container text-muted">
+                                        <div class="spinner-border text-primary" role="status">
+                                            <span class="visually-hidden"></span>
+                                        </div>
+                                        <p class="mt-2">Đang tải chi tiết đơn hàng...</p>
+                                    </div>
+                                </td>
+                            </tr>
+                        }
+                    }
+                </tbody>
+            </table>
+
+            <div class="d-flex justify-content-between">
+                <div>
+                    <label>Bản ghi/trang:
+                        <select id="pageSizeSelect" name="pageSize">
+                            <option value="5" selected>5</option>
+                            <option value="10">10</option>
+                            <option value="20">20</option>
+                        </select>
+                    </label>
+                </div>
+
+                <div>
+                   <button id="prevPage" class="btn btn-secondary" @(Model.CurrentPage <= 1 ? "disabled" : "") value="<"><i class="fa fa-arrow-left"></i></button>
+                   <label id="pageInfo" class="mx-2">Trang @Model.CurrentPage / @Model.TotalPages</label>
+                   <button id="nextPage" class="btn btn-secondary" @(Model.CurrentPage >= Model.TotalPages ? "disabled" : "")><i class="fa fa-arrow-right"></i></button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <style>
+        .table td, .table th {
+            vertical-align: middle;
+        }
+
+        .bill-details-container {
+            text-align: left;
+            padding: 1rem;
+        }
+
+        .list-group-item strong {
+            width: 150px;
+            display: inline-block;
+        }
+
+        .btnViewDetails i {
+            margin-right: 4px;
+        }
+    </style>
+
+    @section Scripts{
+        <script>
+            let totalPages = @Model.TotalPages;
+            let currentPage = @Model.CurrentPage;
+            let pageSize = parseInt($('#pageSizeSelect').val()) || 5;
+
+            function loadPage(page, size) {
+                const status = $('#statusFilter').val();
+
+                $('#billListBody').html('<tr><td colspan="5" class="text-center">Đang tải danh sách đơn hàng...</td></tr>');
+
+                $.ajax({
+                    url: '@Url.Action("GetBillsByUserPaged")',
+                    type: 'GET',
+                    data: { page: page, pageSize: size, status: status },
+                    success: function (data) {
+                        if (data.success) {
+                            $('#billListBody').html(data.html);
+                            currentPage = data.currentPage;
+                            totalPages = data.totalPages;
+                            $('#pageInfo').text(`Trang ${currentPage} / ${totalPages}`);
+                            $('#prevPage').prop('disabled', currentPage <= 1);
+                            $('#nextPage').prop('disabled', currentPage >= totalPages);
+                        } else {
+                            $('#billListBody').html(`<tr><td colspan="5" class="text-danger text-center">${data.message || "Lỗi tải đơn hàng"}</td></tr>`);
+                        }
+                    },
+                    error: function () {
+                        $('#billListBody').html(`<tr><td colspan="5" class="text-danger text-center">Lỗi khi tải dữ liệu đơn hàng.</td></tr>`);
+                    }
+                });
+            }
+
+            // Gọi lại khi thay đổi trạng thái lọc
+            $('#statusFilter').change(function () {
+                loadPage(1, pageSize);
+            });
+
+            $(document).ready(function () {
+
+                $('#pageSizeSelect').change(function () {
+                    pageSize = parseInt($(this).val()) || 5;
+                    loadPage(1, pageSize);
+                });
+
+                $('#prevPage').click(function () {
+                    if (currentPage > 1) {
+                        loadPage(currentPage - 1, pageSize);
+                    }
+                });
+
+                $('#nextPage').click(function () {
+                    // Cần truyền tổng trang từ server hoặc gửi lại partial
+                    if (currentPage < @Model.TotalPages) {
+                        loadPage(currentPage + 1, pageSize);
+                    }
+                });
+
+                $(document).on('click', '.btnViewDetails', function () {
+                    var btn = $(this);
+                    var tr = btn.closest('tr');
+                    var detailRow = tr.next('.bill-details-row');
+                    var container = detailRow.find('.bill-details-container');
+
+                    if (detailRow.is(':visible')) {
+                        detailRow.hide();
+                        return;
+                    }
+
+                    detailRow.show();
+                    container.html('<p class="text-center">Đang tải chi tiết đơn hàng...</p>');
+
+                    $.ajax({
+                        url: '@Url.Action("GetBillDetailsByBillId")',
+                        type: 'GET',
+                        data: { billId: btn.data('bill-id') },
+                        success: function (data) {
+                            var bill = data.billInfo;
+                            var details = data.details;
+
+                            let billHtml = `
+                                <div class="row">
+                                    <div class="col-md-6">
+                                        <h6 class="text-center mt-2 mb-2"><strong>Thông tin đơn hàng</strong></h6>
+                                        <ul class="list-group">
+                                            <li class="list-group-item"><strong>Người nhận:</strong> ${bill.recipientName ?? ''}</li>
+                                            <li class="list-group-item"><strong>Email:</strong> ${bill.recipientEmail ?? ''}</li>
+                                            <li class="list-group-item"><strong>Điện thoại:</strong> ${bill.recipientPhone ?? ''}</li>
+                                            <li class="list-group-item"><strong>Địa chỉ:</strong> ${bill.recipientAddress ?? ''}</li>
+                                            <li class="list-group-item"><strong>Tổng tiền:</strong> ${formatVND(bill.totalAmount)}</li>
+                                            <li class="list-group-item"><strong>Giảm giá:</strong> ${formatVND(bill.discountAmount)}</li>
+                                            <li class="list-group-item"><strong>Sau giảm:</strong> ${formatVND(bill.amountAfterDiscount)}</li>
+                                            <li class="list-group-item"><strong>Thanh toán:</strong> ${formatVND(bill.amountToPay)}</li>
+                                            <li class="list-group-item"><strong>Voucher:</strong> ${bill.voucherCode ?? ''}</li>
+                                            <li class="list-group-item"><strong>Thành tiền:</strong> ${formatVND(bill.finalAmount)}</li>
+                                            <li class="list-group-item"><strong>Trạng thái:</strong> ${bill.status ?? ''}</li>
+                                            <li class="list-group-item"><strong>TT Thanh toán:</strong> ${bill.paymentStatus ?? ''}</li>
+                                            <li class="list-group-item"><strong>PT Thanh toán:</strong> ${bill.paymentMethod ?? ''}</li>
+                                            <li class="list-group-item"><strong>Ghi chú:</strong> ${bill.note ?? ''}</li>
+                                        </ul>
+                                    </div>
+                                    <div class="col-md-6">
+                                        <h6 class="text-center mt-2 mb-2"><strong>Chi tiết sản phẩm</strong></h6>
+                            `;
+
+                            if (!details || details.length === 0) {
+                                billHtml += '<p>Không có chi tiết đơn hàng.</p>';
+                            } else {
+                                billHtml += `
+                                    <table class="table ">
+                                        <thead><tr>
+                                            <th>Sản phẩm</th><th>Kích thước</th><th>Màu sắc</th><th>Số lượng</th><th>Đơn giá</th><th>Tổng</th>
+                                        </tr></thead><tbody>
+                                `;
+                                $.each(details, function (i, item) {
+                                    billHtml += `
+                                        <tr>
+                                            <td>${item.productName ?? ''}</td>
+                                            <td>${item.size ?? ''}</td>
+                                            <td>${item.color ?? ''}</td>
+                                            <td>${item.quantity}</td>
+                                            <td>${formatVND(item.price)}</td>
+                                            <td>${formatVND(item.finalAmount)}</td>
+                                        </tr>
+                                    `;
+                                });
+                                billHtml += `</tbody></table>`;
+                            }
+                            billHtml += '</div></div>';
+
+                            container.html(billHtml);
+
+                            function formatVND(number) {
+                                return (Number(number) || 0).toLocaleString('vi-VN') + " VNĐ";
+                            }
+                        },
+                        error: function () {
+                            container.html('<p>Lỗi khi tải chi tiết đơn hàng.</p>');
+                        }
+                    });
+                });
+            });
+        </script>
+    }
+}
