@@ -22,6 +22,7 @@ import { VariantObjs } from "@/types/product/product";
 import VoucherUserReqDto from "@/types/voucherUser/voucherUser";
 import { createVoucherUsers } from "@/redux/apps/voucherUser/voucherUserSlice";
 import { clearUsers, setUserPage, setUserPageSize } from "@/redux/apps/voucherUser/voucherUserSlice";
+import { ImageFieldComponent } from "./ImageFieldComponent";
 
 interface AddVoucherSheetProps {
   isOpen: boolean;
@@ -67,7 +68,6 @@ const AddVoucherSheet: React.FC<AddVoucherSheetProps> = ({
       minimumOrderAmount: undefined,
       totalMaxUsage: undefined,
       maxUsagePerCustomer: undefined,
-      displaySettings: undefined,
       maxDiscountAmount: undefined,
       redeemCount: undefined,
       productsIsSelected: null,
@@ -118,9 +118,9 @@ const AddVoucherSheet: React.FC<AddVoucherSheetProps> = ({
         createdOnDate: values.createdOnDate || new Date().toISOString(),
         totalMaxUsage: values.totalMaxUsage ?? null,
         maxUsagePerCustomer: values.maxUsagePerCustomer ?? null,
-        displaySettings: values.displaySettings ?? null,
         maxDiscountAmount: values.maxDiscountAmount ?? null,
-        redeemCount: 0  //RedeemCount mặc định lúc mới tạo là = 0
+        redeemCount: 0,  //RedeemCount mặc định lúc mới tạo là = 0
+        imageUrl: values.imageUrl ?? null,
       };
 
       //Trim chuỗi
@@ -139,8 +139,7 @@ const AddVoucherSheet: React.FC<AddVoucherSheetProps> = ({
       const createRs = await dispatch(createVoucher(voucherData));
       if (createVoucher.fulfilled.match(createRs)) {
         ////Thêm VoucherUser
-        if(voucherData.displaySettings === 0 &&
-          values.usersIsSelected !== null &&
+        if(values.usersIsSelected !== null &&
           values.usersIsSelected.length > 0
         ){
           // Map usersIsSelected thành VoucherUserReqDto
@@ -203,6 +202,8 @@ const AddVoucherSheet: React.FC<AddVoucherSheetProps> = ({
             className="space-y-6 overflow-auto"
           >
             <BasicInfoFields control={form.control} voucherType={voucherType} />
+            <hr className="border border-gray-300"/>
+            <ImageFieldComponent control={form.control} />
 
             <div className="flex justify-end gap-2 pt-4">
               <Button type="submit" disabled={isSubmitting}>

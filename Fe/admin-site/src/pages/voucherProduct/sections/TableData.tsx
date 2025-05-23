@@ -103,7 +103,7 @@ const VoucherProductsTable: React.FC<{ voucherId: string }> = ({ voucherId }) =>
     { label: "Tên sản phẩm / Mã sản phẩm" },
     { label: "Mã biến thể" },
     { label: "Giá" },
-    { label: "Ngày áp Voucher" },
+    { label: "Ngày áp dụng" },
     { label: "Thao tác"},
   ];
 

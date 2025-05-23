@@ -84,6 +84,7 @@ export const useVoucherForm = (
         lastModifiedByUserId: voucher.lastModifiedByUserId || "3fa85f64-5717-4562-b3fc-2c963f66afa6",
         lastModifiedOnDate: voucher.lastModifiedOnDate || new Date().toISOString(),
         createdOnDate: voucher.createdOnDate || new Date().toISOString(),
+        imageUrl: voucher.imageUrl || "",
       });
     }
   }, [voucher, methods]);

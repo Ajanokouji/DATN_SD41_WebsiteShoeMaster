@@ -34,9 +34,11 @@ import Pagination from "@/components/Pagination";
 import { ProductDetailResDto, VariantObjs } from "@/types/product/product";
 import DetailProductSheet from "@/pages/product/sections/DetailProductSheet";
 import { selectUserPagination, selectUsers } from "@/redux/apps/voucherUser/voucherUserSelector";
-import { searchUser, setUserPage, setUserPageSize } from "@/redux/apps/voucherUser/voucherUserSlice";
+import { clearUsers, searchUser, setUserPage, setUserPageSize } from "@/redux/apps/voucherUser/voucherUserSlice";
 import { UserResDtoForSearch } from "@/types/voucherUser/voucherUser";
 import { FaHome } from "react-icons/fa";
+import { Plus } from "lucide-react";
+import { Button } from "@/components/ui/button";
 
 interface BasicInfoFieldsProps {
   control: Control<VoucherFormSchema>;
@@ -272,6 +274,16 @@ export const BasicInfoFields: React.FC<BasicInfoFieldsProps> = ({ control, vouch
   const [isSearchingUser, setIsSearchingUser] = useState<boolean>(false);
   const users = useAppSelector(selectUsers);
   const userPagination = useAppSelector(selectUserPagination);
+  const [showUserSearch, setShowUserSearch] = useState(false);
+  
+  const openUserSearch = () => {
+    setShowUserSearch(true);
+    setInputSearchUserString("");
+    setSearchUserString("");
+    setIsSearchingUser(false);
+    dispatch(clearUsers());
+    setSelectedUsers([]);
+  };
 
   const handleSubmitSearchUser = async () => {
     setIsSearchingUser(true); // Bắt đầu tìm kiếm
@@ -725,270 +737,10 @@ export const BasicInfoFields: React.FC<BasicInfoFieldsProps> = ({ control, vouch
 
       <hr className="border border-gray-300"/>
 
-      <div className="mt-10">
+      <div className="mt-10 pb-5">
         <div className="mt-10">
-          <h2 className="text-lg font-semibold">Hiển thị mã giảm giá và các sản phẩm áp dụng</h2>
+          <h2 className="text-lg font-semibold">Các sản phẩm áp dụng</h2>
         </div>
-        <div className="mt-10 ml-5">
-          <FormField
-            control={control}
-            name="displaySettings"
-            render={({ field }) => (
-              <FormItem>
-                <div className="flex items-center">
-                  <FormLabel className="w-32">Thiết lập hiển thị</FormLabel>
-                  <Select
-                    value={String(field.value)}
-                    onValueChange={(val) => {
-                      field.onChange(Number(val));
-                      trigger("displaySettings");
-                    }}
-                  >
-                    <FormControl className="flex-1">
-                      <SelectTrigger>
-                        <SelectValue placeholder="Chọn thiết lập hiển thị" />
-                      </SelectTrigger>
-                    </FormControl>
-                    <SelectContent>
-                      <SelectItem value="1">Hiển thị nhiều nơi</SelectItem>
-                      <SelectItem value="0">Không công khai</SelectItem>
-                    </SelectContent>
-                  </Select>
-                </div>
-                {field.value === 1 && (
-                  <div className="text-sm text-center text-gray-500 ml-32">
-                    Voucher sẽ tự động được hiển thị công khai trên các trang phù hợp và có thể được sử dụng bởi tất cả khách hàng
-                  </div>
-                  )
-                }
-
-                {field.value === 0 && (
-                  <div className="text-sm text-center text-gray-500 ml-32">
-                    Voucher này sẽ không được hiển thị công khai và chỉ những khách hàng có tài khoản và được chọn mới có thể sử dụng
-                  </div>
-                  )
-                }
-                <FormMessage className="text-center" />
-              </FormItem>
-            )}
-          />
-        </div>
-        
-        {/*Tìm kiếm khách hàng*/}
-        {watch("displaySettings") === 0 && (
-          <div className="mt-2 pb-5 ml-5">
-            <p className="text-sm font-semibold">Thêm tài khoản khách hàng</p>
-            <div className="mt-5 mr-5 border rounded p-5">
-              {/* Tìm kiếm user */}
-              <div className="flex items-center">
-                <Input
-                  placeholder="Tìm kiếm tài khoản khách hàng dựa trên tên tài khoản, tên khách hàng, số điện thoại, email, địa chỉ"
-                  value={inputSearchUserString}
-                  onChange={(e) => setInputSearchUserString(e.target.value)}
-                  onKeyDown={(e) => {
-                    if (e.key === "Enter") {
-                      e.preventDefault(); // Ngăn hành vi mặc định của phím Enter
-                      handleSubmitSearchUser(); // Gọi hàm tìm kiếm
-                    }
-                  }}
-                  className="flex-1"
-                />
-                <button
-                  type="button"
-                  onClick={handleSubmitSearchUser}
-                  className={`p-2 ml-2 text-sm w-32 rounded font-semibold ${
-                    isSearchingUser ? "bg-gray-400 cursor-not-allowed" : "bg-blue-500 hover:bg-blue-600 text-white"
-                  }`}
-                  disabled={isSearchingUser} // Disable nút khi đang tìm kiếm
-                >
-                  {isSearchingUser ? "Đang tìm..." : "Tìm kiếm"}
-                </button>
-              </div>
-
-              <div className="flex">
-                {/* Danh sách user */}
-                <div className="mt-4 border rounded p-2 w-[50%] h-[60vh]">
-                  <div className="text-center font-semibold mb-4 bg-gray-200 rounded p-1">Danh sách tài khoản khách hàng</div>
-                  {users !== null && users.length > 0 ? (
-                    <ul className="space-y-2 max-h-[50vh] overflow-y-auto">
-                      {users.map((user) => {
-                        // Kiểm tra nếu user đã tồn tại trong danh sách "Đã chọn"
-                        const isUserSelected = selectedUsers.some((selectedUser) => selectedUser.id === user.id);
-
-                        // Xác định trạng thái và lớp CSS
-                        const isActive = user?.isActive;
-                        let borderColor = "border-gray-400"; // Mặc định là xám
-                        let statusText = "UNDEFINED";
-                        let statusBgColor = "bg-gray-400";
-
-                        if (isActive === true) {
-                          borderColor = "border-green-500";
-                          statusText = "ACTIVE";
-                          statusBgColor = "bg-green-500";
-                        } else if (isActive === false) {
-                          borderColor = "border-red-500";
-                          statusText = "INACTIVE";
-                          statusBgColor = "bg-red-500";
-                        }
-
-                        return (
-                          <li
-                            key={user.id}
-                            className="p-4 border rounded shadow hover:bg-gray-100 relative"
-                          >
-                            <button
-                              onClick={() => addUserToSelectedList(user)}
-                              type="button"
-                              className={`absolute top-2 right-2 border rounded p-1 ${
-                                isUserSelected
-                                  ? "bg-gray-400 cursor-not-allowed"
-                                  : "bg-blue-500 text-white hover:bg-blue-600"
-                              } text-xs`}
-                              disabled={isUserSelected} // Disable nút nếu user đã được chọn
-                            >
-                              +
-                            </button>
-                            <div className="flex items-center">
-                              <div className="relative">
-                                <img
-                                  className={`w-16 h-16 border-2 rounded-full mr-5 ${borderColor}`}
-                                  src={user.avartarUrl || "https://static.vecteezy.com/system/resources/previews/009/292/244/non_2x/default-avatar-icon-of-social-media-user-vector.jpg"}
-                                  alt={user.name || "User"}
-                                />
-                                {/* Hiển thị trạng thái */}
-                                <span
-                                  className={`absolute px-1 bottom-0 left-1/2 transform -translate-x-1/2 text-xs font-semibold text-white rounded-full ${statusBgColor}`}
-                                >
-                                  {statusText}
-                                </span>
-                              </div>
-                              
-                              <div className="flex-1">
-                                <p className="flex text-start text-sm font-semibold">
-                                  <FaAddressCard className="mr-2 mt-1"/>{user.name} {user.username?"- " + user.username:""}
-                                </p>
-                                <p className="flex text-start text-sm text-gray-500">
-                                  <FaPhone className="mr-2 mt-1"/>{user.phoneNumber}
-                                </p>
-                                <p className="flex text-start text-sm text-gray-500">
-                                  <FaEnvelope className="mr-2 mt-1"/>{user.email}
-                                </p>
-                                <p className="flex text-start text-sm text-gray-500">
-                                  <FaHome className="mr-2 mt-1"/>{user.address}
-                                </p>
-                              </div>
-                            </div>
-                          </li>
-                        );
-                      })}
-                    </ul>
-                  ) : (
-                    <p className="text-gray-500">Không tìm thấy tài khoản khách hàng nào.</p>
-                  )}
-                </div>
-
-                {/* Danh sách đã chọn */}
-                <div className="ml-1 mt-4 border rounded p-2 w-[50%] h-[60vh]">
-                  <div className="text-center font-semibold mb-4 bg-gray-200 rounded p-1">Đã chọn</div>
-                  <div className="mb-2">
-                    {/* Nút xóa tất cả */}
-                    {selectedUsers.length > 0 && (
-                      <button
-                        onClick={clearAllSelectedUsers} // Gọi hàm xóa tất cả
-                        type="button"
-                        className="w-full p-1 bg-red-500 text-white rounded hover:bg-red-600"
-                      >
-                        Xóa tất cả
-                      </button>
-                    )}
-                  </div>
-                  {selectedUsers.length > 0 ? (
-                    <ul className="space-y-2 max-h-[44vh] overflow-y-auto">
-                      {selectedUsers.map((user) => {
-                        // Xác định trạng thái và lớp CSS
-                        const isActive = user?.isActive;
-                        let borderColor = "border-gray-400"; // Mặc định là xám
-                        let statusText = "UNDEFINED";
-                        let statusBgColor = "bg-gray-400";
-
-                        if (isActive === true) {
-                          borderColor = "border-green-500";
-                          statusText = "ACTIVE";
-                          statusBgColor = "bg-green-500";
-                        } else if (isActive === false) {
-                          borderColor = "border-red-500";
-                          statusText = "INACTIVE";
-                          statusBgColor = "bg-red-500";
-                        }
-
-                        return (
-                          <li
-                            key={user.id}
-                            className="p-4 border rounded shadow hover:bg-gray-100 relative"
-                          >
-                            <button
-                              onClick={() => removeUserFromSelectedList(user.id)}
-                              type="button"
-                              className="absolute top-2 right-2 border rounded p-1 bg-red-500 text-white hover:bg-red-600 text-xs"
-                            >
-                              X
-                            </button>
-                            <div className="flex items-center">
-                              <div className="relative">
-                                <img
-                                  className={`w-16 h-16 border-2 rounded-full mr-5 ${borderColor}`}
-                                  src={user.avartarUrl || "https://static.vecteezy.com/system/resources/previews/009/292/244/non_2x/default-avatar-icon-of-social-media-user-vector.jpg"}
-                                  alt={user.name || "User"}
-                                />
-                                {/* Hiển thị trạng thái */}
-                                <span
-                                  className={`absolute px-1 bottom-0 left-1/2 transform -translate-x-1/2 text-xs font-semibold text-white rounded-full ${statusBgColor}`}
-                                >
-                                  {statusText}
-                                </span>
-                              </div>
-                              
-                              <div className="flex-1">
-                                <p className="flex text-start text-sm font-semibold">
-                                  <FaAddressCard className="mr-2 mt-1"/>{user.name} {user.username?"- " + user.username:""}
-                                </p>
-                                <p className="flex text-start text-sm text-gray-500">
-                                  <FaPhone className="mr-2 mt-1"/>{user.phoneNumber}
-                                </p>
-                                <p className="flex text-start text-sm text-gray-500">
-                                  <FaEnvelope className="mr-2 mt-1"/>{user.email}
-                                </p>
-                                <p className="flex text-start text-sm text-gray-500">
-                                  <FaHome className="mr-2 mt-1"/>{user.address}
-                                </p>
-                              </div>
-                            </div>
-                          </li>
-                        );
-                      })}
-                    </ul>
-                  ) : (
-                    <p className="text-gray-500">Chưa có tài khoản khách hàng nào được chọn.</p>
-                  )}
-                </div>
-              </div>
-
-              {/* Phân trang */}
-              <form>
-                <Pagination                                   
-                  currentPage={userPagination.currentPage}
-                  totalPages={userPagination.totalPages}
-                  pageSize={userPagination.pageSize}
-                  totalRecords={userPagination.totalRecords}
-                  onPageChange={handleUserPageChange}
-                  onPageSizeChange={handleUserPageSizeChange}
-                />
-                <input required hidden/>
-              </form>
-            </div>
-          </div>
-          )}
-
         <div className="mt-5 ml-5">
           <div className="flex items-center gap-4">
             <FormLabel className="w-32">Sản phẩm áp dụng</FormLabel>
@@ -999,9 +751,9 @@ export const BasicInfoFields: React.FC<BasicInfoFieldsProps> = ({ control, vouch
                 </div>
               )}
               {voucherType === 2 && (
-                <button onClick={openFormAddVoucherProduct} type="button" className="btn font-semibold rounded border border-gray-900 p-1 hover:bg-gray-200">
-                  + Thêm sản phẩm
-                </button>
+                <Button onClick={openFormAddVoucherProduct} type="button" variant={"outline"} className="flex items-center">
+                  <Plus size={16} /> Thêm sản phẩm
+                </Button>
               )}
             </div>
           </div>
@@ -1195,7 +947,7 @@ export const BasicInfoFields: React.FC<BasicInfoFieldsProps> = ({ control, vouch
               </div>
             </div>
           </div>
-
+          
             <form>
               <Pagination                                   //fix lỗi form nhầm nút chuyển trang
                 currentPage={pagination.currentPage}        //trong pagi là submit, bằng cách nhét pagi
@@ -1215,8 +967,235 @@ export const BasicInfoFields: React.FC<BasicInfoFieldsProps> = ({ control, vouch
                 onClose={() => setIsOpenDetail(false)}
               />
             )}
-          </div>
+        </div>
         )}
+      </div>
+
+      <hr className="border border-gray-300"/>
+
+      <div className="pb-3">
+        <div className="mt-9">
+          <h2 className="text-lg font-semibold">Thêm vào kho Voucher của khách hàng</h2>
+        </div>
+        <div className="mt-5 ml-5">
+          <Button onClick={openUserSearch} type="button" variant={"outline"} className="flex items-center">
+            <Plus size={16} /> Thêm khách hàng
+          </Button>
+        </div>
+        
+        {/*Tìm kiếm khách hàng*/}
+        {showUserSearch === true && (
+          <div className="mt-2 pb-5 ml-5">
+            <div className="mt-5 mr-5 border rounded p-5">
+              {/* Tìm kiếm user */}
+              <div className="flex items-center">
+                <Input
+                  placeholder="Tìm kiếm khách hàng dựa trên tên tài khoản, tên khách hàng, số điện thoại, email, địa chỉ"
+                  value={inputSearchUserString}
+                  onChange={(e) => setInputSearchUserString(e.target.value)}
+                  onKeyDown={(e) => {
+                    if (e.key === "Enter") {
+                      e.preventDefault(); // Ngăn hành vi mặc định của phím Enter
+                      handleSubmitSearchUser(); // Gọi hàm tìm kiếm
+                    }
+                  }}
+                  className="flex-1"
+                />
+                <button
+                  type="button"
+                  onClick={handleSubmitSearchUser}
+                  className={`p-2 ml-2 text-sm w-32 rounded font-semibold ${
+                    isSearchingUser ? "bg-gray-400 cursor-not-allowed" : "bg-blue-500 hover:bg-blue-600 text-white"
+                  }`}
+                  disabled={isSearchingUser} // Disable nút khi đang tìm kiếm
+                >
+                  {isSearchingUser ? "Đang tìm..." : "Tìm kiếm"}
+                </button>
+              </div>
+
+              <div className="flex">
+                {/* Danh sách user */}
+                <div className="mt-4 border rounded p-2 w-[50%] h-[60vh]">
+                  <div className="text-center font-semibold mb-4 bg-gray-200 rounded p-1">Danh sách khách hàng</div>
+                  {users !== null && users.length > 0 ? (
+                    <ul className="space-y-2 max-h-[50vh] overflow-y-auto">
+                      {users.map((user) => {
+                        // Kiểm tra nếu user đã tồn tại trong danh sách "Đã chọn"
+                        const isUserSelected = selectedUsers.some((selectedUser) => selectedUser.id === user.id);
+
+                        // Xác định trạng thái và lớp CSS
+                        const isActive = user?.isActive;
+                        let borderColor = "border-gray-400"; // Mặc định là xám
+                        let statusText = "UNDEFINED";
+                        let statusBgColor = "bg-gray-400";
+
+                        if (isActive === true) {
+                          borderColor = "border-green-500";
+                          statusText = "ACTIVE";
+                          statusBgColor = "bg-green-500";
+                        } else if (isActive === false) {
+                          borderColor = "border-red-500";
+                          statusText = "INACTIVE";
+                          statusBgColor = "bg-red-500";
+                        }
+
+                        return (
+                          <li
+                            key={user.id}
+                            className="p-4 border rounded shadow hover:bg-gray-100 relative"
+                          >
+                            <button
+                              onClick={() => addUserToSelectedList(user)}
+                              type="button"
+                              className={`absolute top-2 right-2 border rounded p-1 ${
+                                isUserSelected
+                                  ? "bg-gray-400 cursor-not-allowed"
+                                  : "bg-blue-500 text-white hover:bg-blue-600"
+                              } text-xs`}
+                              disabled={isUserSelected} // Disable nút nếu user đã được chọn
+                            >
+                              +
+                            </button>
+                            <div className="flex items-center">
+                              <div className="relative">
+                                <img
+                                  className={`object-cover w-16 h-16 border-2 rounded-full mr-5 ${borderColor}`}
+                                  src={user.avartarUrl || "https://static.vecteezy.com/system/resources/previews/009/292/244/non_2x/default-avatar-icon-of-social-media-user-vector.jpg"}
+                                  alt={user.name || "User"}
+                                />
+                                {/* Hiển thị trạng thái */}
+                                <span
+                                  className={`absolute px-1 bottom-0 left-1/2 transform -translate-x-1/2 text-xs font-semibold text-white rounded-full ${statusBgColor}`}
+                                >
+                                  {statusText}
+                                </span>
+                              </div>
+                              
+                              <div className="flex-1">
+                                <p className="flex text-start text-sm font-semibold">
+                                  <FaAddressCard className="mr-2 mt-1"/>{user.name} {user.username?"- " + user.username:""}
+                                </p>
+                                <p className="flex text-start text-sm text-gray-500">
+                                  <FaPhone className="mr-2 mt-1"/>{user.phoneNumber}
+                                </p>
+                                <p className="flex text-start text-sm text-gray-500">
+                                  <FaEnvelope className="mr-2 mt-1"/>{user.email}
+                                </p>
+                                <p className="flex text-start text-sm text-gray-500">
+                                  <FaHome className="mr-2 mt-1"/>{user.address}
+                                </p>
+                              </div>
+                            </div>
+                          </li>
+                        );
+                      })}
+                    </ul>
+                  ) : (
+                    <p className="text-gray-500">Không tìm thấy khách hàng nào.</p>
+                  )}
+                </div>
+
+                {/* Danh sách đã chọn */}
+                <div className="ml-1 mt-4 border rounded p-2 w-[50%] h-[60vh]">
+                  <div className="text-center font-semibold mb-4 bg-gray-200 rounded p-1">Đã chọn</div>
+                  <div className="mb-2">
+                    {/* Nút xóa tất cả */}
+                    {selectedUsers.length > 0 && (
+                      <button
+                        onClick={clearAllSelectedUsers} // Gọi hàm xóa tất cả
+                        type="button"
+                        className="w-full p-1 bg-red-500 text-white rounded hover:bg-red-600"
+                      >
+                        Xóa tất cả
+                      </button>
+                    )}
+                  </div>
+                  {selectedUsers.length > 0 ? (
+                    <ul className="space-y-2 max-h-[44vh] overflow-y-auto">
+                      {selectedUsers.map((user) => {
+                        // Xác định trạng thái và lớp CSS
+                        const isActive = user?.isActive;
+                        let borderColor = "border-gray-400"; // Mặc định là xám
+                        let statusText = "UNDEFINED";
+                        let statusBgColor = "bg-gray-400";
+
+                        if (isActive === true) {
+                          borderColor = "border-green-500";
+                          statusText = "ACTIVE";
+                          statusBgColor = "bg-green-500";
+                        } else if (isActive === false) {
+                          borderColor = "border-red-500";
+                          statusText = "INACTIVE";
+                          statusBgColor = "bg-red-500";
+                        }
+
+                        return (
+                          <li
+                            key={user.id}
+                            className="p-4 border rounded shadow hover:bg-gray-100 relative"
+                          >
+                            <button
+                              onClick={() => removeUserFromSelectedList(user.id)}
+                              type="button"
+                              className="absolute top-2 right-2 border rounded p-1 bg-red-500 text-white hover:bg-red-600 text-xs"
+                            >
+                              X
+                            </button>
+                            <div className="flex items-center">
+                              <div className="relative">
+                                <img
+                                  className={`object-cover w-16 h-16 border-2 rounded-full mr-5 ${borderColor}`}
+                                  src={user.avartarUrl || "https://static.vecteezy.com/system/resources/previews/009/292/244/non_2x/default-avatar-icon-of-social-media-user-vector.jpg"}
+                                  alt={user.name || "User"}
+                                />
+                                {/* Hiển thị trạng thái */}
+                                <span
+                                  className={`absolute px-1 bottom-0 left-1/2 transform -translate-x-1/2 text-xs font-semibold text-white rounded-full ${statusBgColor}`}
+                                >
+                                  {statusText}
+                                </span>
+                              </div>
+                              
+                              <div className="flex-1">
+                                <p className="flex text-start text-sm font-semibold">
+                                  <FaAddressCard className="mr-2 mt-1"/>{user.name} {user.username?"- " + user.username:""}
+                                </p>
+                                <p className="flex text-start text-sm text-gray-500">
+                                  <FaPhone className="mr-2 mt-1"/>{user.phoneNumber}
+                                </p>
+                                <p className="flex text-start text-sm text-gray-500">
+                                  <FaEnvelope className="mr-2 mt-1"/>{user.email}
+                                </p>
+                                <p className="flex text-start text-sm text-gray-500">
+                                  <FaHome className="mr-2 mt-1"/>{user.address}
+                                </p>
+                              </div>
+                            </div>
+                          </li>
+                        );
+                      })}
+                    </ul>
+                  ) : (
+                    <p className="text-gray-500">Chưa có khách hàng nào được chọn.</p>
+                  )}
+                </div>
+              </div>
+
+              {/* Phân trang */}
+              <form>
+                <Pagination                                   
+                  currentPage={userPagination.currentPage}
+                  totalPages={userPagination.totalPages}
+                  pageSize={userPagination.pageSize}
+                  totalRecords={userPagination.totalRecords}
+                  onPageChange={handleUserPageChange}
+                  onPageSizeChange={handleUserPageSizeChange}
+                />
+                <input required hidden/>
+              </form>
+            </div>
+          </div>
+          )}
       </div>
     </div>
   );

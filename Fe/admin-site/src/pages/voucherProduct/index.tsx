@@ -132,15 +132,15 @@ const VoucherProducts: React.FC = () => {
     <>
       <section className="px-8">
         <Helmet>
-          <title>Các sản phẩm áp dụng Voucher {voucher.voucherName}</title>
+          <title>Danh sách sản phẩm áp dụng Voucher {voucher.voucherName}</title>
         </Helmet>
         <h2 className="text-2xl mb-2">
-          Danh sách Sản phẩm áp dụng Voucher: {voucher.voucherName} {renderStatusDate()}
+          Danh Sách Sản Phẩm Áp Dụng Voucher: {voucher.voucherName} {renderStatusDate()}
         </h2>
         <div className="flex text-sm text-gray-500">
           <div className="w-1/2">
             - Mã Voucher: {voucher.code} <br/> 
-            - Loại Voucher: {voucher.voucherType === 1 ? "Voucher toàn shop" : "Voucher sản phẩm"} ({voucher.displaySettings === 0?"Không công khai":"Hiển thị nhiều nơi"}) <br/>
+            - Loại Voucher: {voucher.voucherType === 1 ? "Voucher toàn shop" : "Voucher sản phẩm"} <br/>
             - Giảm giá: {voucher.discountAmount? formatCurrency(voucher.discountAmount) + " VNĐ" : formatCurrency(voucher.discountPercentage?voucher.discountPercentage:0) + "%" + " (Tối đa: " + formatCurrency(voucher.maxDiscountAmount?voucher.maxDiscountAmount:0) + " VNĐ)" } <br/>
             - Giá trị đơn hàng tối thiểu: {voucher.minimumOrderAmount? formatCurrency(voucher.minimumOrderAmount) + " VNĐ" : "Không yêu cầu"}
           </div>
