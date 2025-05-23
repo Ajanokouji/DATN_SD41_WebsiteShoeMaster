@@ -98,16 +98,7 @@ namespace Project.MVC.Controllers
             }
 
             //Đăng nhập thành công
-            if (userFound.Type ==UserTypeEnum.Admin) //Nếu type là Admin (Giả sử type = 0 là Admin)
-            {
-                //Tạo session user
-                HttpContext.Session.SetString(UserConstants.UserSessionKey, JsonConvert.SerializeObject(userFound));
-
-                //Mới in ra thông báo Chưa thực hiện chuyển hướng
-                TempData["ErrLoginMs"] = "Đăng nhập thành công dưới quyền Admin";
-                return RedirectToAction("Login");
-            }
-            else if (userFound.Type == UserTypeEnum.Customer) //Nếu type là Khách hàng (Giả sử type = 1 là khách hàng)
+            if (userFound.Type == UserTypeEnum.Customer) //Nếu type là Khách hàng
             {
                 string ms = "";
 
@@ -145,20 +136,12 @@ namespace Project.MVC.Controllers
                 //Chuyển hướng tới trang chủ
                 return RedirectToAction("Index","Home");
             }
-            else if (userFound.Type == UserTypeEnum.User) //Nếu type là Nhân viên (Giả sử type = 2 là Nhân viên)
-            {
-                //Tạo session user
-                HttpContext.Session.SetString(UserConstants.UserSessionKey, JsonConvert.SerializeObject(userFound));
-
-                //Mới in ra thông báo Chưa thực hiện chuyển hướng
-                TempData["ErrLoginMs"] = "Đăng nhập thành công dưới quyền Nhân viên";
-                return View(user);
-            }
             else
             {
-                //Không xác định được quyền user
-                TempData["ErrLoginMs"] = "Lỗi không xác định được quyền user";
-                return View(user);
+                //Tài khoản không phải khách hàng
+                TempData["ErrLoginMs"] = "Thông tin đăng nhập chưa chính xác, vui lòng kiểm tra lại";
+                TempData["LoginUserData"] = JsonConvert.SerializeObject(user);
+                return RedirectToAction("Login");
             }
         }
 

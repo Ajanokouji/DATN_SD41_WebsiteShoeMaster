@@ -171,9 +171,9 @@ namespace Project.Business.Implement
                 Status = exist.Status,
                 TotalMaxUsage = exist.TotalMaxUsage,
                 MaxUsagePerCustomer = exist.MaxUsagePerCustomer,
-                DisplaySettings = exist.DisplaySettings,
                 RedeemCount = exist.RedeemCount,
-                MaxDiscountAmount = exist.MaxDiscountAmount
+                MaxDiscountAmount = exist.MaxDiscountAmount,
+                ImageUrl = exist.ImageUrl,
             };
 
             if (!string.IsNullOrWhiteSpace(model.Code))
@@ -185,6 +185,7 @@ namespace Project.Business.Implement
             update.Description = model.Description;
             update.DiscountAmount = model.DiscountAmount;
             update.DiscountPercentage = model.DiscountPercentage;
+            update.ImageUrl = model.ImageUrl;
 
             if (model.MinimumOrderAmount >= 0)
             {
@@ -219,10 +220,6 @@ namespace Project.Business.Implement
             {
                 update.MaxUsagePerCustomer = model.MaxUsagePerCustomer;
             }
-            if (model.DisplaySettings >= 0)
-            {
-                update.DisplaySettings = model.DisplaySettings;
-            }
             if (model.MaxDiscountAmount >= 0)
             {
                 update.MaxDiscountAmount = model.MaxDiscountAmount;
@@ -231,6 +228,7 @@ namespace Project.Business.Implement
             {
                 update.RedeemCount = model.RedeemCount;
             }
+
             return await SaveAsync(update);
         }
 
@@ -283,7 +281,6 @@ namespace Project.Business.Implement
                 exist.VoucherType = voucher.VoucherType > 0 ? voucher.VoucherType : exist.VoucherType;
                 exist.TotalMaxUsage = voucher.TotalMaxUsage > 0 ? voucher.TotalMaxUsage : exist.TotalMaxUsage;
                 exist.MaxUsagePerCustomer = voucher.MaxUsagePerCustomer > 0 ? voucher.MaxUsagePerCustomer : exist.MaxUsagePerCustomer;
-                exist.DisplaySettings = voucher.DisplaySettings > 0 ? voucher.DisplaySettings : exist.DisplaySettings;
                 exist.MaxDiscountAmount = voucher.MaxDiscountAmount > 0 ? voucher.MaxDiscountAmount : exist.MaxDiscountAmount;
                 exist.RedeemCount = voucher.RedeemCount >= 0 ? voucher.RedeemCount : exist.RedeemCount;
 

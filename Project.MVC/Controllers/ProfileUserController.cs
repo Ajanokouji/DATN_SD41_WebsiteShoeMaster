@@ -39,7 +39,7 @@ namespace Project.MVC.Controllers
         public async Task<IActionResult> ProfileUser(IFormCollection form, IFormFile? AvatarFile)
         {
             var errAndUserEntity = await CheckUserIsLoginning();
-            if (!string.IsNullOrWhiteSpace(errAndUserEntity.Err))
+            if (!String.IsNullOrWhiteSpace(errAndUserEntity.Err))
             {
                 TempData["ErrProfileUserMs"] = errAndUserEntity.Err;
                 return View(new UserEntity());

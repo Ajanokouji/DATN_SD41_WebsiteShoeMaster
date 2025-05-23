@@ -78,7 +78,7 @@
                 <img src="@(!String.IsNullOrWhiteSpace(user.AvartarUrl)?user.AvartarUrl:"https://static.vecteezy.com/system/resources/previews/009/292/244/non_2x/default-avatar-icon-of-social-media-user-vector.jpg")" class="user-avatar border rounded-circle" style="width:70px; height:70px; object-fit: cover;" alt="user-avater">
                 <div class="user-links" style="display: none; margin-left: 10px; background: #fff; border: 1px solid #ccc; padding: 10px; border-radius: 5px; box-shadow: 0 0 5px rgba(0,0,0,0.2); position: absolute; top: 0px; left: 80px; white-space: nowrap;">
                     <a asp-controller="ProfileUser" asp-action="ProfileUser" style="display: block; margin-bottom: 5px; color:black;">Hồ sơ của tôi</a>
-                    <a asp-controller="ProfileUser" asp-action="ProfileUser" style="display: block; margin-bottom: 5px; color:black;">Đơn hàng của tôi</a>
+                    <a asp-controller="BillUser" asp-action="BillUser" style="display: block; margin-bottom: 5px; color:black;">Đơn hàng của tôi</a>
                     <a asp-controller="ProfileUser" asp-action="ProfileUser" style="display: block; margin-bottom: 5px; color:black;">Voucher của tôi</a>
                     <a asp-controller="Login" asp-action="Logout" style="display: block; color:black;">Đăng xuất</a>
                 </div>
@@ -166,7 +166,7 @@
                                         <img src="@(!String.IsNullOrWhiteSpace(user.AvartarUrl)?user.AvartarUrl:"https://static.vecteezy.com/system/resources/previews/009/292/244/non_2x/default-avatar-icon-of-social-media-user-vector.jpg")" class="user-avatar border rounded-circle" style="width:50px; height:50px; object-fit: cover;" alt="user-avater">
                                         <div class="user-links" style="display: none; margin-left: 10px; background: #fff; border: 1px solid #ccc; padding: 10px; border-radius: 5px; box-shadow: 0 0 5px rgba(0,0,0,0.2); position: absolute; top: 65px; left: -150px; z-index:999; white-space: nowrap;">
                                             <a asp-controller="ProfileUser" asp-action="ProfileUser" style="display: block; margin-bottom: 5px; color:black;">Hồ sơ của tôi</a>
-                                            <a asp-controller="ProfileUser" asp-action="ProfileUser" style="display: block; margin-bottom: 5px; color:black;">Đơn hàng của tôi</a>
+                                            <a asp-controller="BillUser" asp-action="BillUser" style="display: block; margin-bottom: 5px; color:black;">Đơn hàng của tôi</a>
                                             <a asp-controller="ProfileUser" asp-action="ProfileUser" style="display: block; margin-bottom: 5px; color:black;">Voucher của tôi</a>
                                             <a asp-controller="Login" asp-action="Logout" style="display: block; color:black;">Đăng xuất</a>
                                         </div>
