@@ -71,5 +71,9 @@ namespace Project.Business.Interface
         /// <param name="contentBase">The content entity.</param>
         /// <returns>The updated content.</returns>
         Task<ContentBase> PatchAsync(ContentBase contentBase);
+        Task<List<ContentBase>> SearchContentBaseByKeywordsAsync(string input);
+        Task<List<ContentBase>> GetByIdsAsync(IEnumerable<Guid> ids);
+
+
     }
 }

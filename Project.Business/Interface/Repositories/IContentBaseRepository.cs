@@ -15,6 +15,8 @@ namespace Project.Business.Interface.Repositories
         Task<int> GetCountAsync(ContentBaseQueryModel query);
         Task<ContentBase> SaveAsync(ContentBase article);
         Task<IEnumerable<ContentBase>> SaveAsync(IEnumerable<ContentBase> entities);
+        Task<List<ContentBase>> SearchContentBaseByKeywordsAsync(string input);
+        Task<List<ContentBase>> GetByIdsAsync(IEnumerable<Guid> ids);
 
 
     }

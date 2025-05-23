@@ -65,5 +65,7 @@ namespace Project.Business.Implement
             var deleted = await _repository.DeleteAsync(id);
             return _mapper.Map<ContentBaseModel>(deleted);
         }
+       
+
     }
 }

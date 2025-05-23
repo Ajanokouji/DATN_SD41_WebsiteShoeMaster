@@ -83,5 +83,16 @@ namespace Project.Business.Implement
         {
              return await _contentBaseRepository.SaveAsync(contentBases);
         }
+        public async Task<List<ContentBase>> SearchContentBaseByKeywordsAsync(string input)
+        {
+            return await _contentBaseRepository.SearchContentBaseByKeywordsAsync(input);
+        }
+        public async Task<List<ContentBase>> GetByIdsAsync(IEnumerable<Guid> ids)
+        {
+            return await _contentBaseRepository.GetByIdsAsync(ids);
+        }
+
+
+
     }
 }
