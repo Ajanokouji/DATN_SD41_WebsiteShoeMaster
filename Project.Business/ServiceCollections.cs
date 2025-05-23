@@ -80,6 +80,7 @@ namespace Project.Business
 
             services.AddScoped<IProvinceRepository, ProvinceRepository>();
             services.AddScoped<IProvinceBusiness, ProvinceBusiness>();
+            services.AddScoped<ICartDetailFactory, CartDetailFactory>();
 
 
             services.AddScoped<IBillIntercepterAfterSave, SendEmailAfterSaveBill>();

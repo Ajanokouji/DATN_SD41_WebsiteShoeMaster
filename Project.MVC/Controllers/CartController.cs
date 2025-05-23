@@ -162,7 +162,7 @@ namespace Project.MVC.Controllers
                     }
                 };
 
-                var result = await _cartBusiness.AddToCartDb(user, cartDetails);
+                var result = await _cartBusiness.AddToCartAsync(user.Id, cartDetails);
                 if (!result.IsSuccess)
                     return Json(new { success = false, message = result.Message });
 
