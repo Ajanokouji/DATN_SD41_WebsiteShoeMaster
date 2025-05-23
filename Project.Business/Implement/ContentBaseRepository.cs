@@ -1,6 +1,7 @@
 ﻿using Microsoft.EntityFrameworkCore;
 using Nest;
 using Project.Business.Interface.Repositories;
+using Project.Business.Interface.Services;
 using Project.Business.Model;
 using Project.DbManagement;
 using Project.DbManagement.Entity;
@@ -11,7 +12,9 @@ using SERP.Framework.DB.Extensions;
 using SERP.NewsMng.Business.Models.QueryModels;
 using System;
 using System.Collections.Generic;
+using System.Globalization;
 using System.Linq;
+using System.Text;
 using System.Threading.Tasks;
 using static Microsoft.EntityFrameworkCore.DbLoggerCategory;
 
@@ -25,6 +28,55 @@ namespace Project.Business.Implement
         {
             _context = context;
         }
+        public async Task<List<ContentBase>> SearchContentBaseByKeywordsAsync(string currentTitle)
+        {
+            if (string.IsNullOrWhiteSpace(currentTitle))
+                return new List<ContentBase>();
+
+            string NormalizeString(string str)
+            {
+                str = str.ToLowerInvariant();
+                var normalizedString = str.Normalize(NormalizationForm.FormD);
+                var sb = new StringBuilder();
+                foreach (var c in normalizedString)
+                {
+                    if (CharUnicodeInfo.GetUnicodeCategory(c) != UnicodeCategory.NonSpacingMark)
+                    {
+                        sb.Append(c);
+                    }
+                }
+                return sb.ToString().Normalize(NormalizationForm.FormC);
+            }
+
+            var keywords = NormalizeString(currentTitle)
+                .Split(' ', StringSplitOptions.RemoveEmptyEntries | StringSplitOptions.TrimEntries)
+                .Distinct()
+                .ToList();
+
+            if (!keywords.Any())
+                return new List<ContentBase>();
+
+            var allArticles = await _context.ContentBases.AsNoTracking().ToListAsync();
+
+            var matched = allArticles
+                .Where(article =>
+                {
+                    var normTitle = NormalizeString(article.Title ?? "");
+                    var normSeoTitle = NormalizeString(article.SeoTitle ?? "");
+                    var normContent = NormalizeString(article.Content ?? "");
+
+                    return keywords.Any(k =>
+                        normTitle.Contains(k) ||
+                        normSeoTitle.Contains(k) ||
+                        normContent.Contains(k));
+                })
+                .OrderByDescending(a => a.PublishStartDate ?? DateTime.MinValue)
+                .Take(6)
+                .ToList();
+
+            return matched;
+        }
+
 
         public async Task<ContentBase> FindAsync(Guid id)
         {
@@ -166,5 +218,12 @@ namespace Project.Business.Implement
         {
            throw new NotImplementedException();
         }
+        public async Task<List<ContentBase>> GetByIdsAsync(IEnumerable<Guid> ids)
+        {
+            return await _context.ContentBases
+                                   .Where(x => ids.Contains(x.Id))
+                                   .ToListAsync();
+        }
+
     }
 }
