@@ -10,8 +10,6 @@ using Project.Business.ModelFactory;
 using Project.Business.Model.PatchModel;
 using Project.DbManagement.ViewModels;
 using Project.Business.Intercepter;
-using System;
-using static System.Net.Mime.MediaTypeNames;
 
 namespace Project.Business.Implement
 {
@@ -292,7 +290,7 @@ namespace Project.Business.Implement
                     PaymentMethodId =  model.PaymentMethodId,
                     PaymentMethod = model.PaymentMethod,
                     PaymentStatus = model.PaymentStatus,
-                    CreatedOnDate = DateTime.Now
+                    CreatedOnDate = DateTime.Now,
                 };
 
                 var savedBill = await SaveAsync(billEntity);
