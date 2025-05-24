@@ -14,7 +14,7 @@ import { useProductForm } from "./use-product-form";
 import { selectProduct } from "@/redux/apps/product/productSelector";
 import { VariantList } from "./VariantList";
 import { MediaList } from "./MediaList";
-
+import { VariantForm } from "../FormAdd/VariantForm";
 interface UpdateProductSheetProps {
   productId: string;
   isOpen: boolean;
@@ -75,6 +75,8 @@ const UpdateProductSheet: React.FC<UpdateProductSheetProps> = ({
             onAdd={handleAddVariant}
             onRemove={handleRemoveVariant}
           />
+
+          
 
           <MediaList
             mediaUrls={mediaObjs}

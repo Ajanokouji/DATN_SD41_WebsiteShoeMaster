@@ -51,7 +51,7 @@ export const MetadataFieldCard: React.FC<MetadataFieldCardProps> = ({
     <Card className="border border-gray-200">
       <CardHeader className="pb-2">
         <div className="flex justify-between items-center">
-          <CardTitle className="text-base">Field #{index + 1}</CardTitle>
+          <CardTitle className="text-base">Trường dữ liệu #{index + 1}</CardTitle>
           <Button type="button" variant="ghost" size="sm" onClick={onRemove}>
             <Trash2 className="h-4 w-4 text-red-500" />
           </Button>
@@ -64,9 +64,9 @@ export const MetadataFieldCard: React.FC<MetadataFieldCardProps> = ({
             name={`metadataObj.${index}.fieldName`}
             render={({ field }) => (
               <FormItem>
-                <FormLabel>Field Name</FormLabel>
+                <FormLabel>Tên trường</FormLabel>
                 <FormControl>
-                  <Input placeholder="e.g. status" {...field} />
+                  <Input placeholder="Ví dụ: Trạng thái" {...field} />
                 </FormControl>
                 <FormMessage />
               </FormItem>
@@ -78,9 +78,9 @@ export const MetadataFieldCard: React.FC<MetadataFieldCardProps> = ({
             name={`metadataObj.${index}.fieldDisplayName`}
             render={({ field }) => (
               <FormItem>
-                <FormLabel>Display Name</FormLabel>
+                <FormLabel>Tên hiển trị</FormLabel>
                 <FormControl>
-                  <Input placeholder="e.g. Status" {...field} />
+                  <Input placeholder="Ví dụ: Trạng thái" {...field} />
                 </FormControl>
                 <FormMessage />
               </FormItem>
@@ -90,14 +90,14 @@ export const MetadataFieldCard: React.FC<MetadataFieldCardProps> = ({
 
         <div className="space-y-2">
           <div className="flex justify-between items-center">
-            <FormLabel>Selection Values</FormLabel>
+            <FormLabel>Lựa chọn giá trị</FormLabel>
             <Button
               type="button"
               variant="outline"
               size="sm"
               onClick={addFieldSelectionValue}
             >
-              <Plus className="h-3 w-3 mr-1" /> Add Option
+              <Plus className="h-3 w-3 mr-1" /> Thêm lựa chọn
             </Button>
           </div>
 
@@ -110,12 +110,12 @@ export const MetadataFieldCard: React.FC<MetadataFieldCardProps> = ({
             name={`metadataObj.${index}.fieldValues`}
             render={({ field }) => (
               <FormItem>
-                <FormLabel>Default Values</FormLabel>
+                <FormLabel>Giá trị mặc định</FormLabel>
                 <FormControl>
-                  <Input placeholder="Default values" {...field} />
+                  <Input placeholder="Nhập giá trị mặc định" {...field} />
                 </FormControl>
                 <FormDescription>
-                  Comma-separated default values
+                Các giá trị mặc định được phân tách bằng dấu phẩy
                 </FormDescription>
                 <FormMessage />
               </FormItem>

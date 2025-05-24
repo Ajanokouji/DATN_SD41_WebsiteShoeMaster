@@ -61,7 +61,8 @@ import {
   
     // Handle input change
     const handleSearchChange = (value: string) => {
-      setSearchValue(value);
+        setSearchValue(value); // GUID mặc định
+      
     };
   
     // Handle item selection
@@ -94,7 +95,7 @@ import {
                 <Command>
                   <CommandInput
                     placeholder="Search categories..."
-                    value={searchValue}
+                    value={""}
                     onValueChange={handleSearchChange}
                   />
                   <CommandList>

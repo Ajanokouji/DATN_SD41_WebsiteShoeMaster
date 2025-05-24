@@ -108,11 +108,12 @@ export const useProductForm = (
     setVariantObjs([
       ...variantObjs,
       {
-        id: "",
-        productId: productId || "",
-        size: "",
-        sizeType: "",
-        lowestAsk: 0,
+        group1: "",
+        group2: "",
+        price: "",
+        stock: 0,
+        sku: "",
+        imgUrl:"",
       },
     ]);
   };
@@ -193,6 +194,8 @@ export const useProductForm = (
       variantObjs: variantObjs,
       mediaObjs: mediaObjs,
     };
+
+    console.log("Updated Product:", updatedProduct);
 
     dispatch(updateProduct({ id: productId, data: updatedProduct }));
     setIsEditing(false);
