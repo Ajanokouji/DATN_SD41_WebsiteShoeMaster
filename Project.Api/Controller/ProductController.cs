@@ -1,4 +1,5 @@
 using Microsoft.AspNetCore.Mvc;
+using Newtonsoft.Json;
 using Project.Business.Interface;
 using Project.Business.Model;
 using Project.DbManagement.Entity;
@@ -65,12 +66,16 @@ namespace Project.Api.Controllers
 
         [HttpPatch("{id}")]
         [ProducesResponseType(typeof(ResponseObject<ProductEntity>), StatusCodes.Status200OK)]
-        public async Task<IActionResult> PatchProduct(Guid id, [FromBody] ProductEntity productEntity)
+        public async Task<IActionResult> PatchProduct(Guid id, [FromBody] ProductPatchModel productEntity)
         {
             return await ExecuteFunction(async () =>
             {
-               
-                var updatedProduct = await _productBusiness.PatchAsync(productEntity);
+               if(productEntity.VariantObjs != null)
+                {
+                    productEntity.VariantJson = JsonConvert.SerializeObject(productEntity.VariantObjs);
+                }
+                 
+                    var updatedProduct = await _productBusiness.PatchAsync(productEntity);
                 return updatedProduct;
             });
         }

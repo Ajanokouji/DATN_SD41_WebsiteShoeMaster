@@ -23,6 +23,7 @@ export const productFormSchema = z.object({
       imgUrl : z.string().optional()
     })
   ),
+  variantJson: z.string().optional(),
   metadataObj: z.array(
     z.object({
       fieldName: z.string().min(1, "Field name is required"),

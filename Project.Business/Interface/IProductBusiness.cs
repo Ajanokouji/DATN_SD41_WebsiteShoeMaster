@@ -84,7 +84,7 @@ namespace Project.Business.Interface
         /// </summary>
         /// <param name="productEntity"></param>
         /// <returns></returns>
-        Task<ProductEntity> PatchAsync(ProductEntity productEntity);
+        Task<ProductEntity> PatchAsync(ProductPatchModel productEntity);
 
         Task<ProductEntity> PatchVariantStockBySKUAsync(Guid productId, Variant variant);
         Task<List<ListProductSellViewModel>> GetAllProduct();

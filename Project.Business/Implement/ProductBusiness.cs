@@ -203,7 +203,7 @@ namespace Project.Business.Implement
             }
         }
 
-        public async Task<ProductEntity> PatchAsync(ProductEntity model)
+        public async Task<ProductEntity> PatchAsync(ProductPatchModel model)
         {
             try
             {
@@ -233,8 +233,8 @@ namespace Project.Business.Implement
                         Description = model.Description ?? exist.Description,
                         ImageUrl = model.ImageUrl ?? exist.ImageUrl,
                         IsDeleted = exist.IsDeleted,
-                        LabelsJson = model.LabelsJson ?? exist.LabelsJson,
-                        LabelsObjs = model.LabelsObjs ?? exist.LabelsObjs,
+                        //LabelsJson = model.LabelsJson ?? exist.LabelsJson,
+                        //LabelsObjs = model.LabelsObjs ?? exist.LabelsObjs,
                         LastModifiedByUserId = exist.LastModifiedByUserId,
                         LastModifiedOnDate = DateTime.UtcNow,
                         Code = model.Code ?? exist.Code,
@@ -372,7 +372,8 @@ namespace Project.Business.Implement
             //updateVariant.ImgUrl = variant.ImgUrl;
 
             // Lưu lại product đã cập nhật variant
-            var result = await PatchAsync(exist);
+            var existProduct = AutoMapperUtils.AutoMap<ProductEntity, ProductPatchModel>(exist);
+            var result = await PatchAsync(existProduct);
             return result;
         }
     }
