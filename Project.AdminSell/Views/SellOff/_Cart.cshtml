@@ -25,7 +25,7 @@
         <div class="search-product d-flex align-items-center">
             <div class="search-bar">
                 <form class="search-form d-flex align-items-center" id="customer-search-form">
-                    <input type="text" id="searchClientInput" name="query" style="outline: none;" id="search"
+                    <input type="text" id="searchClientInput" name="query" style="outline: none; width: 300px; margin-left: 213px;" id="search"
                            value="@Model.NameClient"
                            placeholder="Nhập số điện thoại khách hàng" autocomplete="off">
                     <button type="button" title="Thêm mới khách hàng" data-bs-toggle="modal"
@@ -34,7 +34,9 @@
                     <div id="customer-suggestions" class="list-group position-absolute" style="z-index:1000;"></div>
                 </form>
                 <div>
-                    <ul class="list-group pt-2" id="result"><div id="customer-suggestions"></div></ul>
+                    <ul class="list-group pt-2" id="result">
+                        <div id="customer-suggestions"></div>
+                    </ul>
                 </div>
             </div>
         </div>
@@ -101,7 +103,7 @@
         </div>
     </div>
 
-    <div class="cthd d-flex flex-column mt-2" style="height:570px;">
+    <div class="cthd d-flex flex-column mt-2" style="height:630px;">
         @{
             var index = 1;
             var tsl = 0;
@@ -121,7 +123,8 @@
                             @* <div class="cell-code">Code</div> *@
                             <div>
                                 <div class="cell-name">@item.Name</div>
-                                <span class="badge bg-danger" style="color:#fff; font-weight:600">@item.Color - @item.Size</span>
+                                <span class="badge bg-danger"
+                                      style="color:#fff; font-weight:600">@item.Color - @item.Size</span>
                             </div>
                         </div>
                         <div class="cell-content-bottom" style="height: 30px; margin-top: 30px;">
@@ -134,7 +137,10 @@
                                             class="fa-solid fa-chevron-right"></i></span>
                                 </div>
                             </div>
-                            <div class="cell-changeprice2">@((item.Price * item.Quantity).ToString())</div>
+                            <div
+                                class="cell-changeprice2">@(((decimal)(item.Price * item.Quantity)).ToString("n0"))ᴠɴᴅ
+                            </div>
+
                         </div>
                     </div>
                     <div class="cell-add">
@@ -149,35 +155,19 @@
             }
         </div>
     </div>
-    <div class="d-flex flex-column bg-light mt-auto align-items-stretch" style="justify-content:center;font-size:24px">
-        <div class="d-flex flex-row p-2 justify-content-center" style="font-size:18px;background:#e8eaed">
-            <div class="flex-fill">
-                <p>SL: </p>
+    <div class="flex-column bg-light mt-auto align-items-stretch"
+         style="justify-content:center;font-size:24px;">
+        <div class="d-flex flex-row p-2 justify-content-center"
+             style="font-size:18px;background:#e8eaed; margin-top: 5px;">
+            <div class="flex-fill" style="display: flex; margin-top: 15px;">
+                <p>Tổng số lượng sản phẩm: </p>
+                <p style="margin-left: 10px;" id="tsl">3</p>
             </div>
-            <div class="flex-fill">
-                <p id="tsl">@tsl</p>
-            </div>
-            <div class="flex-fill">
+            <div class="flex-fill" style="display: flex; margin-top: 15px;">
                 <p>Tổng tiền: </p>
+                <p style="text-align:right; padding-right:70px; color: red; margin-left: 10px;"><b
+                        id="tongtienhang">@ttien.ToString("n0")ᴠɴᴅ</b></p>
             </div>
-            <div class="justify-content-end">
-                <p style="text-align:right; padding-right:70px"><b id="tongtienhang">@ttien.ToString("n0")</b></p>
-            </div>
-        </div>
-        <div class="d-flex flex-row mt-2 p-2">
-            <div class="flex-fill pe-2">
-                <div class="input-group">
-                    <span class="input-group-text border border-secondary">
-                        Ghi chú
-                    </span>
-                    <textarea class="form-control border border-secondary" aria-label="With textarea"
-                              id="ghichu">@Model.Note</textarea>
-                </div>
-            </div>
-            @* <button type="button" id="btnThanhToan" class="btn btn-primary fw-bold btn-block" *@
-            @*         style="font-size:20px; width:400px"> *@
-            @*     THANH TOÁN *@
-            @* </button> *@
             <button type="button" id="btnThanhToan" class="btn btn-primary fw-bold btn-block"
                     style="font-size:20px; width:400px">
                 Thanh toán

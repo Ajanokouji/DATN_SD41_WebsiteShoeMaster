@@ -11,6 +11,68 @@
     {
         loginInfor = JsonConvert.DeserializeObject<UserEntity>(Context.Session.GetString("LoginInfor"));
     }
+    string status = null;
+    string amount = null;
+    string txnRef = null;
+    bool hasVnPayResult = false;
+    long amountParsed = 0;
+
+    if (TempData["VnPayStatus"] != null)
+    {
+        hasVnPayResult = true;
+        status = TempData["VnPayStatus"].ToString();
+        amount = TempData["VnPayAmount"].ToString();
+        txnRef = TempData["VnPayTxnRef"].ToString();
+        long.TryParse(amount, out amountParsed);
+    }
+}
+
+<style>
+    .vnpay-modal-overlay {
+        position: fixed;
+        top: 0; left: 0;
+        width: 100%; height: 100%;
+        background: rgba(0,0,0,0.5);
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        z-index: 9999;
+    }
+    .vnpay-modal-content {
+        background: #fff;
+        padding: 30px;
+        border-radius: 8px;
+        text-align: center;
+        width: 90%;
+        max-width: 400px;
+        box-shadow: 0 0 10px rgba(0,0,0,0.3);
+        font-family: Arial, sans-serif;
+    }
+    .vnpay-modal-content button {
+        margin-top: 20px;
+        padding: 8px 16px;
+        border: none;
+        background: #007bff;
+        color: white;
+        border-radius: 4px;
+        cursor: pointer;
+    }
+</style>
+
+
+@if (hasVnPayResult)
+{
+    <div id="vnPayModal" class="vnpay-modal-overlay" style="display: flex;">
+        <div class="vnpay-modal-content">
+            <h2 style="color:@(status == "success" ? "green" : "red")">
+                @(status == "success" ? "✅ Thanh toán thành công!" : "❌ Thanh toán thất bại")
+            </h2>
+            <p><strong>Mã đơn hàng:</strong> @txnRef</p>
+            <p><strong>Số tiền:</strong> @(amountParsed / 100)VND</p>
+
+            <button onclick="closeModal()">Đóng</button>
+        </div>
+    </div>
 }
 
 <div class="d-flex flex-row align-items-stretch" style="background: #343a40; height: 875px; border-radius:5px;">
@@ -42,7 +104,7 @@
                 @* <div class="icon ms-auto"><i id="right" class="fa-solid fa-angle-right"></i></div> *@
             </div>
             <!--Tạo mới-->
-            <div class="ms-auto align-content-center" style="margin-top: 5px;">
+            <div class="align-content-center" style="margin-top: 5px; margin-left: 10px;">
                 <div class="btn-create d-flex align-items-center">
                     <button type="button" onclick="addPDBill()" class=""
                             title="Thêm mới">
@@ -66,7 +128,7 @@
         <div class="d-flex flex-column text-white w-100" style="height:50px; background-color: #343a40; border-radius:5px;">
             <div class="d-flex justify-content-start">
                 <div class="search-product d-flex align-items-center">
-                    <div class="search-bar" style="width: 530px;">
+                    <div class="search-bar">
                         <form class="search-form d-flex align-items-center" style="margin-top: 9px;">
                             <input type="text" id="searchProductInput" name="query" placeholder="Nhập tên sản phẩm hoặc mã sản phẩm"
                                    title="Enter search keyword">
@@ -302,6 +364,52 @@
             }
         });
     }
+    
+    // Thông báo VNPay thành công
+    window.onload = function () {
+        var modal = document.getElementById("vnPayModal");
+        if (modal) {
+            modal.style.display = "flex";
+        }
+    };
+    function closeModal() {
+        document.getElementById("vnPayModal").style.display = "none";
+        var status = '@status';
+        if (status == "success") {
+            var id = '@txnRef';
+            var totalprice = '@amountParsed';
+            var employeeId = '@loginInfor.Id';
+            thanhToanVnpay(id, totalprice, employeeId);
+        }
+    }
+
+    function thanhToanVnpay(id, totalprice, employeeId) {
+        var request = {
+            Id: id,
+            PaymentMethod: 'VNPay',
+            IdEmployee: employeeId,
+            TotalPrice: totalprice
+        };
+
+        $.ajax({
+            url: "/SellOff/ThanhToan",
+            async: false,
+            type: 'POST',
+            dataType: 'json',
+            data: request,
+            success: function (response) {
+                $("#partialCart").empty();
+                toastr.success('Thanh toán VNPay thành công', "Success", { timeOut: 300 });
+                loadPDBill(function () {
+                    activeTab(0);
+                });
+            },
+            error: function (response) {
+                toastr.error('Lưu đơn sau VNPay thất bại', 'Lỗi', { timeOut: 300 });
+            }
+        });
+    }
+
 
     //Xóa hóa đơn chờ
     function deletePDBill(idBill) {

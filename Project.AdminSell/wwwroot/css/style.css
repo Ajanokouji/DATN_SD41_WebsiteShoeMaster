@@ -1336,7 +1336,7 @@ h6 {
 
 .search-product .search-bar {
     min-width: 360px;
-    padding: 0 10px;
+    width: 525px;
 }
 
 @media (max-width: 410px) {
@@ -1424,7 +1424,7 @@ h6 {
     padding-top: 5px;
     position: relative;
     height: 50px;
-    width: 850px;
+    width: 1185px;
     background-color: #343a40;
 }
 
@@ -1499,14 +1499,6 @@ h6 {
     padding: 8px 15px;
     color: white;
     border-radius: 5px;
-}
-
-.tabs-box .tab:first-child {
-    margin-left: 5px;
-}
-
-.tabs-box .tab:last-child {
-    margin-right: 5px;
 }
 
 .tabs-box .tab:hover {
@@ -1724,6 +1716,7 @@ h6 {
     text-align:right;
     width: 30%;
     font-weight: 700;
+    color: red;
 }
 
 /*GIO HANG*/

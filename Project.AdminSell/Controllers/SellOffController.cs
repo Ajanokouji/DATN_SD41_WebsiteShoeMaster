@@ -299,14 +299,27 @@ public class SellOffController : Controller
     [HttpGet]
     public IActionResult VnPayReturn()
     {
-        // Ở đây bạn có thể lấy các tham số query string trả về từ VNPay như:
-        var vnpAmount = Request.Query["vnp_Amount"];
-        var vnpTxnRef = Request.Query["vnp_TxnRef"];
-        var vnpResponseCode = Request.Query["vnp_ResponseCode"];
-        // ... xử lý logic thanh toán, xác thực secure hash, cập nhật trạng thái đơn hàng...
+        // // Ở đây bạn có thể lấy các tham số query string trả về từ VNPay như:
+        // var vnpAmount = Request.Query["vnp_Amount"];
+        // var vnpTxnRef = Request.Query["vnp_TxnRef"];
+        // var vnpResponseCode = Request.Query["vnp_ResponseCode"];
+        // // ... xử lý logic thanh toán, xác thực secure hash, cập nhật trạng thái đơn hàng...
+        //
+        // // Tạm thời trả về thông báo đơn giản
+        // return Content($"Thanh toán VNPay trả về: Amount={vnpAmount}, TxnRef={vnpTxnRef}, ResponseCode={vnpResponseCode}");
+        var vnp_Amount = Request.Query["vnp_Amount"].ToString();
+        var vnp_TxnRef = Request.Query["vnp_TxnRef"].ToString();
+        var vnp_ResponseCode = Request.Query["vnp_ResponseCode"].ToString();
+        var vnp_TransactionStatus = Request.Query["vnp_TransactionStatus"].ToString();
 
-        // Tạm thời trả về thông báo đơn giản
-        return Content($"Thanh toán VNPay trả về: Amount={vnpAmount}, TxnRef={vnpTxnRef}, ResponseCode={vnpResponseCode}");
+        var status = (vnp_ResponseCode == "00" && vnp_TransactionStatus == "00") ? "success" : "fail";
+
+        // Truyền dữ liệu trạng thái thanh toán về view Sell.cshtml qua TempData
+        TempData["VnPayStatus"] = status;
+        TempData["VnPayAmount"] = vnp_Amount;
+        TempData["VnPayTxnRef"] = vnp_TxnRef;
+
+        return RedirectToAction("Sell", "SellOff"); // giả sử đây là action của view Sell.cshtml
     }
 
     [ResponseCache(Duration = 0, Location = ResponseCacheLocation.None, NoStore = true)]
