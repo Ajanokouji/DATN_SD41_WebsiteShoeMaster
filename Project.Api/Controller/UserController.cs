@@ -1,4 +1,5 @@
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.CodeAnalysis.CSharp.Syntax;
 using Project.Business.Interface;
 using Project.Business.Model;
 using Project.DbManagement.Entity;
@@ -88,6 +89,22 @@ namespace Project.Api.Controllers
         {
             var deletedUsers = await _userBusiness.DeleteAsync(ids);
             return Ok(deletedUsers);
+        }
+
+        [HttpGet("Login")]
+        public async Task<ActionResult<UserEntity>> Login([FromBody] UserEntity user)
+        {
+            var userQueryModel = new UserQueryModel
+            {
+                Username = user.Username,
+            };
+
+            var usersFound = await _userBusiness.LocUserTheoNhieuDK(userQueryModel);
+            var userFound = usersFound.FirstOrDefault(u => u.Password == user.Password
+                                                        && u.IsDeleted == false
+                                                        && u.Type == DbManagement.UserTypeEnum.Admin);
+
+            return Ok(userFound);
         }
     }
 }
