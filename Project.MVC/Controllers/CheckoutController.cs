@@ -337,12 +337,6 @@ namespace Project.MVC.Controllers
                     .ToList();
 
                 HttpContext.Session.SetString(CartConstants.CartSessionKey, JsonConvert.SerializeObject(cartSessions));
-
-
-
-                
-
-      
                 #endregion updateCart
 
             }

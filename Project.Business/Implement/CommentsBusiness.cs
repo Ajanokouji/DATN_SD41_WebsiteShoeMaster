@@ -16,31 +16,15 @@ namespace Project.Business.Implement
     public class CommentsBusiness : ICommentsBusiness
     {
         private readonly ICommentsRepository _commentsRepository;
-        private readonly IMemoryCache _cache;
         private readonly ILogger _logger;
-        private const string CommentsListCacheKey = "CommentsList";
-        private readonly MemoryCacheEntryOptions _cacheOptions;
 
-        public CommentsBusiness(ICommentsRepository commentsRepository, IMemoryCache cache)
-        {
-            _commentsRepository = commentsRepository;
-            _cache = cache;
-            _logger = Log.ForContext<CommentsBusiness>();
-            _cacheOptions = new MemoryCacheEntryOptions()
-                .SetSlidingExpiration(TimeSpan.FromMinutes(30))
-                .SetAbsoluteExpiration(TimeSpan.FromHours(2));
-        }
+
 
         public async Task<CommentsEntity> DeleteAsync(Guid id)
         {
             try
             {
                 var result = await _commentsRepository.DeleteAsync(id);
-                if (result != null)
-                {
-                    _cache.Remove(CommentsListCacheKey);
-                    _logger.Information("Comment {CommentId} deleted successfully", id);
-                }
                 return result;
             }
             catch (Exception ex)
@@ -55,11 +39,6 @@ namespace Project.Business.Implement
             try
             {
                 var result = await _commentsRepository.DeleteAsync(deleteIds);
-                if (result != null && result.Any())
-                {
-                    _cache.Remove(CommentsListCacheKey);
-                    _logger.Information("Multiple comments deleted successfully: {CommentIds}", string.Join(", ", deleteIds));
-                }
                 return result;
             }
             catch (Exception ex)
@@ -91,17 +70,6 @@ namespace Project.Business.Implement
         {
             try
             {
-                if (queryModel.PageSize == 0 && queryModel.CurrentPage == 0)
-                {
-                    if (_cache.TryGetValue(CommentsListCacheKey, out Pagination<CommentsEntity> cachedComments))
-                    {
-                        return cachedComments;
-                    }
-
-                    var comments = await _commentsRepository.GetAllAsync(queryModel);
-                    _cache.Set(CommentsListCacheKey, comments, _cacheOptions);
-                    return comments;
-                }
 
                 return await _commentsRepository.GetAllAsync(queryModel);
             }
@@ -198,28 +166,6 @@ namespace Project.Business.Implement
         public async Task<IEnumerable<CommentsEntity>> SaveAsync(IEnumerable<CommentsEntity> comments)
         {
             return await _commentsRepository.SaveAsync(comments);
-        }
-
-        public async Task<CommentsEntity> UpdateCommentAsync(CommentsEntity comment)
-        {
-            try
-            {
-                var exist = await _commentsRepository.FindAsync(comment.Id);
-                if (exist == null)
-                {
-                    _logger.Warning("Comment {CommentId} not found for update", comment.Id);
-                    throw new ArgumentException("Comment not found");
-                }
-
-                var result = await SaveAsync(comment);
-                _logger.Information("Comment {CommentId} updated successfully", comment.Id);
-                return result;
-            }
-            catch (Exception ex)
-            {
-                _logger.Error(ex, "Error updating comment {CommentId}", comment.Id);
-                throw;
-            }
         }
     }
 }

@@ -105,6 +105,7 @@ namespace Project.MVC.Controllers
             {
                 Id = model.BillId.Value,
                 CustomerId = model.CustomerInfo.UserId??Guid.NewGuid(),
+                CreatedByUserId = user.Id,
                 CustomerName = model.CustomerInfo.FullName,
                 CustomerPhone = model.CustomerInfo.PhoneNumber,
                 CustomerEmail = model.CustomerInfo.Email,

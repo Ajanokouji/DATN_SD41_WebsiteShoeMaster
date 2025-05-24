@@ -1,16 +1,12 @@
 ﻿using Project.DbManagement.Entity;
 using Project.Business.Model;
 using SERP.Framework.Common;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
+using Project.Business.Interface.Repositories;
 
 
 namespace Project.Business.Interface
 {
-    interface ICommentsRepository
+    interface ICommentsRepository :IRepository<CommentsEntity, CommentsModel>
     {
         Task<CommentsEntity> FindAsync(Guid id);
         Task<Pagination<CommentsEntity>> GetAllAsync(CommentsModel queryModel);
