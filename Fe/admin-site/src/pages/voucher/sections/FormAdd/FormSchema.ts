@@ -68,6 +68,7 @@ const baseSchema = z.object({
   lastModifiedByUserId: z.string(),
   createdOnDate: z.string(),
   lastModifiedOnDate: z.string(),
+  imageUrl: z.string().nullable(),
 
   totalMaxUsage: z.preprocess(
     (val) => (val === "" || val === undefined ? undefined : Number(val)),
@@ -91,7 +92,6 @@ const baseSchema = z.object({
       .min(1, "Lượt sử dụng tối đa/người mua phải lớn hơn 0")
   ),
 
-  displaySettings: z.number(),
   redeemCount: z.any(),
   productsIsSelected: z.array(z.any()).nullable(),
   usersIsSelected: z.array(z.any()).nullable(),

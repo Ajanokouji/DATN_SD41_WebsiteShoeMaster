@@ -93,8 +93,8 @@ const VoucherUsersTable: React.FC<{ voucherId: string }> = ({ voucherId }) => {
   };
 
   const headers = [
-    { label: "Thông tin tài khoản khách hàng" },
-    { label: "Ngày áp Voucher" },
+    { label: "Thông tin khách hàng" },
+    { label: "Ngày lưu trữ" },
     { label: "Thao tác"},
   ];
 
@@ -132,7 +132,7 @@ const VoucherUsersTable: React.FC<{ voucherId: string }> = ({ voucherId }) => {
               {/* Ảnh với borderColor */}
               <div className="relative">
                 <img
-                  className={`w-20 h-20 border-2 rounded-full mr-5 ${borderColor}`}
+                  className={`object-cover w-20 h-20 border-2 rounded-full mr-5 ${borderColor}`}
                   src={user.avartarUrl || "https://static.vecteezy.com/system/resources/previews/009/292/244/non_2x/default-avatar-icon-of-social-media-user-vector.jpg"}
                   alt={user.name || "User"}
                 />

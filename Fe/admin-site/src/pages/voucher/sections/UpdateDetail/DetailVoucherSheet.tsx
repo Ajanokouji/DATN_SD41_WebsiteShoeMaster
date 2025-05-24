@@ -11,6 +11,7 @@ import { Button } from "@/components/ui/button";
 import { selectVoucher } from "@/redux/apps/voucher/voucherSelector";
 import { useVoucherForm } from "./use-voucher-form";
 import { VoucherForm } from "./VoucherForm";
+import { ImageFieldEditComponent } from "./ImageFieldEditComponent";
 
 interface DetailVoucherSheetProps {
   voucherId: string;
@@ -52,10 +53,13 @@ const DetailVoucherSheet: React.FC<DetailVoucherSheetProps> = ({
           isLoading={isLoading}
           errorMessage={errorMessage}
         >
-
+        <hr className="border border-gray-300"/>
+        <br/>
+        <ImageFieldEditComponent control={methods.control} isEditing={isEditing} />
+        <br/>
+        
           {!isEditing ? (
             <Button
-              className="flex justify-start bottom-3 left-7"
               type="button"
               onClick={() => setIsEditing(true)}
             >

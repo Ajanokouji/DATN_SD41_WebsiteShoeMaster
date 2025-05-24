@@ -115,15 +115,6 @@ const VoucherUsers: React.FC = () => {
     );
   }
 
-  if (voucher.displaySettings === 1) {
-    return (
-      <div className="text-center text-red-500">
-        Đây là "Voucher hiển thị nhiều nơi" áp dụng cho toàn bộ khách hàng!
-        Vui lòng kiểm tra lại!
-      </div>
-    );
-  }
-
   const handleOpenDialogAdd = () => {
     setIsOpenAdd(true);
   };
@@ -132,15 +123,15 @@ const VoucherUsers: React.FC = () => {
     <>
       <section className="px-8">
         <Helmet>
-          <title>Các tài khoản khách hàng áp dụng Voucher {voucher.voucherName}</title>
+          <title>Danh sách khách hàng đang lưu trữ Voucher {voucher.voucherName}</title>
         </Helmet>
         <h2 className="text-2xl mb-2">
-          Danh sách Tài khoản khách hàng áp dụng Voucher: {voucher.voucherName} {renderStatusDate()}
+          Danh Sách Khách Hàng Đang Lưu Trữ Voucher: {voucher.voucherName} {renderStatusDate()}
         </h2>
         <div className="flex text-sm text-gray-500">
           <div className="w-1/2">
             - Mã Voucher: {voucher.code} <br/> 
-            - Loại Voucher: {voucher.voucherType === 1 ? "Voucher toàn shop" : "Voucher sản phẩm"} ({voucher.displaySettings === 0?"Không công khai":"Hiển thị nhiều nơi"}) <br/>
+            - Loại Voucher: {voucher.voucherType === 1 ? "Voucher toàn shop" : "Voucher sản phẩm"} <br/>
             - Giảm giá: {voucher.discountAmount? formatCurrency(voucher.discountAmount) + " VNĐ" : formatCurrency(voucher.discountPercentage?voucher.discountPercentage:0) + "%" + " (Tối đa: " + formatCurrency(voucher.maxDiscountAmount?voucher.maxDiscountAmount:0) + " VNĐ)" } <br/>
             - Giá trị đơn hàng tối thiểu: {voucher.minimumOrderAmount? formatCurrency(voucher.minimumOrderAmount) + " VNĐ" : "Không yêu cầu"}
           </div>
@@ -152,7 +143,7 @@ const VoucherUsers: React.FC = () => {
           </div>
         </div>
         <Button onClick={() => handleOpenDialogAdd()} className="mt-4 px-4 py-2">
-            Thêm tài khoản khách hàng
+            Thêm khách hàng
         </Button>
         <VoucherUsersTable voucherId={voucherId} />
 

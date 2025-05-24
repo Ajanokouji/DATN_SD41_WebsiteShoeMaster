@@ -84,10 +84,6 @@ namespace Project.Business
 
 
 
-
-            
-
-
             // Configure CORS
             services.AddCors(options =>
             {

@@ -189,7 +189,8 @@
                 success: function (res) {
                     if (res.paymentUrl) {
                         toastr.success("Chuyển hướng đến VNPay");
-                        window.open(res.paymentUrl, '_blank'); // lưu ý dùng paymentUrl đúng tên
+                        // window.open(res.paymentUrl, '_blank'); // lưu ý dùng paymentUrl đúng tên
+                        window.location.href = res.paymentUrl;
                     } else {
                         toastr.error("Không lấy được link thanh toán VNPay");
                     }

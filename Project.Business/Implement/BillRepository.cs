@@ -291,15 +291,33 @@ public class BillRepository : IBillRepository
     {
         try
         {
-            BillEntity bill = new BillEntity();
-            bill.Id = Guid.NewGuid();
-            bill.BillCode = "BILL" + (bill.Id).ToString().Substring(0, 8).ToUpper();
-            bill.EmployeeId = idEmployee;
-            bill.CreatedOnDate = DateTime.Now;
-            bill.Status = "Pending";
-            _context.Bills.Add(bill);
-            _context.SaveChanges();
-            return true;
+            // BillEntity bill = new BillEntity();
+            // bill.Id = Guid.NewGuid();
+            // bill.BillCode = "BILL" + (bill.Id).ToString().Substring(0, 8).ToUpper();
+            // bill.EmployeeId = idEmployee;
+            // bill.CreatedOnDate = DateTime.Now;
+            // bill.Status = "Pending";
+            // _context.Bills.Add(bill);
+            // _context.SaveChanges();
+            // return true;
+
+            var listBills = _context.Bills.Where(b => b.Status == "Pending").ToList();
+            if (listBills.Count() < 20)
+            {
+                BillEntity bill = new BillEntity();
+                bill.Id = Guid.NewGuid();
+                bill.BillCode = "BILL" + (bill.Id).ToString().Substring(0, 8).ToUpper();
+                bill.EmployeeId = idEmployee;
+                bill.CreatedOnDate = DateTime.Now;
+                bill.Status = "Pending";
+                _context.Bills.Add(bill);
+                _context.SaveChanges();
+                return true;
+            }
+            else
+            {
+                return false;
+            }
         }
         catch
         {
