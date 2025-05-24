@@ -11,6 +11,7 @@ import {
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
 import { ContentBaseFormSchema } from "./FormSchema";
+import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group";
 
 import "@/pages/contentBase/modules/CustomImageBlot";
 import "@/pages/contentBase/modules/CustomVideoBlot";
@@ -131,6 +132,30 @@ export const ContentBaseForm: React.FC<ContentBaseFormProps> = ({
               </FormItem>
             )}
           />
+
+<FormField
+  control={control}
+  name="isPublish"
+  render={({ field }) => (
+     <FormItem>
+               <FormLabel>Trạng thái xuất bản</FormLabel>
+               <FormControl>
+        <Input
+          type="checkbox"
+          checked={field.value}
+          onChange={(e) => field.onChange(e.target.checked)}
+          disabled={!isEditing}
+        />
+      </FormControl>
+      <FormMessage />
+    </FormItem>
+  )}
+/>
+
+
+
+
+          
 
           <FormField
             control={control}
