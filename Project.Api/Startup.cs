@@ -13,6 +13,9 @@ using Microsoft.EntityFrameworkCore;
 using Project.DbManagement;
 using Project.Business.Interface.Services;
 using Foundatio;
+using System.Configuration;
+using Project.Business.Intercepter.Implement;
+using Project.Business.Intercepter;
 namespace Project.Api
 {
     public class Startup
@@ -72,6 +75,9 @@ namespace Project.Api
                     .AllowCredentials();
                 });
             });
+            services.AddScoped<IBillIntercepterAfterSave, SendEmailAfterSaveBill>();
+            var emailSettings = Configuration.GetSection("EmailSettings").Get<EmailSettings>();
+            services.AddSingleton(emailSettings);
 
             //Connect VNPay API
             services.AddScoped<IVnPayService, VnPayService>();

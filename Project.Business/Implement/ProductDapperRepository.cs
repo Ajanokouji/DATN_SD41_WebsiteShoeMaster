@@ -86,7 +86,7 @@ namespace Project.Business.Implement
             string sortExpression;
             if (string.IsNullOrWhiteSpace(queryModel.Sort))
             {
-                sortExpression = $"-{nameof(NodeEntity.Name)}";
+                sortExpression = $"-{nameof(NodeEntity.LastModifiedOnDate)}";
             }
             else
             {

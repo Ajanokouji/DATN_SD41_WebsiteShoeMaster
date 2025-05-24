@@ -84,9 +84,9 @@ namespace Project.Business.Interface
 
         Task<ServiceResult<bool>> AddCartSessionToCartDb(UserEntity user, List<CartItemModel> lstCartItemModel);
         Task<ServiceResult<bool>> AddToCartAsync(Guid userId, List<CartDetails> lstCartDetails);
-        Task<ServiceResult<int>> GetCartDbCount(UserEntity user);
+        Task<ServiceResult<int>> GetCartDbCount(Guid userId);
         Task<ServiceResult<bool>> UpdateCartDb(UserEntity user, List<CartDetails> lstCartDetails);
-        Task<ServiceResult<bool>> RemoveFromCartDb(UserEntity user, Guid productId);
+        Task<ServiceResult<bool>> RemoveFromCartDb(Guid userId, Guid productId,string sku);
         Task<IEnumerable<Cart>> LocCartTheoNhieuDK(CartQueryModel cartQueryModel);
     }
 }

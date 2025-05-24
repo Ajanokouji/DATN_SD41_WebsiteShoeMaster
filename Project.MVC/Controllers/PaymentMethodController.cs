@@ -35,6 +35,8 @@ namespace Project.MVC.Controllers
         [HttpPost]
         public async Task<IActionResult> Index(CheckoutViewModel  model)
         {
+            var data = new List<CartItemModel>();
+            var user = JsonConvert.DeserializeObject<UserEntity>(HttpContext.Session.GetString("UserSession")??string.Empty);
 
             var paymentMethods = new List<PaymentMethodModel>
             {
@@ -56,15 +58,43 @@ namespace Project.MVC.Controllers
                     BillId = model.BillId,
                 },
             };
+            var cartItemData = new List<CartItem>();
 
-            var cartSession = HttpContext.Session.GetString(CartSessionKey);
-            if (string.IsNullOrEmpty(cartSession))
+            if (user !=null)
             {
-                return Json(new { success = false, message = "Giỏ hàng trống" });
+                var res = await _cartBusiness.GetCartItemsByUserId(user.Id);
+                if(res!=null &&res.Any()) {
+                    foreach (var item in res)
+                    {
+                        cartItemData.Add(new CartItem()
+                        {
+                            ProductId = item.ProductId,
+                            ProductName = item.ProductName,
+                            ProductImage = item.ProductImage,
+                            SKU = item.SKU,
+                            Size = item.Size,
+                            Color = item.Color,
+                            Quantity = item.Quantity,
+                            Price = item.Price,
+                            Total = item.Total,
+                            Id = item.Id
+                        });
+                    }
+                }
+
+            }
+            else
+            {
+                var cartSession = HttpContext.Session.GetString(CartSessionKey);
+                if (string.IsNullOrEmpty(cartSession))
+                {
+                    return Json(new { success = false, message = "Giỏ hàng trống" });
+                }
+                 cartItemData = JsonConvert.DeserializeObject<List<CartItem>>(cartSession);
             }
 
-            var cartSessions = JsonConvert.DeserializeObject<List<CartItem>>(cartSession);
-            var cartItemsResult = await _cartBusiness.GetCartItems(cartSessions);
+            var cartItemsResult = await _cartBusiness.GetCartItems(cartItemData);
+
             if (!cartItemsResult.IsSuccess || cartItemsResult.Data == null || !cartItemsResult.Data.Any())
             {
                 return Json(new { success = false, message = "Giỏ hàng trống" });

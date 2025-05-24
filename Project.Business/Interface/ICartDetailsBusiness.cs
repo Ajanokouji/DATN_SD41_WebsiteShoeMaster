@@ -85,7 +85,7 @@ namespace Project.Business.Interface
         /// <returns></returns>
         Task<CartDetails> PatchAsync(CartDetails cartDetail);
 
-        Task<CartDetails> GetByCartAndProduct(Guid cartId, Guid productId);
+        Task<CartDetails> GetByCartAndProduct(Guid cartId, Guid productId,string sku);
         Task<IEnumerable<CartDetails>> GetByCartId(Guid cartId);
     }
 }

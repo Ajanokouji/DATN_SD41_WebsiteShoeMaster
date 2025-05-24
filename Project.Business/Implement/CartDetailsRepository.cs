@@ -206,11 +206,16 @@ namespace Project.Business.Implement
             throw new NotImplementedException();
         }
 
-        public async Task<CartDetails> GetByCartAndProduct(Guid cartId, Guid productId)
+        public async Task<CartDetails> GetByCartAndProduct(Guid cartId, Guid productId, string sku)
         {
-            return await _context.CartDetails
-                .Where(x => x.IdCart == cartId && x.IdProduct == productId && x.IsDeleted != true)
-                .FirstOrDefaultAsync();
+            var query = _context.CartDetails
+                .Where(x => x.IdCart == cartId && x.IdProduct == productId && x.IsDeleted != true);
+
+            if (!string.IsNullOrEmpty(sku))
+            {
+                query = query.Where(x => x.SKU == sku);
+            }
+            return await query.FirstOrDefaultAsync();
         }
 
         public async Task<IEnumerable<CartDetails>> GetByCartId(Guid cartId)

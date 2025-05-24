@@ -60,8 +60,9 @@
                                         data-discount-price="@item.DiscountPrice"
                                         data-discount-percent="@item.DiscountPercent"
                                         data-is-in-stock="@item.IsInStock"
+
                                         data-stock-quantity="@item.StockQuantity"
-                                        data-sku="@item.ProductCode">
+                                        data-sku="@item.SKU">
                                         <td class="cart__product__item">
                                             <img src="@item.ProductImage" alt="@item.ProductName" style="max-width: 90px;">
                                             <div class="cart__product__item__title">
@@ -99,7 +100,7 @@
                                         </td>
                                         <td class="cart__total">@item.Total.ToString("N0") VNĐ</td>
                                         <td class="cart__close">
-                                            <a href="#" class="remove-item" data-id="@item.ProductId">
+                                            <a href="#" class="remove-item" data-id="@item.ProductId" data-sku ="@item.SKU">
                                                 <i class="fa fa-close"></i>
                                             </a>
                                         </td>
@@ -160,45 +161,78 @@
                 updateCartTotal();
             }
 
-                $(document).on('click', '.btn-increase', function () {
-                var $row = $(this).closest('tr');
-                var $input = $row.find('.quantity-input');
-                var val = parseInt($input.val()) || 0;
-                var max = parseInt($input.attr('max')) || 10000;
-                if (val < max) {
-                    $input.val(val + 1);
-                    updateItemTotal($row);
-                }
-            });
 
-            // Giảm số lượng
-            $(document).on('click', '.btn-decrease', function () {
-                var $row = $(this).closest('tr');
-                var $input = $row.find('.quantity-input');
-                var val = parseInt($input.val()) || 1;
-                if (val > 1) {
-                    $input.val(val - 1);
-                    updateItemTotal($row);
-                }
-            });
+              $(document).on('click', '.btn-increase', function () {
+            var $row = $(this).closest('tr');
+            var $input = $row.find('.quantity-input');
+            var val = parseInt($input.val()) || 0;
+            var max = parseInt($input.attr('max')) || 10000;
+            if (val < max) {
+                $input.val(val + 1);
+                updateItemTotal($row);
+                debugger
+                $.post('@Url.Action("IncreaseQuantity", "Cart")', {
+                    productId: $row.data('id'),
+                    sku: $row.data('sku')
+                }).done(function (res) {
+                    if (res.success) {
+                        if (res.quantity && res.quantity !== val + 1) {
+                            $input.val(res.quantity);
+                            updateItemTotal($row);
+                        }
+                        if (res.cartTotal !== undefined)
+                            $('#subtotal, #total').text(formatCurrency(res.cartTotal) + ' VNĐ');
+                    }
+                });
+            }
+        });
+
+        $(document).on('click', '.btn-decrease', function () {
+            debugger
+            var $row = $(this).closest('tr');
+            var $input = $row.find('.quantity-input');
+            var val = parseInt($input.val()) || 1;
+            if (val > 1) {
+                $input.val(val - 1);
+                updateItemTotal($row);
+                console.log($row.data('sku'))
+                $.post('@Url.Action("DecreaseQuantity", "Cart")', {
+                    productId: $row.data('id'),
+                    sku: $row.data('sku')
+                }).done(function (res) {
+                    if (res.success) {
+                        if (res.quantity === 0) {
+                            $row.remove();
+                            updateCartTotal();
+                        } else if (res.quantity !== val - 1) {
+                            $input.val(res.quantity);
+                            updateItemTotal($row);
+                        }
+                        if (res.cartTotal !== undefined)
+                            $('#subtotal, #total').text(formatCurrency(res.cartTotal) + ' VNĐ');
+                    }
+                });
+            }
+        });
 
             // Xóa sản phẩm khỏi giỏ hàng
             $('.remove-item').click(function (e) {
                 e.preventDefault();
                 var productId = $(this).data('id');
+                var sku = $(this).data('sku');
                 var $row = $(this).closest('tr');
 
-                $.ajax({
+                   $.ajax({
                     url: '@Url.Action("RemoveFromCart", "Cart")',
                     type: 'POST',
-                    data: { productId: productId },
+                    data: { productId: productId, sku: sku },  
                     success: function (result) {
                         if (result.success) {
                             $row.remove();
-                            updateCartTotal();
-                            alert('Xóa sản phẩm khỏi giỏ hàng thành công');
+                            updateCartTotal();           // (hàm sẵn có)
+                            alert(result.message || 'Xóa sản phẩm khỏi giỏ hàng thành công');
                         } else {
-                            alert('Có lỗi xảy ra khi xóa sản phẩm');
+                            alert(result.message || 'Có lỗi xảy ra khi xóa sản phẩm');
                         }
                     },
                     error: function () {

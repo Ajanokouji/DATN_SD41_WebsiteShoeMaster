@@ -27,14 +27,33 @@ namespace Project.Business.ModelFactory.Implement
 
         public async Task<IEnumerable<CartItemModel>> ConvertToModels(IEnumerable<CartDetails> cartDetails)
         {
-            var listProduct = await _productRepository.ListByIdsAsync(cartDetails.Select(x=>x.IdProduct));
             if (cartDetails == null)
                 throw new ArgumentNullException(nameof(cartDetails));
+
+            var listProduct = await _productRepository.ListByIdsAsync(cartDetails.Select(x => x.IdProduct));
 
             var modelList = new List<CartItemModel>();
             foreach (var cartDetail in cartDetails)
             {
                 var product = listProduct.FirstOrDefault(x => x.Id == cartDetail.IdProduct);
+
+                // Safely get price as string, handle nulls
+                string price = "0";
+                if (product?.VariantObjs != null && !string.IsNullOrEmpty(cartDetail.SKU))
+                {
+                    var variant = product.VariantObjs.FirstOrDefault(x => x.Sku == cartDetail.SKU);
+                    price = variant?.Price ?? "0";
+                }
+
+                // Safely get metadata values
+                string brand = string.Empty;
+                string category = string.Empty;
+                if (product?.MetadataObj != null)
+                {
+                    brand = MetadataUtil.GetMetadatavalue(product.MetadataObj, "Brand") ?? string.Empty;
+                    category = MetadataUtil.GetMetadatavalue(product.MetadataObj, "Category") ?? string.Empty;
+                }
+
                 var model = new CartItemModel
                 {
                     ProductId = cartDetail.IdProduct,
@@ -45,14 +64,14 @@ namespace Project.Business.ModelFactory.Implement
                     SKU = cartDetail.SKU ?? string.Empty,
                     CreatedDate = cartDetail.CreatedOnDate ?? DateTime.MinValue,
                     LastModifiedDate = cartDetail.LastModifiedOnDate,
-                    // Các trường dưới đây sẽ cần xử lý thêm nếu có dữ liệu từ entity Product
-
-
-                    ProductName = product.Name ??string.Empty,
-                    ProductImage = product.ImageUrl?? string.Empty,
-                    Brand = product.MetadataObj.GetMetadatavalue("Brand")??string.Empty,
-                    Category =  product.MetadataObj.GetMetadatavalue("Category")??string.Empty,
-                    Description =product.Description??string.Empty,               
+                    CartId = cartDetail.IdCart,
+                    Price =  decimal.TryParse(price, out var originalPrice) ? originalPrice : 0m,
+                    Id = cartDetail.Id,
+                    ProductName = product?.Name ?? string.Empty,
+                    ProductImage = product?.ImageUrl ?? string.Empty,
+                    Brand = brand,
+                    Category = category,
+                    Description = product?.Description ?? string.Empty,
                 };
                 modelList.Add(model);
             }

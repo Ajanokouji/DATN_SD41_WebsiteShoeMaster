@@ -83,12 +83,6 @@ namespace Project.Business
             services.AddScoped<ICartDetailFactory, CartDetailFactory>();
 
 
-            // services.AddScoped<IBillIntercepterAfterSave, SendEmailAfterSaveBill>();
-
-            // var emailSettings = configuration.GetSection("EmailSettings").Get<EmailSettings>();
-            //
-            // services.AddSingleton(emailSettings);
-
 
             // Configure CORS
             services.AddCors(options =>
