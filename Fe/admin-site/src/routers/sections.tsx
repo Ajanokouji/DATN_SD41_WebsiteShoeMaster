@@ -3,9 +3,14 @@
 import Layout from "@/layout";
 import { lazy, Suspense } from "react";
 import { Navigate, Outlet, useRoutes } from "react-router-dom";
+// Import useAppSelector và RootState để kiểm tra trạng thái đăng nhập
+import { useAppSelector } from "@/hooks/use-app-selector";
+import type { RootState } from "@/redux/store"; // Sử dụng import type
 
 export const LoadingPage = lazy(() => import("@/pages/shared/LoadingPage"));
-export const IndexPage = lazy(() => import("@/pages/login"));
+export const LoginPage = lazy(() => import("@/pages/login")); // Component trang đăng nhập
+// Giả sử bạn có một trang Dashboard sau khi đăng nhập
+export const DashboardPage = lazy(() => import("@/pages/dashboard")); // <-- Bạn cần đảm bảo file src/pages/dashboard/index.tsx tồn tại
 
 export const CategoryPage = lazy(() => import("@/pages/category"));
 export const ProductPage = lazy(() => import("@/pages/product"));
@@ -18,41 +23,61 @@ export const CustomerPage = lazy(() => import("@/pages/customer"));
 export const VoucherProductPage = lazy(() => import("@/pages/voucherProduct"));
 export const VoucherUserPage = lazy(() => import("@/pages/voucherUser"));
 export const ContentBasePage = lazy(() => import("@/pages/contentBase"));
-// export const LoginPage = lazy(() => import("../pages/auth/Login"));
-// export const RegisterPage = lazy(() => import("../pages/auth/Register"));
 export const Page404 = lazy(() => import("../pages/shared/NotFoundPage"));
 
 // ----------------------------------------------------------------------
 
-// const useAuth = () => {
-//   return useAppSelector((state: RootState) => state.auth.isAuthenticated);
-// };
+// Hook để lấy trạng thái đăng nhập từ Redux store (login slice)
+const useAuth = () => {
+  // Sử dụng useAppSelector và RootState để truy cập đúng trạng thái
+  return useAppSelector((state: RootState) => state.login.isAuthenticated);
+};
 
 export default function Router() {
-  //   const isAuthenticated = useAuth();
+  const isAuthenticated = useAuth();
 
+  // Component Protected Route: chỉ cho phép truy cập nếu đã đăng nhập
   const PrivateRoute = ({ children }: { children: JSX.Element }) => {
-    // const isAuthenticated = useAuth();
-    const isAuthenticated = true;
-    return isAuthenticated ? children : <Navigate to="/login" />;
+    return isAuthenticated ? children : <Navigate to="/login" replace />;
   };
 
   const routes = useRoutes([
+    // Route cho trang đăng nhập: KHÔNG BỌC TRONG LAYOUT
+    {
+      path: "/login",
+      element: isAuthenticated ? <Navigate to="/" replace /> : <LoginPage />,
+    },
+    // Route gốc: kiểm tra đăng nhập và chuyển hướng
+    {
+      path: "/",
+      element: isAuthenticated ? <Navigate to="/dashboard" replace /> : <Navigate to="/login" replace />,
+    },
+    // Route cho Dashboard (trang chính sau đăng nhập)
+    {
+      path: "/dashboard",
+      element: (
+        <PrivateRoute> {/* Chỉ cho phép truy cập nếu đã đăng nhập */}
+          <Layout> {/* Bọc trong Layout chính */}
+            <Suspense fallback={<LoadingPage />}>
+              <DashboardPage />
+            </Suspense>
+          </Layout>
+        </PrivateRoute>
+      ),
+    },
+    // Các route chức năng khác: BỌC TRONG LAYOUT VÀ PRIVATE ROUTE
     {
       element: (
-        <PrivateRoute>
-          <Layout>
+        <PrivateRoute> {/* Chỉ cho phép truy cập nếu đã đăng nhập */}
+          <Layout> {/* Bọc trong Layout chính */}
             <Suspense fallback={<LoadingPage />}>
-              <Outlet />
+              <Outlet /> {/* Outlet để render các children routes */}
             </Suspense>
           </Layout>
         </PrivateRoute>
       ),
       children: [
-        {
-          element: <IndexPage />,
-          index: true,
-        },
+        // { element: <DashboardPage />, index: true }, // Xóa dòng này nếu dùng route /dashboard riêng
         {
           path: "category",
           element: <CategoryPage />,
@@ -86,7 +111,7 @@ export default function Router() {
           element: <FileManagerPage />,
         },
         {
-          path: "voucher-product/:voucherId", // Định nghĩa route với tham số động
+          path: "voucher-product/:voucherId",
           element: <VoucherProductPage />,
         },
         {
@@ -99,15 +124,8 @@ export default function Router() {
         },
       ],
     },
-    // {
-    //   path: "login",
-    //   element: isAuthenticated ? <Navigate to="/" /> : <LoginPage />,
-    // },
-    // {
-    //   path: "register",
-    //   element: isAuthenticated ? <Navigate to="/" /> : <RegisterPage />,
-    // },
 
+    // Route 404 cho các path không khớp
     {
       path: "*",
       element: <Page404 />,
