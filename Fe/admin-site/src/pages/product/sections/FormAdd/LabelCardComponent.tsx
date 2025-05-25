@@ -28,7 +28,7 @@ export const LabelCard: React.FC<LabelCardProps> = ({
     <Card className="border border-gray-200">
       <CardContent className="pt-4">
         <div className="flex justify-between items-start mb-4">
-          <h4 className="text-md font-medium">Label #{index + 1}</h4>
+          <h4 className="text-md font-medium">Nhãn dán #{index + 1}</h4>
           <Button
             type="button"
             variant="ghost"
@@ -46,9 +46,9 @@ export const LabelCard: React.FC<LabelCardProps> = ({
             name={`labelsObjs.${index}.objectCode`}
             render={({ field }) => (
               <FormItem>
-                <FormLabel>Code</FormLabel>
+                <FormLabel>Mã nhãn dán</FormLabel>
                 <FormControl>
-                  <Input placeholder="Label Code" {...field} />
+                  <Input placeholder="Nhập mã nhãn dán" {...field} />
                 </FormControl>
                 <FormMessage />
               </FormItem>
@@ -60,9 +60,9 @@ export const LabelCard: React.FC<LabelCardProps> = ({
             name={`labelsObjs.${index}.objectName`}
             render={({ field }) => (
               <FormItem>
-                <FormLabel>Name</FormLabel>
+                <FormLabel>Tên nhãn dán</FormLabel>
                 <FormControl>
-                  <Input placeholder="Label Name" {...field} />
+                  <Input placeholder="Nhập tên nhãn dán" {...field} />
                 </FormControl>
                 <FormMessage />
               </FormItem>
@@ -74,7 +74,7 @@ export const LabelCard: React.FC<LabelCardProps> = ({
             name={`labelsObjs.${index}.color`}
             render={({ field }) => (
               <FormItem className="col-span-2">
-                <FormLabel>Color</FormLabel>
+                <FormLabel>Màu Sắc</FormLabel>
                 <div className="flex items-center gap-2">
                   <FormControl>
                     <Input type="color" {...field} className="w-16 h-8" />
