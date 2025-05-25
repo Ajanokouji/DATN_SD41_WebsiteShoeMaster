@@ -12,7 +12,6 @@ import { FieldSelectionValuesList } from "./FieldSelectionValuesList";
 import { ProductForm } from "./ProductForm";
 import { useProductForm } from "./use-product-form";
 import { selectProduct } from "@/redux/apps/product/productSelector";
-import { VariantForm } from "../FormAdd/VariantForm";
 import { MediaList } from "./MediaList";
 import { VariantForm } from "../FormAdd/VariantForm";
 interface UpdateProductSheetProps {
