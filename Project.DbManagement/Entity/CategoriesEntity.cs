@@ -19,7 +19,7 @@ namespace Project.DbManagement.Entity
         [Column(TypeName = "nvarchar(1024)")]
         public string Description { get; set; }
 
-        public Guid ParentId { get; set; }
+        public Guid? ParentId { get; set; }
 
         public int SortOrder { get; set; }
 
