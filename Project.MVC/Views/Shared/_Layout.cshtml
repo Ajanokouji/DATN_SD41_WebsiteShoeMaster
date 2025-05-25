@@ -1,7 +1,18 @@
 ﻿@using Project.Common
 @using Project.MvcModule;
+@using Project.DbManagement.Entity;
+@using Newtonsoft.Json;
+@using Project.Business.Interface;
+@using Project.Business.Implement;
 @{
     var cartCount = Context.Session.GetInt32(CartConstants.CartCountKey) ?? 0;
+
+    var userJson = Context.Session.GetString(UserConstants.UserSessionKey);
+    UserEntity user = null;
+    if (userJson != null && !String.IsNullOrWhiteSpace(userJson))
+    {
+        user = JsonConvert.DeserializeObject<UserEntity>(userJson);
+    }
 }
 <!DOCTYPE html>
 <html lang="zxx">
@@ -17,10 +28,10 @@
     <!-- Google Font -->
     <link href="https://fonts.googleapis.com/css2?family=Cookie&display=swap" rel="stylesheet">
     <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@400;500;600;700;800;900&display=swap"
-          rel="stylesheet">
+    rel="stylesheet">
 
     <!-- Css Styles -->
-	<link rel="stylesheet" href="~/assets/styles/bootstrap.min.css" type="text/css">
+    <link rel="stylesheet" href="~/assets/styles/bootstrap.min.css" type="text/css">
     <link rel="stylesheet" href="~/assets/styles/font-awesome.min.css" type="text/css">
     <link rel="stylesheet" href="~/assets/styles/elegant-icons.css" type="text/css">
     <link rel="stylesheet" href="~/assets/styles/jquery-ui.min.css" type="text/css">
@@ -58,13 +69,28 @@
             </li>
         </ul>
         <div class="offcanvas__logo">
-            <a href="./index.html"><img src="~/assets/images/logo.png" alt=""></a>
+            <a href="./index.html"><img src="~/assets/images/logo.jpg" alt="" style="width: 100px;"></a>
         </div>
         <div id="mobile-menu-wrap"></div>
-        <div class="offcanvas__auth">
-            <a asp-controller="Login" asp-action="Login">Đăng Nhập</a>
-            <a asp-controller="Register" asp-action="Register">Đăng Ký</a>
-        </div>
+        @if (user != null)
+        {
+            <div class="user-menu-container-offcanvas" style="display: inline-flex; align-items: center; position: relative; cursor: pointer;">
+                <img src="@(!String.IsNullOrWhiteSpace(user.AvartarUrl)?user.AvartarUrl:"https://static.vecteezy.com/system/resources/previews/009/292/244/non_2x/default-avatar-icon-of-social-media-user-vector.jpg")" class="user-avatar border rounded-circle" style="width:70px; height:70px; object-fit: cover;" alt="user-avater">
+                <div class="user-links" style="display: none; margin-left: 10px; background: #fff; border: 1px solid #ccc; padding: 10px; border-radius: 5px; box-shadow: 0 0 5px rgba(0,0,0,0.2); position: absolute; top: 0px; left: 80px; white-space: nowrap;">
+                    <a asp-controller="ProfileUser" asp-action="ProfileUser" style="display: block; margin-bottom: 5px; color:black;">Hồ sơ của tôi</a>
+                    <a asp-controller="BillUser" asp-action="BillUser" style="display: block; margin-bottom: 5px; color:black;">Đơn hàng của tôi</a>
+                    <a asp-controller="ProfileUser" asp-action="ProfileUser" style="display: block; margin-bottom: 5px; color:black;">Voucher của tôi</a>
+                    <a asp-controller="Login" asp-action="Logout" style="display: block; color:black;">Đăng xuất</a>
+                </div>
+            </div>
+        }
+        else
+        {
+            <div class="offcanvas__auth">
+                <a asp-controller="Login" asp-action="Login">Đăng Nhập</a>
+                <a asp-controller="Register" asp-action="Register">Đăng Ký</a>
+            </div>
+        }
     </div>
     <!-- Offcanvas Menu End -->
     <!-- Header Section Begin -->
@@ -73,33 +99,51 @@
             <div class="row">
                 <div class="col-xl-3 col-lg-2">
                     <div class="header__logo">
-                        <a asp-controller="Home" asp-action="Index"><img src="~/assets/images/logo.png" alt=""></a>
+                        <a asp-controller="Home" asp-action="Index">
+                            <img src="~/assets/images/logo.jpg" alt="" style="width: 100px;">
+                        </a>
                     </div>
+
                 </div>
+                @{
+                    var currentController = ViewContext.RouteData.Values["controller"]?.ToString();
+                    var currentAction = ViewContext.RouteData.Values["action"]?.ToString();
+                }
                 <div class="col-xl-6 col-lg-7">
                     <nav class="header__menu">
                         <ul>
-                            <li class="active"><a asp-controller="Home" asp-action="Index">Trang chủ</a></li>
-                            <li><a asp-controller="ListProducts" asp-action="ListProducts">Cửa Hàng</a></li>
-                            <li>
-                                <a href="#">Pages</a>
+                            <li class="@(currentController == "Home" ? "active" : "")">
+                                <a asp-controller="Home" asp-action="Index">Trang chủ</a>
+                            </li>
+                            <li class="@(currentController == "ListProducts" ? "active" : "")">
+                                <a asp-controller="ListProducts" asp-action="ListProducts">Cửa Hàng</a>
+                            </li>
+                           @*  <li class="@(currentController == "Cart" || currentController == "Checkout" ? "active" : "")">
                                 <ul class="dropdown">
-                                    <li><a asp-controller="ProductDetails" asp-action="ProductDetails">Sản Phẩm Chi Tiết</a></li>
                                     <li><a asp-controller="Cart" asp-action="Cart">Giỏ Hàng</a></li>
                                     <li><a asp-controller="Checkout" asp-action="Checkout">Checkout</a></li>
                                 </ul>
+                            </li> *@
+                            <li class="@(currentController == "News" ? "active" : "")">
+                                <a asp-controller="News" asp-action="News">Tin Mới</a>
                             </li>
-                            <li><a asp-controller="News" asp-action="News">Tin Mới</a></li>
-                            <li><a asp-controller="About" asp-action="About">Về Chúng Tôi</a></li>
+                            <li class="@(currentController == "About" ? "active" : "")">
+                                <a asp-controller="About" asp-action="About">Về Chúng Tôi</a>
+                            </li>
                         </ul>
                     </nav>
                 </div>
+
+
                 <div class="col-lg-3">
                     <div class="header__right">
-                        <div class="header__right__auth">
-                            <a asp-controller="Login" asp-action="Login">Đăng Nhập</a>
-                            <a asp-controller="Register" asp-action="Register">Đăng Ký</a>
-                        </div>
+                        @if(user == null)
+                        {
+                            <div class="header__right__auth">
+                                <a asp-controller="Login" asp-action="Login">Đăng Nhập</a>
+                                <a asp-controller="Register" asp-action="Register">Đăng Ký</a>
+                            </div>
+                        }
                         <ul class="header__right__widget">
                             <li><span class="icon_search search-switch"></span></li>
                             <li>
@@ -114,6 +158,21 @@
                                     <div class="tip cart-count">@cartCount</div>
                                 </a>
                             </li>
+                            @if (user != null)
+                            {
+                                <li class="ml-2">
+
+                                    <div class="user-menu-container-headeraccesskey" style="position:absolute; top: 10px; right:-25px; height:50px; width:50px;">
+                                        <img src="@(!String.IsNullOrWhiteSpace(user.AvartarUrl)?user.AvartarUrl:"https://static.vecteezy.com/system/resources/previews/009/292/244/non_2x/default-avatar-icon-of-social-media-user-vector.jpg")" class="user-avatar border rounded-circle" style="width:50px; height:50px; object-fit: cover;" alt="user-avater">
+                                        <div class="user-links" style="display: none; margin-left: 10px; background: #fff; border: 1px solid #ccc; padding: 10px; border-radius: 5px; box-shadow: 0 0 5px rgba(0,0,0,0.2); position: absolute; top: 65px; left: -150px; z-index:999; white-space: nowrap;">
+                                            <a asp-controller="ProfileUser" asp-action="ProfileUser" style="display: block; margin-bottom: 5px; color:black;">Hồ sơ của tôi</a>
+                                            <a asp-controller="BillUser" asp-action="BillUser" style="display: block; margin-bottom: 5px; color:black;">Đơn hàng của tôi</a>
+                                            <a asp-controller="ProfileUser" asp-action="ProfileUser" style="display: block; margin-bottom: 5px; color:black;">Voucher của tôi</a>
+                                            <a asp-controller="Login" asp-action="Logout" style="display: block; color:black;">Đăng xuất</a>
+                                        </div>
+                                    </div>
+                                </li>
+                            }
                         </ul>
                     </div>
                 </div>
@@ -132,11 +191,10 @@
                 <div class="col-lg-4 col-md-6 col-sm-7">
                     <div class="footer__about">
                         <div class="footer__logo">
-                            <a asp-controller="Home" asp-action="Index"><img src="~/assets/images/logo.png" alt=""></a>
+                            <a asp-controller="Home" asp-action="Index"><img src="~/assets/images/logo.jpg" style="width: 200px" alt=""></a>
                         </div>
                         <p>
-                            Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt
-                            cilisis.
+                            ShoeMaster-Vững bước trên mỗi hành trình
                         </p>
                         <div class="footer__payment">
                             <a href="#"><img src="~/assets/images/payment/payment-1.png" alt=""></a>
@@ -149,32 +207,32 @@
                 </div>
                 <div class="col-lg-2 col-md-3 col-sm-5">
                     <div class="footer__widget">
-                        <h6>Quick links</h6>
+                        <h6>Đường dẫn</h6>
                         <ul>
-                            <li><a asp-controller="About" asp-action="About">About</a></li>
-                            <li><a asp-controller="News" asp-action="News">News</a></li>
-                            <li><a href="#">Contact</a></li>
-                            <li><a href="#">FAQ</a></li>
+                            <li><a asp-controller="About" asp-action="About">Về chúng tôi</a></li>
+                            <li><a asp-controller="News" asp-action="News">Tin tức</a></li>
+                            <li><a href="#">Liên hệ</a></li>
+                            <li><a href="#">Câu hỏi thường gặp</a></li>
                         </ul>
                     </div>
                 </div>
                 <div class="col-lg-2 col-md-3 col-sm-4">
                     <div class="footer__widget">
-                        <h6>Account</h6>
+                        <h6>Tài Khoản</h6>
                         <ul>
-                            <li><a href="#">My Account</a></li>
-                            <li><a href="#">Orders Tracking</a></li>
-                            <li><a href="#">Checkout</a></li>
-                            <li><a href="#">Wishlist</a></li>
-                        </ul>
+                            <li><a href="#">Tài khoản</a></li>
+                            <li><a href="#">Kiểm tra vận đơn</a></li>
+                            <li><a href="#">Thanh toán</a></li>
+@*                             <li><a href="#">Wishlist</a></li>
+ *@                        </ul>
                     </div>
                 </div>
                 <div class="col-lg-4 col-md-8 col-sm-8">
                     <div class="footer__newslatter">
-                        <h6>NEWSLETTER</h6>
+                        <h6>Nhận thông tin khuyến mại</h6>
                         <form action="#">
                             <input type="text" placeholder="Email">
-                            <button type="submit" class="site-btn">Subscribe</button>
+                            <button type="submit" class="site-btn">Đăng ký</button>
                         </form>
                         <div class="footer__social">
                             <a href="#"><i class="fa fa-facebook"></i></a>
@@ -202,8 +260,8 @@
     <div class="search-model">
         <div class="h-100 d-flex align-items-center justify-content-center">
             <div class="search-close-switch">+</div>
-            <form class="search-model-form">
-                <input type="text" id="search-input" placeholder="Search here.....">
+            <form class="search-model-form" asp-action="CheckBillStatus" asp-controller="Checkout" method="get">
+                <input type="text" id="search-input" name="billCode" placeholder="Tra cứu đơn hàng.">
             </form>
         </div>
     </div>
@@ -224,6 +282,35 @@
     <script>
         const tudong_chatbox = new TuDongChat('B5fDS4gtolOdI17iUjHAl')
         tudong_chatbox.initial()
+    </script>
+    <script>
+        // Toggle display of user links when clicking avatar
+        document.querySelectorAll('.user-avatar').forEach(avatar => {
+            avatar.addEventListener('click', function (event) {
+                event.stopPropagation(); // Ngăn sự kiện lan ra ngoài
+                const links = this.nextElementSibling;
+                if (links.style.display === 'none' || links.style.display === '') {
+                    // Ẩn tất cả trước khi hiển thị cái đang click
+                    document.querySelectorAll('.user-avatar').forEach(av => {
+                        const l = av.nextElementSibling;
+                        if (l) l.style.display = 'none';
+                    });
+                    links.style.display = 'block';
+                } else {
+                    links.style.display = 'none';
+                }
+            });
+        });
+
+        // Ẩn menu khi click ra ngoài
+        document.addEventListener('click', function (event) {
+            document.querySelectorAll('.user-avatar').forEach(avatar => {
+                const links = avatar.nextElementSibling;
+                if (links && !avatar.contains(event.target) && !links.contains(event.target)) {
+                    links.style.display = 'none';
+                }
+            });
+        });
     </script>
     @await RenderSectionAsync("Scripts", required: false)
 </body>

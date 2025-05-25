@@ -80,13 +80,8 @@ namespace Project.Business
 
             services.AddScoped<IProvinceRepository, ProvinceRepository>();
             services.AddScoped<IProvinceBusiness, ProvinceBusiness>();
+            services.AddScoped<ICartDetailFactory, CartDetailFactory>();
 
-
-            services.AddScoped<IBillIntercepterAfterSave, SendEmailAfterSaveBill>();
-
-            var emailSettings = configuration.GetSection("EmailSettings").Get<EmailSettings>();
-
-            services.AddSingleton(emailSettings);
 
 
             // Configure CORS

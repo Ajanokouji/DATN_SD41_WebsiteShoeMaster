@@ -6,6 +6,9 @@ using Project.Business.Interface.Services;
 using Microsoft.AspNetCore.Mvc.Filters;
 using SERP.Framework.ApiUtils.Middlewares;
 using SERP.Framework.ApiUtils.Utils;
+using System.Configuration;
+using Project.Business.Intercepter.Implement;
+using Project.Business.Intercepter;
 
 namespace Project.MVC
 {
@@ -33,13 +36,15 @@ namespace Project.MVC
 
             services.AddControllersWithViews();
             services.RegisterServiceComponents(_configuration);
-            
 
+            services.AddScoped<IBillIntercepterAfterSave, SendEmailAfterSaveBill>();
+            var emailSettings = _configuration.GetSection("EmailSettings").Get<EmailSettings>();
+            services.AddSingleton(emailSettings);
             // Add session support
             services.AddDistributedMemoryCache();
             services.AddSession(options =>
             {
-                options.IdleTimeout = TimeSpan.FromMinutes(30);
+                options.IdleTimeout = TimeSpan.FromMinutes(180);
                 options.Cookie.HttpOnly = true;
                 options.Cookie.IsEssential = true;
             });

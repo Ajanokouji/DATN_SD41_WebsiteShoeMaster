@@ -68,7 +68,8 @@ namespace Project.Business.ModelFactory.Implement
                 IsDeleted =entity.IsDeleted,
                 ProductName=     entity.ProductName,
                 Quantity = entity.Quantity,
-                TotalPrice = entity.TotalPrice
+                TotalPrice = entity.TotalPrice,
+                SKU= entity.SKU
             };
             return res;
         }

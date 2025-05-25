@@ -130,7 +130,7 @@ namespace Project.Business.Implement
                 query = query.Where(x => x.VoucherName.Contains(queryModel.ten_giam_gia));
             }
 
-            if (queryModel.loai_giam_gia >= 0)
+            if (queryModel.loai_giam_gia !=null)
             {
                 query = query.Where(x => x.VoucherType == queryModel.loai_giam_gia);
             }
@@ -168,11 +168,6 @@ namespace Project.Business.Implement
             if (queryModel.MaxUsagePerCustomer >= 0)
             {
                 query = query.Where(x => x.MaxUsagePerCustomer == queryModel.MaxUsagePerCustomer);
-            }
-
-            if (queryModel.DisplaySettings >= 0)
-            {
-                query = query.Where(x => x.DisplaySettings == queryModel.DisplaySettings);
             }
 
             if (queryModel.MaxDiscountAmount >= 0)
@@ -270,9 +265,9 @@ namespace Project.Business.Implement
                     exist.Status = voucher.Status;
                     exist.TotalMaxUsage = voucher.TotalMaxUsage;
                     exist.MaxUsagePerCustomer = voucher.MaxUsagePerCustomer;
-                    exist.DisplaySettings = voucher.DisplaySettings;
                     exist.MaxDiscountAmount = voucher.MaxDiscountAmount;
                     exist.RedeemCount = voucher.RedeemCount;
+                    exist.ImageUrl = voucher.ImageUrl;
 
                     exist.UpdateTracking(voucher.Id);
                     _context.Vouchers.Update(exist);

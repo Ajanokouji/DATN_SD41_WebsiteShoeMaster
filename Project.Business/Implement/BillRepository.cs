@@ -188,10 +188,6 @@ public class BillRepository : IBillRepository
             query = query.Where(x => x.LastModifiedOnDate == queryModel.last_modifi_on_date);
         }
 
-        if (!string.IsNullOrEmpty(queryModel.update_by))
-        {
-            query = query.Where(x => x.UpdateBy == queryModel.update_by);
-        }
 
         if (!string.IsNullOrEmpty(queryModel.ghi_chu))
         {
@@ -255,7 +251,6 @@ public class BillRepository : IBillRepository
                 exist.CreatedOnDate = bill.CreatedOnDate;
                 exist.RecipientEmail = bill.RecipientEmail;
                 exist.LastModifiedOnDate = bill.LastModifiedOnDate;
-                exist.UpdateBy = bill.UpdateBy;
                 exist.Note = bill.Note;
                 exist.LastModifiedByUserId = bill.LastModifiedByUserId;
 
@@ -296,15 +291,33 @@ public class BillRepository : IBillRepository
     {
         try
         {
-            BillEntity bill = new BillEntity();
-            bill.Id = Guid.NewGuid();
-            bill.BillCode = "BILL" + (bill.Id).ToString().Substring(0, 8).ToUpper();
-            bill.EmployeeId = idEmployee;
-            bill.CreatedOnDate = DateTime.Now;
-            bill.Status = "Pending";
-            _context.Bills.Add(bill);
-            _context.SaveChanges();
-            return true;
+            // BillEntity bill = new BillEntity();
+            // bill.Id = Guid.NewGuid();
+            // bill.BillCode = "BILL" + (bill.Id).ToString().Substring(0, 8).ToUpper();
+            // bill.EmployeeId = idEmployee;
+            // bill.CreatedOnDate = DateTime.Now;
+            // bill.Status = "Pending";
+            // _context.Bills.Add(bill);
+            // _context.SaveChanges();
+            // return true;
+
+            var listBills = _context.Bills.Where(b => b.Status == "Pending").ToList();
+            if (listBills.Count() < 20)
+            {
+                BillEntity bill = new BillEntity();
+                bill.Id = Guid.NewGuid();
+                bill.BillCode = "BILL" + (bill.Id).ToString().Substring(0, 8).ToUpper();
+                bill.EmployeeId = idEmployee;
+                bill.CreatedOnDate = DateTime.Now;
+                bill.Status = "Pending";
+                _context.Bills.Add(bill);
+                _context.SaveChanges();
+                return true;
+            }
+            else
+            {
+                return false;
+            }
         }
         catch
         {
@@ -426,5 +439,11 @@ public class BillRepository : IBillRepository
         _context.Bills.Update(update);
         _context.SaveChanges();
         return true;
+    }
+
+    public async Task<BillEntity> FindByCodeAsync(string billCode)
+    {
+        var res = await _context.Bills.FirstOrDefaultAsync(x => x.BillCode==billCode &&x.IsDeleted != true);
+        return res;
     }
 }

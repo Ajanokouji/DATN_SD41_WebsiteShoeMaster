@@ -172,36 +172,30 @@ const VouchersTable: React.FC = () => {
         if (value === 1) {
           return (
             <div>
-              <div>Voucher toàn shop</div>
+              <div className="font-semibold">Voucher toàn shop</div>
 
-              <div>{row?.displaySettings === 1?"Hiển thị nhiều nơi":"Không công khai"}</div>
-              {row?.displaySettings === 0?
+              <div>Khách hàng lưu trữ</div>
               <Link to={`/voucher-user/${row?.id}`} target="_blank" rel="noopener noreferrer"
                 className="flex items-center justify-center text-blue-500 hover:text-blue-700">
                 <FaEye/>
               </Link>
-              : ""
-              }
             </div>
           );
         }
         if (value === 2) {
           return (
             <div>
-              <div>Voucher sản phẩm</div>
+              <div className="font-semibold">Voucher sản phẩm</div>
               <Link to={`/voucher-product/${row?.id}`} target="_blank" rel="noopener noreferrer"
                 className="flex items-center justify-center text-blue-500 hover:text-blue-700">
                 <FaEye/>
               </Link>
 
-              <div>{row?.displaySettings === 1?"Hiển thị nhiều nơi":"Không công khai"}</div>
-              {row?.displaySettings === 0?
+              <div>Khách hàng lưu trữ</div>
               <Link to={`/voucher-user/${row?.id}`} target="_blank" rel="noopener noreferrer"
                 className="flex items-center justify-center text-blue-500 hover:text-blue-700">
                 <FaEye/>
               </Link>
-              : ""
-              }
             </div>
           );
         }

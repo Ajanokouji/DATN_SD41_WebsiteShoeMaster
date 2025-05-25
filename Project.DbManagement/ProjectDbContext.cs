@@ -32,7 +32,7 @@ namespace Project.DbManagement
         public DbSet<VoucherProducts> VoucherProducts { get; set; }
         public DbSet<VoucherUsers> VoucherUsers { get; set; }
 
-
+        public DbSet<CommentsEntity> Comments { get; set; }
         public ProjectDbContext(DbContextOptions options) : base(options)
         {
         }

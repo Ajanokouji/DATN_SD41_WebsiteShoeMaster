@@ -60,12 +60,16 @@
                                         data-discount-price="@item.DiscountPrice"
                                         data-discount-percent="@item.DiscountPercent"
                                         data-is-in-stock="@item.IsInStock"
+
                                         data-stock-quantity="@item.StockQuantity"
-                                        data-sku="@item.ProductCode">
+                                        data-sku="@item.SKU">
                                         <td class="cart__product__item">
                                             <img src="@item.ProductImage" alt="@item.ProductName" style="max-width: 90px;">
                                             <div class="cart__product__item__title">
                                                 <h6>@item.ProductName</h6>
+                                                <span>SIZE: @item.Size</span>
+                                                <span>Màu sắc: @item.Color</span>
+                                                <span>SKU: @item.SKU</span>
                                                 @if (item.DiscountPercent > 0)
                                                 {
                                                     <p class="discount">Giảm giá: @item.DiscountPercent%</p>
@@ -96,7 +100,7 @@
                                         </td>
                                         <td class="cart__total">@item.Total.ToString("N0") VNĐ</td>
                                         <td class="cart__close">
-                                            <a href="#" class="remove-item" data-id="@item.ProductId">
+                                            <a href="#" class="remove-item" data-id="@item.ProductId" data-sku ="@item.SKU">
                                                 <i class="fa fa-close"></i>
                                             </a>
                                         </td>
@@ -121,10 +125,9 @@
                         <div class="col-lg-6">
                             <div class="discount__content">
                                 <h6>Mã giảm giá</h6>
-                                <form action="#">
-                                    <input type="text" placeholder="Nhập mã giảm giá">
-                                    <button type="submit" class="site-btn">Áp dụng</button>
-                                </form>
+                                <input type="text" id="voucherCode" placeholder="Nhập mã giảm giá">
+                                <button type="button" id="applyVoucherBtn" class="site-btn">Áp dụng</button>
+                                <div id="voucherMessage" class="mt-2" style="font-size:14px;"></div>
                             </div>
                         </div>
                         <div class="col-lg-4 offset-lg-2">
@@ -132,6 +135,7 @@
                                 <h6>Tổng giỏ hàng</h6>
                                 <ul>
                                     <li>Tạm tính <span id="subtotal">@Model.Sum(x => x.Price * x.Quantity).ToString("N0") VNĐ</span></li>
+                                    <li>Giảm <span id="discount">0 VNĐ</span></li>
                                     <li>Tổng tiền <span id="total">@Model.Sum(x => x.Price * x.Quantity).ToString("N0") VNĐ</span></li>
                                 </ul>
                                 <a asp-controller="Checkout" asp-action="Index" class="primary-btn">Tiến hành thanh toán</a>
@@ -157,45 +161,78 @@
                 updateCartTotal();
             }
 
-                $(document).on('click', '.btn-increase', function () {
-                var $row = $(this).closest('tr');
-                var $input = $row.find('.quantity-input');
-                var val = parseInt($input.val()) || 0;
-                var max = parseInt($input.attr('max')) || 10000;
-                if (val < max) {
-                    $input.val(val + 1);
-                    updateItemTotal($row);
-                }
-            });
 
-            // Giảm số lượng
-            $(document).on('click', '.btn-decrease', function () {
-                var $row = $(this).closest('tr');
-                var $input = $row.find('.quantity-input');
-                var val = parseInt($input.val()) || 1;
-                if (val > 1) {
-                    $input.val(val - 1);
-                    updateItemTotal($row);
-                }
-            });
+              $(document).on('click', '.btn-increase', function () {
+            var $row = $(this).closest('tr');
+            var $input = $row.find('.quantity-input');
+            var val = parseInt($input.val()) || 0;
+            var max = parseInt($input.attr('max')) || 10000;
+            if (val < max) {
+                $input.val(val + 1);
+                updateItemTotal($row);
+                debugger
+                $.post('@Url.Action("IncreaseQuantity", "Cart")', {
+                    productId: $row.data('id'),
+                    sku: $row.data('sku')
+                }).done(function (res) {
+                    if (res.success) {
+                        if (res.quantity && res.quantity !== val + 1) {
+                            $input.val(res.quantity);
+                            updateItemTotal($row);
+                        }
+                        if (res.cartTotal !== undefined)
+                            $('#subtotal, #total').text(formatCurrency(res.cartTotal) + ' VNĐ');
+                    }
+                });
+            }
+        });
+
+        $(document).on('click', '.btn-decrease', function () {
+            debugger
+            var $row = $(this).closest('tr');
+            var $input = $row.find('.quantity-input');
+            var val = parseInt($input.val()) || 1;
+            if (val > 1) {
+                $input.val(val - 1);
+                updateItemTotal($row);
+                console.log($row.data('sku'))
+                $.post('@Url.Action("DecreaseQuantity", "Cart")', {
+                    productId: $row.data('id'),
+                    sku: $row.data('sku')
+                }).done(function (res) {
+                    if (res.success) {
+                        if (res.quantity === 0) {
+                            $row.remove();
+                            updateCartTotal();
+                        } else if (res.quantity !== val - 1) {
+                            $input.val(res.quantity);
+                            updateItemTotal($row);
+                        }
+                        if (res.cartTotal !== undefined)
+                            $('#subtotal, #total').text(formatCurrency(res.cartTotal) + ' VNĐ');
+                    }
+                });
+            }
+        });
 
             // Xóa sản phẩm khỏi giỏ hàng
             $('.remove-item').click(function (e) {
                 e.preventDefault();
                 var productId = $(this).data('id');
+                var sku = $(this).data('sku');
                 var $row = $(this).closest('tr');
 
-                $.ajax({
+                   $.ajax({
                     url: '@Url.Action("RemoveFromCart", "Cart")',
                     type: 'POST',
-                    data: { productId: productId },
+                    data: { productId: productId, sku: sku },  
                     success: function (result) {
                         if (result.success) {
                             $row.remove();
-                            updateCartTotal();
-                            alert('Xóa sản phẩm khỏi giỏ hàng thành công');
+                            updateCartTotal();           // (hàm sẵn có)
+                            alert(result.message || 'Xóa sản phẩm khỏi giỏ hàng thành công');
                         } else {
-                            alert('Có lỗi xảy ra khi xóa sản phẩm');
+                            alert(result.message || 'Có lỗi xảy ra khi xóa sản phẩm');
                         }
                     },
                     error: function () {

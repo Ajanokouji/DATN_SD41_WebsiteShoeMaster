@@ -18,7 +18,10 @@ namespace Project.Api.Controllers
     {
         private readonly IContentBaseBusiness _contentBaseBusiness;
 
-        public ContentBaseController(IHttpRequestHelper httpRequestHelper, ILogger<ApiControllerBase> logger, IContentBaseBusiness contentBaseBusiness)
+        public ContentBaseController(
+            IHttpRequestHelper httpRequestHelper,
+            ILogger<ApiControllerBase> logger,
+            IContentBaseBusiness contentBaseBusiness)
             : base(httpRequestHelper, logger)
         {
             _contentBaseBusiness = contentBaseBusiness;
@@ -44,7 +47,6 @@ namespace Project.Api.Controllers
             });
         }
 
-
         [HttpPost("count")]
         public async Task<IActionResult> GetContentBaseCount([FromQuery] ContentBaseQueryModel queryModel)
         {
@@ -61,6 +63,10 @@ namespace Project.Api.Controllers
             return await ExecuteFunction(async () =>
             {
                 var createdContent = await _contentBaseBusiness.SaveAsync(contentBase);
+
+                // Gọi update liên kết ProductContent sau khi tạo thành công
+                //await _productContentBusiness.UpdateAllProductContentRelationsAsync();
+
                 return createdContent;
             });
         }
@@ -71,6 +77,10 @@ namespace Project.Api.Controllers
             return await ExecuteFunction(async () =>
             {
                 var createdContents = await _contentBaseBusiness.SaveAsync(contentBases);
+
+                // Có thể gọi update nếu cần, nhưng với batch nhiều content thì nên xử lý riêng
+                //await _productContentBusiness.UpdateAllProductContentRelationsAsync();
+
                 return createdContents;
             });
         }
@@ -86,6 +96,10 @@ namespace Project.Api.Controllers
                     throw new ArgumentException("ContentBase not found or ID mismatch");
 
                 var updatedContent = await _contentBaseBusiness.PatchAsync(contentBase);
+
+                // Gọi update liên kết ProductContent sau khi sửa thành công
+                //await _productContentBusiness.UpdateAllProductContentRelationsAsync();
+
                 return updatedContent;
             });
         }

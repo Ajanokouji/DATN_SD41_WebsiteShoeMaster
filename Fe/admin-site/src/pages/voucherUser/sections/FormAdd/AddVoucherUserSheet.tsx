@@ -189,7 +189,7 @@ const AddVoucherUserSheet: React.FC<AddVoucherUserSheetProps> = ({
 
       if (existingUsers.length > 0) {
         setErrMs(
-          "Một số khách hàng đã được áp dụng voucher trước đó. Vui lòng kiểm tra lại."
+          "Trong kho Voucher của một số khách hàng đã có Voucher này! Vui lòng kiểm tra lại!"
         );
         return;
       }
@@ -207,7 +207,7 @@ const AddVoucherUserSheet: React.FC<AddVoucherUserSheetProps> = ({
     <Sheet open={isOpen} onOpenChange={onClose}>
       <SheetContent className="w-[90%] sm:max-w-[80vw] max-w-none h-screen overflow-y-auto">
         <SheetHeader>
-          <SheetTitle>Thêm tài khoản khách hàng áp dụng Voucher</SheetTitle>
+          <SheetTitle>Thêm vào kho Voucher của khách hàng</SheetTitle>
           <SheetDescription></SheetDescription>
         </SheetHeader>
         <h3 ref={errorRef} className="text-red-500 text-center">
@@ -216,7 +216,7 @@ const AddVoucherUserSheet: React.FC<AddVoucherUserSheetProps> = ({
         <div className="p-5 m-5 border border-gray-300 rounded">
           <div className="flex items-center">
             <Input
-              placeholder="Tìm kiếm tài khoản khách hàng dựa trên tên tài khoản, tên khách hàng, số điện thoại, email, địa chỉ"
+              placeholder="Tìm kiếm khách hàng dựa trên tên tài khoản, tên khách hàng, số điện thoại, email, địa chỉ"
               value={inputSearchUserString}
               onChange={(e) => setInputSearchUserString(e.target.value)}
               onKeyDown={(e) => {
@@ -242,7 +242,7 @@ const AddVoucherUserSheet: React.FC<AddVoucherUserSheetProps> = ({
           </div>
           <div className="flex mt-4">
             <div className="w-1/2 h-[60vh] border rounded p-2">
-              <h4 className="text-center font-semibold mb-4 bg-gray-200 rounded p-1">Danh sách tài khoản khách hàng</h4>
+              <h4 className="text-center font-semibold mb-4 bg-gray-200 rounded p-1">Danh sách khách hàng</h4>
               {users && users.length > 0 ? (
                 <ul className="space-y-2 max-h-[50vh] overflow-y-auto">
                   {users.map((user) => {
@@ -282,7 +282,7 @@ const AddVoucherUserSheet: React.FC<AddVoucherUserSheetProps> = ({
                         <div className="flex items-center">
                           <div className="relative">
                             <img
-                              className={`w-16 h-16 border-2 rounded-full mr-5 ${borderColor}`}
+                              className={`object-cover w-16 h-16 border-2 rounded-full mr-5 ${borderColor}`}
                               src={user.avartarUrl || "https://static.vecteezy.com/system/resources/previews/009/292/244/non_2x/default-avatar-icon-of-social-media-user-vector.jpg"}
                               alt={user.name || "User"}
                             />
@@ -362,7 +362,7 @@ const AddVoucherUserSheet: React.FC<AddVoucherUserSheetProps> = ({
                         <div className="flex items-center">
                           <div className="relative">
                             <img
-                              className={`w-16 h-16 border-2 rounded-full mr-5 ${borderColor}`}
+                              className={`object-cover w-16 h-16 border-2 rounded-full mr-5 ${borderColor}`}
                               src={user.avartarUrl || "https://static.vecteezy.com/system/resources/previews/009/292/244/non_2x/default-avatar-icon-of-social-media-user-vector.jpg"}
                               alt={user.name || "User"}
                             />

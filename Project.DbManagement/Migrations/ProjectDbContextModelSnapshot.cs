@@ -17,7 +17,7 @@ namespace Project.DbManagement.Migrations
         {
 #pragma warning disable 612, 618
             modelBuilder
-                .HasAnnotation("ProductVersion", "8.0.0")
+                .HasAnnotation("ProductVersion", "8.0.10")
                 .HasAnnotation("Relational:MaxIdentifierLength", 128);
 
             SqlServerModelBuilderExtensions.UseIdentityColumns(modelBuilder);
@@ -171,9 +171,6 @@ namespace Project.DbManagement.Migrations
                     b.Property<decimal?>("TotalAmount")
                         .HasColumnType("decimal(18,2)");
 
-                    b.Property<string>("UpdateBy")
-                        .HasColumnType("nvarchar(128)");
-
                     b.Property<string>("VoucherCode")
                         .HasColumnType("nvarchar(128)");
 
@@ -251,10 +248,9 @@ namespace Project.DbManagement.Migrations
                         .HasColumnType("datetime2");
 
                     b.Property<string>("Description")
-                        .IsRequired()
                         .HasColumnType("nvarchar(1024)");
 
-                    b.Property<Guid>("IdContact")
+                    b.Property<Guid?>("IdContact")
                         .HasColumnType("uniqueidentifier");
 
                     b.Property<Guid>("IdUser")
@@ -269,7 +265,7 @@ namespace Project.DbManagement.Migrations
                     b.Property<DateTime?>("LastModifiedOnDate")
                         .HasColumnType("datetime2");
 
-                    b.Property<int>("Status")
+                    b.Property<int?>("Status")
                         .HasColumnType("int");
 
                     b.HasKey("Id");
@@ -447,6 +443,9 @@ namespace Project.DbManagement.Migrations
                         .ValueGeneratedOnAdd()
                         .HasColumnType("uniqueidentifier");
 
+                    b.Property<string>("Content")
+                        .HasColumnType("nvarchar(max)");
+
                     b.Property<Guid?>("CreatedByUserId")
                         .HasColumnType("uniqueidentifier");
 
@@ -456,7 +455,7 @@ namespace Project.DbManagement.Migrations
                     b.Property<bool?>("IsDeleted")
                         .HasColumnType("bit");
 
-                    b.Property<bool>("IsPublish")
+                    b.Property<bool?>("IsPublish")
                         .HasColumnType("bit");
 
                     b.Property<Guid?>("LastModifiedByUserId")
@@ -465,30 +464,25 @@ namespace Project.DbManagement.Migrations
                     b.Property<DateTime?>("LastModifiedOnDate")
                         .HasColumnType("datetime2");
 
-                    b.Property<DateTime>("PublishEndDate")
+                    b.Property<DateTime?>("PublishEndDate")
                         .HasColumnType("datetime2");
 
-                    b.Property<DateTime>("PublishStartDate")
+                    b.Property<DateTime?>("PublishStartDate")
                         .HasColumnType("datetime2");
 
                     b.Property<string>("SeoDescription")
-                        .IsRequired()
                         .HasColumnType("nvarchar(512)");
 
                     b.Property<string>("SeoKeywords")
-                        .IsRequired()
                         .HasColumnType("nvarchar(256)");
 
                     b.Property<string>("SeoTitle")
-                        .IsRequired()
                         .HasColumnType("nvarchar(256)");
 
                     b.Property<string>("SeoUri")
-                        .IsRequired()
                         .HasColumnType("nvarchar(256)");
 
                     b.Property<string>("Title")
-                        .IsRequired()
                         .HasColumnType("nvarchar(256)");
 
                     b.HasKey("Id");
@@ -802,6 +796,38 @@ namespace Project.DbManagement.Migrations
                     b.ToTable("Users");
                 });
 
+            modelBuilder.Entity("Project.DbManagement.Entity.VoucherUsers", b =>
+                {
+                    b.Property<Guid>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("uniqueidentifier");
+
+                    b.Property<Guid?>("CreatedByUserId")
+                        .HasColumnType("uniqueidentifier");
+
+                    b.Property<DateTime?>("CreatedOnDate")
+                        .HasColumnType("datetime2");
+
+                    b.Property<bool?>("IsDeleted")
+                        .HasColumnType("bit");
+
+                    b.Property<Guid?>("LastModifiedByUserId")
+                        .HasColumnType("uniqueidentifier");
+
+                    b.Property<DateTime?>("LastModifiedOnDate")
+                        .HasColumnType("datetime2");
+
+                    b.Property<Guid>("UserId")
+                        .HasColumnType("uniqueidentifier");
+
+                    b.Property<Guid>("VoucherId")
+                        .HasColumnType("uniqueidentifier");
+
+                    b.HasKey("Id");
+
+                    b.ToTable("VoucherUsers");
+                });
+
             modelBuilder.Entity("Project.DbManagement.PaymentMethods", b =>
                 {
                     b.Property<Guid>("Id")
@@ -876,6 +902,9 @@ namespace Project.DbManagement.Migrations
 
                     b.Property<DateTime?>("EndDate")
                         .HasColumnType("datetime2");
+
+                    b.Property<string>("ImageUrl")
+                        .HasColumnType("nvarchar(max)");
 
                     b.Property<bool?>("IsDeleted")
                         .HasColumnType("bit");

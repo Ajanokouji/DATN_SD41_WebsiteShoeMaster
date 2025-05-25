@@ -6,6 +6,7 @@ using System.Threading.Tasks;
 using System.ComponentModel.DataAnnotations;
 using Project.DbManagement.Entity;
 using System.ComponentModel.DataAnnotations.Schema;
+using Project.DbManagement.Enum;
 
 namespace Project.DbManagement
 {
@@ -20,7 +21,9 @@ namespace Project.DbManagement
         [Column(TypeName = "nvarchar(256)")]
         public string VoucherName { get; set; }
 
-        public int? VoucherType { get; set; }
+        public string? ImageUrl { get; set; }
+
+        public VocherTypeEnum? VoucherType { get; set; }
         public DateTime? StartDate { get; set; }
         public DateTime? EndDate { get; set; }
         public int? Status { get; set; }
@@ -36,8 +39,6 @@ namespace Project.DbManagement
         public int? TotalMaxUsage { get; set; }
         //Số lượt sử dụng tối đa trên mỗi khách hàng
         public int? MaxUsagePerCustomer { get; set; }
-        //Thiết lập hiển thị: Hiển thị nhiều nơi | Chia sẻ thông qua mã voucher
-        public int? DisplaySettings { get; set; }
         //Số tiền giảm giá tối đa đối với voucher giảm theo phần trăm
         public decimal? MaxDiscountAmount { get; set; }
         //Tổng Số lượt đã sử dụng voucher

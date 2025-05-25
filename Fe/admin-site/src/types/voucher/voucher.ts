@@ -19,9 +19,9 @@ export default interface VoucherReqDto {
   minimumOrderAmount: number | null; // Giá trị đơn hàng tối thiểu
   totalMaxUsage: number | null; //Tổng lượt sử dụng tối đa
   maxUsagePerCustomer: number | null; //Số lượt sử dụng tối đa trên mỗi khách hàng
-  displaySettings: number | null; //Thiết lập hiển thị: Hiển thị nhiều nơi | Chia sẻ thông qua mã voucher
   maxDiscountAmount: number | null; //Số tiền giảm giá tối đa đối với voucher giảm theo phần trăm
   redeemCount: number | null; //Tổng Số lượt đã sử dụng voucher
+  imageUrl: string | null; // Đường dẫn đến hình ảnh của voucher
 }
 
 export interface VoucherResDto {
@@ -43,9 +43,9 @@ export interface VoucherResDto {
   minimumOrderAmount: number | null; // Giá trị đơn hàng tối thiểu
   totalMaxUsage: number | null; //Tổng lượt sử dụng tối đa
   maxUsagePerCustomer: number | null; //Số lượt sử dụng tối đa trên mỗi khách hàng
-  displaySettings: number | null; //Thiết lập hiển thị: Hiển thị nhiều nơi | Chia sẻ thông qua mã voucher
   maxDiscountAmount: number | null; //Số tiền giảm giá tối đa đối với voucher giảm theo phần trăm
   redeemCount: number | null; //Tổng Số lượt đã sử dụng voucher
+  imageUrl: string | null; // Đường dẫn đến hình ảnh của voucher
 }
 
 export interface VoucherFilterParams extends PaginationParams {

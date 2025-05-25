@@ -65,7 +65,10 @@ namespace Project.MVC.Controllers
                             List<CartItemModel> lstCartItemModel = lstCartDetailFound.Select(x => new CartItemModel
                             {
                                 ProductId = x.IdProduct,
-                                Quantity = x.Quantity.Value
+                                Quantity = x.Quantity.Value,
+                                Color = x.Color,
+                                SKU= x.SKU,
+                                CartId= x.IdCart,
                             }).ToList();
 
                             //Lấy ra thông tin sản phẩm của từng cartItemModel
@@ -75,21 +78,12 @@ namespace Project.MVC.Controllers
                                 if (productFound != null)
                                 {
                                     //Lấy price
-                                    string? avgPrice = productFound.MetadataObj?.FirstOrDefault(m => m.FieldName == "AvgPrice")?.FieldValues;
+                                    string? avgPrice = productFound.VariantObjs?.FirstOrDefault(m => m.Sku == cartItemModel.SKU).Price;
                                     if (!string.IsNullOrWhiteSpace(avgPrice))
                                     {
                                         cartItemModel.Price = Convert.ToDecimal(avgPrice);
                                     }
 
-             
-                                    cartItemModel.Size = string.Empty;
-
-                                    //Lấy color
-                                    string? color = productFound.MetadataObj?.FirstOrDefault(m => m.FieldName == "Colorway")?.FieldValues;
-                                    if (!string.IsNullOrWhiteSpace(color))
-                                    {
-                                        cartItemModel.Color = color;
-                                    }
 
                                     if (!string.IsNullOrWhiteSpace(productFound.Name))
                                     {
@@ -162,11 +156,11 @@ namespace Project.MVC.Controllers
                     }
                 };
 
-                var result = await _cartBusiness.AddToCartDb(user, cartDetails);
+                var result = await _cartBusiness.AddToCartAsync(user.Id, cartDetails);
                 if (!result.IsSuccess)
                     return Json(new { success = false, message = result.Message });
 
-                var countResult = await _cartBusiness.GetCartDbCount(user);
+                var countResult = await _cartBusiness.GetCartDbCount(user.Id);
                 if (!countResult.IsSuccess)
                     return Json(new { success = true, message = result.Message, count = 0 });
 
@@ -294,17 +288,17 @@ namespace Project.MVC.Controllers
         }
 
         [HttpPost]
-        public async Task<IActionResult> RemoveFromCart(Guid productId)
+        public async Task<IActionResult> RemoveFromCart(Guid productId , string Sku )
         {
             //Kiểm tra đã có user đăng nhập chưa
-            var userSessionJson = HttpContext.Session.GetString(UserConstants.UserSessionKey);
+            var userSessionJson = HttpContext.Session.GetString(UserConstants.UserSessionKey??string.Empty);
             if (!string.IsNullOrEmpty(userSessionJson))
             {
-                var userSessions = JsonConvert.DeserializeObject<UserEntity>(userSessionJson);
+                var user = JsonConvert.DeserializeObject<UserEntity>(userSessionJson);
                 //Nếu userSessions khác null => đã có user đăng nhập
-                if (userSessions != null)
+                if (user != null)
                 {
-                    var rs = await _cartBusiness.RemoveFromCartDb(userSessions, productId);
+                    var rs = await _cartBusiness.RemoveFromCartDb(user.Id, productId,Sku);
 
                     if (!rs.IsSuccess)
                     {
@@ -417,6 +411,114 @@ namespace Project.MVC.Controllers
         public IActionResult Checkout()
         {
             return RedirectToAction("Index", "Checkout");
+        }
+
+        [HttpPost]
+        public async Task<IActionResult> IncreaseQuantity(Guid productId, string sku)
+        {
+            return await ChangeQuantity(productId, sku, +1);
+        }
+
+        [HttpPost]
+        public async Task<IActionResult> DecreaseQuantity(Guid productId, string sku)
+        {
+            return await ChangeQuantity(productId, sku, -1);
+        }
+
+
+        private async Task<IActionResult> ChangeQuantity(Guid productId, string sku, int delta)
+        {
+
+            var userSessionJson = HttpContext.Session.GetString(UserConstants.UserSessionKey);
+            var isLoggedIn = !string.IsNullOrEmpty(userSessionJson);
+
+            int newQuantity = 0;
+            int cartCount = 0;
+            decimal cartTotal = 0;
+
+            if (isLoggedIn)
+            {
+                var user = !string.IsNullOrEmpty(userSessionJson) ? JsonConvert.DeserializeObject<UserEntity>(userSessionJson) : null;
+                if (user == null) return Json(new { success = false, message = "Phiên đăng nhập không hợp lệ" });
+
+                // 1.2 Lấy CartDetail tương ứng
+                var details = await _cartBusiness.GetCartItemsByUserId(user.Id);
+                var detail = details?.FirstOrDefault(d => d.ProductId == productId && d.SKU == sku);
+                if (detail == null) return Json(new { success = false, message = "Sản phẩm không tồn tại" });
+
+                // 1.3 Cập nhật số lượng
+                detail.Quantity = detail.Quantity + delta;
+                if (detail.Quantity <= 0)
+                {
+                    // Xoá khỏi DB
+                    await _cartDetailsBusiness.DeleteAsync(detail.Id);
+                    newQuantity = 0;
+                }
+                else
+                {
+                    // Update DB
+                    var rs = await _cartBusiness.UpdateCartDb(user, new List<CartDetails>
+                    {
+                        new CartDetails { IdProduct = productId, SKU = sku, Quantity = detail.Quantity }
+                    });
+                    if (!rs.IsSuccess) return Json(new { success = false, message = rs.Message });
+                    newQuantity = detail.Quantity;
+                }
+
+                // 1.4 Lấy lại count & total cho giỏ DB
+                var countRs = await _cartBusiness.GetCartDbCount(user.Id);
+                cartCount = countRs.IsSuccess ? countRs.Data : 0;
+
+                // Không có CalculateCartDbTotal, dùng GetCartItemsByUserId + CalculateCartTotal
+                var items = await _cartBusiness.GetCartItemsByUserId(user.Id);
+                var totalRs = await _cartBusiness.CalculateCartTotal(items);
+                cartTotal = totalRs.IsSuccess ? totalRs.Data : 0;
+
+                HttpContext.Session.SetInt32(CartConstants.CartCountKey, cartCount);
+                HttpContext.Session.SetString(CartConstants.CartTotalKey, cartTotal.ToString("N0"));
+            }
+            else
+            {
+
+                var cartSessionJson = HttpContext.Session.GetString(CartConstants.CartSessionKey);
+                var cartSessions = string.IsNullOrEmpty(cartSessionJson)
+                                        ? new List<CartItem>()
+                                        : JsonConvert.DeserializeObject<List<CartItem>>(cartSessionJson) ?? new List<CartItem>();
+
+                var item = cartSessions.FirstOrDefault(c => c.ProductId == productId && c.SKU == sku);
+                if (item == null) return Json(new { success = false, message = "Sản phẩm không tồn tại" });
+
+                item.Quantity += delta;
+                if (item.Quantity <= 0)
+                    cartSessions.Remove(item);
+
+                newQuantity = Math.Max(item.Quantity, 0);
+
+                // Lưu lại
+                HttpContext.Session.SetString(CartConstants.CartSessionKey, JsonConvert.SerializeObject(cartSessions));
+
+                // Đếm & tính tiền
+                var countRs = await _cartBusiness.GetCartCount(cartSessions);
+                if (countRs.IsSuccess) cartCount = countRs.Data;
+
+                var itemsRs = await _cartBusiness.GetCartItems(cartSessions);
+                if (itemsRs.IsSuccess)
+                {
+                    var totalRs = await _cartBusiness.CalculateCartTotal(itemsRs.Data);
+                    if (totalRs.IsSuccess) cartTotal = totalRs.Data;
+                }
+
+                HttpContext.Session.SetInt32(CartConstants.CartCountKey, cartCount);
+                HttpContext.Session.SetString(CartConstants.CartTotalKey, cartTotal.ToString("N0"));
+            }
+
+            return Json(new
+            {
+                success = true,
+                quantity = newQuantity,
+                cartCount = cartCount,
+                cartTotal = cartTotal
+            });
         }
     }
 }

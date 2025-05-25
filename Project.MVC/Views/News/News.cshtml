@@ -1,7 +1,12 @@
-﻿@{
+﻿@model List<Project.DbManagement.Entity.ContentBase>?
+
+@{
     ViewData["Title"] = "Tin tức";
     Layout = "~/Views/Shared/_Layout.cshtml";
+    var currentPageSize = ViewBag.PageSize != null ? (int)ViewBag.PageSize : 6;
+    var nextPageSize = currentPageSize + 6;
 }
+
 <!-- Breadcrumb Begin -->
 <div class="breadcrumb-option">
     <div class="container">
@@ -19,120 +24,52 @@
 <!-- Blog Section Begin -->
 <section class="blog spad">
     <div class="container">
+
+        <div class="row" id="news-container">
+            @Html.Partial("_NewsItemsPartial", Model)
+        </div>
+
         <div class="row">
-            <div class="col-lg-4 col-md-4 col-sm-6">
-                <div class="blog__item">
-                    <div class="blog__item__pic large__item set-bg" data-setbg="/assets/images/blog/blog-1.jpg"></div>
-                    <div class="blog__item__text">
-                        <h6><a href="#">Không có mâu thuẫn! Lý do tại sao Tamr Judge cuối cùng đã làm hòa với...</a></h6>
-                        <ul>
-                            <li>by <span>Ema Timahe</span></li>
-                            <li>Ngày 17 tháng 9, 2019</li>
-                        </ul>
-                    </div>
-                </div>
-                <div class="blog__item">
-                    <div class="blog__item__pic set-bg" data-setbg="/assets/images/blog/blog-7.jpg"></div>
-                    <div class="blog__item__text">
-                        <h6><a href="#">Tiệc Pot! Xem Farrah Abraham khoe thân hình hút thuốc tại...</a></h6>
-                        <ul>
-                            <li>by <span>Ema Timahe</span></li>
-                            <li>Ngày 17 tháng 9, 2019</li>
-                        </ul>
-                    </div>
-                </div>
-                <div class="blog__item">
-                    <div class="blog__item__pic set-bg" data-setbg="/assets/images/blog/blog-9.jpg"></div>
-                    <div class="blog__item__text">
-                        <h6><a href="#">CMT Awards 2019: Những người nổi tiếng đến thảm đỏ Carrie Underwood, Sheryl...</a></h6>
-                        <ul>
-                            <li>by <span>Ema Timahe</span></li>
-                            <li>Ngày 17 tháng 9, 2019</li>
-                        </ul>
-                    </div>
-                </div>
-            </div>
-            <div class="col-lg-4 col-md-4 col-sm-6">
-                <div class="blog__item">
-                    <div class="blog__item__pic set-bg" data-setbg="/assets/images/blog/blog-2.jpg"></div>
-                    <div class="blog__item__text">
-                        <h6><a href="#">Thảm đỏ Amf Cannes: Những người nổi tiếng Kendall Jenner, Pamela...</a></h6>
-                        <ul>
-                            <li>by <span>Ema Timahe</span></li>
-                            <li>Ngày 17 tháng 9, 2019</li>
-                        </ul>
-                    </div>
-                </div>
-                <div class="blog__item">
-                    <div class="blog__item__pic set-bg" data-setbg="/assets/images/blog/blog-4.jpg"></div>
-                    <div class="blog__item__text">
-                        <h6><a href="#">Ireland Baldwin khoe hình xăm Ilse Valfre thời thượng tại Stagecoach...</a></h6>
-                        <ul>
-                            <li>by <span>Ema Timahe</span></li>
-                            <li>Ngày 17 tháng 9, 2019</li>
-                        </ul>
-                    </div>
-                </div>
-                <div class="blog__item">
-                    <div class="blog__item__pic set-bg" data-setbg="/assets/images/blog/blog-8.jpg"></div>
-                    <div class="blog__item__text">
-                        <h6><a href="#">Kim Kardashian xuất hiện ở Paris với bộ trang phục lấp lánh gây sốc...</a></h6>
-                        <ul>
-                            <li>by <span>Ema Timahe</span></li>
-                            <li>Ngày 17 tháng 9, 2019</li>
-                        </ul>
-                    </div>
-                </div>
-                <div class="blog__item">
-                    <div class="blog__item__pic set-bg" data-setbg="/assets/images/blog/blog-10.jpg"></div>
-                    <div class="blog__item__text">
-                        <h6><a href="#">Cuộc chiến A-list! Angelina Jolie & Lady Gaga tranh giành ai...</a></h6>
-                        <ul>
-                            <li>by <span>Ema Timahe</span></li>
-                            <li>Ngày 17 tháng 9, 2019</li>
-                        </ul>
-                    </div>
-                </div>
-            </div>
-            <div class="col-lg-4 col-md-4 col-sm-6">
-                <div class="blog__item">
-                    <div class="blog__item__pic set-bg" data-setbg="/assets/images/blog/blog-3.jpg"></div>
-                    <div class="blog__item__text">
-                        <h6><a href="#">Gigi Hadid, Rita Ora, Serena & những người nổi tiếng khác gây ấn tượng tại 2019...</a></h6>
-                        <ul>
-                            <li>by <span>Ema Timahe</span></li>
-                            <li>Ngày 17 tháng 9, 2019</li>
-                        </ul>
-                    </div>
-                </div>
-                <div class="blog__item">
-                    <div class="blog__item__pic set-bg" data-setbg="/assets/images/blog/blog-5.jpg"></div>
-                    <div class="blog__item__text">
-                        <h6><a href="#">Billboard Music Awards: Những bộ váy đẹp nhất, tệ nhất & kỳ quặc nhất trên thảm đỏ...</a></h6>
-                        <ul>
-                            <li>by <span>Ema Timahe</span></li>
-                            <li>Ngày 17 tháng 9, 2019</li>
-                        </ul>
-                    </div>
-                </div>
-                <div class="blog__item">
-                    <div class="blog__item__pic large__item set-bg" data-setbg="/assets/images/blog/blog-6.jpg"></div>
-                    <div class="blog__item__text">
-                        <h6><a href="#">Stephanie Pratt khoe dáng trong bộ bikini đen nhỏ xíu tại Hawaii...</a></h6>
-                        <ul>
-                            <li>by <span>Ema Timahe</span></li>
-                            <li>Ngày 17 tháng 9, 2019</li>
-                        </ul>
-                    </div>
-                </div>
-            </div>
-            <div class="col-lg-12 text-center">
-                <a href="#" class="primary-btn load-btn">Tải thêm bài viết</a>
+            <div class="col-lg-12 text-center mt-4">
+                <button id="load-more-btn" class="primary-btn load-btn">Tải thêm bài viết</button>
             </div>
         </div>
+
     </div>
 </section>
 <!-- Blog Section End -->
 <!-- Instagram Begin -->
-@await Component.InvokeAsync("SocialMedialViewComponent")
 <!-- Instagram End -->
+@section Scripts {
+    <script>
+        let currentPage = 1;
+        const pageSize = 6;
+
+        document.getElementById("load-more-btn").addEventListener("click", function () {
+            currentPage++;
+
+            fetch(`/News/LoadMoreNews?page=${currentPage}&pageSize=${pageSize}`)
+                .then(response => {
+                    if (!response.ok) {
+                        throw new Error("Network response was not ok");
+                    }
+                    return response.text();
+                })
+                .then(html => {
+                    const container = document.getElementById("news-container");
+                    container.insertAdjacentHTML("beforeend", html);
+
+                    // Xử lý hiển thị ảnh cho các phần tử .set-bg
+                    document.querySelectorAll('.set-bg').forEach(function (el) {
+                        const bg = el.getAttribute('data-setbg');
+                        if (bg) {
+                            el.style.backgroundImage = 'url(' + bg + ')';
+                        }
+                    });
+                })
+                .catch(error => {
+                    console.error("Lỗi khi tải bài viết:", error);
+                });
+        });
+    </script>
+}

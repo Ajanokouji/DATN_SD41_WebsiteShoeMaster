@@ -63,9 +63,6 @@ namespace Project.DbManagement
         public string? PaymentStatus { get; set; }
 
         [Column(TypeName = "nvarchar(128)")]
-        public string? UpdateBy { get; set; }
-
-        [Column(TypeName = "nvarchar(128)")]
         public string? PaymentMethod { get; set; }
     }
 }

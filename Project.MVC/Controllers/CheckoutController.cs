@@ -8,19 +8,16 @@ using Project.Business.Model.VnPayments;
 using Project.Common;
 using Project.Common.Constants;
 using Project.DbManagement.Entity;
-using Project.MVC.Models;
-using SERP.Framework.Constants.Constants;
-using StackExchange.Redis;
-using System;
 using System.Collections.Generic;
 using System.Linq;
-using System.Threading.Tasks;
+
 
 namespace Project.MVC.Controllers
 {
     public class CheckoutController : Controller
     {
         private readonly IBillBusiness _billBusiness;
+        private readonly IVoucherBusiness _voucherBusiness;
         private readonly IProductBusiness _productBusiness;
         private readonly ICartBusiness _cartBusiness;
         private readonly IBillDetailsBusiness _billDetailsBusiness;
@@ -30,6 +27,7 @@ namespace Project.MVC.Controllers
 
         public CheckoutController(
             IBillBusiness billBusiness,
+            IVoucherBusiness voucherBusiness,
             ICartBusiness cartBusiness,
             IProductBusiness productBusiness,
             IBillDetailsBusiness billDetailsBusiness,
@@ -38,6 +36,7 @@ namespace Project.MVC.Controllers
         {
             _productBusiness = productBusiness;
             _billBusiness = billBusiness;
+            _voucherBusiness = voucherBusiness;
             _cartBusiness = cartBusiness;
             _billDetailsBusiness = billDetailsBusiness;
             _vnPayService = vnPayService;
@@ -52,35 +51,49 @@ namespace Project.MVC.Controllers
         [HttpGet]
         public async Task<IActionResult> Index()
         {
-            var cartSession = HttpContext.Session.GetString(CartSessionKey);
-            if (string.IsNullOrEmpty(cartSession))
+            var data = new List<CartItemModel>();
+            var user = JsonConvert.DeserializeObject<UserEntity>(HttpContext.Session.GetString("UserSession")??string.Empty);
+
+            if (user != null)
+            {
+                data = (await _cartBusiness.GetCartItemsByUserId(user.Id));
+            }
+            else
+            {
+                var cartSession = HttpContext.Session.GetString(CartSessionKey);
+                if (!string.IsNullOrEmpty(cartSession))
+                {
+                    data = JsonConvert.DeserializeObject<List<CartItemModel>>(cartSession);
+                }
+            }
+
+            if (data == null || !data.Any())
             {
                 return RedirectToAction("Index", "Cart");
             }
+            //var products = await _productBusiness.ListByIdsAsync(data.Select(x => x.ProductId).ToList());
+            //// Get all SKUs from cart items
+            //var cartSkus = data.Select(x => x.SKU).ToHashSet();
 
-            var cartSessions = JsonConvert.DeserializeObject<List<CartItem>>(cartSession);
-            var cartItemsResult = await _cartBusiness.GetCartItems(cartSessions);
-            if (!cartItemsResult.IsSuccess || cartItemsResult.Data == null || !cartItemsResult.Data.Any())
-            {
-                return RedirectToAction("Index", "Cart");
-            }
-
+            //// Find all product variants in the cart by SKU
+            //var variantsInCart = products
+            //    .SelectMany(p => p.VariantObjs ?? new List<Variant>())
+            //    .Where(v => v.Sku != null && cartSkus.Contains(v.Sku))
+            //    .ToList();
             var model = new CheckoutViewModel
             {
-                BillId= Guid.NewGuid(),
-                CartItems = cartItemsResult.Data,
-                CustomerInfo = new CustomerInfoModel(),
-                SubTotal = cartItemsResult.Data.Sum(x => x.Total),
-                Total = cartItemsResult.Data.Sum(x => x.Total),
-                //PaymentViewModel = new PaymentViewModel()
-                //{
-                //    BillId = Guid.NewGuid(),
-                //    PaymentInformationModel = new PaymentInformationModel()
-                //    {
-                //        OrderId = Guid.NewGuid(),
-
-                //    }
-                //}
+                BillId = Guid.NewGuid(),
+                CartItems =data,
+                CustomerInfo = new CustomerInfoModel()
+                {
+                    Address=(user!=null)?user?.Address??string.Empty:string.Empty,
+                    Email=(user!=null) ? user?.Email??string.Empty : string.Empty,
+                    FullName=(user!=null) ? user?.Name??string.Empty : string.Empty,
+                    PhoneNumber=(user!=null) ? user?.PhoneNumber??string.Empty : string.Empty,
+                    UserId=(user!=null)?user.Id:null
+                },
+                SubTotal = data.Sum(x => x.Total),
+                Total = data.Sum(x => x.Total),
             };
 
             return View(model);
@@ -189,41 +202,77 @@ namespace Project.MVC.Controllers
             return View(bill);
         }
 
-     
 
-
-        [HttpPost]
-        public async Task<IActionResult> ApplyVoucher(string voucherCode, decimal totalAmount)
+        public async Task<IActionResult> CheckBillStatus(string billCode)
         {
-            if (string.IsNullOrEmpty(voucherCode))
+            if (string.IsNullOrEmpty(billCode))
             {
-                return Json(new { isSuccess = false, message = "Vui lòng nhập mã giảm giá" });
+                return View("OrderNotFound");
             }
 
-            try
+            var bill = await _billBusiness.GetBillByCode(billCode);
+
+            if (bill != null)
             {
-                var discountAmount = await _billBusiness.ApplyVoucher(voucherCode, totalAmount);
-                
-                return Json(new { 
-                    isSuccess = discountAmount > 0,
-                    message = discountAmount > 0 ? "Áp dụng mã giảm giá thành công" : "Mã giảm giá không hợp lệ",
-                    discountAmount = discountAmount,
-                    newTotal = totalAmount - discountAmount
-                });
+                return View("ThankYou", bill);
             }
-            catch (Exception ex)
+            else
             {
-                return Json(new { isSuccess = false, message = ex.Message });
+                return View("OrderNotFound");
             }
         }
+        //[HttpPost]
+        //public async Task<IActionResult> ApplyVoucher(string voucherCode)
+        //{
+
+        //    if (string.IsNullOrEmpty(voucherCode))
+        //    {
+        //        return Json(new { isSuccess = false, message = "Vui lòng nhập mã giảm giá" });
+        //    }
+
+        //    try
+        //    {
+
+        //        var voucher = await _voucherBusiness.FindByCodeAsync(voucherCode);
+        //        if (voucher ==null)
+        //            return Json(new { isSuccess = false, message = "Voucher không tìm thấy" });
+
+        //        var voucherType = voucher.VoucherType;
+
+        //        var cartSessionJson = HttpContext.Session.GetString(CartConstants.CartSessionKey);
+        //        var cartSessions = string.IsNullOrEmpty(cartSessionJson)
+        //            ? new List<CartItem>()
+        //            : JsonConvert.DeserializeObject<List<CartItem>>(cartSessionJson);
+
+        //        var OrderAmount = cartSessions.Sum(x => x.Total);
+
+        //        if (voucher.MinimumOrderAmount != null && OrderAmount<voucher.MinimumOrderAmount)
+        //        {
+        //            Json(new { isSuccess = false, message = "Voucher không đủ điều kiện để dùng" });
+        //        } 
+
+        //    }
+            //catch (Exception ex)
+            //{
+            //    return Json(new { isSuccess = false, message = ex.Message });
+            //}
+        
 
         public async Task<IActionResult> PaymentCallbackVnpay()
         {
             var response = _vnPayService.GetPaymentResult(Request.Query);
             var paymentInformationModel = JsonConvert.DeserializeObject<PaymentInformationModel>(response.OrderDescription);
+
+    
+
             if (response.Success)
             {
-               var bill= await _billBusiness.PatchAsync(new BillPatchModel()
+                var userSessionJson = HttpContext.Session.GetString(UserConstants.UserSessionKey);
+                var isLoggedIn = !string.IsNullOrEmpty(userSessionJson);
+
+                #region updateBill
+
+                var bill = await _billBusiness.PatchAsync(new BillPatchModel()
                 {
                     Id = paymentInformationModel.BillId.Value,
                     PaymentStatus = BillConstants.PaymentStatusPaid,
@@ -231,8 +280,64 @@ namespace Project.MVC.Controllers
                     Status = BillConstants.Paid,
                 });
 
-                var billDetail = _billDetailsBusiness.GetBillDetailsByBillId(bill.Id);
+                var billDetails = await _billDetailsBusiness.GetBillDetailsByBillId(bill.Id);
+                if (billDetails!=null&& billDetails.Any())
+                {
+                    foreach (var item in billDetails)
+                    {
+                        var product = await _productBusiness.FindAsync(item.ProductId.Value);
+                        if (product != null)
+                        {
+                            var existVariant = product.VariantObjs?.FirstOrDefault(x => x.Sku==item.SKU);
+                            await _productBusiness.PatchVariantStockBySKUAsync(product.Id, new Variant()
+                            {
+                                Stock = existVariant.Stock - item.Quantity,
+                                Sku = item.SKU,
+                            });
+                        }
+                    }
+                }
 
+                #endregion updateBill
+
+
+                #region updateCart
+
+
+                if (isLoggedIn)
+                {
+                    var user = JsonConvert.DeserializeObject<UserEntity>(userSessionJson);
+                    var userCartItems = await _cartBusiness.GetCartItemsByUserId(user.Id);
+
+                    foreach (var item in userCartItems) {
+                        await _cartBusiness.RemoveFromCartDb(user.Id, item.ProductId, item.SKU);
+                    }
+
+                }
+
+                var cartSession = HttpContext.Session.GetString(CartSessionKey);
+                var cartSessions = string.IsNullOrEmpty(cartSession)
+                    ? new List<CartItem>()
+                    : JsonConvert.DeserializeObject<List<CartItem>>(cartSession) ?? new List<CartItem>();
+
+                // Get purchased product IDs and SKUs from billDetails
+                var purchasedProductIds = billDetails?
+                    .Where(y => y.ProductId != null)
+                    .Select(y => y.ProductId.Value)
+                    .ToList() ?? new List<Guid>();
+
+                var purchasedSKUs = billDetails?
+                    .Where(z => !string.IsNullOrEmpty(z.SKU))
+                    .Select(z => z.SKU)
+                    .ToList() ?? new List<string>();
+
+                // Remove purchased items from cartSessions
+                cartSessions = cartSessions
+                    .Where(x => !(purchasedProductIds.Contains(x.ProductId) && purchasedSKUs.Contains(x.SKU)))
+                    .ToList();
+
+                HttpContext.Session.SetString(CartConstants.CartSessionKey, JsonConvert.SerializeObject(cartSessions));
+                #endregion updateCart
 
             }
             else

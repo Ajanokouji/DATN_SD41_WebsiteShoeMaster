@@ -11,14 +11,14 @@ namespace Project.MVC.Controllers
 
         public ProductDetailsController(IProductBusiness productBusiness)
         {
-            _productBusiness=productBusiness;
+            _productBusiness = productBusiness;
         }
 
         public async Task<IActionResult> ProductDetails(Guid id)
         {
             var viewData = new ProductDetailsViewModel();
             var res = await _productBusiness.FindAsync(id);
-            viewData.Product =res;
+            viewData.Product = res;
             return View(viewData);
         }
     }

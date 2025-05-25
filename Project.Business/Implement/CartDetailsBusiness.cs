@@ -186,11 +186,11 @@ namespace Project.Business.Implement
             return await _cartDetailsRepository.SaveAsync(productEntities);
         }
 
-        public async Task<CartDetails> GetByCartAndProduct(Guid cartId, Guid productId)
+        public async Task<CartDetails> GetByCartAndProduct(Guid cartId, Guid productId,string sku)
         {
             try
             {
-                return await _cartDetailsRepository.GetByCartAndProduct(cartId, productId);
+                return await _cartDetailsRepository.GetByCartAndProduct(cartId, productId, sku);
             }
             catch (Exception ex)
             {

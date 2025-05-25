@@ -9,6 +9,7 @@
 <!-- Categories Section Begin -->
 <section class="categories">
     <div class="container-fluid">
+
         <div class="row">
             <div class="col-lg-6 p-0">
                 <div class="categories__item categories__large__item set-bg position-relative"
@@ -64,15 +65,15 @@
             </div>
         </div>
     </div>
-
 </section>
+
 <!-- Categories Section End -->
+@await Component.InvokeAsync("BlockVoucher");
 <!-- Product Section Begin -->
 <section class="product spad">
     @await Component.InvokeAsync("BlockProductsByFilter", new BlockProductsByFilterRequestModel(){
         QueryModel = new ProductQueryModel(){
             PageSize=4,
-        MainCategoryId=Guid.Parse("61646964-6173-0000-0000-000000000000")
         },
         ViewName="BlockProductsByFilter"
     })

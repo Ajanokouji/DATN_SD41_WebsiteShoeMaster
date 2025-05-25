@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from "react";
+import React from "react";
 import { FormProvider, UseFormReturn } from "react-hook-form";
 import {
   Form,
@@ -123,7 +123,7 @@ export const VoucherForm: React.FC<VoucherFormProps> = ({
                       <Input
                         placeholder="Nhập mã voucher tối đa 10 ký tự, chỉ bao gồm chữ cái và số, vui lòng không nhập các ký tự đặc biệt và khoảng trắng"
                         {...field}
-                        disabled={!isEditing}
+                        disabled
                       />
                     </FormControl>
                   </div>
