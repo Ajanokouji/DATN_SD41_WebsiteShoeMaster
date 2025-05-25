@@ -5,7 +5,7 @@ import { lazy, Suspense } from "react";
 import { Navigate, Outlet, useRoutes } from "react-router-dom";
 
 export const LoadingPage = lazy(() => import("@/pages/shared/LoadingPage"));
-export const IndexPage = lazy(() => import("@/pages/dashboard"));
+export const IndexPage = lazy(() => import("@/pages/login"));
 
 export const CategoryPage = lazy(() => import("@/pages/category"));
 export const ProductPage = lazy(() => import("@/pages/product"));
