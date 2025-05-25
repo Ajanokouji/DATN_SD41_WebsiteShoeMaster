@@ -72,7 +72,7 @@ const VoucherUsersTable: React.FC<{ voucherId: string }> = ({ voucherId }) => {
   }, [voucherId, dispatch, pagination.currentPage, pagination.pageSize]);
 
   useEffect(() => {
-    const userIds = [...new Set(voucherUsers.map((v) => v.userId))];
+    const userIds: string[] = [...new Set(voucherUsers.map((v) => v.userId as string))];
     if (userIds.length > 0) {
       dispatch(fetchUsersByIds(userIds))
         .unwrap()

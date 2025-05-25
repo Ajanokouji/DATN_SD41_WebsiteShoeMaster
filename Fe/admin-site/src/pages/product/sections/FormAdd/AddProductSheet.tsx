@@ -9,7 +9,7 @@ import {
 import { Form } from "@/components/ui/form";
 import React, { useState } from "react";
 import { useAppDispatch } from "@/hooks/use-app-dispatch";
-import { useForm } from "react-hook-form";
+import { useForm, Controller } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { BasicInfoFields } from "./BasicInfoFields";
 import { MetadataSection } from "./MetadataSection";
@@ -57,15 +57,10 @@ const AddProductSheet: React.FC<AddProductSheetProps> = ({
     },
   });
 
-  const handleCategorySelect = (categoryId: string) => {
-    form.setValue("mainCategoryId", categoryId);
-  };
-
   const handleSubmit = async (values: ProductFormSchema) => {
     console.log("Form is submitting with values:", values);
     setIsSubmitting(true);
     try {
-      
       const productData: ProductReqDto = {
         ...values,
         sortOrder: String(values.sortOrder || 0),
@@ -76,10 +71,11 @@ const AddProductSheet: React.FC<AddProductSheetProps> = ({
         publicOnDate: values.createdOnDate || new Date().toISOString(),
         metadataObj: values.metadataObj || [],
         labelsObjs: values.labelsObjs || [],
-        variantObjs: values.variantObjs?.map(variant => ({
-          ...variant,
-          imgUrl: variant.imgUrl || ""
-        })) || [],
+        variantObjs:
+          values.variantObjs?.map((variant) => ({
+            ...variant,
+            imgUrl: variant.imgUrl || "",
+          })) || [],
       };
 
       await dispatch(createProduct(productData));
@@ -111,15 +107,37 @@ const AddProductSheet: React.FC<AddProductSheetProps> = ({
             className="space-y-6"
           >
             <BasicInfoFields control={form.control} />
-            <h3 className="text-lg font-medium">Chọn Danh mục sản phẩm</h3>
-            <ActionHeader onCategorySelect={handleCategorySelect} />
+
+            {/* Chọn danh mục sản phẩm có hiển thị lỗi */}
+            <div>
+              <h3 className="text-lg font-medium">Chọn Danh mục sản phẩm</h3>
+              <Controller
+                name="mainCategoryId"
+                control={form.control}
+                render={({ field, fieldState }) => (
+                  <div>
+                    <ActionHeader
+                      onCategorySelect={(categoryId) =>
+                        field.onChange(categoryId)
+                      }
+                    />
+                    {fieldState.error && (
+                      <p className="text-sm text-red-500 mt-1">
+                        {fieldState.error.message}
+                      </p>
+                    )}
+                  </div>
+                )}
+              />
+            </div>
+
             <ImageField control={form.control} />
             <MultipleImageField control={form.control} />
             <MetadataSection form={form} />
             <LabelsSection form={form} />
             <VariantForm form={form} />
 
-            {/* Hiển thị lỗi form để dễ debug */}
+            {/* Debug lỗi toàn bộ form */}
             <pre className="text-red-600 text-xs bg-gray-50 p-2 rounded">
               {JSON.stringify(form.formState.errors, null, 2)}
             </pre>

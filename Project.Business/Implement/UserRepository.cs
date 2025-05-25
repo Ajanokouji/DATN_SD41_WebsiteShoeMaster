@@ -206,7 +206,7 @@ namespace Project.Business.Implement
 
             if (!string.IsNullOrWhiteSpace(userQueryModel.Username))
             {
-                query = query.Where(u => u.Username == userQueryModel.Username);
+                query = query.Where(u => u.Username.ToLower() == userQueryModel.Username.ToLower());
             }
 
             if (!string.IsNullOrWhiteSpace(userQueryModel.Name))
@@ -216,7 +216,7 @@ namespace Project.Business.Implement
 
             if (!string.IsNullOrWhiteSpace(userQueryModel.Email))
             {
-                query = query.Where(u => u.Email == userQueryModel.Email);
+                query = query.Where(u => u.Email.ToLower() == userQueryModel.Email.ToLower());
             }
 
             if (!string.IsNullOrWhiteSpace(userQueryModel.AvartarUrl))
@@ -226,7 +226,7 @@ namespace Project.Business.Implement
 
             if (!string.IsNullOrWhiteSpace(userQueryModel.PhoneNumber))
             {
-                query = query.Where(u => u.PhoneNumber == userQueryModel.PhoneNumber);
+                query = query.Where(u => u.PhoneNumber.ToLower() == userQueryModel.PhoneNumber.ToLower());
             }
 
             if (userQueryModel.Type.HasValue)

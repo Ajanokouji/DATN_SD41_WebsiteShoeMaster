@@ -97,7 +97,7 @@ export const BasicInfoFields: React.FC<BasicInfoFieldsProps> = ({
             <FormItem>
               <FormLabel>Mã Sản Phẩm</FormLabel>
               <FormControl>
-                <Input placeholder="Product code" {...field} />
+                <Input placeholder="Nhập mã sản phẩm" {...field} />
               </FormControl>
               <FormMessage />
             </FormItem>
@@ -111,7 +111,7 @@ export const BasicInfoFields: React.FC<BasicInfoFieldsProps> = ({
             <FormItem>
               <FormLabel>Tên Sản Phẩm</FormLabel>
               <FormControl>
-                <Input placeholder="Product name" {...field} />
+                <Input placeholder="Nhập tên sản phẩm" {...field} />
               </FormControl>
               <FormMessage />
             </FormItem>
@@ -127,7 +127,7 @@ export const BasicInfoFields: React.FC<BasicInfoFieldsProps> = ({
             <FormLabel>Mô Tả</FormLabel>
             <FormControl>
               <Textarea
-                placeholder="Enter product description"
+                placeholder="Nhập mô tả sản phẩm"
                 className="min-h-24"
                 {...field}
               />

@@ -9,6 +9,8 @@ import { LuContact } from "react-icons/lu";
 import { TbCirclesRelation } from "react-icons/tb";
 import { FaFileInvoiceDollar } from "react-icons/fa6";
 import { FaFileAlt } from "react-icons/fa";
+import { LuNewspaper } from "react-icons/lu";
+
 
 interface NavConfigItem {
   title: string;
@@ -83,8 +85,8 @@ const navConfig: NavConfigItem[] = [
   {
     title: "Tin tức",
     path: "/contentBase",
-    icon: LuSettings,
-    color: "#3b82f6",
+    icon: LuNewspaper,
+    color: "#4B5563",
   },
 ];
 

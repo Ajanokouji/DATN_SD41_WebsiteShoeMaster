@@ -34,9 +34,9 @@ export const LabelsSection: React.FC<LabelsSectionProps> = ({ form }) => {
   return (
     <div className="space-y-4">
       <div className="flex justify-between items-center">
-        <h3 className="text-lg font-medium">Product Labels</h3>
+        <h3 className="text-lg font-medium">Nhãn sản phẩm</h3>
         <Button type="button" variant="outline" size="sm" onClick={addLabel}>
-          <Plus className="h-4 w-4 mr-2" /> Add Label
+          <Plus className="h-4 w-4 mr-2" /> Thêm nhãn dán
         </Button>
       </div>
 

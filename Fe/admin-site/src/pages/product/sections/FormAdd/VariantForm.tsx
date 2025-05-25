@@ -505,6 +505,7 @@ export const VariantForm: React.FC<VariantFormProps> = ({
                     <td className="border p-2">{c.group2}</td>
                     <td className="border p-2">
                       <Input
+                        type="number"
                         value={c.price}
                         onChange={(e) => handleCombinationChange(idx, "price", e.target.value)}
                         placeholder="Giá"
@@ -513,8 +514,10 @@ export const VariantForm: React.FC<VariantFormProps> = ({
                     </td>
                     <td className="border p-2">
                       <Input
-                        value={c.stock.toString()}
+                        type="number"
+                        value={c.stock}
                         onChange={(e) => handleCombinationChange(idx, "stock", e.target.value)}
+
                         placeholder="Kho"
                         disabled={!isEditing}
                       />

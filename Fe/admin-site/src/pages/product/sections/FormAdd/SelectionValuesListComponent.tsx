@@ -40,7 +40,7 @@ export const SelectionValuesList: React.FC<SelectionValuesListProps> = ({
             render={({ field }) => (
               <FormItem className="flex-1">
                 <FormControl>
-                  <Input placeholder="Code" {...field} />
+                  <Input placeholder="Mã" {...field} />
                 </FormControl>
                 <FormMessage />
               </FormItem>
@@ -53,7 +53,7 @@ export const SelectionValuesList: React.FC<SelectionValuesListProps> = ({
             render={({ field }) => (
               <FormItem className="flex-1">
                 <FormControl>
-                  <Input placeholder="Value" {...field} />
+                  <Input placeholder="Giá trị" {...field} />
                 </FormControl>
                 <FormMessage />
               </FormItem>
