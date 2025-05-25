@@ -10,6 +10,7 @@ using SERP.Framework.Common;
 using SERP.Framework.DB.Extensions;
 using System;
 using System.Collections.Generic;
+using System.Data.Entity.Core.Common.CommandTrees.ExpressionBuilder;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
@@ -22,7 +23,7 @@ namespace Project.Business.Implement
 
         public VoucherRepository(ProjectDbContext context)
         {
-                _context = context;
+            _context = context;
         }
 
         public async Task<Voucher> FindAsync(Guid id)
@@ -130,7 +131,7 @@ namespace Project.Business.Implement
                 query = query.Where(x => x.VoucherName.Contains(queryModel.ten_giam_gia));
             }
 
-            if (queryModel.loai_giam_gia !=null)
+            if (queryModel.loai_giam_gia != null)
             {
                 query = query.Where(x => x.VoucherType == queryModel.loai_giam_gia);
             }
@@ -326,6 +327,70 @@ namespace Project.Business.Implement
                     .AnyAsync(x => x.Code.Trim().ToLower() == code.Trim().ToLower() && x.IsDeleted == false);
                 return isExist;
             }
+        }
+
+        //Gợi ý voucher toàn shop
+        public async Task<List<Voucher>> RecommendVoucherAllShop()
+        {
+            IQueryable<Voucher> query = _context.Vouchers.AsNoTracking().Where(x => x.IsDeleted == false
+                                                                                && x.VoucherType == DbManagement.Enum.VocherTypeEnum.AllShop
+                                                                                && x.RedeemCount < x.TotalMaxUsage);
+
+            //Đang diễn ra
+            var now = DateTime.UtcNow;
+            query = query.Where(x => x.StartDate <= now && x.EndDate >= now && x.Status == 1);
+
+            // Lấy toàn bộ danh sách thỏa điều kiện
+            var filteredList = await query.ToListAsync();
+
+            // Nếu ít hơn hoặc bằng 4 thì trả về nguyên danh sách
+            if (filteredList.Count <= 4)
+                return filteredList;
+
+            // Random 4 phần tử
+            var random = new Random();
+            var randomTop4 = filteredList
+                .OrderBy(x => random.Next())
+                .Take(4)
+                .ToList();
+
+            return randomTop4;
+        }
+
+        //Gợi ý voucher sản phẩm
+        public async Task<List<Voucher>> RecommendVoucherProduct(Guid productId)
+        {
+            // Bước 1: Lấy tất cả VoucherProduct theo productId và chưa bị xóa
+            var voucherUsers = await _context.VoucherProducts
+                .AsNoTracking()
+                .Where(x => x.ProductId == productId && x.IsDeleted == false)
+                .ToListAsync();
+
+            // Bước 2: Kiểm tra có phần tử không
+            if (voucherUsers.Count == 0)
+                return new List<Voucher>(); // Trả về danh sách rỗng
+
+            // Bước 3: Lấy danh sách voucherId không trùng
+            var distinctVoucherIds = voucherUsers
+                .Select(x => x.VoucherId)
+                .Distinct()
+                .ToList();
+
+            var now = DateTime.UtcNow;
+
+            // Bước 4: Truy vấn Voucher theo các điều kiện
+            var validVouchers = await _context.Vouchers
+                .AsNoTracking()
+                .Where(x => distinctVoucherIds.Contains(x.Id)
+                            && x.IsDeleted == false
+                            && x.VoucherType == DbManagement.Enum.VocherTypeEnum.ByProduct
+                            && x.RedeemCount < x.TotalMaxUsage
+                            && x.StartDate <= now
+                            && x.EndDate >= now
+                            && x.Status == 1)
+                .ToListAsync();
+
+            return validVouchers;
         }
     }
 }

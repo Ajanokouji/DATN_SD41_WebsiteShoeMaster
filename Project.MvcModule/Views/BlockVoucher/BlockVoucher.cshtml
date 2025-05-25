@@ -1,31 +1,84 @@
-﻿@* Views/Shared/Components/Vouchers/Default.cshtml *@
-<link href="~/css/vouchers.css" rel="stylesheet" />
+﻿@using Project.DbManagement.Entity
+@model List<Project.DbManagement.Voucher>
 
 <div class="container">
     <div class="row g-3">
-        @for (int i = 0; i < 4; i++)  // render 8 thẻ mẫu
+        @foreach (var voucher in Model)
         {
             <div class="col-12 col-sm-6 col-md-4 col-lg-3">
                 <div class="voucher-card border rounded shadow-sm h-100 d-flex flex-column">
-                    <div class="voucher-left bg-teal text-white text-center p-2">
-                        <div class="label bg-danger text-white px-2 py-1 d-inline-block mb-1 small">Khách hàng mới</div>
-                        <div class="main-text fw-bold">FREE SHIP</div>
-                        <div class="desc small">Giảm tới đa 300K</div>
+                    <div class="d-flex bg-danger">
+                        <img src="@(string.IsNullOrEmpty(voucher.ImageUrl) ? "https://paytechlaw.com/wp-content/uploads/190414_Corona-Voucher_Artenauta-800x546.png" : voucher.ImageUrl)" alt="Image Voucher" class="col-3" style="object-fit:cover;">
+
+                        <div class="col-9 voucher-left text-white text-center p-2">
+                            <div class="label text-white small"
+                                 style="max-width: 100%;
+                                white-space: nowrap;
+                                overflow: hidden;
+                                text-overflow: ellipsis;
+                                display: inline-block;">
+                                @voucher.VoucherName
+                            </div>
+                            <div>
+                                <span class="p-1 small text-white" style="background-color:black;">
+                                    @voucher.Code
+                                </span>
+                            </div>
+
+                            @if (voucher.DiscountAmount != null)
+                            {
+                                <div class="desc small" style="margin-bottom:18px;">
+                                    Giảm tới
+                                    @(voucher.DiscountAmount.Value.ToString("#,##0.#"))
+                                    VNĐ
+                                </div>
+                            }
+
+                            @if (voucher.DiscountPercentage != null)
+                            {
+                                <div class="desc small">
+                                    Giảm tới
+                                    @(voucher.DiscountPercentage.Value.ToString("#,##0.#"))
+                                    %
+                                </div>
+                                <div class="desc small">
+                                    (Tối đa:
+                                    @(voucher.MaxDiscountAmount.Value.ToString("#,##0.#"))
+                                    VNĐ)
+                                </div>
+                            }
+
+                        </div>
                     </div>
                     <div class="voucher-right p-2 position-relative flex-grow-1 d-flex flex-column justify-content-between">
                         <div>
-                            <div class="badge bg-warning text-dark mb-1 small">⚡ Số lượng có hạn</div>
-                            <p class="mb-1 small"><strong>Giảm</strong> tối đa <strong>₫300k</strong></p>
-                            <p class="mb-2 small">Đơn Tối Thiểu ₫0</p>
-                            <div class="progress mb-2" style="height: 5px;">
-                                <div class="progress-bar bg-danger" style="width: 40%"></div>
-                            </div>
-                            <div class="d-flex align-items-center justify-content-between">
-                                <small class="text-danger">Đang hết nhanh</small>
-                                <a href="#" class="text-primary text-decoration-none small">Điều Kiện</a>
+                            <div class="badge border bg-dark mb-1 small text-white p-1">Áp dụng toàn shop</div>
+                            <p class="mb-0 small">Đơn Tối Thiểu @(voucher.MinimumOrderAmount.Value.ToString("#,##0.#")) VNĐ</p>
+
+                            @{
+                                var vnTime = TimeZoneInfo.ConvertTimeFromUtc(voucher.EndDate.Value, TimeZoneInfo.FindSystemTimeZoneById("SE Asia Standard Time"));
+                            }
+                            <p class="mb-2 small">Hết hạn vào @vnTime.ToString("dd:MM:yyyy HH:mm")</p>
+
+                            <div class="progress mb-2" style="height: 20px; position: relative;">
+                                <div class="progress-bar bg-danger"
+                                     style="width: @((((double)voucher.RedeemCount / voucher.TotalMaxUsage) * 100).Value.ToString("#,##0.#"))%">
+                                </div>
+                                <div style="
+                                    position: absolute;
+                                    top: 50%;
+                                    left: 50%;
+                                    transform: translate(-50%, -50%);
+                                    width: 100%;
+                                    text-align: center;
+                                    font-weight: bold;
+                                    color: black;
+                                    pointer-events: none;">
+                                    Đã sử dụng: @((((double)voucher.RedeemCount / voucher.TotalMaxUsage) * 100).Value.ToString("#,##0.#"))%
+                                </div>
                             </div>
                         </div>
-                        <button class="btn btn-sm btn-teal mt-2 w-100">Lưu</button>
+                        <button class="btn btn-sm btn-danger mt-2 w-100 save-voucher-btn" data-voucher-id="@voucher.Id">Lưu</button>
                     </div>
                 </div>
             </div>
