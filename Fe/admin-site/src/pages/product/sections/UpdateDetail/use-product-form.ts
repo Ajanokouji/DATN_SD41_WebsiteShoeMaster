@@ -44,7 +44,16 @@ export const useProductForm = (
       setValue("completeName", product.completeName || "");
       setValue("completePath", product.completePath || "");
 
-      setVariantObjs(product.variantObjs || []);
+      // Map variant data to CombinationData structure
+      const mappedVariants = (product.variantObjs || []).map(variant => ({
+        group1: variant.group1 || "",
+        group2: variant.group2 || "",
+        price: variant.price || "",
+        stock: variant.stock || 0,
+        sku: variant.sku || "",
+        imgUrl: variant.imgUrl || ""
+      }));
+      setVariantObjs(mappedVariants);
       setMediaObjs(product.mediaObjs || []);
 
       product.metadataObj?.forEach((meta: MetadataObj) => {
@@ -91,17 +100,9 @@ export const useProductForm = (
     setFieldSelectionValues(newValues);
   };
 
-  const handleVariantChange = (
-    index: number,
-    field: string,
-    value: string | number
-  ) => {
-    const newVariants = [...variantObjs];
-    newVariants[index] = {
-      ...newVariants[index],
-      [field]: value,
-    };
-    setVariantObjs(newVariants);
+  const handleVariantChange = (variants: VariantObjs[]) => {
+    setVariantObjs(variants);
+    methods.setValue("variantObjs", variants);
   };
 
   const handleAddVariant = () => {

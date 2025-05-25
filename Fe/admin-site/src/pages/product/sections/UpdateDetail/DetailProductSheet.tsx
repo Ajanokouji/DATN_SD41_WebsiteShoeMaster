@@ -12,7 +12,7 @@ import { FieldSelectionValuesList } from "./FieldSelectionValuesList";
 import { ProductForm } from "./ProductForm";
 import { useProductForm } from "./use-product-form";
 import { selectProduct } from "@/redux/apps/product/productSelector";
-import { VariantList } from "./VariantList";
+import { VariantForm } from "../FormAdd/VariantForm";
 import { MediaList } from "./MediaList";
 import { VariantForm } from "../FormAdd/VariantForm";
 interface UpdateProductSheetProps {
@@ -37,8 +37,6 @@ const UpdateProductSheet: React.FC<UpdateProductSheetProps> = ({
     handleRemoveFieldSelectionValue,
     variantObjs,
     handleVariantChange,
-    handleAddVariant,
-    handleRemoveVariant,
     mediaObjs,
     handleAddMedia,
     handleRemoveMedia,
@@ -68,12 +66,11 @@ const UpdateProductSheet: React.FC<UpdateProductSheetProps> = ({
             onRemove={handleRemoveFieldSelectionValue}
           />
 
-          <VariantList
-            variants={variantObjs}
+          <VariantForm
+            initialVariants={variantObjs}
+            mode="list"
             isEditing={isEditing}
-            onValueChange={handleVariantChange}
-            onAdd={handleAddVariant}
-            onRemove={handleRemoveVariant}
+            onVariantChange={handleVariantChange}
           />
 
           
