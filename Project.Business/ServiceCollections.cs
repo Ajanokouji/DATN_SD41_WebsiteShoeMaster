@@ -3,6 +3,7 @@ using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Project.Business.Implement;
+using Project.Business.Implement.Revenue;
 using Project.Business.Implementation;
 using Project.Business.Intercepter;
 using Project.Business.Intercepter.Implement;
@@ -47,6 +48,8 @@ namespace Project.Business
             services.AddScoped<IImageFileRepository, ImageFileRepository>();
             services.AddScoped<IVoucherProductsRepository, VoucherProductRepository>();
             services.AddScoped<IVoucherUsersRepository, VoucherUsersRepository>();
+            services.AddScoped<IStatisticsRepository, StatisticsRepository>();
+
 
             // Register Business Services
 
@@ -67,6 +70,7 @@ namespace Project.Business
             services.AddScoped<IImageFileBusiness, ImageFileBusiness>();
             services.AddScoped<IVoucherProductsBusiness, VoucherProductsBusiness>();
             services.AddScoped<IVoucherUsersBusiness, VoucherUsersBusiness>();
+            services.AddScoped<IStatisticsBusiness, StatisticsBusiness>();
 
             services.AddScoped<IBillModelFactory, BillModelFactory>();
             services.AddScoped<IBillDetailModelFactory, BillDetailModelFactory>();

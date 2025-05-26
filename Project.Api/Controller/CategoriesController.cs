@@ -1,4 +1,5 @@
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.Azure.Cosmos.Linq;
 using Project.Business.Implement;
 using Project.Business.Interface;
 using Project.Business.Interface.Repositories;
@@ -61,10 +62,14 @@ namespace Project.Api.Controllers
         {
             return await ExecuteFunction(async () =>
             {
+            
+                categoryEntity.ParentId = Guid.NewGuid();
+
                 var createdCategory = await _categoriesBusiness.SaveAsync(categoryEntity);
                 return createdCategory;
             });
         }
+
 
         [HttpPatch("{id}")]
         [ProducesResponseType(typeof(ResponseObject<CategoriesEntity>), StatusCodes.Status200OK)]
