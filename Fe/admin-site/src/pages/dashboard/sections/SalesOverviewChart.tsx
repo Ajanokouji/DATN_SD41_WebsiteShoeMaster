@@ -1,22 +1,40 @@
-import { LineChart, Line, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer } from "recharts";
+import React, { useEffect, useState } from "react";
+import axios from "axios";
+import {
+	LineChart,
+	Line,
+	XAxis,
+	YAxis,
+	CartesianGrid,
+	Tooltip,
+	ResponsiveContainer,
+} from "recharts";
 import { motion } from "framer-motion";
 
-const salesData = [
-	{ name: "T7", sales: 4200 },
-	{ name: "T8", sales: 3800 },
-	{ name: "T9", sales: 5100 },
-	{ name: "T10", sales: 4600 },
-	{ name: "T11", sales: 5400 },
-	{ name: "T12", sales: 7200 },
-	{ name: "T1", sales: 6100 },
-	{ name: "T2", sales: 5900 },
-	{ name: "T3", sales: 6800 },
-	{ name: "T4", sales: 6300 },
-	{ name: "T5", sales: 7100 },
-	{ name: "T6", sales: 7500 },
-];
+interface MonthlyRevenueDto {
+	month: number;
+	year: number;
+	totalRevenue: number;
+}
 
 const SalesOverviewChart = () => {
+	const [salesData, setSalesData] = useState<{ name: string; sales: number }[]>([]);
+
+	useEffect(() => {
+		axios
+			.get<MonthlyRevenueDto[]>("https://localhost:7293/api/Statistics/revenue/monthly")
+			.then((response) => {
+				const formatted = response.data.map((item) => ({
+					name: `T${item.month}`, // Format tháng
+					sales: item.totalRevenue,
+				}));
+				setSalesData(formatted);
+			})
+			.catch((error) => {
+				console.error("Failed to fetch monthly revenue", error);
+			});
+	}, []);
+
 	return (
 		<motion.div
 			className='text-gray-800 bg-opacity-50 backdrop-blur-md shadow-lg rounded-xl p-6 border border-gray-300'
@@ -26,12 +44,15 @@ const SalesOverviewChart = () => {
 		>
 			<h2 className='text-lg font-medium mb-4 text-gray-900'>Tổng quan đơn hàng</h2>
 
-			<div className='h-80'>
-				<ResponsiveContainer width={"100%"} height={"100%"}>
-					<LineChart data={salesData}>
+			<div className='h-96'> {/* Tăng chiều cao nếu cần */}
+				<ResponsiveContainer width='100%' height='100%'>
+					<LineChart
+						data={salesData}
+						margin={{ top: 10, right: 30, left: 30, bottom: 5 }} // Thêm margin trái
+					>
 						<CartesianGrid strokeDasharray='3 3' stroke='#4B5563' />
-						<XAxis dataKey={"name"} stroke='#9ca3af' />
-						<YAxis stroke='#9ca3af' />
+						<XAxis dataKey='name' stroke='#9ca3af' />
+						<YAxis stroke='#9ca3af' tickMargin={10} /> {/* Thêm tickMargin */}
 						<Tooltip
 							contentStyle={{
 								backgroundColor: "rgba(31, 41, 55, 0.8)",
@@ -53,4 +74,5 @@ const SalesOverviewChart = () => {
 		</motion.div>
 	);
 };
+
 export default SalesOverviewChart;
