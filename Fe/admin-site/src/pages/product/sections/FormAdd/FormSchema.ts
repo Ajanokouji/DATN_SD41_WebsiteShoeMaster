@@ -6,7 +6,7 @@ export const productFormSchema = z.object({
   description: z
     .string()
     .min(10, "Mô tả phải có ít nhất 10 ký tự"),
-  mainCategoryId: z.string().min(1, "Vui lòng chọn danh mục sản phẩm"),
+  mainCategoryId: z.string().min(1, 'Không được để trống danh mục chính'),
   status: z.string(),
   imageUrl: z.string().url("URL hình ảnh không hợp lệ"),
   mediaObjs: z.array(z.string()).default([]),

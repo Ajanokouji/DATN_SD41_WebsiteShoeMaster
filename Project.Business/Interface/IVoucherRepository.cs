@@ -18,5 +18,6 @@ namespace Project.Business.Interface
         Task<IEnumerable<Voucher>> SaveAsync(IEnumerable<Voucher> vouchers);
         Task<Voucher> FindByCodeAsync(string code);
         Task<bool> IsVoucherCodeExist(string code, Guid? voucherId);
+        Task<List<Voucher>> RecommendVoucherAllShop();
     }
 }

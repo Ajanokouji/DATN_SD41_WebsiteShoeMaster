@@ -236,5 +236,13 @@ namespace Project.Business.Implement
 
             return await query.ToListAsync();
         }
+
+        public UserEntity UserLogin(string username, string password)
+        {
+            var user = _context.Users
+                .AsNoTracking()
+                .FirstOrDefault(u => u.Username == username && u.Password == password && u.IsActive == true);
+            return user;
+        }
     }
 }

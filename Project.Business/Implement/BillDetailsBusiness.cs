@@ -457,6 +457,11 @@ public class BillDetailsBusiness : IBillDetailsBusiness
         return result;
     }
 
+    public async Task<List<BillDetailsViewModel>> GetBillDetailsByIdBill(Guid idBill)
+    {
+        return await _billDetailsRepository.GetBillDetailsByIdBill(idBill);
+    }
+
     public async Task<IEnumerable<BillDetailsEntity>> ListAllByIdBill(Guid idBill)
     {
         return await _billDetailsRepository.ListAllAsync(new BillDetailsQueryModel()

@@ -85,5 +85,6 @@ namespace Project.Business.Interface
         Task<CustomersEntity> PatchAsync(CustomersEntity Customers);
         
         Task<List<CustomerViewModel>> GetCustomerByPhoneNumber(string phoneNumber);
+        bool AddCustomerSell(CustomerViewModel customer);
     }
 }

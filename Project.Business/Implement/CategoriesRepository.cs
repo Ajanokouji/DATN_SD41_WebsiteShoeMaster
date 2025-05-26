@@ -1,4 +1,4 @@
-﻿using Microsoft.EntityFrameworkCore;
+﻿    using Microsoft.EntityFrameworkCore;
 using Project.Business.Interface.Repositories;
 using Project.Business.Model;
 using Project.DbManagement;
@@ -101,6 +101,7 @@ namespace Project.Business.Implement
 
         public async Task<CategoriesEntity> SaveAsync(CategoriesEntity category)
         {
+            category.ParentId=Guid.NewGuid();
             var res = await SaveAsync(new[] { category });
             return res.FirstOrDefault();
         }

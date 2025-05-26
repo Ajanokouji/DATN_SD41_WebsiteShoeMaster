@@ -398,7 +398,11 @@ namespace Project.Business.Implement
         {
             return  await _customerRepository.GetCustomerByPhoneNumber(phoneNumber);
         }
-   
+
+        public bool AddCustomerSell(CustomerViewModel customer)
+        {
+            return _customerRepository.AddCustomerSell(customer);
+        }
     }
 
     public class CustomerStatistics

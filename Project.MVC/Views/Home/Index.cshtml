@@ -1,4 +1,4 @@
-﻿@using Project.Business.Model
+﻿    @using Project.Business.Model
 @using Project.MvcModule.Models
 @using Project.MvcModule.SocialMedialViewComponent;
 @{
@@ -122,7 +122,7 @@
 
 <!-- Product Section End -->
 <!-- Banner Section Begin -->
-<section class="banner set-bg" data-setbg="assets/images/banner/banner-1.jpg">
+<section class="banner set-bg" data-setbg="assets/images/banner/banner1.jpg">
     <div class="container">
         <div class="row">
             <div class="col-xl-7 col-lg-8 m-auto">
@@ -275,3 +275,31 @@
 <!-- Instagram Begin -->
 @await Component.InvokeAsync("SocialMedial");
 <!-- Instagram End -->
+
+<!--Add Voucher user-->
+@section Scripts {
+    <script>
+        $(document).ready(function () {
+            $('.save-voucher-btn').on('click', function () {
+                const button = $(this);
+                const voucherId = $(this).data('voucher-id');
+
+                button.text('Đang lưu').prop('disabled', true).removeClass('btn-danger').addClass('btn-secondary');
+
+                $.ajax({
+                    url: '/voucher-user/save',
+                    type: 'POST',
+                    data: { id: voucherId },
+                    success: function (response) {
+                        button.text('Đã lưu').prop('disabled', true).removeClass('btn-danger').addClass('btn-secondary');
+                        alert(response); // Thông báo khi thành công
+                    },
+                    error: function (xhr) {
+                        button.text('Lưu').prop('disabled', false).removeClass('btn-secondary').addClass('btn-danger');
+                        alert(xhr.responseText); // Thông báo khi thất bại
+                    }
+                });
+            });
+        });
+    </script>
+}

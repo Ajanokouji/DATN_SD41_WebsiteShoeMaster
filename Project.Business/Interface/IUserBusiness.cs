@@ -95,6 +95,7 @@ namespace Project.Business.Interface
         Task<ServiceResult<bool>> UpdateUserInfo(Guid userId, CustomerInfoModel customerInfo);
 
         Task<IEnumerable<UserEntity>> LocUserTheoNhieuDK(UserQueryModel queryModel);
+        UserEntity UserLogin(string username, string password);
     }
 }
 

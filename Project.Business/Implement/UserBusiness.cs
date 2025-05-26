@@ -215,5 +215,10 @@ namespace Project.Business.Implement
         {
             return await _userRepository.LocUserTheoNhieuDK(queryModel);
         }
+
+        public UserEntity UserLogin(string username, string password)
+        {
+            return _userRepository.UserLogin(username, password);
+        }
     }
 }

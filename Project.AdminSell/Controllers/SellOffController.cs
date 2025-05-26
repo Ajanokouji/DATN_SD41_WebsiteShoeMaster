@@ -19,9 +19,11 @@ public class SellOffController : Controller
     private readonly IProductBusiness _productBusiness;
     private readonly IBillDetailsBusiness _billDetailsBusiness;
     private readonly ICustomerBusiness _customerBusiness;
-    private const string vnp_TmnCode = "BG41PLRJ";       // ví dụ: ABCDEF01
+    private const string vnp_TmnCode = "BG41PLRJ"; // ví dụ: ABCDEF01
     private const string vnp_HashSecret = "Z2KAB0MGR42X4UMOQU3MKEU2IHVOP3H3"; // ví dụ: 1a2b3c...
-    private const string vnp_Url = "https://sandbox.vnpayment.vn/paymentv2/vpcpay.html"; // Dùng sandbox thì đổi thành sandbox
+
+    private const string
+        vnp_Url = "https://sandbox.vnpayment.vn/paymentv2/vpcpay.html"; // Dùng sandbox thì đổi thành sandbox
 
     public SellOffController(ILogger<SellOffController> logger, IBillBusiness billBusiness,
         IProductBusiness productBusiness, IBillDetailsBusiness billDetailsBusiness, ICustomerBusiness customerBusiness)
@@ -36,17 +38,14 @@ public class SellOffController : Controller
     [HttpGet]
     public IActionResult Sell()
     {
+        if (HttpContext.Session.GetString("LoginInfor") == null)
+        {
+            TempData["Alert"] = "Bạn phải đăng nhập để thực hiện thao tác này.";
+            return RedirectToAction("Login", "Login");
+        }
+
         var lstBill = _billBusiness.GetAllPendingBill();
         ViewData["lstBill"] = lstBill;
-        UserEntity user = new UserEntity()
-        {
-            Id = Guid.Parse("ab68f918-2da3-4674-8b14-6f3c25579145"),
-            Email = "admin@gmail.com",
-            Name = "Admin",
-            PhoneNumber = "0123456789"
-        };
-        var response = JsonConvert.SerializeObject(user);
-        HttpContext.Session.SetString("LoginInfor", response);
         return View();
     }
 
@@ -177,7 +176,7 @@ public class SellOffController : Controller
     public async Task<IActionResult> ViewPayment(Guid id)
     {
         var bill = _billBusiness.GetPDBillById(id);
-        var lstBillDetails = await _billDetailsBusiness.ListAllByIdBill(id);
+        var lstBillDetails = await _billDetailsBusiness.GetBillDetailsByIdBill(id);
         //Kiểm tra là hóa đơn của khách có tài khoản không?
         var client = "Customer";
         var loginInfor = new UserEntity();
@@ -185,12 +184,6 @@ public class SellOffController : Controller
         if (session != null)
         {
             loginInfor = JsonConvert.DeserializeObject<UserEntity>(session);
-        }
-        // Chuyển đổi BillDetailsEntity sang BillDetailsViewModel
-        var billDetailsViewModels = new List<BillDetailsViewModel>();
-        foreach (var detail in lstBillDetails)
-        {
-            billDetailsViewModels.Add(await ConvertToViewModel(detail));
         }
 
         var quantity = lstBillDetails.Sum(c => c.Quantity);
@@ -205,7 +198,7 @@ public class SellOffController : Controller
             PaymentDate = DateTime.Now,
             TotalQuantity = quantity,
             TotalPrice = totalPrice,
-            BillDetails = billDetailsViewModels
+            BillDetails = lstBillDetails
         };
         return PartialView("_Pay", payBill);
     }
@@ -229,7 +222,7 @@ public class SellOffController : Controller
         else
             return Json(new { success = false, message = "Payment Fails" });
     }
-    
+
     [HttpGet]
     public async Task<IActionResult> SearchCustomers(string query)
     {
@@ -247,7 +240,21 @@ public class SellOffController : Controller
             return StatusCode(500, "Lỗi: " + ex.Message);
         }
     }
-    
+
+    [HttpPost]
+    public IActionResult AddCustomers(CustomerViewModel request)
+    {
+        try
+        {
+            var response = _customerBusiness.AddCustomerSell(request);
+            return Json(new { success = response });
+        }
+        catch (Exception ex)
+        {
+            return Json(new { success = false, message = ex.Message });
+        }
+    }
+
     [HttpGet]
     public async Task<IActionResult> InvoicePreview(Guid id)
     {
@@ -270,6 +277,7 @@ public class SellOffController : Controller
         {
             billDetailsViewModels.Add(await ConvertToViewModel(detail));
         }
+
         var payBill = new PaySellOffViewModel()
         {
             Id = bill.Id,
@@ -300,7 +308,7 @@ public class SellOffController : Controller
         };
         return res;
     }
-    
+
     [HttpGet]
     public IActionResult CreateVnPayQr(string orderId, decimal amount)
     {
@@ -323,7 +331,7 @@ public class SellOffController : Controller
         string paymentUrl = vnPay.CreateRequestUrl(vnp_Url, vnp_HashSecret);
         return Json(new { paymentUrl = paymentUrl });
     }
-    
+
     [HttpGet]
     public IActionResult VnPayReturn()
     {

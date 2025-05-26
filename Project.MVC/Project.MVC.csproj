@@ -63,12 +63,6 @@
       <None Include="wwwroot\assets\images\topcategories\category-4.jpg">
         <CopyToOutputDirectory>Always</CopyToOutputDirectory>
       </None>
-      <None Include="wwwroot\assets\images\instagram\insta-1.jpg" />
-      <None Include="wwwroot\assets\images\instagram\insta-2.jpg" />
-      <None Include="wwwroot\assets\images\instagram\insta-3.jpg" />
-      <None Include="wwwroot\assets\images\instagram\insta-4.jpg" />
-      <None Include="wwwroot\assets\images\instagram\insta-5.jpg" />
-      <None Include="wwwroot\assets\images\instagram\insta-6.jpg" />
       <None Include="wwwroot\assets\images\payment\payment-1.png" />
       <None Include="wwwroot\assets\images\payment\payment-2.png" />
       <None Include="wwwroot\assets\images\payment\payment-3.png" />
