@@ -1,4 +1,5 @@
 ﻿using Microsoft.Extensions.Caching.Memory;
+using Nest;
 using Project.Business.Interface;
 using Project.Business.Interface.Repositories;
 using Project.Business.Model;
@@ -18,7 +19,11 @@ namespace Project.Business.Implement
         private readonly ICommentsRepository _commentsRepository;
         private readonly ILogger _logger;
 
-
+        public CommentsBusiness(ICommentsRepository commentsRepository, ILogger logger)
+        {
+            _commentsRepository=commentsRepository;
+            _logger=logger;
+        }
 
         public async Task<CommentsEntity> DeleteAsync(Guid id)
         {
@@ -117,6 +122,16 @@ namespace Project.Business.Implement
                 _logger.Error(ex, "Error listing comments by ids: {CommentIds}", string.Join(", ", ids));
                 throw;
             }
+        }
+
+        public async Task<IEnumerable<CommentsEntity>> ListByProductIdAsync(Guid id)
+        {
+            var res = await _commentsRepository.ListAllAsync(new CommentsModel()
+            {
+                PageSize=4,
+                ObjectId = id,
+            });
+            return res;
         }
 
         public async Task<CommentsEntity> PatchAsync(CommentsEntity model)
