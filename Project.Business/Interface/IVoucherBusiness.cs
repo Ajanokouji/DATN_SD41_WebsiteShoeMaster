@@ -79,6 +79,7 @@ namespace Project.Business.Interface
         /// <returns></returns>
         Task<Voucher> PatchAsync(Voucher voucher);
         Task<bool> IsVoucherCodeExist(string code, Guid? voucherId);
+        Task<List<Voucher>> RecommendVoucherAllShop();
     }
 }
 

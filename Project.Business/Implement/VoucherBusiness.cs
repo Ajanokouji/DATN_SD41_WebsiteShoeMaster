@@ -362,5 +362,11 @@ namespace Project.Business.Implement
             var res = _voucherRepository.FindByCodeAsync(code);
             return res;
         }
+
+        public async Task<List<Voucher>> RecommendVoucherAllShop()
+        {
+            var vouchers = await _voucherRepository.RecommendVoucherAllShop();
+            return vouchers;
+        }
     }
 }
