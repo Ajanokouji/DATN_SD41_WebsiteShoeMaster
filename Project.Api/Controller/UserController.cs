@@ -2,6 +2,7 @@ using Microsoft.AspNetCore.Mvc;
 using Microsoft.CodeAnalysis.CSharp.Syntax;
 using Project.Business.Interface;
 using Project.Business.Model;
+using Project.DbManagement;
 using Project.DbManagement.Entity;
 using SERP.Framework.ApiUtils.Controllers;
 using SERP.Framework.ApiUtils.Responses;
@@ -91,7 +92,7 @@ namespace Project.Api.Controllers
             return Ok(deletedUsers);
         }
 
-        [HttpGet("Login")]
+        [HttpPost("Login")]
         public async Task<ActionResult<UserEntity>> Login([FromBody] UserEntity user)
         {
             var userQueryModel = new UserQueryModel
@@ -102,7 +103,7 @@ namespace Project.Api.Controllers
             var usersFound = await _userBusiness.LocUserTheoNhieuDK(userQueryModel);
             var userFound = usersFound.FirstOrDefault(u => u.Password == user.Password
                                                         && u.IsDeleted == false
-                                                        && u.Type == DbManagement.UserTypeEnum.Admin);
+                                                        && u.Type == DbManagement.UserTypeEnum.Admin||u.Type==UserTypeEnum.User);
 
             return Ok(userFound);
         }

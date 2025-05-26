@@ -11,6 +11,7 @@ using Project.Business.Implement;
 using Project.DbManagement;
 using Project.DbManagement.Enum;
 using Project.DbManagement.Entity;
+using Project.MVC.Models;
 
 namespace Project.MVC.Controllers
 {
@@ -22,6 +23,7 @@ namespace Project.MVC.Controllers
         private readonly IUserBusiness _userBusiness;
         private readonly ICustomerBusiness _customerBusiness;
         private const string CartSessionKey = "CartSession";
+        private const string AppliedVoucher = "AppliedVoucher";
 
         public PaymentMethodController(ICustomerBusiness customerBusiness,IVnPayService vnPayService, IBillBusiness billBusiness, ICartBusiness cartBusiness, IUserBusiness userBusiness)
         {
@@ -37,6 +39,13 @@ namespace Project.MVC.Controllers
         {
             var data = new List<CartItemModel>();
             var user = JsonConvert.DeserializeObject<UserEntity>(HttpContext.Session.GetString("UserSession")??string.Empty);
+            var applidvoucher = new AppliedVoucher();
+            var appliedVoucherJson = HttpContext.Session.GetString(AppliedVoucher);
+       
+            if (!string.IsNullOrEmpty(appliedVoucherJson))
+            {
+                applidvoucher= JsonConvert.DeserializeObject<AppliedVoucher>(appliedVoucherJson);
+            }
 
             var paymentMethods = new List<PaymentMethodModel>
             {
@@ -47,17 +56,7 @@ namespace Project.MVC.Controllers
 
             ViewData["PaymentMethods"] = paymentMethods;
 
-            var viewModel = new PaymentViewModel()
-            {
-                TotalAmount = model.Total,
-                PaymentInformationModel= new PaymentInformationModel()
-                {
-                    Amount = (double?)model.Total,
-                    CustomerName=model.CustomerInfo.FullName,
-                    OrderDescription = model.Description??string.Empty,
-                    BillId = model.BillId,
-                },
-            };
+      
             var cartItemData = new List<CartItem>();
 
             if (user !=null)
@@ -129,6 +128,16 @@ namespace Project.MVC.Controllers
                 TotalAmount = cartItemsResult.Data.Sum(x => x.Total)
             };
 
+            if (applidvoucher!=null)
+            {
+                billModel.AmountAfterDiscount = cartItemsResult.Data.Sum(x => x.Total) - applidvoucher.DiscountAmount;
+                billModel.VoucherCode = applidvoucher.VoucherCode;
+                billModel.VoucherId = applidvoucher.VoucherId;
+                billModel.AmountToPay = cartItemsResult.Data.Sum(x => x.Total) - applidvoucher.DiscountAmount;
+                billModel.DiscountAmount = applidvoucher.DiscountAmount;
+
+            }
+
             var bill = await _billBusiness.CreateBill(billModel);
 
             var existCustomer = await _customerBusiness.FindAsync(model.CustomerInfo.UserId ?? billModel.CustomerId.Value);
@@ -143,10 +152,22 @@ namespace Project.MVC.Controllers
                     Address=  $"{model.CustomerInfo.Address}, {model.CustomerInfo.District}, {model.CustomerInfo.City}",
                 });
 
-                await _userBusiness.CreateUserFromCustomerInfo(model.CustomerInfo);
+                if (user==null) {
+                    await _userBusiness.CreateUserFromCustomerInfo(model.CustomerInfo);
+                }
             }
 
-
+            var viewModel = new PaymentViewModel()
+            {
+                TotalAmount = model.Total,
+                PaymentInformationModel= new PaymentInformationModel()
+                {
+                    Amount =(double) billModel.AmountToPay,
+                    CustomerName=model.CustomerInfo.FullName,
+                    OrderDescription = model.Description??string.Empty,
+                    BillId = billModel.Id,
+                },
+            };
             return View(viewModel);
         }
 

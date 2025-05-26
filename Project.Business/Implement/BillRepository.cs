@@ -247,6 +247,11 @@ public class BillRepository : IBillRepository
                 exist.AmountAfterDiscount = bill.AmountAfterDiscount;
                 exist.AmountToPay = bill.AmountToPay;
                 exist.Status = bill.Status;
+                exist.FinalAmount = bill.FinalAmount;
+                exist.VoucherCode = bill.VoucherCode;
+                exist.VoucherId = bill.VoucherId;
+                exist.PaymentMethod = bill.PaymentMethod;
+                exist.Source = bill.Source;
                 exist.PaymentStatus = bill.PaymentStatus;
                 exist.CreatedOnDate = bill.CreatedOnDate;
                 exist.RecipientEmail = bill.RecipientEmail;

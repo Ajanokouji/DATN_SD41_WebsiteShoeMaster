@@ -18,6 +18,7 @@ namespace Project.Business.Interface
 
         Task<int> GetCountAsync(VoucherProductsQueryModel queryModel);
 
+        Task<IEnumerable<VoucherProducts>> ListByVoucherIdAsync(Guid id);
         Task<IEnumerable<VoucherProducts>> ListByIdsAsync(IEnumerable<Guid> ids);
 
         Task<VoucherProducts> FindAsync(Guid id);
