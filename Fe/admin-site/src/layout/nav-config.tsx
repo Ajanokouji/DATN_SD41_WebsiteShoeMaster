@@ -47,7 +47,7 @@ const navConfig: NavConfigItem[] = [
     color: "#759a94",
   },
   {
-    title: "Người dùng",
+    title: "Khách hàng",
     path: "/customer",
     icon: LuUsers,
     color: "#ec4899",
@@ -87,6 +87,12 @@ const navConfig: NavConfigItem[] = [
     path: "/contentBase",
     icon: LuNewspaper,
     color: "#4B5563",
+  },
+  {
+    title: "Tài Khoản",
+    path: "/User",
+    icon: LuNewspaper,
+    color: "#4B5693",
   },
 ];
 
