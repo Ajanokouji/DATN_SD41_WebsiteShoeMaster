@@ -17,4 +17,8 @@
     <ProjectReference Include="..\Project.Business\Project.Business.csproj" />
   </ItemGroup>
 
+  <ItemGroup>
+    <AdditionalFiles Include="Views\Login\Login.cshtml" />
+  </ItemGroup>
+
 </Project>

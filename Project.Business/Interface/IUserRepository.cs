@@ -9,5 +9,6 @@ namespace Project.Business.Interface
         Task<UserEntity> SaveAsync(UserEntity article);
         Task<IEnumerable<UserEntity>> SaveAsync(IEnumerable<UserEntity> userEntities);
         Task<IEnumerable<UserEntity>> LocUserTheoNhieuDK(UserQueryModel userQueryModel);
+        UserEntity UserLogin(String username, String password);
     }
 }

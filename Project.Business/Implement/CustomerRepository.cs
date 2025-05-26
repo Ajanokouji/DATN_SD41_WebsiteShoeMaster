@@ -179,6 +179,39 @@ namespace Project.Business.Implement
             return result;
         }
 
+        public bool AddCustomerSell(CustomerViewModel customer)
+        {
+            if (customer == null) return false;
+
+            var existingCustomer = _context.Customers
+                .FirstOrDefault(c => c.PhoneNumber == customer.PhoneNumber || c.Email == customer.Email);
+
+            if (existingCustomer != null)
+            {
+                if (existingCustomer.PhoneNumber == customer.PhoneNumber)
+                    throw new Exception("Số điện thoại đã tồn tại!");
+                if (existingCustomer.Email == customer.Email)
+                    throw new Exception("Email đã tồn tại!");
+            }
+            
+            customer.Id = Guid.NewGuid();
+            CustomersEntity customers = new CustomersEntity();
+            customers.Id = customer.Id;
+            customers.Name = customer.Name;
+            customers.PhoneNumber = customer.PhoneNumber;
+            customers.Email = customer.Email;
+            customers.Address = customer.Address;
+            customers.IsAnonymous = customer.IsAnonymous;
+            customers.CreatedByUserId = customer.CreatedByUserId = null;
+            customers.LastModifiedByUserId = customer.LastModifiedByUserId = null;
+            customers.CreatedOnDate = customer.CreatedOnDate = DateTime.Now;
+            customers.LastModifiedOnDate = customer.LastModifiedOnDate = DateTime.Now;
+            _context.Customers.Add(customers);
+            _context.SaveChanges();
+            return true;
+        }
+
+
         public async Task<CustomersEntity> DeleteAsync(Guid id)
         {
             var exist = await FindAsync(id);

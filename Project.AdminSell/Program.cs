@@ -49,7 +49,7 @@ namespace Project.AdminSell
 
             app.MapControllerRoute(
                 name: "default",
-                pattern: "{controller=SellOff}/{action=Sell}/{id?}");
+                pattern: "{controller=Login}/{action=Login}/{id?}");
 
             app.Run();
         }

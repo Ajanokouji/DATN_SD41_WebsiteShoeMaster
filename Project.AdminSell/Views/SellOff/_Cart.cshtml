@@ -29,25 +29,20 @@
                            value="@Model.NameClient"
                            placeholder="Nhập số điện thoại khách hàng" autocomplete="off">
                     <button type="button" title="Thêm mới khách hàng" data-bs-toggle="modal"
-                            data-bs-target="#themkhachhang#"><i class="fa-regular fa-plus" style="color: #a6a8ab;"></i>
+                            data-bs-target="#themkhachhang"><i class="fa-regular fa-plus" style="color: #a6a8ab;"></i>
                     </button>
                     <div id="customer-suggestions" class="list-group position-absolute" style="z-index:1000;"></div>
                 </form>
-                <div>
-                    <ul class="list-group pt-2" id="result">
-                        <div id="customer-suggestions"></div>
-                    </ul>
-                </div>
+                <div id="customer-suggestions" class="list-group position-absolute" style="z-index:1000;"></div>
             </div>
         </div>
     </div>
     <!--Model Thêm nhanh khách hàng-->
     <div class="modal" id="themkhachhang" tabindex="-1">
         <div class="modal-dialog">
-            <div class="modal-content">
+            <div class="modal-content" style="margin-top: 200px;">
                 <div class="modal-header">
-                    <h5 class="modal-title fw-600">Thêm khách hàng</h5>
-                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                    <h5 class="modal-title fw-600" style="margin-left: 140px">Thêm khách hàng</h5>
                 </div>
                 <div class="modal-body">
                     <form class="row g-3">
@@ -73,19 +68,19 @@
                             <input type="date" class="form-control" id="inputNgaySinh">
                         </div>
                         <div class="col-6">
-                            <label for="inputState">GioiTinh</label>
+                            <label for="inputState">Ẩn danh</label>
                             <fieldset class="d-flex flex-row mb-3 p-2">
 
                                 <div class="form-check">
-                                    <input class="form-check-input" type="radio" name="gioitinh" value="1" checked>
+                                    <input class="form-check-input" type="radio" name="andanh" value="1" checked>
                                     <label class="form-check-label" for="gridRadios1">
-                                        Nam
+                                        Có
                                     </label>
                                 </div>
                                 <div class="form-check ms-3">
-                                    <input class="form-check-input" type="radio" name="gioitinh" value="0">
+                                    <input class="form-check-input" type="radio" name="andanh" value="0">
                                     <label class="form-check-label" for="gridRadios2">
-                                        Nữ
+                                        Không
                                     </label>
                                 </div>
                             </fieldset>
@@ -161,7 +156,7 @@
              style="font-size:18px;background:#e8eaed; margin-top: 5px;">
             <div class="flex-fill" style="display: flex; margin-top: 15px;">
                 <p>Tổng số lượng sản phẩm: </p>
-                <p style="margin-left: 10px;" id="tsl">3</p>
+                <p style="margin-left: 10px;" id="tsl">@tsl</p>
             </div>
             <div class="flex-fill" style="display: flex; margin-top: 15px;">
                 <p>Tổng tiền: </p>
@@ -178,6 +173,7 @@
 </div>
 <script>
     $(document).ready(function () {
+        console.log($(".plus").length, $(".minus").length, $(".changesl").length);
         $.ajaxSetup({cache: false});
         $('#search').keyup(function () {
             $('#result').html('');
@@ -270,20 +266,20 @@
         var email = $("#inputEmail").val();
         var dchi = $("#inputDiaChi").val();
         var dob = $("#inputNgaySinh").val();
-        var gtinh = $('input[name="gioitinh"]:checked').val();
+        var adanh = $('input[name="andanh"]:checked').val();
         var idhd = $("#IDHD").val();
         var khachHang = {
-            IDKhachHang: idhd,
-            Ten: tenkh,
-            GioiTinh: gtinh,
+            Id: idhd,
+            Name: tenkh,
+            IsAnonymous: adanh,
             NgaySinh: dob,
             Email: email,
-            DiaChi: dchi,
-            SDT: sdt,
+            Address: dchi,
+            PhoneNumber: sdt,
             Password: 123456
         };
         $.ajax({
-            url: "/BanHangTaiQuay/AddKhachHang",
+            url: "/SellOff/AddCustomers",
             async: false,
             type: 'POST',
             dataType: 'json',
