@@ -1,11 +1,12 @@
 ﻿@using Newtonsoft.Json;
+@using Project.DbManagement.Entity
 @using Project.DbManagement.ViewModels;
 @{
-    var loginInfor = new LoginViewModel();
+    var loginInfor = new UserEntity();
     string? session = Context.Session.GetString("LoginInfor");
     if (session != null)
     {
-        loginInfor = JsonConvert.DeserializeObject<LoginViewModel>(Context.Session.GetString("LoginInfor"));
+        loginInfor = JsonConvert.DeserializeObject<UserEntity>(Context.Session.GetString("LoginInfor"));
     }
 }
 <!DOCTYPE html>
@@ -60,7 +61,7 @@
             <li class="nav-item dropdown pe-3">
                 <a class="nav-link nav-profile d-flex align-items-center pe-0" href="#" data-bs-toggle="dropdown">
                     <img src="~/img/profile-img.jpg" alt="Profile" class="rounded-circle">
-                    <span class="d-none d-md-block dropdown-toggle ps-2">@loginInfor.Ten</span>
+                    <span class="d-none d-md-block dropdown-toggle ps-2">@loginInfor.Name</span>
                 </a><!-- End Profile Iamge Icon -->
 
                 <ul class="dropdown-menu dropdown-menu-end dropdown-menu-arrow profile">
@@ -83,7 +84,7 @@
                         <hr class="dropdown-divider">
                     </li>
                     <li>
-                        <a class="dropdown-item d-flex align-items-center" asp-controller="Admin" asp-action="SingOut">
+                        <a class="dropdown-item d-flex align-items-center" asp-controller="Login" asp-action="Logout">
                             <i class="bi bi-box-arrow-right"></i>
                             <span>Đăng xuất</span>
                         </a>

@@ -17,5 +17,6 @@ namespace Project.Business
         Task<CustomersEntity> SaveAsync(CustomersEntity article);
         Task<IEnumerable<CustomersEntity>> SaveAsync(IEnumerable<CustomersEntity> customerEntities);
         Task<List<CustomerViewModel>> GetCustomerByPhoneNumber(string phoneNumber);
+        bool AddCustomerSell(CustomerViewModel customer);
     }
 }
