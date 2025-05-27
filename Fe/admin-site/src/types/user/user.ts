@@ -12,20 +12,15 @@ export interface UserReqDto {
 
 export interface UserResDto {
   id: string;
-  userName: string | null;
-  name: string | null;
-  type: string;
-  phoneNumber: string | null;
-  email: string | null;
-  address: string | null;
-  avatar: string | null;
-  userDetailJson: string | null;
-  isActive: boolean;
-  createdByUserId: string;
-  lastModifiedByUserId: string;
-  lastModifiedOnDate: string;
-  createdOnDate: string;
-  isdeleted: boolean;
+  userName: string;
+  fullName: string;
+  email: string;
+  phoneNumber: string;
+  avatar?: string;
+  role: string;
+  status: number;
+  createdAt: string;
+  updatedAt: string;
 }
 
 export interface UserFilterParams extends PaginationParams {
