@@ -857,7 +857,7 @@ namespace Project.Business.Implement
                     if (existingDetails.Any(x => x.IdProduct == item.IdProduct))
                     {
                         var existingDetail = existingDetails.Where(x => x.IdProduct == item.IdProduct);
-                        if (string.IsNullOrEmpty(item.SKU))
+                        if (!string.IsNullOrEmpty(item.SKU))
                         {
                             var updateDetail = existingDetail.FirstOrDefault(x => x.SKU == item.SKU);
 
