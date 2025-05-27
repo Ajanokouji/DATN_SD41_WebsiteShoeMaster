@@ -57,6 +57,7 @@ public class SellOffController : Controller
     }
 
     [HttpPost]
+    [Route("SellOff/CreateBill/{idEmployee}")]
     public bool CreateBill(Guid idEmployee)
     {
         return _billBusiness.CreatePendingBill(idEmployee);
@@ -209,6 +210,7 @@ public class SellOffController : Controller
         {
             Id = request.Id,
             IdEmployee = request.IdEmployee,
+            IdCustomer = request.IdCustomer,
             PaymentDate = DateTime.Now,
             PaymentMethod = request.PaymentMethod,
             TotalPrice = request.TotalPrice,
