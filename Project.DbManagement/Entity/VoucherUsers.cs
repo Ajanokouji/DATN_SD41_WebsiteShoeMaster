@@ -13,6 +13,7 @@ namespace Project.DbManagement.Entity
         [Key]
         public Guid Id { get; set; }
         public Guid VoucherId { get; set; }
+        public Boolean? IsUsed { get; set; } 
         public Guid UserId { get; set; }
     }
 }

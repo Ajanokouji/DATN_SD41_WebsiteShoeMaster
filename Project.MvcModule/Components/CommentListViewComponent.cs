@@ -22,14 +22,15 @@ namespace Project.MvcModule
 
         public async Task<IViewComponentResult> InvokeAsync(Guid productId)
         {
+
             // Lấy danh sách comment từ DB theo id bài viết
+
             var data = await _commentsBusiness.GetAllAsync(new CommentsModel()
             {
                 PageSize = 4,
                 ObjectId = productId
             });
 
-            // Chuyển đổi danh sách CommentsEntity sang CommentsViewModel
             var res = AutoMapperUtils.AutoMap<CommentsEntity, CommentsViewModel>(data.Content.ToList());
 
             return View(res); // Truyền vào View danh sách comment
