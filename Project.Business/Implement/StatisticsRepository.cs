@@ -39,6 +39,7 @@ namespace Project.Business.Implement.Revenue
                 .OrderBy(r => r.Date)
                 .ToListAsync();
         }
+
         public async Task<List<MonthlyRevenueDto>> GetMonthlyRevenueAsync()
         {
             int year = DateTime.Now.Year;
@@ -71,8 +72,6 @@ namespace Project.Business.Implement.Revenue
 
             return fullYearRevenue;
         }
-
-
 
         public async Task<List<WeeklyRevenueDto>> GetWeeklyRevenueAsync(DateTime from, DateTime to)
         {
@@ -131,12 +130,21 @@ namespace Project.Business.Implement.Revenue
                 ? (double)totalCompletedOrders / totalOrders * 100
                 : 0;
 
+            var totalRevenue = await _context.Bills
+          .Where(b => b.IsDeleted == false)
+          .SumAsync(b =>
+              b.Status == BillConstants.Completed ? (b.FinalAmount ?? 0) :
+              b.Status == BillConstants.Returned ? -(b.FinalAmount ?? 0) : 0
+          );
+
+
             return new GeneralStatisticsDto
             {
                 TotalOrders = totalOrders,
                 TotalCustomers = totalCustomers,
                 TotalProducts = totalProducts,
-                OrderSuccessRate = Math.Round(successRate, 2)
+                OrderSuccessRate = Math.Round(successRate, 2),
+                TotalRevenue = totalRevenue
             };
         }
 
@@ -157,13 +165,12 @@ namespace Project.Business.Implement.Revenue
                         group bd by p.MainCategoryId into g
                         select new
                         {
-                            CategoryId = g.Key, // Đây là Guid? (nullable)
+                            CategoryId = g.Key,
                             TotalQuantitySold = g.Sum(x => x.Quantity)
                         };
 
             var salesByCategory = await query.ToListAsync();
 
-            // Tạo danh sách kết quả, map từng danh mục có trong categories
             var result = categories.Select(c =>
             {
                 var sale = salesByCategory.FirstOrDefault(s => s.CategoryId.HasValue && s.CategoryId.Value == c.Id);
@@ -175,7 +182,6 @@ namespace Project.Business.Implement.Revenue
                 };
             }).ToList();
 
-            // Tập hợp các CategoryId không có trong categories (hoặc null)
             var knownCategoryIds = categories.Select(c => c.Id).ToHashSet();
 
             var othersQuantity = salesByCategory
@@ -186,19 +192,15 @@ namespace Project.Business.Implement.Revenue
             {
                 result.Add(new CategorySalesDto
                 {
-                    CategoryId = Guid.Empty, // mã mặc định cho nhóm "Khác"
+                    CategoryId = Guid.Empty,
                     CategoryName = "Khác",
                     TotalQuantitySold = othersQuantity
                 });
             }
 
-            // Sắp xếp giảm dần theo số lượng
             return result.OrderByDescending(r => r.TotalQuantitySold).ToList();
         }
 
-
-
-        // Lấy tổng số lượng bán theo kênh 1 và 2 (cùng lúc)
         public async Task<List<SalesChannelDto>> GetAllChannelSalesAsync()
         {
             var query = from bd in _context.BillDetails
@@ -207,7 +209,7 @@ namespace Project.Business.Implement.Revenue
                               && b.IsDeleted == false
                               && bd.Status == 1
                               && bd.IsDeleted == false
-                              && ((int)b.Source == 1 || (int)b.Source == 2) // cast sang int
+                              && ((int)b.Source == 1 || (int)b.Source == 2)
                         group bd by b.Source into g
                         select new SalesChannelDto
                         {
@@ -217,7 +219,5 @@ namespace Project.Business.Implement.Revenue
 
             return await query.OrderBy(x => x.Source).ToListAsync();
         }
-
-
     }
 }

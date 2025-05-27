@@ -30,6 +30,8 @@ namespace Project.Business.Implement.Revenue
         public int TotalCustomers { get; set; }
         public int TotalProducts { get; set; }
         public double OrderSuccessRate { get; set; } // Tỷ lệ thành công (%)
+        public int TotalCompletedOrders { get; set; }
+        public decimal TotalRevenue { get; set; }     
     }
     public class CategorySalesDto
     {

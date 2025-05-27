@@ -226,6 +226,10 @@ namespace Project.MVC.Controllers
             HttpContext.Session.Remove(CartSessionKey);
             return View(bill);
         }
+        public IActionResult VnPayCanceled()
+        {
+            return View();
+        }
 
 
         public async Task<IActionResult> CheckBillStatus(string billCode)
@@ -340,7 +344,14 @@ namespace Project.MVC.Controllers
                     Status = BillConstants.Cancelled,
                 });
             }
-                return RedirectToAction("ThankYou", new { billId = paymentInformationModel.BillId });
+            if (!response.Success)
+            {
+                return RedirectToAction("VnPayCanceled");
+            }
+            return RedirectToAction("ThankYou", new { billId = paymentInformationModel.BillId });
+
+
+
         }
     }
 }

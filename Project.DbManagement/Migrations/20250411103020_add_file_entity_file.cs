@@ -11,9 +11,6 @@ namespace Project.DbManagement.Migrations
         /// <inheritdoc />
         protected override void Up(MigrationBuilder migrationBuilder)
         {
-            migrationBuilder.DropColumn(
-                name: "Notes",
-                table: "Bills");
 
             migrationBuilder.CreateTable(
                 name: "ImageFiles",
