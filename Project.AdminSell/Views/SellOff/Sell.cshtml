@@ -503,12 +503,27 @@
 
     //Thanh toán chuyển trạng thái
     function thanhToan(id) {
+        var tongtien = $("#tongTien").text().trim();
+        if (parseInt(tongtien) <= 0) {
+            toastr.error('Không có sản phẩm nào trong giỏ hàng', 'Error Alert', {timeOut: 300});
+            return;
+        }
         var paymentmethod = $('input[name="pttt"]:checked').val();
-        var totalprice = $("#khachCanTra").text();
+        if (paymentmethod == "Tiền mặt"){
+            var checkAm = $("#tienTraLai").text();
+            if (parseInt(checkAm) < 0) {
+                toastr.error('Số tiền khách trả không đủ', 'Error Alert', {timeOut: 300});
+                return;
+            }
+        }
+        var tongtien = $("#tongTien").text().trim();
+        var totalprice = parseInt(tongtien.replace(/[,.]/g, ""), 10) || 0;
+        var idCustomer = document.getElementById("idkh").textContent.trim();
         var request = {
             Id: id,
             PaymentMethod: paymentmethod,
             IdEmployee: '@loginInfor.Id',
+            IdCustomer: idCustomer,
             TotalPrice: totalprice,
         };
         $.ajax({
