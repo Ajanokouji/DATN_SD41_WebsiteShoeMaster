@@ -291,33 +291,35 @@ public class BillRepository : IBillRepository
     {
         try
         {
-            // BillEntity bill = new BillEntity();
-            // bill.Id = Guid.NewGuid();
-            // bill.BillCode = "BILL" + (bill.Id).ToString().Substring(0, 8).ToUpper();
-            // bill.EmployeeId = idEmployee;
-            // bill.CreatedOnDate = DateTime.Now;
-            // bill.Status = "Pending";
-            // _context.Bills.Add(bill);
-            // _context.SaveChanges();
-            // return true;
+            BillEntity bill = new BillEntity();
+            bill.Id = Guid.NewGuid();
+            bill.BillCode = "BILL" + (bill.Id).ToString().Substring(0, 8).ToUpper();
+            bill.EmployeeId = idEmployee;
+            bill.CreatedByUserId = idEmployee;
+            bill.CreatedOnDate = DateTime.Now;
+            bill.Status = "Pending";
+            _context.Bills.Add(bill);
+            _context.SaveChanges();
+            return true;
 
-            var listBills = _context.Bills.Where(b => b.Status == "Pending").ToList();
-            if (listBills.Count() < 20)
-            {
-                BillEntity bill = new BillEntity();
-                bill.Id = Guid.NewGuid();
-                bill.BillCode = "BILL" + (bill.Id).ToString().Substring(0, 8).ToUpper();
-                bill.EmployeeId = idEmployee;
-                bill.CreatedOnDate = DateTime.Now;
-                bill.Status = "Pending";
-                _context.Bills.Add(bill);
-                _context.SaveChanges();
-                return true;
-            }
-            else
-            {
-                return false;
-            }
+            // var listBills = _context.Bills.Where(b => b.Status == "Pending").ToList();
+            // if (listBills.Count() < 20)
+            // {
+            //     BillEntity bill = new BillEntity();
+            //     bill.Id = Guid.NewGuid();
+            //     bill.BillCode = "BILL" + (bill.Id).ToString().Substring(0, 8).ToUpper();
+            //     bill.EmployeeId = idEmployee;
+            //     bill.CreatedByUserId = idEmployee;
+            //     bill.CreatedOnDate = DateTime.Now;
+            //     bill.Status = "Pending";
+            //     _context.Bills.Add(bill);
+            //     _context.SaveChanges();
+            //     return true;
+            // }
+            // else
+            // {
+            //     return false;
+            // }
         }
         catch
         {
@@ -432,10 +434,12 @@ public class BillRepository : IBillRepository
 
         // Update bill
         update.EmployeeId = bill.IdEmployee;
+        update.LastModifiedByUserId = bill.IdEmployee;
         //update.PaymentDate = bill.PaymentDate;
         update.Status = bill.status;
-        //update.TotalPrice = bill.TotalPrice;
+        update.TotalAmount = bill.TotalPrice;
         update.PaymentMethod = bill.PaymentMethod;
+        update.CustomerId = bill.IdCustomer;
         _context.Bills.Update(update);
         _context.SaveChanges();
         return true;
