@@ -14,6 +14,10 @@ public class LoginController : Controller
     }
     public IActionResult Login()
     {
+        if (HttpContext.Session.GetString("LoginInfor") != null)
+        {
+            return RedirectToAction("Sell", "SellOff");
+        }
         return View();
     }
     
