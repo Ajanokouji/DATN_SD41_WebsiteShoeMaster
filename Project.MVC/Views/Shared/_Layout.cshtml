@@ -55,12 +55,12 @@
         <div class="offcanvas__close">+</div>
         <ul class="offcanvas__widget">
             <li><span class="icon_search search-switch"></span></li>
-            <li>
+            @* <li>
                 <a href="#">
                     <span class="icon_heart_alt"></span>
                     <div class="tip">0</div>
                 </a>
-            </li>
+            </li> *@
             <li>
                 <a asp-controller="Cart" asp-action="Cart">
                     <span class="icon_bag_alt"></span>
@@ -146,12 +146,12 @@
                         }
                         <ul class="header__right__widget">
                             <li><span class="icon_search search-switch"></span></li>
-                            <li>
+                            @* <li>
                                 <a href="#">
                                     <span class="icon_heart_alt"></span>
                                     <div class="tip">0</div>
                                 </a>
-                            </li>
+                            </li> *@
                             <li>
                                 <a asp-controller="Cart" asp-action="Cart">
                                     <span class="icon_bag_alt"></span>
@@ -211,8 +211,8 @@
                         <ul>
                             <li><a asp-controller="About" asp-action="About">Về chúng tôi</a></li>
                             <li><a asp-controller="News" asp-action="News">Tin tức</a></li>
-                            <li><a href="#">Liên hệ</a></li>
-                            <li><a href="#">Câu hỏi thường gặp</a></li>
+                            
+                            
                         </ul>
                     </div>
                 </div>
@@ -220,9 +220,9 @@
                     <div class="footer__widget">
                         <h6>Tài Khoản</h6>
                         <ul>
-                            <li><a href="#">Tài khoản</a></li>
-                            <li><a href="#">Kiểm tra vận đơn</a></li>
-                            <li><a href="#">Thanh toán</a></li>
+                            <li><a asp-controller="ProfileUser" asp-action="ProfileUser">Tài khoản</a></li>
+                            <li><a asp-controller="BillUser" asp-action="BillUser">Kiểm tra vận đơn</a></li>
+                            
 @*                             <li><a href="#">Wishlist</a></li>
  *@                        </ul>
                     </div>
