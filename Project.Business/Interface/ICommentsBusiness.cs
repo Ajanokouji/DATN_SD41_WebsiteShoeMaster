@@ -16,6 +16,7 @@ namespace Project.Business.Interface
         Task<int> GetCountAsync(CommentsModel queryModel);
         Task<IEnumerable<CommentsEntity>> ListAllAsync(CommentsModel queryModel);
         Task<IEnumerable<CommentsEntity>> ListByIdsAsync(IEnumerable<Guid> ids);
+        Task<IEnumerable<CommentsEntity>> ListByProductIdAsync(Guid id);
         Task<IEnumerable<CommentsEntity>> SaveAsync(IEnumerable<CommentsEntity> entities);
         Task<CommentsEntity> DeleteAsync(Guid id);
         Task<IEnumerable<CommentsEntity>> DeleteAsync(Guid[] ids);
