@@ -79,7 +79,8 @@ namespace Project.Business.Implement
                 CreatedOnDate = exist.CreatedOnDate,
                 LastModifiedByUserId = exist.LastModifiedByUserId,
                 LastModifiedOnDate = exist.LastModifiedOnDate,
-                IsDeleted = exist.IsDeleted
+                IsDeleted = exist.IsDeleted,
+                IsActive = exist.IsActive,
             };
 
             if (!string.IsNullOrWhiteSpace(model.Username))
@@ -98,10 +99,14 @@ namespace Project.Business.Implement
             {
                 update.PhoneNumber = model.PhoneNumber;
             }
-            if (!string.IsNullOrWhiteSpace(model.AvartarUrl))
+            if (model.IsActive.HasValue)
             {
-                update.AvartarUrl = model.AvartarUrl;
+                update.IsActive = model.IsActive;
             }
+
+            //Để AvartarUrl có thể để trống
+            update.AvartarUrl = model.AvartarUrl;
+
             if (!string.IsNullOrWhiteSpace(model.Password))
             {
                 update.Password = model.Password;

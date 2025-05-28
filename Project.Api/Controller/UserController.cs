@@ -1,4 +1,5 @@
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.Azure.Cosmos;
 using Microsoft.CodeAnalysis.CSharp.Syntax;
 using Project.Business.Interface;
 using Project.Business.Model;
@@ -106,6 +107,35 @@ namespace Project.Api.Controllers
                                                         && u.Type == DbManagement.UserTypeEnum.Admin||u.Type==UserTypeEnum.User);
 
             return Ok(userFound);
+        }
+
+        [HttpPost("CheckTrungCodeUser")]
+        public async Task<IActionResult> CheckTrungCodeUser([FromQuery] Guid? id, [FromBody] string username)
+        {
+            if(id.HasValue == false)
+            {
+                return await ExecuteFunction(async () =>
+                {
+                    var userFound = _userBusiness.LocUserTheoNhieuDK(new UserQueryModel()
+                    {
+                        Username = username,
+                    }).Result.Where(x => x.IsDeleted == false);
+
+                    return Ok(userFound.Any());
+                });
+            }
+            else
+            {
+                return await ExecuteFunction(async () =>
+                {
+                    var userFound = _userBusiness.LocUserTheoNhieuDK(new UserQueryModel()
+                    {
+                        Username = username,
+                    }).Result.Where(x => x.IsDeleted == false && x.Id != id);
+
+                    return Ok(userFound.Any());
+                });
+            }
         }
     }
 }
