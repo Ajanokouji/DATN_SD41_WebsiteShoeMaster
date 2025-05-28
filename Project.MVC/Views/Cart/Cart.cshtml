@@ -205,11 +205,16 @@
                  .done(html => {
                      $modal.find('.modal-body').html(html);
                  })
-                 .fail(() => {
-                     $modal.find('.modal-body').html(
-                       '<p class="text-danger p-4">Không tải được danh sách voucher.</p>'
-                     );
-                 });
+                    .fail(xhr => {
+                    // Try to parse JSON error message
+                    let errMsg = "Không tải được danh sách voucher.";
+                    if (xhr.responseJSON && xhr.responseJSON.error) {
+                        errMsg = xhr.responseJSON.error;
+                    }
+                    $modal.find('.modal-body').html(
+                        `<p class="text-danger p-4">${errMsg}</p>`
+                    );
+                });
             });
 
             // Xác nhận chọn voucher

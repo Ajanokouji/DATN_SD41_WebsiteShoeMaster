@@ -575,7 +575,7 @@ namespace Project.MVC.Controllers
             if (!string.IsNullOrWhiteSpace(errAndUserEntity.Err))
             {
                 TempData["ErrProfileUserMs"] = errAndUserEntity.Err;
-                return View(new UserEntity());
+                return BadRequest(new { error = errAndUserEntity.Err });
             }
 
             var user = errAndUserEntity.User;

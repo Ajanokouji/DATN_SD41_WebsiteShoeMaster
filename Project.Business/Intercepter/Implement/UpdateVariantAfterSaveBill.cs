@@ -28,7 +28,7 @@ namespace Project.Business.Intercepter.Implement
 
         public async Task Intercept(BillEntity oldNodeEntity, BillEntity updatedNodeEntity)
         {
-            if (oldNodeEntity!= null && updatedNodeEntity !=null&&oldNodeEntity.Status != updatedNodeEntity.Status&& oldNodeEntity.Status== BillConstants.PendingConfirmation && updatedNodeEntity.Status==BillConstants.Confirmed)
+            if (oldNodeEntity!= null && updatedNodeEntity !=null&&oldNodeEntity.Status != updatedNodeEntity.Status && updatedNodeEntity.Status==BillConstants.Confirmed)
             {
 
                 var billDetail = await _billDetailsRepository.GetBillDetailsByIdBill(updatedNodeEntity.Id);
