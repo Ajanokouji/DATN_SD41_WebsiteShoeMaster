@@ -23,7 +23,7 @@ namespace Project.Business.Model
         public decimal DiscountPrice { get; set; }
         public int DiscountPercent { get; set; }
         public bool IsInStock { get; set; }
-        public int StockQuantity { get; set; }
+        public bool IsMax { get; set; }
         public string SKU { get; set; }
         public decimal Total => Price * Quantity;
         public DateTime CreatedDate { get; set; }

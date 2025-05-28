@@ -1,5 +1,6 @@
 ﻿using Microsoft.AspNetCore.Mvc;
 using Microsoft.Azure.Cosmos;
+using Nest;
 using NetTopologySuite.Index.HPRtree;
 using Newtonsoft.Json;
 using Project.Business.Implement;
@@ -91,6 +92,7 @@ namespace Project.MVC.Controllers
                             foreach (var cartItemModel in lstCartItemModel)
                             {
                                 var productFound = await _productBusiness.FindAsync(cartItemModel.ProductId);
+                                var variant = productFound.VariantObjs.FirstOrDefault(x => x.Sku ==cartItemModel.SKU);
                                 if (productFound != null)
                                 {
                                     //Lấy price
@@ -110,6 +112,9 @@ namespace Project.MVC.Controllers
                                     {
                                         cartItemModel.ProductImage = productFound.ImageUrl;
                                     }
+
+                                    cartItemModel.IsMax = cartItemModel.Quantity==variant.Stock ? true : false;
+
                                 }
                             }
 
@@ -142,6 +147,15 @@ namespace Project.MVC.Controllers
                 return View(new List<CartItemModel>());
             }
 
+            var listProductId = cartItemsResult.Data.Select(x => x.ProductId);
+            var products = await _productBusiness.ListByIdsAsync(listProductId.ToList());
+            foreach (var item in cartItemsResult.Data)
+            {
+                var product = products.FirstOrDefault(x => x.Id==item.ProductId);
+                var variant = product.VariantObjs.FirstOrDefault(x => x.Sku ==item.SKU);
+
+                item.IsMax =(item.Quantity==variant.Stock.Value)?true:false;
+            }
             return View(cartItemsResult.Data);
         }
 
@@ -450,7 +464,7 @@ namespace Project.MVC.Controllers
             int newQuantity = 0;
             int cartCount = 0;
             decimal cartTotal = 0;
-
+            bool IsMax = false;
             if (isLoggedIn)
             {
                 var user = !string.IsNullOrEmpty(userSessionJson) ? JsonConvert.DeserializeObject<UserEntity>(userSessionJson) : null;
@@ -459,6 +473,10 @@ namespace Project.MVC.Controllers
                 // 1.2 Lấy CartDetail tương ứng
                 var details = await _cartBusiness.GetCartItemsByUserId(user.Id);
                 var detail = details?.FirstOrDefault(d => d.ProductId == productId && d.SKU == sku);
+
+                var maxStock = (await _productBusiness.FindAsync(detail.ProductId)).VariantObjs.FirstOrDefault(x=>x.Sku==detail.SKU).Stock;
+
+                //var maxStock =  await _productBusiness.
                 if (detail == null) return Json(new { success = false, message = "Sản phẩm không tồn tại" });
 
                 // 1.3 Cập nhật số lượng
@@ -491,6 +509,11 @@ namespace Project.MVC.Controllers
 
                 HttpContext.Session.SetInt32(CartConstants.CartCountKey, cartCount);
                 HttpContext.Session.SetString(CartConstants.CartTotalKey, cartTotal.ToString("N0"));
+
+                if (detail.Quantity==maxStock)
+                {
+                    IsMax=true;
+                }
             }
             else
             {
@@ -501,6 +524,8 @@ namespace Project.MVC.Controllers
                                         : JsonConvert.DeserializeObject<List<CartItem>>(cartSessionJson) ?? new List<CartItem>();
 
                 var item = cartSessions.FirstOrDefault(c => c.ProductId == productId && c.SKU == sku);
+                var maxStock = (await _productBusiness.FindAsync(item.ProductId)).VariantObjs.FirstOrDefault(x => x.Sku==item.SKU).Stock;
+
                 if (item == null) return Json(new { success = false, message = "Sản phẩm không tồn tại" });
 
                 item.Quantity += delta;
@@ -525,11 +550,17 @@ namespace Project.MVC.Controllers
 
                 HttpContext.Session.SetInt32(CartConstants.CartCountKey, cartCount);
                 HttpContext.Session.SetString(CartConstants.CartTotalKey, cartTotal.ToString("N0"));
+
+                if (item.Quantity==maxStock)
+                {
+                    IsMax=true;
+                }
             }
 
             return Json(new
             {
                 success = true,
+                IsMax=IsMax,
                 quantity = newQuantity,
                 cartCount = cartCount,
                 cartTotal = cartTotal
@@ -559,7 +590,7 @@ namespace Project.MVC.Controllers
             var userCartItem = await _cartBusiness.GetCartItemsByUserId(user.Id);
 
             var totalAmount = userCartItem.Sum(x => x.Total);
-            var today = DateTime.Today;
+            var today = DateTime.UtcNow;
 
             // --- 1. Lọc voucher còn hiệu lực ---
             var validVouchers = voucherList
