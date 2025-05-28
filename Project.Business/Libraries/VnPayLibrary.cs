@@ -39,6 +39,7 @@ namespace Project.Business.Libraries
             var isSuccess = checkSignature
                     && vnpResponseCode == "00"
                     && vnpTransactionStatus == "00";
+            //Them cho toi
             //if (!checkSignature)
             //    return new PaymentResponseModel()
             //    {
