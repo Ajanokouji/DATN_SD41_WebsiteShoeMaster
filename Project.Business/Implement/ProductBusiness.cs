@@ -185,7 +185,7 @@ namespace Project.Business.Implement
             }
         }
 
-        public async Task<IEnumerable<ProductEntity>> ListByIdsAsync(IEnumerable<Guid> ids)
+        public async Task<IEnumerable<ProductEntity>> ListByIdsAsync(List<Guid> ids)
         {
             try
             {

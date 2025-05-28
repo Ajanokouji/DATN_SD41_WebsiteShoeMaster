@@ -255,9 +255,7 @@ public class BillRepository : IBillRepository
                 exist.PaymentStatus = bill.PaymentStatus;
                 exist.CreatedOnDate = bill.CreatedOnDate;
                 exist.RecipientEmail = bill.RecipientEmail;
-                exist.LastModifiedOnDate = bill.LastModifiedOnDate;
                 exist.Note = bill.Note;
-                exist.LastModifiedByUserId = bill.LastModifiedByUserId;
 
                 bill.UpdateTracking(bill.Id);
                 _context.Bills.Update(exist);

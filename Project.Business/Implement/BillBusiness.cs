@@ -68,7 +68,10 @@ namespace Project.Business.Implement
             {
                 res.Content = await _billModelFactory.CreateModels(bill.Content, true);
             }
-
+            res.TotalPages= bill.TotalPages;
+            res.CurrentPage=bill.CurrentPage;
+            res.NumberOfRecords=bill.NumberOfRecords;
+            res.PageSize=bill.PageSize;
             return res;
         }
 
@@ -279,13 +282,11 @@ namespace Project.Business.Implement
                     VoucherCode = model.VoucherCode,
                     Status = model.Status,
                     Source= model.Source,
-                    LastModifiedByUserId= model.LastModifiedByUserId,
                     AmountAfterDiscount = model.AmountAfterDiscount,
                     AmountToPay = model.AmountToPay,
                     CreatedByUserId = model.CreatedByUserId,
                     EmployeeId = model.EmployeeId,
                     OrderId = model.OrderId,
-                    LastModifiedOnDate = model.LastModifiedOnDate,
                     Note = model.Note,
                     VoucherId =  model.VoucherId,
                     PaymentMethodId =  model.PaymentMethodId,

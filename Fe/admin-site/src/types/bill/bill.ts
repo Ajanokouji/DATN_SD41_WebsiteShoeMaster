@@ -98,6 +98,29 @@ export interface BillDetailItem {
 }
 
 export interface BillFilterParams extends PaginationParams {
-  Name?: string;
-  Code?: string;
+  id_hoa_don?: string;
+  id_nhan_vien?: string;
+  CustomerId?: string;
+  id_don_hang?: string;
+  id_phuong_thuc_thanh_toan?: string;
+  BillCode?: string;
+  ten_khach_nhan?: string;
+  email_khach_nhan?: string;
+  so_dien_thoai_khach_nhan?: string;
+  dia_chi_nhan?: string;
+  tong_tien?: number;
+  tong_tien_khuyen_mai?: number;
+  tong_tien_sau_khuyen_mai?: number;
+  tong_tien_phai_thanh_toan?: number;
+  Status?: string;
+  PaymentStatus?: string;
+  create_on_date?: string;
+  last_modifi_on_date?: string;
+  update_by?: string;
+  ghi_chu?: string;
+  ngay_tao?: string;
+  ngay_thanh_toan?: string;
+  tong_tien_decimal?: number;
+  StartDate?: string;
+  EndDate?: string;
 }

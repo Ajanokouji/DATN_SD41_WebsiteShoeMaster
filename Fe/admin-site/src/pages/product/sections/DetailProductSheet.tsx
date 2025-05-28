@@ -216,18 +216,31 @@ const DetailProductSheet: React.FC<DetailProductSheetProps> = ({
                         className="p-4 border rounded-lg hover:shadow-md transition-shadow"
                       >
                         <div className="space-y-2">
+                          {variant.imgUrl && (
+                            <div className="mb-3 flex justify-center">
+                              <img 
+                                src={variant.imgUrl} 
+                                alt={`Variant ${index + 1}`}
+                                className="max-h-32 max-w-32 object-contain rounded-md"
+                              />
+                            </div>
+                          )}
                           <div className="flex justify-between items-center">
-                            <span className="text-sm text-gray-500">Size:</span>
-                            <span className="font-medium">{variant.size}</span>
+                            <span className="text-sm text-gray-500">Màu sắc:</span>
+                            <span className="font-medium">{variant.group1}</span>
                           </div>
                           <div className="flex justify-between items-center">
                             <span className="text-sm text-gray-500">Loại size:</span>
-                            <span className="font-medium">{variant.sizeType}</span>
+                            <span className="font-medium">{variant.group2}</span>
                           </div>
                           <div className="flex justify-between items-center">
-                            <span className="text-sm text-gray-500">Giá thấp nhất:</span>
+                            <span className="text-sm text-gray-500">Số lượng tồn:</span>
+                            <span className="font-medium">{variant.stock}</span>
+                          </div>
+                          <div className="flex justify-between items-center">
+                            <span className="text-sm text-gray-500">Giá :</span>
                             <span className="font-medium text-primary">
-                              ${variant.lowestAsk}
+                              ${variant.price}
                             </span>
                           </div>
                         </div>
