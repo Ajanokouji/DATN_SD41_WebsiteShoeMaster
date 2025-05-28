@@ -267,5 +267,14 @@ namespace Project.Business.Implement
                 throw;
             }
         }
+
+        public async Task<IEnumerable<VoucherProducts>> ListByVoucherIdAsync(Guid id)
+        {
+            var res = await _voucherProductsRepository.ListAllAsync(new VoucherProductsQueryModel()
+            {
+                VoucherId =id
+            });
+            return res;
+        }
     }
 }

@@ -265,5 +265,14 @@ namespace Project.Business.Implement
                 throw;
             }
         }
+
+        public async Task<IEnumerable<VoucherUsers>> ListAllByUserIdAsync(Guid userId)
+        {
+            var res = await ListAllAsync(new VoucherUsersQueryModel()
+            {
+                UserId =userId
+            });
+            return res;
+        }
     }
 }

@@ -1,0 +1,17 @@
+﻿@model IEnumerable<Project.MVC.Models.VoucherViewModel>
+
+<div class="voucher-list overflow-auto" style="max-height:400px;">
+    @if (!Model?.Any() ?? true)
+    {
+        <p class="text-muted fst-italic">Không có voucher khả dụng.</p>
+    }
+    else
+    {
+        <ul class="list-unstyled">
+            @foreach (var v in Model!)
+            {
+                <partial name="_VoucherItem" model="v" view-data='new ViewDataDictionary(ViewData) { { "ShowRadio", true } }' />
+            }
+        </ul>
+    }
+</div>

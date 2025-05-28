@@ -8,7 +8,9 @@ using Project.Business.Model;
 using Project.Common;
 using Project.DbManagement;
 using Project.DbManagement.Entity;
+using Project.MVC.Models;
 using SERP.Framework.ApiUtils.Responses;
+using SERP.Framework.Common;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -19,11 +21,15 @@ namespace Project.MVC.Controllers
 {
     public class ProfileUserController : Controller
     {
+        private readonly IVoucherBusiness _voucherBusiness;
         private readonly IUserBusiness _userBusiness;
+        private readonly IVoucherUsersBusiness _voucherUsersBusiness;
         private readonly HttpClient _httpClient;
 
-        public ProfileUserController(IUserBusiness userBusiness, HttpClient httpClient)
+        public ProfileUserController(IVoucherBusiness voucherBusiness,IVoucherUsersBusiness voucherUsersBusiness, IUserBusiness userBusiness, HttpClient httpClient)
         {
+            _voucherBusiness  = voucherBusiness;
+            _voucherUsersBusiness = voucherUsersBusiness;
             _userBusiness = userBusiness;
             _httpClient = httpClient;
         }
@@ -156,13 +162,9 @@ namespace Project.MVC.Controllers
             return RedirectToAction("ProfileUser");
         }
 
-
+     
         //Check user có trong session + tồn tại + chưa bị xóa + IsActive = true + type = Customer  
-        private class ErrAndUserEntity
-        {
-            public string? Err { get; set; }
-            public UserEntity? User { get; set; }
-        }
+      
 
         private async Task<ErrAndUserEntity> CheckUserIsLoginning()
         {

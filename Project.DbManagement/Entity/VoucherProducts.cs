@@ -17,6 +17,8 @@ namespace Project.DbManagement
         public Guid Id { get; set; }
         public Guid VoucherId { get; set; }
         public Guid ProductId { get; set; }
+
+        //public string Sku { get; set; }
         public string VarientProductId { get; set; }
     }
 }
