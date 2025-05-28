@@ -150,7 +150,10 @@ namespace Project.Business.Implement
             {
                 query = query.Where(x => x.PublishEndDate <= queryModel.PublishEndDate.Value);
             }
-
+            if (!string.IsNullOrWhiteSpace(queryModel.SeoUri))
+            {
+                query = query.Where(x => x.SeoUri.ToLower().Contains(queryModel.SeoUri.ToLower()));
+            }
             return query;
         }
 
