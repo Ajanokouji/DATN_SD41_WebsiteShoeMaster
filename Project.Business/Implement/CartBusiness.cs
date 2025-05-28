@@ -499,6 +499,15 @@ namespace Project.Business.Implement
 
         public async Task<ServiceResult<bool>> AddToCart(CartItem cartItem, List<CartItem> currentCart)
         {
+            if (string.IsNullOrEmpty(cartItem.SKU))
+            {
+                return new ServiceResult<bool>
+                {
+                    IsSuccess = false,
+                    Message = "Sản Phẩm trong kho không đủ để chọn",
+                    Data = false
+                };
+            }
             try
             {
                 if (cartItem == null)
@@ -521,8 +530,8 @@ namespace Project.Business.Implement
                     x.ProductId == cartItem.ProductId && x.SKU ==cartItem.SKU
                 );
 
-
-                var variantStock = (await _productRepository.FindAsync(cartItem.ProductId)).VariantObjs.FirstOrDefault(x => x.Sku==cartItem.SKU).Stock;
+                var product = await _productRepository.FindAsync(cartItem.ProductId);
+                var variantStock = product.VariantObjs.FirstOrDefault(x => x.Sku==cartItem.SKU).Stock;
 
                 if (existingItem != null)
                 {

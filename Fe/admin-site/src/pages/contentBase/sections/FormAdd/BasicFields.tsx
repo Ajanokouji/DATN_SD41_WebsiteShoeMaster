@@ -23,7 +23,7 @@ interface BasicInfoFieldsProps {
 }
 
 export const BasicInfoFields: React.FC<BasicInfoFieldsProps> = ({ control }) => {
-  const { trigger } = useFormContext();
+  const { setValue, trigger } = useFormContext<ContentBaseFormSchema>(); // Lấy setValue từ react-hook-form
 
   // Cấu hình Toolbar và tính năng cho React Quill
   const modules = {
@@ -68,6 +68,25 @@ export const BasicInfoFields: React.FC<BasicInfoFieldsProps> = ({ control }) => 
     "video",
   ];
 
+  // Hàm chuyển đổi Title thành SEO URI
+  const generateSeoUri = (input: string) => {
+    return input
+      .toLowerCase() // Chuyển thành chữ thường
+      .normalize("NFD") // Chuẩn hóa chuỗi
+      .replace(/[\u0300-\u036f]/g, "") // Loại bỏ dấu
+      .replace(/[^a-z0-9\s-]/g, "") // Loại bỏ ký tự đặc biệt
+      .trim() // Loại bỏ khoảng trắng ở đầu và cuối
+      .replace(/\s+/g, "-"); // Thay khoảng trắng bằng dấu gạch ngang
+  };
+
+  // Lắng nghe thay đổi của Title và tự động tạo SEO URI
+  const handleTitleChange = (e: React.ChangeEvent<HTMLInputElement>, field: any) => {
+    const newTitle = e.target.value;
+    field.onChange(newTitle); // Cập nhật giá trị của Title trong react-hook-form
+    setValue("seoUri", generateSeoUri(newTitle)); // Tự động tạo SEO URI và cập nhật giá trị
+    trigger("seoUri"); // Kích hoạt validate cho trường seoUri nếu cần
+  };
+    
   return (
     <div className="space-y-4">
       <div className="grid grid-cols-2 gap-4">
@@ -81,10 +100,7 @@ export const BasicInfoFields: React.FC<BasicInfoFieldsProps> = ({ control }) => 
                 <Input
                   placeholder="Nhập tiêu đề"
                   {...field}
-                  onChange={(e) => {
-                    field.onChange(e);
-                    trigger("title");
-                  }}
+                  onChange={(e) => handleTitleChange(e, field)} // Gọi hàm xử lý thay đổi Title
                 />
               </FormControl>
               <FormMessage />
@@ -101,10 +117,7 @@ export const BasicInfoFields: React.FC<BasicInfoFieldsProps> = ({ control }) => 
                 <Input
                   placeholder="Nhập đường dẫn SEO"
                   {...field}
-                  onChange={(e) => {
-                    field.onChange(e);
-                    trigger("seoUri");
-                  }}
+                  readOnly // Không cho phép chỉnh sửa trực tiếp
                 />
               </FormControl>
               <FormMessage />

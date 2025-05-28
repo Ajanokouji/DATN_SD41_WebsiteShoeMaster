@@ -15,6 +15,7 @@ import {
 } from "@/redux/apps/bill/billSlice";
 import { formatVietnamTime } from "@/utils/format";
 import DetailBillSheet from "./DetailBillSheet";
+import { useLocation } from "react-router-dom";
 
 const BillTable = <T extends { id: string }>({
   headers,
@@ -22,55 +23,82 @@ const BillTable = <T extends { id: string }>({
   columns,
 }: TableProps<T>) => (
   <div className="border border-gray-300 rounded-t-xl overflow-hidden">
-    {/* <Table className="w-full">
-      <TableHeaderComponent headers={headers} />
-    </Table> */}
     <div className="max-h-[58vh] max-w-full overflow-x-auto overflow-y-auto">
-      <Table className="w-full">
-        <TableHeaderComponent headers={headers} className="text-center" />
-        <TableBody>
-          {data.length ? (
-            data.map((row, index) => (
-              <TableRowComponent key={index} data={row} columns={columns} />
-            ))
-          ) : (
-            <TableRowComponent
-              key="empty-row"
-              columns={columns}
-              data={undefined}
-            />
-          )}
-        </TableBody>
-      </Table>
+      <div className="w-full overflow-auto max-w-[1400px] mx-auto">
+        <Table className="min-w-full">
+          <TableHeaderComponent headers={headers} className="text-center" />
+          <TableBody>
+            {data.length ? (
+              data.map((row, index) => (
+                <TableRowComponent key={index} data={row} columns={columns} />
+              ))
+            ) : (
+              <TableRowComponent
+                key="empty-row"
+                columns={columns}
+                data={undefined}
+              />
+            )}
+          </TableBody>
+        </Table>
+      </div>
     </div>
   </div>
 );
 
 const BillsTable: React.FC = () => {
   const dispatch = useAppDispatch();
+  const location = useLocation();
   const bills = useAppSelector(selectBills);
   const pagination = useAppSelector(selectPagination);
-  const [isOpenUpdate, setIsOpenUpdate] = useState(false);
+  const [isOpenDetail, setIsOpenDetail] = useState(false);
   const [selectedBillId, setSelectedBillId] = useState<string | null>(null);
 
-  const handleOpenDialogUpdate = (id: string) => {
-    setIsOpenUpdate(true);
+  const handleOpenDetail = (id: string) => {
+    setIsOpenDetail(true);
     setSelectedBillId(id);
   };
 
   const renderCreatedDate = (value: string) => {
-      return formatVietnamTime(value);
+    return formatVietnamTime(value);
+  };
+
+  const formatCurrency = (value: number) => {
+    return new Intl.NumberFormat('vi-VN', {
+      style: 'currency',
+      currency: 'VND'
+    }).format(value);
+  };
+
+  const renderStatus = (status: string) => {
+    const statusMap: { [key: string]: { label: string; className: string } } = {
+      PendingConfirmation: { label: "Chờ xác nhận", className: "text-yellow-500" },
+      Confirmed: { label: "Đã xác nhận", className: "text-blue-500" },
+      Rejected: { label: "Bị từ chối", className: "text-red-500" },
+      Paid: { label: "Đã thanh toán", className: "text-green-500" },
+      Packed: { label: "Đã đóng gói", className: "text-purple-500" },
+      Shipping: { label: "Đang vận chuyển", className: "text-orange-500" },
+      Delivered: { label: "Đã giao hàng", className: "text-teal-500" },
+      Completed: { label: "Hoàn thành", className: "text-green-700" },
+      Cancelled: { label: "Đã hủy", className: "text-red-700" },
+      DeliveryFailed: { label: "Giao hàng thất bại", className: "text-red-600" },
+      ReturnProcessing: { label: "Đang xử lý hoàn trả", className: "text-yellow-600" },
+      Returned: { label: "Đã hoàn trả", className: "text-gray-500" }
     };
+
+    const statusInfo = statusMap[status] || { label: status, className: "text-gray-500" };
+    return <span className={statusInfo.className}>{statusInfo.label}</span>;
+  };
 
   const headers = [
     { label: "Mã hóa đơn", className: "text-center" },
-    { label: "Tên Khách Hàng" },
+    { label: "Tên khách hàng" },
     { label: "Số điện thoại" },
-    { label: "Số lượng" },
-    { label: "Giảm trừ" },
+    { label: "Tổng tiền" },
+    { label: "Giảm giá" },
     { label: "Phải trả" },
     { label: "Trạng thái" },
-    { label: "Khởi tạo" },
+    { label: "Ngày tạo" },
     { label: " " },
   ];
 
@@ -78,7 +106,6 @@ const BillsTable: React.FC = () => {
     key?: keyof BillResDto;
     className?: string;
     isActionColumn?: boolean;
-    // eslint-disable-next-line @typescript-eslint/no-explicit-any
     render?: (value: any) => React.ReactNode;
     action?: (data: BillResDto) => void;
     detailAction?: (id: string) => void;
@@ -86,43 +113,58 @@ const BillsTable: React.FC = () => {
     { key: "billCode", className: "text-center" },
     { key: "recipientName" },
     { key: "recipientPhone" },
-    { key: "totalAmount" },
-    { key: "discountAmount" },
-    { key: "amountToPay" },
-    { key: "status" },
-    
     { 
-      key: "createdOnDate", 
-      render: renderCreatedDate 
+      key: "totalAmount",
+      render: (value) => formatCurrency(value)
+    },
+    { 
+      key: "discountAmount",
+      render: (value) => formatCurrency(value)
+    },
+    { 
+      key: "amountToPay",
+      render: (value) => formatCurrency(value)
+    },
+    { 
+      key: "status",
+      render: renderStatus
+    },
+    {
+      key: "createdOnDate",
+      render: renderCreatedDate,
     },
     {
       isActionColumn: true,
       className: "text-center",
-      action: (category) => {
-        console.log("Performing action for:", category);
+      action: (bill) => {
+        console.log("Performing action for:", bill);
       },
-      
       detailAction: (id: string) => {
-        handleOpenDialogUpdate(id);
+        handleOpenDetail(id);
       },
     },
   ];
 
   useEffect(() => {
-    dispatch(
-      fetchBills({
-        CurrentPage: pagination.currentPage,
-        PageSize: pagination.pageSize,
-      })
-    );
-  }, [dispatch, pagination.currentPage, pagination.pageSize]);
+    const params = new URLSearchParams(location.search);
+    const filters = {
+      CurrentPage: pagination.currentPage,
+      PageSize: pagination.pageSize,
+      BillCode: params.get("BillCode") || "",
+      RecipientName: params.get("RecipientName") || "",
+      TotalAmount: params.get("TotalAmount") || "",
+      RecipientAddress: params.get("RecipientAddress") || "",
+      CreatedOnDate: params.get("CreatedOnDate") || "",
+      Status: params.get("Status") || "",
+    };
 
-  // Xử lý khi thay đổi trang
+    dispatch(fetchBills(filters));
+  }, [dispatch, location.search, pagination.currentPage, pagination.pageSize]);
+
   const handlePageChange = (newPage: number) => {
     dispatch(setPage(newPage));
   };
 
-  // Xử lý khi thay đổi số lượng sản phẩm trên trang
   const handlePageSizeChange = (newSize: number) => {
     dispatch(setPageSize(newSize));
   };
@@ -138,11 +180,11 @@ const BillsTable: React.FC = () => {
         onPageChange={handlePageChange}
         onPageSizeChange={handlePageSizeChange}
       />
-      {isOpenUpdate && selectedBillId && (
+      {isOpenDetail && selectedBillId && (
         <DetailBillSheet
           billId={selectedBillId}
-          isOpen={isOpenUpdate}
-          onClose={() => setIsOpenUpdate(false)}
+          isOpen={isOpenDetail}
+          onClose={() => setIsOpenDetail(false)}
         />
       )}
     </section>
