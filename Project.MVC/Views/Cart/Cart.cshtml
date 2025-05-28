@@ -280,41 +280,53 @@
             });
 
             // Giảm số lượng
-            $(document).on('click', '.btn-decrease', function () {
-                debugger
-                var $row = $(this).closest('tr');
-                var $input = $row.find('.quantity-input');
-                var val = parseInt($input.val()) || 0;
-                if (val > 1) {
-                    $input.val(val - 1).trigger('change');
-                }
-                 const productId = $row.data('id');
-                 const sku = $row.data('sku');
-                $.post('/Cart/DecreaseQuantity', { productId: productId, sku: sku })
-                .done(function(res) {
+                   $(document).on('click', '.btn-decrease', function () {
+
+            const $row = $(this).closest('tr');
+            const $input = $row.find('.quantity-input');
+            const productId = $row.data('id');
+            const sku       = $row.data('sku');
+
+            // ––––––– Optimistic UI –––––––
+            const oldVal = parseInt($input.val(), 10) || 0;
+            if (oldVal > 1) {           // Giảm ngay cho “mượt”
+                $input.val(oldVal - 1).trigger('change');
+            }
+            // Vô hiệu hoá nút trong lúc chờ
+            $(this).prop('disabled', true);
+
+            $.post('/Cart/DecreaseQuantity', { productId, sku })
+                .done(function (res) {
                     if (res.success) {
-                        $row.find('.quantity-input').val(res.quantity);
+                        $input.val(res.quantity);
                         $('#cartCount').text(res.cartCount);
                         $('#cartTotal').text(res.cartTotal);
 
                         if (res.quantity === 0) {
-                            // Nếu số lượng về 0 thì xóa dòng sản phẩm khỏi bảng
                             $row.remove();
-                           $('#subtotal').text('0' + ' VNĐ');
-                           $('#discount').text('0' + ' VNĐ');
-                           $('#total').text('0'+ ' VNĐ');
+                            $('#subtotal, #discount, #total').text('0 VNĐ');
                         }
-                         var increaseButtonSelector = '#button-increase-' + sku + '-' +productId ;
-                         if (res.isMax) {
-                                 $(increaseButtonSelector).prop('disabled', true);      // disable nút tăng
-                         }else{
-                                  $(increaseButtonSelector).prop('disabled', false);
-                          }
+
+                        // Bật/tắt nút tăng
+                        $('#button-increase-' + sku + '-' + productId)
+                            .prop('disabled', res.isMax);
                     } else {
-                        alert(res.message);
+                        alert(res.message || 'Có lỗi xảy ra');
+                        // Hoàn về giá trị cũ nếu backend báo lỗi
+                        $input.val(oldVal);
                     }
-            });
-            });
+                })
+                .fail(function () {
+                    alert('Không kết nối được máy chủ. Vui lòng thử lại.');
+                    // Hoàn về giá trị cũ nếu request fail
+                    $input.val(oldVal);
+                })
+                .always(() => {
+                    // Luôn bật lại nút decrease sau khi xong
+                        $('#button-decrease-'+sku+'-'+productId)
+                        .prop('disabled', false);
+                });
+        });
 
             // Xóa sản phẩm
             $(document).on('click', '.remove-item', function (e) {

@@ -96,7 +96,7 @@ const BillsTable: React.FC = () => {
     { label: "Số điện thoại" },
     { label: "Tổng tiền" },
     { label: "Giảm giá" },
-    { label: "Thanh toán" },
+    { label: "Phải trả" },
     { label: "Trạng thái" },
     { label: "Ngày tạo" },
     { label: " " },

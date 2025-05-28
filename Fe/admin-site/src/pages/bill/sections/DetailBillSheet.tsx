@@ -171,15 +171,7 @@ const DetailBillSheet: React.FC<DetailBillSheetProps> = ({
                 <h1 className="text-2xl font-bold mb-2">Hóa đơn</h1>
                 <p className="text-sm opacity-90">Mã hóa đơn: {bill.billCode}</p>
                 <div className="flex gap-2 mt-1">
-                  <Badge 
-                    variant={getStatusBadgeVariant(bill.status)} 
-                    className="text-white border-white"
-                  >
-                    Trạng thái: {ORDER_STATUS_LABELS[bill.status] || bill.status}
-                  </Badge>
-                  <Badge variant="outline" className="text-white border-white">
-                    Thanh toán: {bill.paymentStatus === "0" ? "Chưa thanh toán" : bill.paymentStatus === "1" ? "Đã thanh toán" : "Thất bại"}
-                  </Badge>
+                  
                 </div>
               </div>
               <div className="flex gap-2">
@@ -280,10 +272,7 @@ const DetailBillSheet: React.FC<DetailBillSheetProps> = ({
                 <p className="text-sm text-gray-500">Ngày Tạo</p>
                 <p className="font-medium">{formatVietnamTime(bill.createdOnDate)?.split(' ')[0]}</p>
               </div>
-              <div>
-                <p className="text-sm text-gray-500">Phương thức thanh toán</p>
-                <p className="font-medium">{bill.paymentMethod || "Not specified"}</p>
-              </div>
+             
             </div>
 
             {/* Bill Items */}
@@ -348,10 +337,10 @@ const DetailBillSheet: React.FC<DetailBillSheetProps> = ({
 
             {/* Payment Summary */}
             <div className="mb-8 bg-gray-50 p-4 rounded-lg">
-              <h2 className="text-lg font-semibold mb-3">Payment Summary</h2>
+              <h2 className="text-lg font-semibold mb-3">Thanh Toán</h2>
               <div className="space-y-2">
                 <div className="flex justify-between">
-                  <span className="text-gray-600">Tổng Số lượng :</span>
+                  <span className="text-gray-600">Tổng Tiền:</span>
                   <span>{formatCurrency(bill.totalAmount)}</span>
                 </div>
                 <div className="flex justify-between">
@@ -366,12 +355,12 @@ const DetailBillSheet: React.FC<DetailBillSheetProps> = ({
                 )}
                 <Separator className="my-2" />
                 <div className="flex justify-between font-semibold text-lg">
-                  <span>Total</span>
+                  <span>Phải Trả</span>
                   <span className="text-primary">{formatCurrency(bill.amountToPay)}</span>
                 </div>
                 {bill.finalAmount !== null && bill.finalAmount !== bill.amountToPay && (
                   <div className="flex justify-between font-bold text-lg">
-                    <span>Final Amount</span>
+                    <span>Phải Trả</span>
                     <span className="text-primary">{formatCurrency(bill.finalAmount)}</span>
                   </div>
                 )}
