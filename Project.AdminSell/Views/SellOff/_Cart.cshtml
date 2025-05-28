@@ -52,7 +52,7 @@
                         </div>
                         <div class="col-md-12">
                             <label for="inputPassword5">Điện thoại</label>
-                            <input type="number" class="form-control" id="inputSDT" required>
+                            <input type="text" class="form-control" id="inputSDT" required>
                         </div>
                         <div class="col-md-12">
                             <label for="inputEmail5">Email</label>
@@ -270,20 +270,29 @@
         var idhd = $("#IDHD").val();
 
         if (tenkh === "") {
-            toastr.error("Tên khách hàng không được để trống!", "Lỗi", { timeOut: 300 });
+            toastr.warning("Tên khách hàng không được để trống!", "Thông báo", { timeOut: 1000 });
             $("#inputTenKhachHang").focus();
             return;
         }
+        var nameRegex = /^[\p{L}\s]+$/u;
+        if (!nameRegex.test(tenkh)) {
+            toastr.warning("Tên khách hàng không đúng định dạng!", "Thông báo", { timeOut: 1000 });
+            $("#inputTenKhachHang").focus();
+            return;
+        }
+        // Kiểm tra số điện thoại
         var phoneRegex = /^0\d{8,11}$/;
-        if (sdt === "" && !phoneRegex.test(sdt)) {
-            toastr.error("Số điện thoại không hợp lệ! (Bắt đầu bằng 0, chỉ chứa số, độ dài tối thiểu 9)", "Lỗi", { timeOut: 300 });
+        var digitsOnlyRegex = /^\d+$/;
+
+        if (sdt === "" || !digitsOnlyRegex.test(sdt) || !phoneRegex.test(sdt)) {
+            toastr.warning("Số điện thoại không hợp lệ!", "Thông báo", { timeOut: 1000 });
             $("#inputSDT").focus();
             return;
         }
-        if (email !== "") {
+        if (email !== "" || email !== null) {
             var emailRegex = /^[^\s@@]+@@[^\s@@]+\.[^\s@@]+$/;
             if (!emailRegex.test(email)) {
-                toastr.error("Định dạng email không hợp lệ!", "Lỗi", { timeOut: 300 });
+                toastr.warning("Định dạng email không hợp lệ!", "Thông báo", { timeOut: 1000 });
                 $("#inputEmail").focus();
                 return;
             }
@@ -306,15 +315,16 @@
             data: khachHang,
             success: function (response) {
                 if (response.success) {
-                    gethdct(idhd);
+                    //gethdct(idhd);
                     $("#themkhachhang").modal("hide");
-                    toastr.success('Thêm khách hàng thành công', "Success Alert", { timeOut: 300 });
+                    toastr.success('Thêm khách hàng thành công', "Thông báo", { timeOut: 1000 });
+                    $("#searchClientInput").val(sdt);
                 } else {
-                    toastr.error('Thêm khách hàng thất bại: ' + (response.message), 'Error Alert', { timeOut: 300 });
+                    toastr.error('Thêm khách hàng thất bại: ' + (response.message), 'Thông báo', { timeOut: 1000 });
                 }
             },
             error: function (response) {
-                toastr.error('Thêm khách hàng thất bại', 'Error Alert', {timeOut: 300});
+                toastr.error('Thêm khách hàng thất bại', 'Thông báo', {timeOut: 1000});
             }
         });
     })
@@ -332,14 +342,14 @@
             success: function (response) {
                 if (response.success) {
                     gethdct('@Model.Id');
-                    toastr.success('Cập nhật thành công', 'Success', {timeOut: 300});
+                    toastr.success('Cập nhật số lượng thành công', 'Thông báo', {timeOut: 300});
                 } else {
-                    toastr.error(response.message || 'Cập nhật thất bại', 'Error', {timeOut: 300});
+                    toastr.error(response.message || 'Cập nhật số lượng thất bại', 'Thông báo', {timeOut: 300});
                     gethdct('@Model.Id');
                 }
             },
             error: function (xhr, status, error) {
-                toastr.error('Cập nhật thất bại', 'Lỗi Ajax', {timeOut: 300});
+                toastr.error('Cập nhật thất bại', 'Thông báo', {timeOut: 300});
             }
         });
     }
@@ -350,7 +360,7 @@
         var $input = $(this).parent().find('input');
         var count = parseInt($input.val()) - 1;
         if (count <= 1) {
-            toastr.warning('Số lượng không thể nhỏ hơn 1!', 'Cảnh báo', { timeOut: 300 });
+            toastr.warning('Số lượng không thể nhỏ hơn 1!', 'Thông báo', { timeOut: 1000 });
             $input.val(1);
             return false;
         }
@@ -381,13 +391,13 @@
         // Nếu input rỗng hoặc không phải số hợp lệ thì không làm gì cả
         if (count === '' || isNaN(count)) {
             // Tùy bạn muốn reset về giá trị cũ hay thông báo lỗi
-            toastr.error('Số lượng không hợp lệ!', 'Lỗi', { timeOut: 300 });
+            toastr.warning('Số lượng không hợp lệ!', 'Thông báo', { timeOut: 1000 });
             $(this).val(currentCount); // hoặc giá trị trước đó nếu bạn lưu lại
             return;
         }
         if (parseInt(count) <= 0) {
             // Tùy bạn muốn reset về giá trị cũ hay thông báo lỗi
-            toastr.warning('Số lượng phải lớn hơn 0!', 'Cảnh báo', { timeOut: 300 });
+            toastr.warning('Số lượng phải lớn hơn 0!', 'Thông báo', { timeOut: 1000 });
             $(this).val(currentCount); // hoặc giá trị trước đó nếu bạn lưu lại
             return;
         }
