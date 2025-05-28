@@ -64,6 +64,7 @@ const VoucherUsersTable: React.FC<{ voucherId: string }> = ({ voucherId }) => {
       dispatch(
         fetchVoucherUsers({
           voucherId,
+          isUsed: false,
           CurrentPage: pagination.currentPage,
           PageSize: pagination.pageSize,
         })

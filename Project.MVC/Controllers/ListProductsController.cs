@@ -18,8 +18,8 @@ namespace Project.MVC.Controllers
             _context = context;
         }
 
-        [HttpGet("ListProductsByCategory")]
-        public ActionResult ListProducts(Guid? categoryId)
+        [HttpGet()]
+        public IActionResult ListProductsByCategory(Guid? categoryId)
         {
             var products = _context.Products.AsQueryable();
 

@@ -17,5 +17,6 @@ namespace Project.Common
         public string Size { get; set; }
         public string Color { get; set; }
         public decimal Total { get; set; }
+        public int Stock { get; set; }
     }
 } 

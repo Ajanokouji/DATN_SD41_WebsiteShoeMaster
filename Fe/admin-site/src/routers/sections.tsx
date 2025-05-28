@@ -107,7 +107,7 @@ export default function Router() {
           element: <VoucherPage />,
         },
         {
-          path: "contact",
+          path: "employee",
           element: <ContactPage />,
         },
         {

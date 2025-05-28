@@ -67,8 +67,20 @@
     </div>
 </section>
 
-<!-- Categories Section End -->
-@await Component.InvokeAsync("BlockVoucher");
+<div class="container">
+    <div class="row">
+        <div class="col-lg-4 col-md-4">
+            <div class="section-title">
+                <h4>Mã giảm giá</h4>
+            </div>
+        </div>
+    </div>
+    <div class="row property__gallery">
+        <!-- Categories Section End -->
+        @await Component.InvokeAsync("BlockVoucher");
+    </div>
+</div>
+
 <!-- Product Section Begin -->
 <section class="product spad">
     @await Component.InvokeAsync("BlockProductsByFilter", new BlockProductsByFilterRequestModel(){

@@ -58,8 +58,8 @@ const navConfig: NavConfigItem[] = [
     color: "#10b981",
   },
   {
-    title: "Liên Hệ",
-    path: "/contact",
+    title: "Nhân viên",
+    path: "/employee",
     icon: LuContact,
     color: "#f59e0b",
   },

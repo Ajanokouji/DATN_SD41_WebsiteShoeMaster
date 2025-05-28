@@ -12,6 +12,7 @@ using Serilog;
 using SERP.Framework.Business;
 using SERP.Framework.Common;
 using SERP.Framework.DB.Extensions;
+using SkiaSharp;
 
 namespace Project.Business.Implement
 {
@@ -212,6 +213,7 @@ namespace Project.Business.Implement
                 // Update voucher information
                 exist.VoucherId = voucherUser.VoucherId;
                 exist.UserId = voucherUser.UserId;
+                exist.IsUsed = voucherUser.IsUsed;
 
                 var result = await SaveAsync(exist);
                 _logger.Information("VoucherUser {VoucherId} saved successfully", voucherUser.Id);

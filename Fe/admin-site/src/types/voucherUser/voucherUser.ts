@@ -3,6 +3,7 @@ import { PaginationParams } from "../common/pagination";
 export default interface VoucherUserReqDto {
   voucherId: string;
   userId: string;
+  isUsed: boolean;
   createdByUserId: string;
   lastModifiedByUserId: string;
   lastModifiedOnDate: string;
@@ -13,6 +14,7 @@ export interface VoucherUserResDto {
   id: string;
   voucherId: string;
   userId: string;
+  isUsed: boolean;
   createdByUserId: string;
   lastModifiedByUserId: string;
   lastModifiedOnDate: string;
@@ -22,6 +24,7 @@ export interface VoucherUserResDto {
 export interface VoucherUserFilterParams extends PaginationParams {
   voucherId?: string;
   userId?: string;
+  isUsed?: boolean;
   lastModifiedOnDate?: string;
   createdOnDate?: string;
 }

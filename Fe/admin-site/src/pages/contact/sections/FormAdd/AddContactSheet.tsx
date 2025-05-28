@@ -37,9 +37,6 @@ const AddContactSheet: React.FC<AddContactSheetProps> = ({
       phoneNumber: "",
       dateOfBirth: "",
       email: "",
-      imageUrl: "",
-      content: "",
-      status: 0,
       isdeleted: false,
       createdByUserId: "3fa85f64-5717-4562-b3fc-2c963f66afa6",
       lastModifiedByUserId: "3fa85f64-5717-4562-b3fc-2c963f66afa6",
@@ -58,6 +55,8 @@ const AddContactSheet: React.FC<AddContactSheetProps> = ({
         lastModifiedOnDate:
           values.lastModifiedOnDate || new Date().toISOString(),
         createdOnDate: values.createdOnDate || new Date().toISOString(),
+        imageUrl: "",
+        content: "",
       };
 
       await dispatch(createContact(contactData));
@@ -75,11 +74,8 @@ const AddContactSheet: React.FC<AddContactSheetProps> = ({
       <SheetContent className="w-[90%] sm:max-w-[80vw] max-w-none h-screen overflow-y-auto">
         <SheetHeader>
           <SheetTitle className="text-xl font-semibold text-gray-700">
-            Add Contact
+            Thêm nhân viên
           </SheetTitle>
-          <SheetDescription>
-            Create a new contact with custom metadata fields
-          </SheetDescription>
         </SheetHeader>
 
         <Form {...form}>
@@ -91,10 +87,10 @@ const AddContactSheet: React.FC<AddContactSheetProps> = ({
 
             <div className="flex justify-end gap-2 absolute bottom-4 left-0 w-full px-6">
               <Button type="submit" disabled={isSubmitting}>
-                {isSubmitting ? "Creating..." : "Add new contact"}
+                {isSubmitting ? "Đang tạo..." : "Thêm nhân viên"}
               </Button>
               <Button variant="outline" onClick={onClose} type="button">
-                Cancel
+                Hủy
               </Button>
             </div>
           </form>

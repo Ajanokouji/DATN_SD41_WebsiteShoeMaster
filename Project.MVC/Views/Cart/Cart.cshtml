@@ -59,7 +59,7 @@
                                         data-discount-price="@item.DiscountPrice"
                                         data-discount-percent="@item.DiscountPercent"
                                         data-is-in-stock="@item.IsInStock"
-                                        data-stock-quantity="@item.StockQuantity"
+                                        data-stock-quantity="@item.IsMax"
                                         data-sku="@item.SKU">
                                         <td class="cart__product__item">
                                             <img src="@item.ProductImage" alt="@item.ProductName" style="max-width: 90px;">
@@ -89,13 +89,13 @@
                                         </td>
                                         <td class="cart__quantity">
                                             <div class="input-group input-group-sm quantity-selector" style="max-width:150px">
-                                                <button class="btn btn-outline-secondary btn-decrease" type="button">−</button>
+                                                <button id="button-decrease-@item.SKU-@item.ProductId" class="btn btn-outline-secondary btn-decrease" type="button">−</button>
                                                 <input type="text"
                                                        class="form-control text-center quantity-input"
                                                        value="@item.Quantity"
                                                        data-productprice="@item.Price"
-                                                       max="@item.StockQuantity" />
-                                                <button class="btn btn-outline-secondary btn-increase" type="button">+</button>
+                                                     />
+                                                <button id="button-increase-@item.SKU-@item.ProductId" class="btn btn-outline-secondary btn-increase" type="button" disabled="@(item.IsMax)">+</button>
                                             </div>
                                         </td>
                                         <td class="cart__total">@item.Total.ToString("N0") VNĐ</td>
@@ -192,6 +192,7 @@
 
             // Mở modal & nạp danh sách voucher
             $('#chooseVoucherBtn').on('click', function () {
+
                 const $modal = $('#voucherModal');
                 $modal.find('.modal-body').html(
                     '<div class="py-5 text-center"><div class="spinner-border"></div></div>'
@@ -211,6 +212,7 @@
 
             // Xác nhận chọn voucher
             $('#confirmVoucherBtn').on('click', function () {
+                debugger
                 const $checked = $('#voucherModal input[name="SelectedVoucherId"]:checked');
                 if (!$checked.length) {
                     alert('Vui lòng chọn một voucher.');
@@ -239,6 +241,7 @@
                  .done(res => {
                      if (res.success) {
                          $('#discount').text(formatCurrency(res.discountAmount) + ' VNĐ');
+
                          $('#total').text(formatCurrency(res.totalAfterDiscount) + ' VNĐ');
                      } else {
                          alert(res.message ?? 'Không áp dụng được voucher');
@@ -248,7 +251,6 @@
 
             // Tăng số lượng
             $(document).on('click', '.btn-increase', function () {
-                
                 var $row = $(this).closest('tr');
                 var $input = $row.find('.quantity-input');
                 var val = parseInt($input.val()) || 0;
@@ -258,11 +260,18 @@
                 }
                 const productId = $row.data('id');
                 const sku = $row.data('sku');
-                     $.post('/Cart/IncreaseQuantity', { productId: productId, sku: sku })
+                $.post('/Cart/IncreaseQuantity', { productId: productId, sku: sku })
                  .done(function(res) {
                 if (res.success) {
                     // Cập nhật lại số lượng hiển thị
                     $row.find('.quantity-input').val(res.quantity);
+                   var increaseButtonSelector = '#button-increase-' + sku + '-' +productId ;
+                    if (res.isMax) {          
+                        
+                                $(increaseButtonSelector).prop('disabled', true);      // disable nút tăng
+                    }else{
+                                $(increaseButtonSelector).prop('disabled', false);
+                    }
                     // Cập nhật tổng số lượng & tổng tiền ở UI
                 } else {
                     alert(res.message);
@@ -291,7 +300,16 @@
                         if (res.quantity === 0) {
                             // Nếu số lượng về 0 thì xóa dòng sản phẩm khỏi bảng
                             $row.remove();
+                           $('#subtotal').text('0' + ' VNĐ');
+                           $('#discount').text('0' + ' VNĐ');
+                           $('#total').text('0'+ ' VNĐ');
                         }
+                         var increaseButtonSelector = '#button-increase-' + sku + '-' +productId ;
+                         if (res.isMax) {
+                                 $(increaseButtonSelector).prop('disabled', true);      // disable nút tăng
+                         }else{
+                                  $(increaseButtonSelector).prop('disabled', false);
+                          }
                     } else {
                         alert(res.message);
                     }
@@ -319,7 +337,7 @@
 
             // Cập nhật số lượng input, tính lại tổng tiền dòng và tổng giỏ hàng
             $(document).on('change', '.quantity-input', function () {
-                
+                debugger
                 var $row = $(this).closest('tr');
                 var qty = parseInt($(this).val()) || 1;
                 var max = parseInt($(this).attr('max')) || 10000;
@@ -333,16 +351,11 @@
                 var price = discountPrice > 0 ? discountPrice : originalPrice;
                 var total = price * qty;
                 $row.find('.cart__total').text(formatCurrency(total) + ' VNĐ');
-                console.log(qty);
-                console.log(price);
-
-                console.log(total);
                 updateTotals();
             });
 
             // Cập nhật tổng tiền tạm tính, tổng tiền đơn
             function updateTotals() {
-                debugger
                 var subtotal = 0;
                 var cartItems = [];
 

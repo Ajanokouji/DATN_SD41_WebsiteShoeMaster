@@ -36,7 +36,7 @@ const DetailContactSheet: React.FC<DetailContactSheetProps> = ({
       <SheetContent className="w-[90%] sm:max-w-[80vw] max-w-none h-screen overflow-y-auto">
         <SheetHeader>
           <SheetTitle className="text-xl font-semibold text-gray-700">
-            Detail Contact: {contact?.fullName}
+            Chỉnh sửa nhân viên: {contact?.fullName}
           </SheetTitle>
           <SheetDescription />
         </SheetHeader>
