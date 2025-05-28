@@ -206,6 +206,11 @@ namespace Project.Business.Implement
                 var x = _context.Database.GetDbConnection();
                 foreach (var product in productEntities)
                 {
+                    var local = _context.Products.Local.FirstOrDefault(x => x.Id == product.Id);
+                    if (local != null)
+                    {
+                        _context.Entry(local).State = EntityState.Detached;
+                    }
                     var exist = await _context.Products
                         .AsNoTracking()
                         .FirstOrDefaultAsync(x =>
@@ -264,13 +269,18 @@ namespace Project.Business.Implement
         }
 
 
-        public virtual async Task<ProductEntity> DeleteAsync(Guid Id)
+        public virtual async Task<ProductEntity> DeleteAsync(Guid id)
         {
-            var exist = await FindAsync(Id);
-            if (exist == null) throw new Exception(IProductRepository.MessageNoTFound);
-            exist.IsDeleted=true;
-            _context.Products.Update(exist);
-            _context.SaveChangesAsync();
+            var exist = await FindAsync(id);
+            if (exist == null)
+                throw new Exception(IProductRepository.MessageNoTFound);
+
+            exist.IsDeleted = true;
+
+            _context.Products.Update(exist); // đảm bảo EF tracking lại entity để update
+
+            await _context.SaveChangesAsync(); // cần await
+
             return exist;
         }
 

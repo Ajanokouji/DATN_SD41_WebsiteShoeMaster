@@ -18,83 +18,121 @@
     </div>
 </div>
 <!-- Breadcrumb End -->
-
 <!-- Thank You Section Begin -->
-<section class="thank-you spad">
+<section class="thank-you spad" style="padding: 50px 0;">
     <div class="container">
-        <div class="row">
-            <div class="col-lg-12">
-                <div class="thank-you__content">
-                    <div class="thank-you__icon">
-                        <i class="fa fa-check-circle"></i>
-                    </div>
-                    <h2>Đặt hàng thành công!</h2>
-                    <p>Cảm ơn bạn đã đặt hàng tại Shop. Mã đơn hàng của bạn là: <strong>@Model.BillCode</strong></p>
-                    
-                    <div class="order-details">
-                        <h4>Thông tin đơn hàng</h4>
-                        <div class="row">
-                            <div class="col-lg-6">
-                                <div class="order-info">
-                                    <p><strong>Họ và tên:</strong> @Model.RecipientName</p>
-                                    <p><strong>Số điện thoại:</strong> @Model.RecipientPhone</p>
-                                    <p><strong>Email:</strong> @Model.RecipientEmail</p>
-                                    <p><strong>Địa chỉ:</strong> @Model.RecipientAddress</p>
-                                    <p><strong>Phương thức thanh toán:</strong> @Model.PaymentMethod</p>
-                                    <p><strong>Trạng thái đơn hàng:</strong> @Model.Status</p>
-                                    <p><strong>Trạng thái thanh toán:</strong> @Model.PaymentStatus</p>
-                                </div>
-                            </div>
-                            <div class="col-lg-6">
-                                <div class="order-summary">
-                                    <h5>Tổng quan đơn hàng</h5>
-                                    <table class="table">
-                                        <thead>
-                                            <tr>
-                                                <th>Ảnh</th>
-                                                <th>Sản phẩm</th>
-                                                <th>Số lượng</th>
-                                                <th>Tổng</th>
-                                            </tr>
-                                        </thead>
-                                        <tbody>
-                                            @foreach (var item in Model.BillDetails)
-                                            {
-                                                <tr>
-                                                    <td>
-                                                        <div class="trend__item__pic" style="max-width: 90px; max-height: 90px;">
-                                                            <img src="@item.ProductImage" alt="">
-                                                        </div>
-                                                    </td>
-                                                    <td>@item.ProductName</td>
-                                                    <td>@item.Quantity</td>
-                                                    <td>@item.TotalPrice.ToString("N0") VNĐ</td>
-                                                </tr>
-                                            }
-                                        </tbody>
-                                        <tfoot>
-                                            <tr>
-                                                <td colspan="2"><strong>Giảm Giá</strong></td>
-                                                <td><strong>@Model.DiscountAmount.Value.ToString("N0") VNĐ</strong></td>
-
-                                                <td colspan="2"><strong>Tổng tiền</strong></td>
-                                                <td><strong>@Model.AmountToPay.Value.ToString("N0") VNĐ</strong></td> 
-                                            </tr>
-                                        </tfoot>
-                                    </table>
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-
-                    <div class="thank-you__actions">
-                        <a asp-controller="Home" asp-action="Index" class="site-btn">Tiếp tục mua sắm</a>
-                        <a asp-controller="Order" asp-action="Details" asp-route-id="@Model.Id" class="site-btn">Xem chi tiết đơn hàng</a>
-                    </div>
-                </div>
+        <div class="thank-you__content text-center mb-5">
+            <div class="thank-you__icon mb-3" style="font-size: 4rem; color: #28a745;">
+                <i class="fa fa-check-circle"></i>
             </div>
+            <h2 style="font-weight: 700; color: #28a745; margin-bottom: 15px;">Đặt hàng thành công!</h2>
+            <p style="font-size: 1.25rem;">
+                Cảm ơn bạn đã đặt hàng tại Shop. Mã đơn hàng của bạn là: <strong style="color:#333;">@Model.BillCode</strong>
+            </p>
+        </div>
+
+        <div style="display: flex; gap: 40px; flex-wrap: wrap; justify-content: center;">
+            <!-- Thông tin đơn hàng bên trái -->
+            <div style="flex: 1; min-width: 320px; max-width: 600px; background:#f9fafc; padding: 25px 30px; border-radius: 10px; box-shadow: 0 4px 12px rgb(0 0 0 / 0.1);">
+                <h4 style="font-weight: 600; border-bottom: 3px solid #1a73e8; padding-bottom: 10px; margin-bottom: 25px; color:#1a73e8;">Thông tin đơn hàng</h4>
+
+                <p><strong>Họ và tên:</strong> @Model.RecipientName</p>
+                <p><strong>Số điện thoại:</strong> @Model.RecipientPhone</p>
+                <p><strong>Email:</strong> @Model.RecipientEmail</p>
+                <p><strong>Địa chỉ:</strong> @Model.RecipientAddress</p>
+                <p><strong>Phương thức thanh toán:</strong> @Model.PaymentMethod</p>
+
+                @functions {
+                    public string GetVietnameseStatus(string status)
+                    {
+                        return status switch
+                        {
+                            "PendingConfirmation" => "Chờ xác nhận",
+                            "Confirmed" => "Đã xác nhận",
+                            "Rejected" => "Bị từ chối",
+                            "Paid" => "Đã thanh toán",
+                            "Packed" => "Đã đóng gói",
+                            "Shipping" => "Đang vận chuyển",
+                            "Delivered" => "Đã giao hàng",
+                            "Completed" => "Hoàn thành",
+                            "Cancelled" => "Đã hủy",
+                            "DeliveryFailed" => "Giao hàng thất bại",
+                            "ReturnProcessing" => "Đang xử lý hoàn trả",
+                            "Returned" => "Đã hoàn trả",
+                            _ => "Không xác định",
+                        };
+                    }
+                }
+
+                <p><strong>Trạng thái đơn hàng:</strong> @GetVietnameseStatus(Model.Status)</p>
+
+                @if (Model.PaymentStatus == "PaymentStatusUnpaid")
+                {
+                    <p><strong>Trạng thái thanh toán:</strong> Thanh toán khi nhận hàng</p>
+                }
+                else if (Model.PaymentStatus == "PaymentStatusPaid")
+                {
+                    <p><strong>Trạng thái thanh toán:</strong> Đã thanh toán</p>
+                }
+                else
+                {
+                    <p><strong>Trạng thái thanh toán:</strong> Hoàn tiền</p>
+                }
+            </div>
+
+            <!-- Tổng quan đơn hàng bên phải -->
+            <div style="flex: 1; min-width: 320px; max-width: 600px; background:#f9fafc; padding: 25px 30px; border-radius: 10px; box-shadow: 0 4px 12px rgb(0 0 0 / 0.1); overflow-x:auto;">
+                <h4 style="font-weight: 600; border-bottom: 3px solid #1a73e8; padding-bottom: 10px; margin-bottom: 25px; color:#1a73e8;">Tổng quan đơn hàng</h4>
+
+                <table class="table" style="width: 100%; border-collapse: collapse;">
+                    <thead>
+                        <tr style="background-color: #1a73e8; color: white;">
+                            <th style="padding: 10px; text-align: left; max-width: 90px;">Ảnh</th>
+                            <th style="padding: 10px; text-align: left;">Sản phẩm</th>
+                            <th style="padding: 10px; text-align: left;">Size</th>
+                            <th style="padding: 10px; text-align: left;">Màu</th>
+                            <th style="padding: 10px; text-align: center;">Số lượng</th>
+                            <th style="padding: 10px; text-align: right;">Tổng</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        @foreach (var item in Model.BillDetails)
+                        {
+                            <tr style="border-bottom: 1px solid #ddd;">
+                                <td style="padding: 10px; max-width: 90px;">
+                                    <img src="@item.ProductImage" alt="@item.ProductName" style="max-width: 80px; max-height: 80px; border-radius: 6px; object-fit: cover;" />
+                                </td>
+                                <td style="padding: 10px;">@item.ProductName</td>
+                                <td style="padding: 10px;">@item.Size</td>
+                                <td style="padding: 10px;">@item.Color</td>
+                                <td style="padding: 10px; text-align: center;">@item.Quantity</td>
+                                <td style="padding: 10px; text-align: right;">@item.TotalPrice.ToString("N0") VNĐ</td>
+                            </tr>
+                        }
+                    </tbody>
+                    <tfoot>
+                        <tr>
+                            <!-- colspan = 5 vì footer này chỉ cần đè lên 5 cột đầu -->
+                            <td colspan="5" style="padding: 12px; font-weight: 600; text-align: right;">Giảm Giá</td>
+                            <td style="padding: 12px; font-weight: 600; text-align: right;">@Model.DiscountAmount?.ToString("N0") VNĐ</td>
+                        </tr>
+                        <tr>
+                            <td colspan="5" style="padding: 12px; font-weight: 700; text-align: right; border-top: 2px solid #1a73e8;">Tổng tiền</td>
+                            <td style="padding: 12px; font-weight: 700; text-align: right; border-top: 2px solid #1a73e8;">@Model.AmountToPay?.ToString("N0") VNĐ</td>
+                        </tr>
+                    </tfoot>
+                </table>
+
+            </div>
+        </div>
+
+        <div class="thank-you__actions text-center" style="margin-top: 40px;">
+            <a asp-controller="Home" asp-action="Index" class="site-btn" style="background-color: #1a73e8; color: white; padding: 12px 35px; font-weight: 600; border-radius: 30px; transition: background-color 0.3s;">
+                Tiếp tục mua sắm
+            </a>
+            @* Uncomment nếu muốn nút xem chi tiết đơn hàng *@
+            @* <a asp-controller="Order" asp-action="Details" asp-route-id="@Model.Id" class="site-btn" style="margin-left: 15px;">Xem chi tiết đơn hàng</a> *@
         </div>
     </div>
 </section>
 <!-- Thank You Section End -->
-
