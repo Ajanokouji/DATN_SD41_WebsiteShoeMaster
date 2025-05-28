@@ -4,6 +4,8 @@
     var relatedImages = ViewBag.RelatedImages as Dictionary<Guid, string>;
     string defaultImageUrl = Url.Content("~/Views/News/Image/download (1).jpg");
 }
+
+<!-- Phần breadcrumb giữ nguyên -->
 <div class="container">
     <div class="breadcrumb-option">
         <div class="container">
@@ -18,31 +20,104 @@
             </div>
         </div>
     </div>
-    </div>
-<div class="container mt-4">
+</div>
 
+<style>
+    .content-container {
+        margin-top: 20px;
+        font-family: Arial, sans-serif;
+    }
+
+        .content-container h2 {
+            font-weight: 700;
+            color: #222;
+            margin-bottom: 8px;
+        }
+
+        .content-container .publish-date {
+            color: #888;
+            font-size: 0.9rem;
+            margin-bottom: 20px;
+        }
+
+        .content-container .news-content {
+            line-height: 1.6;
+            color: #333;
+            font-size: 1rem;
+        }
+
+    /* Sidebar bài viết liên quan */
+    .related-posts h4 {
+        font-weight: 700;
+        margin-bottom: 15px;
+        border-bottom: 2px solid #007bff;
+        padding-bottom: 5px;
+        color: #007bff;
+    }
+
+    .related-posts ul {
+        list-style: none;
+        padding: 0;
+        margin: 0;
+    }
+
+    .related-posts li {
+        display: flex;
+        align-items: center;
+        margin-bottom: 15px;
+    }
+
+    .related-posts img {
+        width: 60px;
+        height: 60px;
+        object-fit: cover;
+        border-radius: 4px;
+        margin-right: 12px;
+        border: 1px solid #ddd;
+    }
+
+    .related-posts a {
+        font-weight: 600;
+        color: #333;
+        text-decoration: none;
+    }
+
+        .related-posts a:hover {
+            text-decoration: underline;
+            color: #007bff;
+        }
+
+    .related-posts small {
+        display: block;
+        color: #777;
+        font-size: 0.85rem;
+        margin-top: 4px;
+    }
+</style>
+
+<div class="container content-container">
     <div class="row">
         <div class="col-lg-8 col-md-12 mb-4">
             <h2>@Model.Title</h2>
-            <p class="text-muted">@Model.PublishStartDate?.ToString("dd/MM/yyyy")</p>
-            <div>@Html.Raw(Model.Content)</div>
+            <p class="publish-date">@Model.PublishStartDate?.ToString("dd/MM/yyyy")</p>
+            <div class="news-content">@Html.Raw(Model.Content)</div>
         </div>
 
-        <div class="col-lg-4 col-md-12">
+        <div class="col-lg-4 col-md-12 related-posts">
             <h4>Bài viết liên quan</h4>
             @if (relatedPosts != null && relatedPosts.Any())
             {
-                <ul class="list-unstyled">
+                <ul>
                     @foreach (var post in relatedPosts)
                     {
                         var imgSrc = (relatedImages != null && relatedImages.ContainsKey(post.Id))
                         ? relatedImages[post.Id]
                         : defaultImageUrl;
-                        <li class="mb-3 d-flex align-items-center">
-                            <img src="@imgSrc" alt="Ảnh @post.Title" style="width:60px; height:60px; object-fit:cover; margin-right:10px;" />
+                        <li>
+                            <img src="@imgSrc" alt="Ảnh @post.Title" />
                             <div>
-                                <a asp-action="Detail" asp-route-id="@post.Id">@post.Title</a><br />
-                                <small class="text-muted">@post.PublishStartDate?.ToString("dd/MM/yyyy")</small>
+                                <a asp-action="Detail" asp-route-id="@post.Id">@post.Title</a>
+                                <small>@post.PublishStartDate?.ToString("dd/MM/yyyy")</small>
                             </div>
                         </li>
                     }
@@ -54,4 +129,4 @@
             }
         </div>
     </div>
-</d>
+</div>
