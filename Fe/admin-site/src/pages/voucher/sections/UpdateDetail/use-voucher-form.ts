@@ -106,7 +106,7 @@ export const useVoucherForm = (
       if (fetchVoucherById.fulfilled.match(resultAction0)) {
         const voucherFound = resultAction0.payload;
 
-        if (!voucherFound || (voucherFound && voucherFound.isdeleted)) {
+        if (!voucherFound || (voucherFound && voucherFound.isDeleted)) {
           setErrorMessage("Voucher không tồn tại! Vui lòng kiểm tra lại!");
           return;
         }

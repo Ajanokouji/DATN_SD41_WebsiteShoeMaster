@@ -63,7 +63,7 @@ const baseSchema = z.object({
 
   status: z.number(),
   voucherType: z.number(),
-  isdeleted: z.boolean(),
+  isDeleted: z.boolean(),
   createdByUserId: z.string(),
   lastModifiedByUserId: z.string(),
   createdOnDate: z.string(),
