@@ -135,6 +135,7 @@ public class SellOffController : Controller
                 Id = new Guid(),
                 IdProduct = request.IdProduct,
                 IdBill = request.IdBill,
+                IdEmployee = request.IdEmployee,
                 Quantity = request.Quantity,
                 // createbyid, lasmodifiedbyid, createdondate, lastmodifiedondate, productimg, productname, 
                 Color = request.Color,

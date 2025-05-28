@@ -166,7 +166,7 @@
 
             // Nếu có ký tự bị xóa thì báo lỗi
             if (val !== cleaned) {
-                toastr.error("Chỉ được nhập số tiền và phép cộng!", "Lỗi", { timeOut: 1000 });
+                toastr.error("Chỉ được nhập số tiền và phép cộng!", "Thông báo", { timeOut: 1000 });
                 $(this).val(cleaned);
                 return;
             }
@@ -193,7 +193,7 @@
             let total = parseAdditionExpression(expr);
 
             if (isNaN(total)) {
-                toastr.error("Biểu thức không hợp lệ!", "Lỗi", { timeOut: 1000 });
+                toastr.error("Biểu thức không hợp lệ!", "Thông báo", { timeOut: 1000 });
                 $(this).val('');
             } else {
                 $(this).val(total); // Gán kết quả tổng lại vào ô input
