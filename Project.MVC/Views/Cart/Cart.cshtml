@@ -18,7 +18,6 @@
     </div>
 </div>
 <!-- Breadcrumb End -->
-
 <!-- Shop Cart Section Begin -->
 <section class="shop-cart spad">
     <div class="container">
@@ -48,19 +47,18 @@
                             <tbody>
                                 @foreach (var item in Model)
                                 {
-                                    <tr data-id="@item.ProductId" 
+                                    <tr data-id="@item.ProductId"
                                         data-size="@item.Size"
                                         data-color="@item.Color"
                                         data-product-code="@item.ProductCode"
                                         data-brand="@item.Brand"
                                         data-category="@item.Category"
                                         data-description="@item.Description"
-                                        data-color-code="@item.ColorCode" 
+                                        data-color-code="@item.ColorCode"
                                         data-original-price="@item.OriginalPrice"
                                         data-discount-price="@item.DiscountPrice"
                                         data-discount-percent="@item.DiscountPercent"
                                         data-is-in-stock="@item.IsInStock"
-
                                         data-stock-quantity="@item.StockQuantity"
                                         data-sku="@item.SKU">
                                         <td class="cart__product__item">
@@ -100,7 +98,7 @@
                                         </td>
                                         <td class="cart__total">@item.Total.ToString("N0") VNĐ</td>
                                         <td class="cart__close">
-                                            <a href="#" class="remove-item" data-id="@item.ProductId" data-sku ="@item.SKU">
+                                            <a href="#" class="remove-item" data-id="@item.ProductId" data-sku="@item.SKU">
                                                 <i class="fa fa-close"></i>
                                             </a>
                                         </td>
@@ -125,9 +123,19 @@
                         <div class="col-lg-6">
                             <div class="discount__content">
                                 <h6>Mã giảm giá</h6>
-                                <input type="text" id="voucherCode" placeholder="Nhập mã giảm giá">
-                                <button type="button" id="applyVoucherBtn" class="site-btn">Áp dụng</button>
-                                <div id="voucherMessage" class="mt-2" style="font-size:14px;"></div>
+
+                                <!-- Nút mở modal chọn voucher -->
+                                <a id="chooseVoucherBtn" class="site-btn" style="cursor:pointer">
+                                    Chọn mã giảm giá
+                                </a>
+
+                                <!-- Hiển thị voucher đã chọn (không radio) -->
+                                <ul class="list-unstyled mt-3" id="selectedVoucherContainer">
+                                    <li class="text-muted">Chưa chọn voucher nào.</li>
+                                </ul>
+
+                                <!-- Hidden để submit khi checkout -->
+                                <input type="hidden" id="selectedVoucherId" name="SelectedVoucherId" value="" />
                             </div>
                         </div>
                         <div class="col-lg-4 offset-lg-2">
@@ -148,186 +156,192 @@
     </div>
 </section>
 <!-- Shop Cart Section End -->
+<!-- Voucher Modal -->
+<div class="modal fade" id="voucherModal" tabindex="-1" aria-labelledby="voucherModalLabel" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-scrollable modal-lg">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="voucherModalLabel">Chọn mã giảm giá</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body p-0">
+                <div class="py-5 text-center">
+                    <div class="spinner-border" role="status"></div>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Trở lại</button>
+                <button type="button" id="confirmVoucherBtn" class="btn btn-primary">OK</button>
+            </div>
+        </div>
+    </div>
+</div>
 
 @section Scripts {
     <script>
         $(document).ready(function () {
-         // Tăng số lượng
-                function updateItemTotal($row) {
-                var unitPrice = parseFloat($row.find('.quantity-input').data('productprice')) || 0;
-                var quantity = parseInt($row.find('.quantity-input').val()) || 0;
-                var total = unitPrice * quantity;
-                $row.find('.cart__total').text(formatCurrency(total) + ' VNĐ');
-                updateCartTotal();
-            }
+            // Mở modal & nạp danh sách voucher
+            $('#chooseVoucherBtn').on('click', function () {
+                const $modal = $('#voucherModal');
+                $modal.find('.modal-body').html(
+                    '<div class="py-5 text-center"><div class="spinner-border"></div></div>'
+                );
+                $modal.modal('show');
 
+                $.get('@Url.Action("UsersVoucher", "Cart")')
+                 .done(html => {
+                     $modal.find('.modal-body').html(html);
+                 })
+                 .fail(() => {
+                     $modal.find('.modal-body').html(
+                       '<p class="text-danger p-4">Không tải được danh sách voucher.</p>'
+                     );
+                 });
+            });
 
-              $(document).on('click', '.btn-increase', function () {
-            var $row = $(this).closest('tr');
-            var $input = $row.find('.quantity-input');
-            var val = parseInt($input.val()) || 0;
-            var max = parseInt($input.attr('max')) || 10000;
-            if (val < max) {
-                $input.val(val + 1);
-                updateItemTotal($row);
-                debugger
-                $.post('@Url.Action("IncreaseQuantity", "Cart")', {
-                    productId: $row.data('id'),
-                    sku: $row.data('sku')
-                }).done(function (res) {
-                    if (res.success) {
-                        if (res.quantity && res.quantity !== val + 1) {
-                            $input.val(res.quantity);
-                            updateItemTotal($row);
-                        }
-                        if (res.cartTotal !== undefined)
-                            $('#subtotal, #total').text(formatCurrency(res.cartTotal) + ' VNĐ');
-                    }
-                });
-            }
-        });
+            // Xác nhận chọn voucher
+            $('#confirmVoucherBtn').on('click', function () {
+                const $checked = $('#voucherModal input[name="SelectedVoucherId"]:checked');
+                if (!$checked.length) {
+                    alert('Vui lòng chọn một voucher.');
+                    return;
+                }
 
-        $(document).on('click', '.btn-decrease', function () {
-            debugger
-            var $row = $(this).closest('tr');
-            var $input = $row.find('.quantity-input');
-            var val = parseInt($input.val()) || 1;
-            if (val > 1) {
-                $input.val(val - 1);
-                updateItemTotal($row);
-                console.log($row.data('sku'))
-                $.post('@Url.Action("DecreaseQuantity", "Cart")', {
-                    productId: $row.data('id'),
-                    sku: $row.data('sku')
-                }).done(function (res) {
-                    if (res.success) {
-                        if (res.quantity === 0) {
-                            $row.remove();
-                            updateCartTotal();
-                        } else if (res.quantity !== val - 1) {
-                            $input.val(res.quantity);
-                            updateItemTotal($row);
-                        }
-                        if (res.cartTotal !== undefined)
-                            $('#subtotal, #total').text(formatCurrency(res.cartTotal) + ' VNĐ');
-                    }
-                });
-            }
-        });
+                const voucherId = $checked.val();
+                const $item = $checked.closest('.voucher-item').clone(true, true);
 
-            // Xóa sản phẩm khỏi giỏ hàng
-            $('.remove-item').click(function (e) {
-                e.preventDefault();
-                var productId = $(this).data('id');
-                var sku = $(this).data('sku');
+                // Bỏ radio, bỏ alert, bỏ opacity
+                $item.find('input[type="radio"]').remove();
+                $item.find('.alert-warning').remove();
+                $item.removeClass('opacity-50');
+
+                // Hiển thị voucher đã chọn ngoài modal
+                $('#selectedVoucherContainer').html($item);
+
+                // Cập nhật hidden input
+                $('#selectedVoucherId').val(voucherId);
+
+                // Ẩn modal
+                $('#voucherModal').modal('hide');
+
+                // Gọi server tính tiền giảm
+                $.post('@Url.Action("ApplyVoucher", "Cart")', { voucherId })
+                 .done(res => {
+                     if (res.success) {
+                         $('#discount').text(formatCurrency(res.discountAmount) + ' VNĐ');
+                         $('#total').text(formatCurrency(res.totalAfterDiscount) + ' VNĐ');
+                     } else {
+                         alert(res.message ?? 'Không áp dụng được voucher');
+                     }
+                 });
+            });
+
+            // Tăng số lượng
+            $(document).on('click', '.btn-increase', function () {
                 var $row = $(this).closest('tr');
+                var $input = $row.find('.quantity-input');
+                var val = parseInt($input.val()) || 0;
+                var max = parseInt($input.attr('max')) || 10000;
+                if (val < max) {
+                    $input.val(val + 1).trigger('change');
+                }
+            });
 
-                   $.ajax({
-                    url: '@Url.Action("RemoveFromCart", "Cart")',
-                    type: 'POST',
-                    data: { productId: productId, sku: sku },  
-                    success: function (result) {
-                        if (result.success) {
-                            $row.remove();
-                            updateCartTotal();           // (hàm sẵn có)
-                            alert(result.message || 'Xóa sản phẩm khỏi giỏ hàng thành công');
+            // Giảm số lượng
+            $(document).on('click', '.btn-decrease', function () {
+                var $row = $(this).closest('tr');
+                var $input = $row.find('.quantity-input');
+                var val = parseInt($input.val()) || 0;
+                if (val > 1) {
+                    $input.val(val - 1).trigger('change');
+                }
+            });
+
+            // Xóa sản phẩm
+            $(document).on('click', '.remove-item', function (e) {
+                e.preventDefault();
+                if (!confirm('Bạn chắc chắn muốn xóa sản phẩm này khỏi giỏ hàng?')) return;
+                var $row = $(this).closest('tr');
+                var productId = $row.data('id');
+                var sku = $row.data('sku');
+
+                $.post('@Url.Action("RemoveCartItem", "Cart")', { productId, sku })
+                 .done(res => {
+                     if (res.success) {
+                         $row.remove();
+                         updateTotals();
+                     } else {
+                         alert(res.message || 'Xóa sản phẩm thất bại');
+                     }
+                 });
+            });
+
+            // Cập nhật số lượng input, tính lại tổng tiền dòng và tổng giỏ hàng
+            $(document).on('change', '.quantity-input', function () {
+                var $row = $(this).closest('tr');
+                var qty = parseInt($(this).val()) || 1;
+                var max = parseInt($(this).attr('max')) || 10000;
+                if (qty < 1) qty = 1;
+                if (qty > max) qty = max;
+                $(this).val(qty);
+
+                var price = parseInt($row.data('discount-price') || $row.data('original-price') || 0);
+                var total = price * qty;
+                $row.find('.cart__total').text(formatCurrency(total) + ' VNĐ');
+
+                updateTotals();
+            });
+
+            // Cập nhật tổng tiền tạm tính, tổng tiền đơn
+            function updateTotals() {
+                var subtotal = 0;
+                $('tbody tr').each(function () {
+                    var qty = parseInt($(this).find('.quantity-input').val()) || 0;
+                    var price = parseInt($(this).data('discount-price') || $(this).data('original-price') || 0);
+                    subtotal += qty * price;
+                });
+                $('#subtotal').text(formatCurrency(subtotal) + ' VNĐ');
+
+                // Nếu có voucher áp dụng, lấy lại tổng tiền sau giảm
+                // Tạm thời giữ discount và total hiện tại, hoặc gọi lại server nếu cần
+            }
+
+            // Format tiền chuẩn Việt Nam (thousands separator)
+            function formatCurrency(number) {
+                return number.toLocaleString('vi-VN');
+            }
+
+            // Cập nhật giỏ hàng server khi click "Cập nhật giỏ hàng"
+            $('#updateCart').on('click', function (e) {
+                e.preventDefault();
+                var cartItems = [];
+                $('tbody tr').each(function () {
+                    var $row = $(this);
+                    cartItems.push({
+                        productId: $row.data('id'),
+                        sku: $row.data('sku'),
+                        quantity: parseInt($row.find('.quantity-input').val()) || 1
+                    });
+                });
+
+                $.ajax({
+                    url: '@Url.Action("UpdateCart", "Cart")',
+                    method: 'POST',
+                    contentType: 'application/json',
+                    data: JSON.stringify(cartItems),
+                    success: function (res) {
+                        if (res.success) {
+                            alert('Cập nhật giỏ hàng thành công');
+                            location.reload();
                         } else {
-                            alert(result.message || 'Có lỗi xảy ra khi xóa sản phẩm');
+                            alert(res.message || 'Cập nhật giỏ hàng thất bại');
                         }
                     },
                     error: function () {
-                        alert('Có lỗi xảy ra khi xóa sản phẩm');
+                        alert('Lỗi khi cập nhật giỏ hàng');
                     }
                 });
             });
-
-            // Cập nhật giỏ hàng
-            $('#updateCart').click(function (e) {
-                e.preventDefault();
-                
-                var updates = [];
-                $('.shop__cart__table tbody tr').each(function () {
-                    var $row = $(this);
-                    var productId = $row.data('id');
-                    var size = $row.data('size');
-                    var color = $row.data('color');
-                    var quantity = parseInt($row.find('.quantity-input').val());
-                    var productCode = $row.data('product-code');
-                    var brand = $row.data('brand');
-                    var category = $row.data('category');
-                    var description = $row.data('description');
-                    var colorCode = $row.data('color-code');
-                    var originalPrice = parseFloat($row.data('original-price'));
-                    var discountPrice = parseFloat($row.data('discount-price'));
-                    var discountPercent = parseInt($row.data('discount-percent'));
-                    var isInStock = $row.data('is-in-stock');
-                    var stockQuantity = parseInt($row.data('stock-quantity'));
-                    var sku = $row.data('sku');
-                    
-                    updates.push({
-                        productId: productId,
-                        productCode: productCode,
-                        brand: brand,
-                        category: category,
-                        description: description,
-                        size: size,
-                        color: color,
-                        colorCode: colorCode,
-                        quantity: quantity,
-                        originalPrice: originalPrice,
-                        discountPrice: discountPrice,
-                        discountPercent: discountPercent,
-                        isInStock: isInStock,
-                        stockQuantity: stockQuantity,
-                        sku: sku
-                    });
-                });
-                
-                // Cập nhật từng sản phẩm
-                var promises = [];
-                updates.forEach(function (item) {
-                    var promise = $.ajax({
-                        url: '@Url.Action("UpdateCart", "Cart")',
-                        type: 'POST',
-                        data: item
-                    });
-                    promises.push(promise);
-                });
-                
-                // Khi tất cả các request hoàn thành
-                $.when.apply($, promises).done(function () {
-                    updateCartTotal();
-                    alert('Cập nhật giỏ hàng thành công');
-                });
-            });
-
-            // Cập nhật tổng tiền của một sản phẩm
-            function updateItemTotal($row) {
-                var price = parseFloat($row.find('.cart__price').text().replace(/[^\d]/g, ''));
-                var quantity = parseInt($row.find('.quantity-input').val());
-                var total = price * quantity;
-                $row.find('.cart__total').text(formatCurrency(total) + ' VNĐ');
-                updateCartTotal();
-            }
-
-            // Cập nhật tổng tiền giỏ hàng
-            function updateCartTotal() {
-                var total = 0;
-                $('.cart__total').each(function () {
-                    total += parseFloat($(this).text().replace(/[^\d]/g, ''));
-                });
-                $('#subtotal').text(formatCurrency(total) + ' VNĐ');
-                $('#total').text(formatCurrency(total) + ' VNĐ');
-            }
-
-            // Format số tiền
-            function formatCurrency(number) {
-                return number.toString().replace(/\B(?=(\d{3})+(?!\d))/g, ".");
-            }
         });
     </script>
 }
-
-<!-- Instagram Begin -->
-@await Component.InvokeAsync("SocialMedial")
-<!-- Instagram End -->

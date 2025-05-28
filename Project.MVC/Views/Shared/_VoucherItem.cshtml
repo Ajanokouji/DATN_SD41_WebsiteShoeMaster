@@ -1,0 +1,53 @@
+﻿@model Project.MVC.Models.VoucherViewModel
+@{
+    var isDisabled = Model.IsDisable == true;
+    var showRadio = ViewData["ShowRadio"] as bool? ?? true;
+    var isSelected = ViewData["IsSelected"] as bool? ?? false;
+}
+
+<li class="voucher-item mb-3 shadow-sm rounded position-relative @(isDisabled ? "opacity-50" : "")">
+    @if (Model.TotalMaxUsage is > 1)
+    {
+        <span class="badge bg-danger position-absolute top-0 end-0 translate-middle">
+            x@(Model.TotalMaxUsage)
+        </span>
+    }
+
+    <div class="d-flex">
+        <div class="flex-shrink-0 bg-info py-4 px-3 text-center text-white"
+             style="width:90px;clip-path:polygon(0 0,100% 0,100% 85%,80% 100%,0 100%);">
+            <div class="fw-bold lh-sm">Voucher<br /></div>
+        </div>
+
+        <div class="flex-grow-1 p-3">
+            <h6 class="mb-1 fw-semibold">@Model.VoucherName</h6>
+            <p class="mb-1 small text-muted">
+                @Model.DiscountLabel • @Model.MinOrderLabel
+            </p>
+            <p class="mb-1 small">
+                HSD: @Model.ExpiredLabel
+                <a href="javascript:void(0)" class="ms-2 text-decoration-none">Điều Kiện</a>
+            </p>
+        </div>
+
+        @if (showRadio)
+        {
+            <div class="flex-shrink-0 d-flex align-items-center pe-3">
+                <input class="form-check-input"
+                       type="radio"
+                       name="SelectedVoucherId"
+                       value="@Model.Id"
+                       id="voucher-@Model.Id"
+                @(isDisabled ? "disabled" : "")
+                @(isSelected ? "checked" : "") />
+            </div>
+        }
+    </div>
+
+    @if (isDisabled)
+    {
+        <div class="alert alert-warning rounded-0 mb-0 py-2 px-3">
+            ⚠️ Voucher này không đủ điều kiện sử dụng
+        </div>
+    }
+</li>

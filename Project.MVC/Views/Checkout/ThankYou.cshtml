@@ -74,8 +74,11 @@
                                         </tbody>
                                         <tfoot>
                                             <tr>
+                                                <td colspan="2"><strong>Giảm Giá</strong></td>
+                                                <td><strong>@Model.DiscountAmount.Value.ToString("N0") VNĐ</strong></td>
+
                                                 <td colspan="2"><strong>Tổng tiền</strong></td>
-                                         <td><strong>@Model.TotalAmount.Value.ToString("N0") VNĐ</strong></td> 
+                                                <td><strong>@Model.AmountToPay.Value.ToString("N0") VNĐ</strong></td> 
                                             </tr>
                                         </tfoot>
                                     </table>

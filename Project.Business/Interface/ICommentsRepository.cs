@@ -6,7 +6,7 @@ using Project.Business.Interface.Repositories;
 
 namespace Project.Business.Interface
 {
-    interface ICommentsRepository :IRepository<CommentsEntity, CommentsModel>
+    public interface ICommentsRepository :IRepository<CommentsEntity, CommentsModel>
     {
         Task<CommentsEntity> FindAsync(Guid id);
         Task<Pagination<CommentsEntity>> GetAllAsync(CommentsModel queryModel);
