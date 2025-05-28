@@ -83,7 +83,8 @@ const BillsTable: React.FC = () => {
       Cancelled: { label: "Đã hủy", className: "text-red-700" },
       DeliveryFailed: { label: "Giao hàng thất bại", className: "text-red-600" },
       ReturnProcessing: { label: "Đang xử lý hoàn trả", className: "text-yellow-600" },
-      Returned: { label: "Đã hoàn trả", className: "text-gray-500" }
+      Returned: { label: "Đã hoàn trả", className: "text-gray-500" },
+      OutOfStock: { label: "Không đủ hàng", className: "text-red-500" }
     };
 
     const statusInfo = statusMap[status] || { label: status, className: "text-gray-500" };

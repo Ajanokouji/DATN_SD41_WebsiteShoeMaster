@@ -91,6 +91,8 @@
                                             <div class="input-group input-group-sm quantity-selector" style="max-width:150px">
                                                 <button id="button-decrease-@item.SKU-@item.ProductId" class="btn btn-outline-secondary btn-decrease" type="button">−</button>
                                                 <input type="text"
+                                                    style="border:none"
+                                                        readonly
                                                        class="form-control text-center quantity-input"
                                                        value="@item.Quantity"
                                                        data-productprice="@item.Price"
@@ -280,7 +282,7 @@
             });
 
             // Giảm số lượng
-       $(document).on('click', '.btn-decrease', function () {
+         $(document).on('click', '.btn-decrease', function () {
 
             const $row = $(this).closest('tr');
             const $input = $row.find('.quantity-input');
@@ -292,10 +294,7 @@
             if (oldVal > 1) {           // Giảm ngay cho “mượt”
                 $input.val(oldVal - 1).trigger('change');
             }
-           if(oldVal===1){
-                        $row.remove();
-                       $('#subtotal, #discount, #total').text('0 VNĐ');
-           }
+         
             // Vô hiệu hoá nút trong lúc chờ
             $(this).prop('disabled', true);
 
@@ -308,7 +307,7 @@
 
                         if (res.quantity === 0) {
                             $row.remove();
-                            $('#subtotal, #discount, #total').text('0 VNĐ');
+                            // $('#subtotal, #discount, #total').text('0 VNĐ');
                         }
 
                         // Bật/tắt nút tăng
@@ -320,15 +319,15 @@
                         $input.val(oldVal);
                     }
                 })
-                .fail(function () {
-                    alert('Không kết nối được máy chủ. Vui lòng thử lại.');
-                    // Hoàn về giá trị cũ nếu request fail
-                    $input.val(oldVal);
-                })
                 .always(() => {
                     // Luôn bật lại nút decrease sau khi xong
                         $('#button-decrease-'+sku+'-'+productId)
                         .prop('disabled', false);
+                if(oldVal===1){
+
+                   $row.remove();
+                   window.location.reload();
+               }
                 });
         });
 
@@ -402,7 +401,7 @@
                 return number.toLocaleString('vi-VN');
             }
 
-                 $.ajax({
+            $.ajax({
             url: '@Url.Action("UpdateCart", "Cart")',
             method: 'POST',
             contentType: 'application/json',

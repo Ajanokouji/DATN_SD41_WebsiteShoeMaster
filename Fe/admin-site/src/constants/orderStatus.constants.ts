@@ -8,7 +8,6 @@ export const ORDER_STATUS = {
   Delivered: "Delivered",                    // Đã giao hàng
   Completed: "Completed",                    // Hoàn thành
   Cancelled: "Cancelled",                    // Đã hủy
-  DeliveryFailed: "DeliveryFailed",         // Giao hàng thất bại
   ReturnProcessing: "ReturnProcessing",      // Đang xử lý hoàn trả
   Returned: "Returned",                      // Đã hoàn trả
   OutOfStock: "OutOfStock"                   // Không đủ hàng
@@ -24,7 +23,6 @@ export const ORDER_STATUS_LABELS: Record<string, string> = {
   Delivered: "Đã giao hàng",
   Completed: "Hoàn thành",
   Cancelled: "Đã hủy",
-  DeliveryFailed: "Giao hàng thất bại",
   ReturnProcessing: "Đang xử lý hoàn trả",
   Returned: "Đã hoàn trả",
   OutOfStock: "Không đủ hàng"
@@ -33,16 +31,15 @@ export const ORDER_STATUS_LABELS: Record<string, string> = {
 // Ma trận chuyển đổi trạng thái
 export const STATUS_TRANSITIONS: Record<string, string[]> = {
   PendingConfirmation: ["Confirmed", "Rejected", "Cancelled", "OutOfStock"],
-  Confirmed: ["Paid", "Cancelled"],
-  Paid: ["Packed", "Cancelled"],
-  Packed: ["Shipping", "Cancelled"],
-  Shipping: ["Delivered", "DeliveryFailed"],
-  DeliveryFailed: ["Shipping", "Cancelled"],
+  Confirmed: ["Packed"],
+  Paid: ["Packed"],
+  Packed: ["Shipping"],
+  Shipping: ["Completed"],
   Delivered: ["Completed", "ReturnProcessing"],
   ReturnProcessing: ["Returned"],
-  Returned: [], // Trạng thái kết thúc
-  Completed: [], // Trạng thái kết thúc
-  Cancelled: [], // Trạng thái kết thúc
-  Rejected: [], // Trạng thái kết thúc
-  OutOfStock: ["Cancelled"] // Có thể hủy đơn khi hết hàng
+  Returned: [],
+  Completed: [],
+  Cancelled: [],
+  Rejected: [],
+  OutOfStock: ["Cancelled"]
 }; 

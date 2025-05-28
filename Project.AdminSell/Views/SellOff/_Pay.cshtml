@@ -110,7 +110,6 @@
             <hr/>
             <div class="text-center">
                 <img id="vnpayQRCode" src="~/qrCode/qrcode.jpg" asp-append-version="true" style="width: 500px; height: auto; border: 3px solid black; border-radius: 5px;" />
-
             </div>
         </div>
         <hr/>
@@ -150,7 +149,7 @@
             if (selected === "Tiền mặt") {
                 $("#tienMatSection").show();
                 $("#vnpaySection").hide();
-            } else if (selected === "VNPay") {
+            } else if (selected === "QrCode") {
                 $("#tienMatSection").hide();
                 $("#vnpaySection").show();
                 //redirect();

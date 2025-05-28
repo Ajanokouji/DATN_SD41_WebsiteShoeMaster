@@ -105,6 +105,7 @@ export const checkInventory = createAppThunk(
   "bill/checkInventory",
   async (id: string) => {
     const response = await billService.checkInventory(id);
+    console.log(response)
     return response;
   }
 );
