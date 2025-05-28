@@ -114,6 +114,13 @@ namespace Project.Business.Implement
 
             foreach (var contact in contactEntities)
             {
+                // Fix lỗi tracking
+                var local = _context.Contacts.Local.FirstOrDefault(x => x.Id == contact.Id);
+                if (local != null)
+                {
+                    _context.Entry(local).State = EntityState.Detached;
+                }
+
                 var exist = await _context.Contacts
                     .AsNoTracking()
                     .FirstOrDefaultAsync(x => x.Id == contact.Id);

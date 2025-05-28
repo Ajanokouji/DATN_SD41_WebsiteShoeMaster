@@ -13,5 +13,6 @@ namespace Project.Business.Model
     {
         public Guid? VoucherId { get; set; }
         public Guid? UserId { get; set; }
+        public Boolean? IsUsed { get; set; }
     }
 }

@@ -37,6 +37,7 @@ namespace Project.MVC.Controllers
                 Id = Guid.NewGuid(),
                 UserId = errAndUserEntity.User.Id,
                 VoucherId = id,
+                IsUsed = false,
             };
             List<VoucherUsers> voucherUsers = new List<VoucherUsers>();
             voucherUsers.Add(voucherUser);
@@ -47,7 +48,7 @@ namespace Project.MVC.Controllers
 
                 if (voucherUserFound != null && voucherUserFound.Count() > 0)
                 {
-                    return BadRequest(new { message = "Voucher đã tồn tại trong kho lưu trữ của bạn! Vào trang \"Voucher của tôi\" để biết thêm chi tiết!" });
+                    return BadRequest(new { message = "Voucher đã được lưu từ trước đó!" });
                 }
             }
             catch (Exception ex)
@@ -65,7 +66,7 @@ namespace Project.MVC.Controllers
                 return BadRequest(new { message = "Lỗi trong quá trình lưu Voucher! Vui lòng thử lại!" });
             }
 
-            return Ok(new { message = "Lưu Voucher thành công! Truy cập mục \"Voucher của tôi\" để xem chi tiết!" });
+            return Ok(new { message = "Lưu Voucher thành công!" });
         }
 
 
