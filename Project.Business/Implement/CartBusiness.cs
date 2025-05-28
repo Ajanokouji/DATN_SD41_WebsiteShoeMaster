@@ -893,7 +893,7 @@ namespace Project.Business.Implement
                             {
                                 var beforeQuantity = updateDetail.Quantity;
                                 updateDetail.Quantity += item.Quantity;
-                                if (updateDetail.Quantity>=variantStock)
+                                if (updateDetail.Quantity>variantStock)
                                 {
                                     //updateDetail.Quantity=variantStock;
                                     //await _cartDetailsRepository.SaveAsync(updateDetail);

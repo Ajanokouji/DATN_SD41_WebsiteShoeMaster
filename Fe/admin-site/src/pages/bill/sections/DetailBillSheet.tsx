@@ -22,7 +22,7 @@ import {
 } from "@/components/ui/select";
 import { ORDER_STATUS, ORDER_STATUS_LABELS, STATUS_TRANSITIONS } from "@/constants/orderStatus.constants";
 import { toast } from "sonner";
-import { InventoryCheckDetail } from "@/types/bill/bill";
+import { InventoryCheckDetail, BillDetailItem } from "@/types/bill/bill";
 
 interface DetailBillSheetProps {
   billId: string;
@@ -51,29 +51,36 @@ const DetailBillSheet: React.FC<DetailBillSheetProps> = ({
     const loadBillDetails = async () => {
       try {
         const result = await dispatch(fetchBillById(billId)).unwrap();
-        
-        // Nếu trạng thái là PendingConfirmation, kiểm tra kho
-        if (result.status === ORDER_STATUS.PendingConfirmation) {
-          const inventoryResult = await dispatch(checkInventory(billId)).unwrap();
 
-          
+        // Nếu trạng thái là PendingConfirmation HOẶC OutOfStock, kiểm tra kho
+        if (result.status === ORDER_STATUS.PendingConfirmation || result.status === ORDER_STATUS.OutOfStock) {
+          // inventoryResult là mảng InventoryCheckDetail[] trực tiếp
+          const inventoryResult: InventoryCheckDetail[] = await dispatch(checkInventory(billId)).unwrap();
+
+          // Gán trực tiếp mảng vào state
           setInventoryCheck(inventoryResult || []);
-          
-          // Kiểm tra nếu có sản phẩm không đủ hàng
-          const outOfStockProducts = inventoryResult.data?.filter(detail => !detail.isAvailable) || [];
-          
-          if (outOfStockProducts.length > 0) {
-            // Hiển thị chi tiết sản phẩm không đủ hàng
-            const outOfStockMessage = outOfStockProducts
-              .map(detail => `${detail.productName} (SKU: ${detail.sku}, Cần: ${detail.requestedQuantity}, Có: ${detail.availableQuantity})`)
-              .join('\n');
-              
-            toast.error(`Không đủ số lượng trong kho:\n${outOfStockMessage}\n\nVui lòng cập nhật trạng thái sang "Không đủ hàng"`);
+
+          // Kiểm tra nếu có sản phẩm không đủ hàng (dựa vào mảng inventoryResult)
+          const outOfStockProducts = inventoryResult?.filter((detail: InventoryCheckDetail) => !detail.isAvailable) || [];
+
+          // Chỉ hiển thị toast nếu đang ở PendingConfirmation ban đầu VÀ có sản phẩm thiếu hàng
+          if (result.status === ORDER_STATUS.PendingConfirmation && outOfStockProducts.length > 0) {
+              // Hiển thị chi tiết sản phẩm không đủ hàng
+              const outOfStockMessage = outOfStockProducts
+                .map((detail: InventoryCheckDetail) => `${detail.productName} (SKU: ${detail.sku}, Cần: ${detail.requestedQuantity}, Có: ${detail.availableQuantity})`)
+                .join('\n');
+
+              toast.error(`Không đủ số lượng trong kho:\n${outOfStockMessage}\n\nVui lòng cập nhật trạng thái sang "Không đủ hàng"`);
           }
+        } else {
+          // Nếu không ở trạng thái cần kiểm tra tồn kho, reset state kiểm tra tồn kho
+          setInventoryCheck([]);
         }
       } catch (error) {
         console.error('Error loading bill details:', error);
         toast.error('Có lỗi xảy ra khi tải chi tiết hóa đơn');
+        // Reset state kiểm tra tồn kho khi có lỗi
+        setInventoryCheck([]);
       }
     };
 
@@ -103,10 +110,23 @@ const DetailBillSheet: React.FC<DetailBillSheetProps> = ({
 
   // Lấy danh sách trạng thái có thể chuyển đổi
   const getAvailableStatuses = (currentStatus: string) => {
-    // Nếu có sản phẩm không đủ hàng, chỉ cho phép chọn OutOfStock
-    if (inventoryCheck?.some(item => !item.isAvailable)) {
-      return [ORDER_STATUS.OutOfStock];
+    // Kiểm tra xem có sản phẩm nào thiếu hàng trong state inventoryCheck không
+    // Nếu inventoryCheck là null hoặc undefined, coi như không có sản phẩm thiếu hàng
+    const hasOutOfStockItems = inventoryCheck?.some(item => !item.isAvailable) ?? false;
+
+    // Nếu trạng thái hiện tại là OutOfStock, luôn cho phép chuyển về Đã xác nhận (Confirmed)
+    if (currentStatus === ORDER_STATUS.OutOfStock) {
+      return [ORDER_STATUS.Confirmed];
     }
+
+    // Nếu có sản phẩm không đủ hàng VÀ trạng thái hiện tại không phải OutOfStock,
+    // chỉ cho phép chuyển sang OutOfStock.
+    // Điều này xử lý trường hợp đang ở PendingConfirmation mà kiểm tra kho thấy thiếu hàng.
+    if (hasOutOfStockItems && currentStatus !== ORDER_STATUS.OutOfStock) {
+        return [ORDER_STATUS.OutOfStock];
+    }
+
+    // Đối với các trường hợp khác, sử dụng các trạng thái chuyển đổi thông thường.
     return STATUS_TRANSITIONS[currentStatus] || [];
   };
 
@@ -120,31 +140,11 @@ const DetailBillSheet: React.FC<DetailBillSheetProps> = ({
     }
   };
 
-  const getStatusBadgeVariant = (status: string) => {
-    switch (status) {
-      case ORDER_STATUS.Completed:
-        return "default";
-      case ORDER_STATUS.Cancelled:
-      case ORDER_STATUS.Rejected:
-      case ORDER_STATUS.DeliveryFailed:
-      case ORDER_STATUS.OutOfStock:
-        return "destructive";
-      case ORDER_STATUS.Shipping:
-      case ORDER_STATUS.Delivered:
-        return "secondary";
-      case ORDER_STATUS.ReturnProcessing:
-      case ORDER_STATUS.Returned:
-        return "outline";
-      default:
-        return "secondary";
-    }
-  };
-
   const formatCurrency = (amount: number | null) => {
     if (amount === null) return "N/A";
-    return new Intl.NumberFormat("en-US", {
+    return new Intl.NumberFormat("vi-VN", {
       style: "currency",
-      currency: "USD",
+      currency: "VND",
     }).format(amount);
   };
 
@@ -293,9 +293,9 @@ const DetailBillSheet: React.FC<DetailBillSheetProps> = ({
                     </tr>
                   </thead>
                   <tbody>
-                    {bill.billDetails?.map((detail, index) => {
-                      const inventoryItem = inventoryCheck.find(item => item.productId === detail.productId&&item.sku===detail.sku);
-                      console.log(inventoryItem)
+                    {bill.billDetails?.map((detail: BillDetailItem, index: number) => {
+                      const inventoryItem = inventoryCheck.find(item => item.productId === detail.productId && item.sku === detail.sku);
+              
                       return (
                         <tr key={index}>
                           <td className="py-3 px-4 text-left border-b text-gray-800">
@@ -349,8 +349,8 @@ const DetailBillSheet: React.FC<DetailBillSheetProps> = ({
                 </div>
                 {bill.voucherCode && (
                   <div className="flex justify-between">
-                    <span className="text-gray-600">Mã giảm giá ({bill.voucherCode}):</span>
-                    <span>Applied</span>
+                    <span className="text-gray-600">Mã giảm giá: </span>
+                    <span>{bill.voucherCode}</span>
                   </div>
                 )}
                 <Separator className="my-2" />

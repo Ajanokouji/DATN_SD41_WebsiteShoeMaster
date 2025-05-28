@@ -62,6 +62,7 @@ export const VariantForm: React.FC<VariantFormProps> = ({
   const [combinationData, setCombinationData] = useState<CombinationData[]>(initialVariants);
   const [skuErrors, setSkuErrors] = useState<Record<number, string>>({});
   const [pendingUpdate, setPendingUpdate] = useState<NodeJS.Timeout | null>(null);
+  const [duplicateErrors, setDuplicateErrors] = useState<Record<string, string>>({});
   const areValuesEmpty = () => options.every((o) => o.values.length === 0);
   const isAnyButtonDisabled = () => isColorGroupDisabled || isSizeGroupDisabled;
 
@@ -176,11 +177,34 @@ export const VariantForm: React.FC<VariantFormProps> = ({
     }
   };
 
+  const checkDuplicateValue = (optionId: string, value: string, currentValueId: string): boolean => {
+    const option = options.find(o => o.id === optionId);
+    if (!option) return false;
+
+    return option.values.some(v => 
+      v.id !== currentValueId && v.value.toLowerCase() === value.toLowerCase()
+    );
+  };
+
   const handleValueChange = (
     optionId: string,
     valueId: string,
     value: string
   ) => {
+    if (checkDuplicateValue(optionId, value, valueId)) {
+      setDuplicateErrors(prev => ({
+        ...prev,
+        [valueId]: `Giá trị "${value}" đã tồn tại trong nhóm này`
+      }));
+      return;
+    }
+
+    setDuplicateErrors(prev => {
+      const newErrors = { ...prev };
+      delete newErrors[valueId];
+      return newErrors;
+    });
+
     const updatedOptions = options.map((o) =>
       o.id === optionId
         ? {
@@ -263,8 +287,12 @@ export const VariantForm: React.FC<VariantFormProps> = ({
         }
 
         setCombinationData(newCombinations);
-        if (form) form.setValue("variantObjs", newCombinations);
-        if (onVariantChange) onVariantChange(newCombinations);
+        if (form) {
+          form.setValue("variantObjs", newCombinations);
+        }
+        if (onVariantChange) {
+          onVariantChange(newCombinations);
+        }
       }, 500);
       setPendingUpdate(timeout);
     }
@@ -448,8 +476,11 @@ export const VariantForm: React.FC<VariantFormProps> = ({
                       value={val.value}
                       placeholder="Giá trị phân loại"
                       onChange={(e) => handleValueChange(opt.id, val.id, e.target.value)}
-                      className="pr-6"
+                      className={`pr-6 ${duplicateErrors[val.id] ? 'border-red-500' : ''}`}
                     />
+                    {duplicateErrors[val.id] && (
+                      <p className="text-xs text-red-600 mt-1">{duplicateErrors[val.id]}</p>
+                    )}
                     <Button
                       type="button"
                       onClick={() => handleRemoveValue(opt.id, val.id)}

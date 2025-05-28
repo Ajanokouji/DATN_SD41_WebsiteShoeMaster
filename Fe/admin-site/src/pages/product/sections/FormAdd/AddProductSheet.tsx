@@ -16,7 +16,6 @@ import { MetadataSection } from "./MetadataSection";
 import { productFormSchema, ProductFormSchema } from "./FormSchema";
 import ProductReqDto from "@/types/product/product";
 import { createProduct } from "@/redux/apps/product/productSlice";
-import { LabelsSection } from "./LabelsSection";
 import { ImageField } from "./ImageFieldComponent";
 import ActionHeader from "@/pages/relation/sections/Action";
 import { VariantForm } from "./VariantForm";
