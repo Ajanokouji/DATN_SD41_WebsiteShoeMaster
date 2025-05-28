@@ -67,7 +67,7 @@ const AddVoucherProductSheet: React.FC<AddVoucherProductSheetProps> = ({
 
       //Check voucher tồn tại
       const voucherResponse = await dispatch(fetchVoucherById(voucherId)).unwrap();
-      if ((!voucherResponse) || (voucherResponse && voucherResponse.isdeleted)) {
+      if ((!voucherResponse) || (voucherResponse && voucherResponse.isDeleted)) {
         setErrMs(""); // Đặt lại về rỗng để kích hoạt useEffect
         setTimeout(() => {
           setErrMs("Không tìm thấy Voucher! Vui lòng kiểm tra lại!");

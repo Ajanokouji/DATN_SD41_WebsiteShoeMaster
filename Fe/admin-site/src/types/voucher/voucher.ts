@@ -11,7 +11,7 @@ export default interface VoucherReqDto {
   lastModifiedOnDate: string;
   createdOnDate: string;
   status: number;
-  isdeleted: boolean;
+  isDeleted: boolean;
   code: string; // Mã voucher
   discountAmount: number | null; // Số tiền giảm giá
   discountPercentage: number | null; // Phần trăm giảm giá
@@ -35,7 +35,7 @@ export interface VoucherResDto {
   lastModifiedByUserId: string;
   startDate: string;
   endDate: string;
-  isdeleted: boolean;
+  isDeleted: boolean;
   code: string; // Mã voucher
   discountAmount: number | null; // Số tiền giảm giá
   discountPercentage: number | null; // Phần trăm giảm giá

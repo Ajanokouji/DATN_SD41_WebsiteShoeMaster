@@ -1,4 +1,5 @@
-﻿using Microsoft.AspNetCore.Mvc;
+﻿using Microsoft.AspNetCore.Http.HttpResults;
+using Microsoft.AspNetCore.Mvc;
 using Newtonsoft.Json;
 using Project.Business.Interface;
 using Project.Common;
@@ -27,7 +28,7 @@ namespace Project.MVC.Controllers
             var errAndUserEntity = await CheckUserIsLoginning();
             if (!String.IsNullOrWhiteSpace(errAndUserEntity.Err))
             {
-                return new UnauthorizedObjectResult(errAndUserEntity.Err);
+                return BadRequest(new { message = errAndUserEntity.Err });
             }
 
             // Kiểm tra voucher user đã tồn tại chưa
@@ -46,12 +47,12 @@ namespace Project.MVC.Controllers
 
                 if (voucherUserFound != null && voucherUserFound.Count() > 0)
                 {
-                    return new BadRequestObjectResult("Voucher đã tồn tại trong kho lưu trữ của bạn! Vào trang \"Voucher của tôi\" để biết thêm chi tiết!");
+                    return BadRequest(new { message = "Voucher đã tồn tại trong kho lưu trữ của bạn! Vào trang \"Voucher của tôi\" để biết thêm chi tiết!" });
                 }
             }
             catch (Exception ex)
             {
-                return new BadRequestObjectResult("Lỗi trong quá trình lưu Voucher! Vui lòng thử lại!");
+                return BadRequest(new { message = "Lỗi trong quá trình lưu Voucher! Vui lòng thử lại!" });
             }
 
             //Thêm voucher user
@@ -61,10 +62,10 @@ namespace Project.MVC.Controllers
             }
             catch (Exception ex)
             {
-                return new BadRequestObjectResult("Lỗi trong quá trình lưu Voucher! Vui lòng thử lại!");
+                return BadRequest(new { message = "Lỗi trong quá trình lưu Voucher! Vui lòng thử lại!" });
             }
 
-            return new OkObjectResult("Lưu Voucher thành công!");
+            return Ok(new { message = "Lưu Voucher thành công! Truy cập mục \"Voucher của tôi\" để xem chi tiết!" });
         }
 
 

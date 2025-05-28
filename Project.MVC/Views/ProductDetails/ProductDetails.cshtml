@@ -95,8 +95,7 @@
                             <div class="group">
                                 <label class="group-label">Giá Tiền</label>
                                 <div class="quantity-selector">
-                                    <label id="price" type="text" name="name" value="" readonly
-                                           class=" border-secondary rounded" />
+                                    <span id="price" class="border-secondary rounded px-2 py-1 d-inline-block bg-light"></span>
                                 </div>
 
                                 <label class="group-label mt-1">Kho </label>
@@ -206,7 +205,7 @@
                             <a class="nav-link" data-toggle="tab" href="#tabs-2" role="tab">Thông số kỹ thuật</a>
                         </li>
                         <li class="nav-item">
-                            <a class="nav-link" data-toggle="tab" href="#tabs-3" role="tab">Đánh giá ( 2 )</a>
+                            <a class="nav-link" data-toggle="tab" href="#tabs-3" role="tab">Đánh giá</a>
                         </li>
                     </ul>
                     <div class="tab-content">
@@ -224,11 +223,7 @@
                             </p>
                         </div>
                         <div class="tab-pane" id="tabs-3" role="tabpanel">
-                            <h6>Đánh giá ( 2 )</h6>
-                            <p>
-                                Nemo enim ipsam voluptatem quia voluptas sit aspernatur aut odit aut loret fugit, sed
-                                quia consequuntur magni dolores eos qui ratione voluptatem sequi nesciunt loret.
-                            </p>
+                            @await Component.InvokeAsync("CommentList", new { productId = Model.Product.Id })
                         </div>
                     </div>
                 </div>
@@ -276,11 +271,14 @@
             const variant = variants.find(v => v.color === selectedColor && selectedSize === v.size);
              const quantity = parseInt(document.getElementById('quantity').value) || 1;
             if (variant) {
+                
                   const totalPrice = variant.price * quantity;
-                document.getElementById('price').value = totalPrice.toLocaleString('vi-VN') + ' đ';
+                 document.getElementById('price').textContent = totalPrice.toLocaleString('vi-VN') + ' đ';
+
+
                  document.getElementById('stock-value').textContent = variant.stock;
             } else {
-                document.getElementById('price').value = '';
+               document.getElementById('price').textContent = '';
             }
         }
 
@@ -321,18 +319,19 @@
             var quantity = $('#quantity').val();
             var $cartBtn = $('.cart-btn');
 
-
+          var priceText = document.getElementById('price').textContent;
+        var priceValue = parseFloat(priceText.replace(/\D/g, '')) || 0;
 
          var productData = {
             productId: $cartBtn.data('product-id'),
             productName: $cartBtn.data('product-name'),
             productImage: $cartBtn.data('product-image'),
-            price: parseFloat(document.getElementById('price').value?.replace(/\D/g, '') ?? 0) / parseInt(quantity),
+            price: priceValue ,
             quantity: parseInt(quantity),
             size: selectedSize ?? '',
             color: selectedColor ?? '',
             SKU: (() => {
-                debugger
+                
                 if (Array.isArray(variants)) {
                     const variant = variants.find(v => v.color === selectedColor && v.size === selectedSize);
                     return variant ? variant.sku || '' : '';
@@ -341,7 +340,7 @@
             })()
          };
 
-            console.log(JSON.stringify(productData));
+      
 
             $.ajax({
                 url: '/Cart/AddToCart',

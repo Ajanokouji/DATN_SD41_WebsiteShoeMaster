@@ -303,7 +303,7 @@ namespace Project.MVC.Controllers
         }
 
         [HttpPost]
-        public async Task<IActionResult> RemoveFromCart(Guid productId , string Sku )
+        public async Task<IActionResult> RemoveCartItem(Guid productId , string Sku )
         {
             //Kiểm tra đã có user đăng nhập chưa
             var userSessionJson = HttpContext.Session.GetString(UserConstants.UserSessionKey??string.Empty);

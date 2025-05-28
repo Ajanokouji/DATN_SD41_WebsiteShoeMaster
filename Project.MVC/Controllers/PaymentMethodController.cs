@@ -12,6 +12,8 @@ using Project.DbManagement;
 using Project.DbManagement.Enum;
 using Project.DbManagement.Entity;
 using Project.MVC.Models;
+using Microsoft.Azure.Cosmos;
+using System.Threading.Tasks;
 
 namespace Project.MVC.Controllers
 {
@@ -19,14 +21,16 @@ namespace Project.MVC.Controllers
     {
         private readonly IVnPayService _vnPayService;
         private readonly IBillBusiness _billBusiness;
+        private readonly IBillDetailsBusiness _billDetailsBusiness;
         private readonly ICartBusiness _cartBusiness;
         private readonly IUserBusiness _userBusiness;
         private readonly ICustomerBusiness _customerBusiness;
         private const string CartSessionKey = "CartSession";
         private const string AppliedVoucher = "AppliedVoucher";
 
-        public PaymentMethodController(ICustomerBusiness customerBusiness, IVnPayService vnPayService, IBillBusiness billBusiness, ICartBusiness cartBusiness, IUserBusiness userBusiness)
+        public PaymentMethodController(IBillDetailsBusiness billDetailsBusiness , ICustomerBusiness customerBusiness, IVnPayService vnPayService, IBillBusiness billBusiness, ICartBusiness cartBusiness, IUserBusiness userBusiness)
         {
+            _billDetailsBusiness = billDetailsBusiness;
             _customerBusiness = customerBusiness;
             _vnPayService = vnPayService;
             _billBusiness = billBusiness;
@@ -50,7 +54,6 @@ namespace Project.MVC.Controllers
             var paymentMethods = new List<PaymentMethodModel>
     {
         new PaymentMethodModel { Code = "COD", Name = "Thanh toán khi nhận hàng" },
-        new PaymentMethodModel { Code = "Banking", Name = "Chuyển khoản ngân hàng" },
         new PaymentMethodModel { Code = "VNPay", Name = "VNPay" }
     };
 
@@ -161,9 +164,6 @@ namespace Project.MVC.Controllers
                     await _userBusiness.CreateUserFromCustomerInfo(model.CustomerInfo);
                 }
 
-      
-            }
-
             var viewModel = new PaymentViewModel()
             {
                 TotalAmount = model.Total,
@@ -182,10 +182,22 @@ namespace Project.MVC.Controllers
         }
 
         [HttpPost]
-        public IActionResult ProcessPayment(PaymentViewModel model)
+        public async Task<IActionResult> ProcessPayment(PaymentViewModel model)
         {
-           
-            var selectedMethod = model.SelectedPaymentMethod;
+            var user = JsonConvert.DeserializeObject<UserEntity>(HttpContext.Session.GetString("UserSession")??string.Empty);
+            var billDetail = await _billDetailsBusiness.GetBillDetailsByBillId(model.BillId);
+            if (user!=null)
+            {
+               foreach(var item in billDetail)
+                {
+                    await _cartBusiness.RemoveFromCartDb(user.Id, item.ProductId.Value, item.SKU);
+                }
+            }
+            else
+            {
+                HttpContext.Session.Remove(CartSessionKey);
+            }
+             var selectedMethod = model.SelectedPaymentMethod;
 
             if (selectedMethod == "VNPay")
             {
@@ -218,7 +230,7 @@ namespace Project.MVC.Controllers
 
             return Redirect(paymentUrl);
         }
-
+        
         public IActionResult Success()
         {
             return View(); 

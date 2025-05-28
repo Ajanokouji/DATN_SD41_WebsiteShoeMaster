@@ -175,6 +175,7 @@ namespace Project.Business.Implement
                     exist.AvartarUrl = user.AvartarUrl;
                     exist.Password = user.Password;
                     exist.UserDetailJson = user.UserDetailJson;
+                    exist.IsActive = user.IsActive;
 
                     user.UpdateTracking(user.Id);
                     _context.Users.Update(exist);
@@ -191,7 +192,7 @@ namespace Project.Business.Implement
             if (exist == null) throw new Exception(IUserRepository.MessageNoTFound);
             exist.IsDeleted = true;
             _context.Users.Update(exist);
-            _context.SaveChangesAsync();
+            await _context.SaveChangesAsync();
             return exist;
         }
 

@@ -4,6 +4,7 @@ using Org.BouncyCastle.Crypto;
 using Project.Business.Implement;
 using Project.Business.Interface;
 using Project.Business.Model;
+using Project.DbManagement;
 using Project.DbManagement.Entity;
 using SERP.Framework.ApiUtils.Controllers;
 using SERP.Framework.ApiUtils.Responses;
@@ -45,8 +46,6 @@ namespace Project.Api.Controller
                 var comments = await _commentsBusiness.GetAllAsync(queryModel);
                 return comments;
             });
-        
-
         }
 
         [HttpPost("count")]
@@ -93,6 +92,20 @@ namespace Project.Api.Controller
             {
                 var createdComments = await _commentsBusiness.SaveAsync(entities);
                 return createdComments;
+            });
+        }
+
+        [HttpPatch("{id}")]
+        [ProducesResponseType(typeof(ResponseObject<CommentsEntity>), StatusCodes.Status200OK)]
+        public async Task<IActionResult> PatchVoucher(Guid id, [FromBody] CommentsEntity comment)
+        {
+            return await ExecuteFunction(async () =>
+            {
+                var exist = await _commentsBusiness.FindAsync(id);
+                if (id != comment.Id || exist == null)
+                    throw new ArgumentException("Not Found");
+                var updatedcomment = await _commentsBusiness.PatchAsync(comment);
+                return updatedcomment;
             });
         }
 

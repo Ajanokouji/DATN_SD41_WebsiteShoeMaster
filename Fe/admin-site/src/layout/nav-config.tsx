@@ -4,7 +4,6 @@ import { RiShoppingBag3Line } from "react-icons/ri";
 import { AiOutlineProduct } from "react-icons/ai";
 import { LuUsers } from "react-icons/lu";
 import { MdAttachMoney } from "react-icons/md";
-import { LuSettings } from "react-icons/lu";
 import { LuContact } from "react-icons/lu";
 import { TbCirclesRelation } from "react-icons/tb";
 import { FaFileInvoiceDollar } from "react-icons/fa6";
@@ -23,7 +22,7 @@ interface NavConfigItem {
 
 const navConfig: NavConfigItem[] = [
   {
-    title: "Dashboard",
+    title: "Thống Kê",
     path: "/",
     icon: IoStatsChart,
     color: "#6366f1",
@@ -40,12 +39,12 @@ const navConfig: NavConfigItem[] = [
     icon: RiShoppingBag3Line,
     color: "#8b5cf6",
   },
-  {
-    title: "Danh Mục Quan Hệ",
-    path: "/relation",
-    icon: TbCirclesRelation,
-    color: "#759a94",
-  },
+  // {
+  //   title: "Danh Mục Quan Hệ",
+  //   path: "/relation",
+  //   icon: TbCirclesRelation,
+  //   color: "#759a94",
+  // },
   {
     title: "Khách hàng",
     path: "/customer",
@@ -74,12 +73,6 @@ const navConfig: NavConfigItem[] = [
     title: "Tài Nguyên",
     path: "/file-manager",
     icon: FaFileAlt,
-    color: "#3b82f6",
-  },
-  {
-    title: "Cài đặt",
-    path: "/setting",
-    icon: LuSettings,
     color: "#3b82f6",
   },
   {

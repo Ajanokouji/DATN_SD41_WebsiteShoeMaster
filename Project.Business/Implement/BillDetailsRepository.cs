@@ -351,7 +351,8 @@ public class BillDetailsRepository : IBillDetailsRepository
             {
                 Id = billDetails.Id,
                 IdBill = billDetails.BillId,
-                IdProduct = product.Id,
+                IdProduct = billDetails.ProductEntity.Id,
+                Sku= billDetails.SKU,
                 Name = product.Name,
                 Color = billDetails.Color,
                 Size = billDetails.Size,
