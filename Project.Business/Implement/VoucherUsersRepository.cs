@@ -92,6 +92,11 @@ namespace Project.Business.Implement
                 query = query.Where(x => x.UserId == queryModel.UserId.Value);
             }
 
+            if (queryModel.IsUsed.HasValue)
+            {
+                query = query.Where(x => x.IsUsed == queryModel.IsUsed.Value);
+            }
+
             return query;
         }
 
@@ -133,6 +138,7 @@ namespace Project.Business.Implement
                     exist.Id = voucherUser.Id;
                     exist.VoucherId = voucherUser.VoucherId;
                     exist.UserId = voucherUser.UserId;
+                    exist.IsUsed = voucherUser.IsUsed;
 
                     exist.UpdateTracking(voucherUser.Id);
                     _context.VoucherUsers.Update(exist);
@@ -226,7 +232,8 @@ namespace Project.Business.Implement
                 var voucherUserFind = _context.VoucherUsers
                     .Where(v => v.VoucherId == voucherUser.VoucherId
                              && v.UserId == voucherUser.UserId
-                             && v.IsDeleted == false)
+                             && v.IsDeleted == false
+                             && v.IsUsed == false)
                     .FirstOrDefault();
 
                 if (voucherUserFind != null)

@@ -87,6 +87,7 @@ const AddVoucherUserSheet: React.FC<AddVoucherUserSheetProps> = ({
         lastModifiedByUserId: "3fa85f64-5717-4562-b3fc-2c963f66afa6",
         lastModifiedOnDate: new Date().toISOString(),
         createdOnDate: new Date().toISOString(),
+        isUsed: false,
       }));
 
       // Gọi API kiểm tra danh sách trong cơ sở dữ liệu
@@ -193,6 +194,7 @@ const AddVoucherUserSheet: React.FC<AddVoucherUserSheetProps> = ({
         lastModifiedByUserId: "3fa85f64-5717-4562-b3fc-2c963f66afa6",
         lastModifiedOnDate: new Date().toISOString(),
         createdOnDate: new Date().toISOString(),
+        isUsed: false,
       }));
 
       const existingUsers = await dispatch(

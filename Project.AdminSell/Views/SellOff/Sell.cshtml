@@ -183,6 +183,7 @@
 <script>
     var pageSizesp = 8;// Tối đa 10sp 1 trang
     var pageIndexsp = 1;//Trang ban đầu
+    var idempl = '@loginInfor.Id';
     $(document).ready(function () {
         LoadProduct();
         // Sự kiện input khi người dùng nhập vào ô tìm kiếm
@@ -354,13 +355,13 @@
             contentType: 'application/json',
             success: function (response) {
                 console.log(response);
-                toastr.success('Thêm thành công', "Success Alert", {timeOut: 300});
+                toastr.success('Thêm hóa đơn thành công', "Thông báo", {timeOut: 1000});
                 loadPDBill(function () {
                     activeTab(1);
                 });
             },
             error: function (response) {
-                toastr.error('Thêm thất bại', "Error Alert", {timeOut: 300});
+                toastr.error('Thêm hóa đơn thất bại', "Thông báo", {timeOut: 1000});
             }
         });
     }
@@ -399,13 +400,13 @@
             data: request,
             success: function (response) {
                 $("#partialCart").empty();
-                toastr.success('Thanh toán VNPay thành công', "Success", { timeOut: 300 });
+                toastr.success('Thanh toán VNPay thành công', "Thông báo", { timeOut: 300 });
                 loadPDBill(function () {
                     activeTab(0);
                 });
             },
             error: function (response) {
-                toastr.error('Lưu đơn sau VNPay thất bại', 'Lỗi', { timeOut: 300 });
+                toastr.error('Lưu đơn sau VNPay thất bại', 'Thông báo', { timeOut: 300 });
             }
         });
     }
@@ -435,10 +436,10 @@
                             activeTab(0);
                         });
                         LoadProduct();
-                        toastr.success('Xóa thành công', 'Success Alert', { timeOut: 300 });
+                        toastr.success('Xóa hóa đơn thành công', 'Thông báo', { timeOut: 1000 });
                     },
                     error: function (response) {
-                        toastr.error('Xóa thất bại', 'Error Alert', { timeOut: 300 });
+                        toastr.error('Xóa hóa đơn thất bại', 'Thông báo', { timeOut: 1000 });
                     }
                 });
             }
@@ -450,7 +451,7 @@
     function addCTSP(idprd, price, color, size) {
         var activeTab = $(".tabs-box .tab").filter(".active");
         var elementValue = activeTab.find("span").attr("value");
-        var request = {IdBill: elementValue, IdProduct: idprd, Price: price, Quantity: 1, Color: color, size: size}
+        var request = {IdBill: elementValue, IdProduct: idprd, IdEmployee: idempl, Price: price, Quantity: 1, Color: color, size: size}
         $.ajax({
             url: "/SellOff/AddProductToCart/",
             async: false,
@@ -459,15 +460,15 @@
             data: request,
             success: function (response) {
                 if (response.success == true) {
-                    toastr.success('Thêm thành công', "Success Alert", {timeOut: 300});
+                    toastr.success('Thêm sản phẩm thành công', "Thông báo", {timeOut: 300});
                     gethdct(request.IdBill);
                     FilterPL();
                 } else {
-                    toastr.error('Thêm thất bại', 'Error Alert', {timeOut: 300});
+                    toastr.error('Thêm sản phẩm thất bại', 'Thông báo', {timeOut: 300});
                 }
             },
             error: function (response) {
-                toastr.error('Thêm thất bại', 'Error Alert', {timeOut: 300});
+                toastr.error('Thêm sa phẩm thất bại', 'Thông báo', {timeOut: 300});
             }
         });
     }
@@ -497,11 +498,11 @@
                     type: 'DELETE',
                     dataType: 'json',
                     success: function (response) {
-                        toastr.success('Xóa thành oông', 'Success', { timeOut: 300 });
+                        toastr.success('Xóa sản phẩm thành oông', 'Thông báo', { timeOut: 1000 });
                         gethdct(idbill)
                     },
                     error: function (response) {
-                        toastr.error('Xóa thất bại', 'Error', { timeOut: 300 });
+                        toastr.error('Xóa sản phẩm thất bại', 'Thông báo', { timeOut: 1000 });
                     }
                 });
             }
@@ -529,14 +530,14 @@
             if (result.isConfirmed) {
                 var tongtien = $("#tongTien").text().trim();
                 if (parseInt(tongtien) <= 0) {
-                    toastr.error('Không có sản phẩm nào trong giỏ hàng', 'Error Alert', {timeOut: 300});
+                    toastr.error('Không có sản phẩm nào trong giỏ hàng', 'Thông báo', {timeOut: 1000});
                     return;
                 }
                 var paymentmethod = $('input[name="pttt"]:checked').val();
                 if (paymentmethod == "Tiền mặt"){
                     var checkAm = $("#tienTraLai").text();
                     if (parseInt(checkAm) < 0) {
-                        toastr.error('Số tiền khách trả không đủ', 'Error Alert', {timeOut: 300});
+                        toastr.warning('Số tiền khách trả không đủ', 'Thông báo', {timeOut: 1000});
                         return;
                     }
                 }
@@ -559,29 +560,17 @@
                     success: function (response) {
                         $("#thanhtoan").modal("hide");
                         $("#partialCart").empty();
-                        toastr.success('Thanh toán thành công', "Success Alert", {timeOut: 300});
+                        toastr.success('Thanh toán thành công', "Thông báo", {timeOut: 1000});
                         loadPDBill(function () {
                             activeTab(0);
                         });
                     },
                     error: function (response) {
-                        toastr.error('Thanh toán thất bại', 'Error Alert', {timeOut: 300});
+                        toastr.error('Thanh toán thất bại', 'Thông báo', {timeOut: 1000});
                     }
                 });
             }
         });
     }
-
-    //Chuyển trang quản lý hóa đơn
-    $("#hoadon-tab").on("click", function () {
-        $.ajax({
-            url: "/SellOff/QuanLyHD",
-            method: "GET",
-            success: function (result) {
-                $('.dshoadon').html(result);
-            },
-        })
-    });
-
 </script>
 <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>

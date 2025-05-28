@@ -244,6 +244,7 @@ public class BillDetailsRepository : IBillDetailsRepository
                     BillDetailCode = "BILLDETAILS" + guid.ToString().Substring(0, 8).ToUpper(),
                     BillId = request.IdBill,
                     ProductId = request.IdProduct,
+                    CreatedByUserId = request.IdEmployee,
                     Quantity = request.Quantity,
                     Size = request.Size,
                     Color = request.Color,

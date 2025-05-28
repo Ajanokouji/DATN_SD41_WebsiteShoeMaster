@@ -1,23 +1,13 @@
 import { useEffect, useState } from "react";
 import { useForm } from "react-hook-form";
+import { zodResolver } from "@hookform/resolvers/zod";
 import { useAppDispatch } from "@/hooks/use-app-dispatch";
 import { fetchContactById, updateContact } from "@/redux/apps/contact/contactSlice";
+import { contactFormSchema, ContactFormSchema } from "../FormAdd/FormSchema";
 
-
-interface FormData {
-  name: string;
-  fullName: string;
-  address: string;
-  email: string;
-  phoneNumber: string;
-  content: string;
-  dateOfBirth: string;
-
-}
-
+// Sử dụng ContactFormSchema làm type duy nhất
 export const useContactForm = (
   contactId: string,
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   contact: any,
   onClose: () => void
 ) => {
@@ -25,18 +15,35 @@ export const useContactForm = (
   const [isEditing, setIsEditing] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
 
-  // Initialize form with empty values
-  const methods = useForm<FormData>({
+  // Đảm bảo defaultValues có đầy đủ các trường như schema
+  const methods = useForm<ContactFormSchema>({
+    resolver: zodResolver(contactFormSchema),
     defaultValues: {
       name: "",
       fullName: "",
       address: "",
       email: "",
       phoneNumber: "",
-      content: "",
       dateOfBirth: "",
+      isdeleted: false,
+      createdByUserId: "",
+      lastModifiedByUserId: "",
+      lastModifiedOnDate: "",
+      createdOnDate: "",
     },
   });
+
+  // Thêm hàm format
+  function formatDate(dateString?: string): string {
+    if (!dateString) return "";
+    const d = new Date(dateString);
+    if (isNaN(d.getTime())) return "";
+    // Lấy ngày theo local timezone thay vì UTC
+    const year = d.getFullYear();
+    const month = String(d.getMonth() + 1).padStart(2, "0");
+    const day = String(d.getDate()).padStart(2, "0");
+    return `${year}-${month}-${day}`;
+  }
 
   useEffect(() => {
     if (contact) {
@@ -46,8 +53,12 @@ export const useContactForm = (
         address: contact.address || "",
         email: contact.email || "",
         phoneNumber: contact.phoneNumber || "",
-        content: contact.content || "",
-        dateOfBirth: contact.dateOfBirth || "",
+        dateOfBirth: formatDate(contact.dateOfBirth),
+        isdeleted: contact.isdeleted ?? false,
+        createdByUserId: contact.createdByUserId || "",
+        lastModifiedByUserId: contact.lastModifiedByUserId || "",
+        lastModifiedOnDate: contact.lastModifiedOnDate || "",
+        createdOnDate: contact.createdOnDate || "",
       });
     }
   }, [contact, methods]);
@@ -60,7 +71,7 @@ export const useContactForm = (
     }
   }, [dispatch, contactId]);
 
-  const handleSubmit = (value: FormData) => {
+  const handleSubmit = (value: ContactFormSchema) => {
     const updatedContact = {
       ...contact,
       ...value,
