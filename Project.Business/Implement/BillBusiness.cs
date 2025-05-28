@@ -279,6 +279,7 @@ namespace Project.Business.Implement
                     VoucherCode = model.VoucherCode,
                     Status = model.Status,
                     Source= model.Source,
+                    LastModifiedByUserId= model.LastModifiedByUserId,
                     AmountAfterDiscount = model.AmountAfterDiscount,
                     AmountToPay = model.AmountToPay,
                     CreatedByUserId = model.CreatedByUserId,

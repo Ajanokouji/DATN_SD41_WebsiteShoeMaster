@@ -1,27 +1,42 @@
 ﻿using Microsoft.AspNetCore.Mvc;
 using Microsoft.Azure.Cosmos;
+using NetTopologySuite.Index.HPRtree;
 using Newtonsoft.Json;
+using Project.Business.Implement;
 using Project.Business.Interface;
 using Project.Business.Model;
 using Project.Common;
+using Project.DbManagement;
 using Project.DbManagement.Entity;
+using Project.DbManagement.Enum;
 using Project.MVC.Models;
+using SERP.Framework.Common;
 using SERP.Framework.Entities.Metadata;
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Net.WebSockets;
 using System.Threading.Tasks;
 
 namespace Project.MVC.Controllers
 {
     public class CartController : Controller
     {
+        private readonly IVoucherBusiness _voucherBusiness;
+        private readonly IVoucherProductsBusiness _voucherProductsBusiness;
+        private readonly IVoucherUsersBusiness _voucherUsersBusiness;
+        private readonly IUserBusiness _userBusiness;
         private readonly ICartBusiness _cartBusiness;
         private readonly ICartDetailsBusiness _cartDetailsBusiness;
         private readonly IProductBusiness _productBusiness;
+        private readonly string AppliedVoucher = "AppliedVoucher";
 
-        public CartController(ICartBusiness cartBusiness, ICartDetailsBusiness cartDetailsBusiness, IProductBusiness productBusiness)
-        {
+        public CartController(IVoucherProductsBusiness voucherProductsBusiness, IVoucherUsersBusiness voucherUsersBusiness, IVoucherBusiness voucherBusiness, IUserBusiness userBusiness,ICartBusiness cartBusiness, ICartDetailsBusiness cartDetailsBusiness, IProductBusiness productBusiness)
+        { 
+            _voucherUsersBusiness = voucherUsersBusiness;
+            _voucherProductsBusiness = voucherProductsBusiness;
+            _voucherBusiness = voucherBusiness;
+            _userBusiness = userBusiness;
             _cartBusiness = cartBusiness;
             _cartDetailsBusiness = cartDetailsBusiness;
             _productBusiness = productBusiness;
@@ -30,6 +45,7 @@ namespace Project.MVC.Controllers
         [HttpGet]
         public async Task<IActionResult> Cart()
         {
+            HttpContext.Session.Remove(AppliedVoucher);
             //Kiểm tra đã có user đăng nhập chưa
             var userSessionJson = HttpContext.Session.GetString(UserConstants.UserSessionKey);
             if (!string.IsNullOrEmpty(userSessionJson))
@@ -175,7 +191,6 @@ namespace Project.MVC.Controllers
 
                 var cartItem = new CartItem
                 {
-
                     ProductId = productData.ProductId ?? Guid.Empty,
                     ProductName = productData.ProductName ?? string.Empty,
                     ProductImage = productData.ProductImage ?? string.Empty,
@@ -519,6 +534,231 @@ namespace Project.MVC.Controllers
                 cartCount = cartCount,
                 cartTotal = cartTotal
             });
+        }
+
+        [HttpGet]
+        public async Task<IActionResult> UsersVoucher()
+        {
+            var errAndUserEntity = await CheckUserIsLoginning();
+            if (!string.IsNullOrWhiteSpace(errAndUserEntity.Err))
+            {
+                TempData["ErrProfileUserMs"] = errAndUserEntity.Err;
+                return View(new UserEntity());
+            }
+
+            var user = errAndUserEntity.User;
+            if (user == null)
+            {
+                TempData["ErrProfileUserMs"] = "Phiên đăng nhập đã hết hạn hoặc người dùng chưa đăng nhập.";
+                return View(new UserEntity());
+            }
+
+            var userVoucher = await _voucherUsersBusiness.ListAllByUserIdAsync(user.Id);
+            var voucherIds = userVoucher?.Select(x => x.VoucherId).ToList() ?? new List<Guid>();
+            var voucherList = await _voucherBusiness.ListByIdsAsync(voucherIds);
+            var userCartItem = await _cartBusiness.GetCartItemsByUserId(user.Id);
+
+            var totalAmount = userCartItem.Sum(x => x.Total);
+            var today = DateTime.Today;
+
+            // --- 1. Lọc voucher còn hiệu lực ---
+            var validVouchers = voucherList
+                .Where(v =>
+                    v.StartDate is { } sd && v.EndDate is { } ed &&
+                    sd <= today && ed >= today &&
+                    v.Status == 1 &&
+                    v.TotalMaxUsage > v.RedeemCount)
+                .ToList();
+
+            // --- 2. Giữ lại voucher theo sản phẩm nếu VoucherType == ByProduct ---
+            foreach (var voucher in validVouchers.ToList())
+            {
+
+                if (voucher.VoucherType== VocherTypeEnum.ByProduct) {
+                    var voucherProducts = await _voucherProductsBusiness.ListByVoucherIdAsync(voucher.Id);
+
+                    bool hasMatch = voucherProducts.Any(vp =>
+                        userCartItem.Any(ci =>
+                            ci.ProductId == vp.ProductId &&
+                            ci.SKU       == vp.VarientProductId));
+
+                    if (!hasMatch)
+                        validVouchers.Remove(voucher);
+                    continue;
+                };
+
+                // ---3.Validate MinAmount
+                if (voucher.MinimumOrderAmount>totalAmount)
+                {
+                    validVouchers.Remove(voucher);
+                    continue;
+                }
+                // --4.Validate Used Voucher
+                if (userVoucher.Any(x => x.VoucherId==voucher.Id&&x.IsUsed==true))
+                {
+                    validVouchers.Remove(voucher);
+                    continue;
+                }
+            }
+
+            // --- 3. Mapping sang ViewModel ---
+            var data = AutoMapperUtils.AutoMap<Voucher, VoucherViewModel>(validVouchers); // voucher hợp lệ
+            var viewdata = AutoMapperUtils.AutoMap<Voucher, VoucherViewModel>(voucherList.ToList());   // tất cả voucher
+
+    
+            var validIds = new HashSet<Guid>(data.Select(d => d.Id));   // Id voucher còn hiệu lực
+            foreach (var v in viewdata.Where(v => !validIds.Contains(v.Id)))
+            {
+                v.IsDisable = true;           
+            } 
+
+                // --- 5. Trả viewdata để hiển thị cả hai loại voucher ---
+                return PartialView("_VoucherList", viewdata.OrderBy(x=>x.IsDisable));
+        }
+
+        [HttpPost]
+        public async Task<JsonResult> ApplyVoucher(Guid voucherId)
+        {
+            try
+            {
+                // Giả sử bạn có phương thức lấy voucher theo id
+                var voucher = await _voucherBusiness.FindAsync(voucherId);
+                if (voucher == null || voucher.Status==0)
+                {
+                    return Json(new { success = false, message = "Mã voucher không hợp lệ hoặc đã hết hạn." });
+                }
+
+                var userSessionJson = HttpContext.Session.GetString(UserConstants.UserSessionKey);
+                var isLoggedIn = !string.IsNullOrEmpty(userSessionJson);
+                var response = new { success = false, message = "Thêm vào giỏ hàng thất bại", count = 0 };
+
+                decimal subtotal = 0;
+                decimal maxDiscountAmount = voucher.MaxDiscountAmount ?? 0m;
+                decimal discountAmount = 0;
+                if (isLoggedIn) {
+                    var user = JsonConvert.DeserializeObject<UserEntity>(userSessionJson);
+                    // Lấy giỏ hàng của user hiện tại (ví dụ từ session hoặc database)
+                    var cart = await _cartBusiness.GetCartItemsByUserId(user.Id);
+                     subtotal = cart.Sum(i => i.Total);
+                }
+                else
+                {
+                    var cartSessionJson = HttpContext.Session.GetString(CartConstants.CartSessionKey);
+                    var cartSessions = string.IsNullOrEmpty(cartSessionJson)
+                        ? new List<CartItem>()
+                        : JsonConvert.DeserializeObject<List<CartItem>>(cartSessionJson);
+                    subtotal = cartSessions.Sum(i => i.Total);
+                }
+
+
+                if (voucher.DiscountAmount!=null)
+                {
+                    var disAmount = voucher.DiscountAmount.Value;
+                    if (disAmount > subtotal)
+                        disAmount = subtotal;
+                    discountAmount = disAmount;
+                }
+
+                if(voucher.DiscountPercentage != null)
+                {
+                    var disPercent = subtotal * voucher.DiscountPercentage.Value / 100m;
+                    if (voucher.MaxDiscountAmount != null && disPercent > voucher.MaxDiscountAmount.Value)
+                        disPercent = voucher.MaxDiscountAmount.Value;
+                    discountAmount = disPercent;
+                }
+
+                if(discountAmount>maxDiscountAmount&&maxDiscountAmount !=0)
+                {
+                    discountAmount = maxDiscountAmount;
+                }
+
+                if(discountAmount>subtotal)
+                {
+                    discountAmount = subtotal;
+                }
+
+
+                decimal totalAfterDiscount = subtotal - discountAmount;
+
+                // --- Lưu thông tin voucher áp dụng vào session ---
+                var appliedVoucher = new AppliedVoucher()
+                {
+                    VoucherCode= voucher.Code,
+                    VoucherId = voucherId,
+                    DiscountAmount = discountAmount,
+                    TotalAfterDiscount = totalAfterDiscount
+                };
+
+                var appliedVoucherJson = JsonConvert.SerializeObject(appliedVoucher);
+                HttpContext.Session.SetString("AppliedVoucher", appliedVoucherJson);
+
+                // Trả về json
+                return Json(new
+                {
+                    success = true,
+                    discountAmount = discountAmount,
+                    totalAfterDiscount = totalAfterDiscount
+                });
+            }
+            catch (Exception ex)
+            {
+                // Log lỗi nếu cần
+                return Json(new { success = false, message = "Có lỗi xảy ra khi áp dụng voucher." });
+            }
+        }
+
+
+        private async Task<ErrAndUserEntity> CheckUserIsLoginning()
+        {
+            ErrAndUserEntity errAndUserEntity = new ErrAndUserEntity()
+            {
+                Err = "",
+                User = new UserEntity()
+            };
+
+            string userJson = HttpContext.Session.GetString(UserConstants.UserSessionKey);
+
+            if (!string.IsNullOrEmpty(userJson))
+            {
+                var user = JsonConvert.DeserializeObject<UserEntity>(userJson);
+                if (user != null)
+                {
+                    var userFound = await _userBusiness.FindAsync(user.Id);
+                    if (userFound != null)
+                    {
+                        if (userFound.IsDeleted == false && userFound.Type == UserTypeEnum.Customer)
+                        {
+                            if (userFound.IsActive == false)
+                            {
+                                errAndUserEntity.Err = "Tài khoản người dùng hiện đã bị tạm dừng hoạt động! Vui lòng kiểm tra lại!";
+                            }
+                            else
+                            {
+                                errAndUserEntity.Err = "";
+                                errAndUserEntity.User = userFound;
+                            }
+                        }
+                        else
+                        {
+                            errAndUserEntity.Err = "Không tìm thấy người dùng này! Vui lòng kiểm tra lại!";
+                        }
+                    }
+                    else
+                    {
+                        errAndUserEntity.Err = "Không tìm thấy người dùng này! Vui lòng kiểm tra lại!";
+                    }
+                }
+                else
+                {
+                    errAndUserEntity.Err = "Phiên đăng nhập đã hết hạn hoặc người dùng chưa đăng nhập.";
+                }
+            }
+            else
+            {
+                errAndUserEntity.Err = "Phiên đăng nhập đã hết hạn hoặc người dùng chưa đăng nhập.";
+            }
+
+            return errAndUserEntity;
         }
     }
 }

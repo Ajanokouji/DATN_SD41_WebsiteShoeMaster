@@ -8,7 +8,9 @@ using Project.Business.Model.VnPayments;
 using Project.Common;
 using Project.Common.Constants;
 using Project.DbManagement.Entity;
+using Project.MVC.Models;
 using System.Collections.Generic;
+using System.Drawing.Drawing2D;
 using System.Linq;
 
 
@@ -24,6 +26,7 @@ namespace Project.MVC.Controllers
         private readonly IVnPayService _vnPayService;
         private readonly IUserBusiness _userBusiness;
         private const string CartSessionKey = "CartSession";
+        private const string AppliedVoucher = "AppliedVoucher";
 
         public CheckoutController(
             IBillBusiness billBusiness,
@@ -53,6 +56,13 @@ namespace Project.MVC.Controllers
         {
             var data = new List<CartItemModel>();
             var user = JsonConvert.DeserializeObject<UserEntity>(HttpContext.Session.GetString("UserSession")??string.Empty);
+            var applidvoucher = new AppliedVoucher();
+
+            var appliedVoucherJson = HttpContext.Session.GetString(AppliedVoucher);
+            if (!string.IsNullOrEmpty(appliedVoucherJson))
+            {
+                applidvoucher= JsonConvert.DeserializeObject<AppliedVoucher>(appliedVoucherJson);
+            }
 
             if (user != null)
             {
@@ -80,8 +90,10 @@ namespace Project.MVC.Controllers
             //    .SelectMany(p => p.VariantObjs ?? new List<Variant>())
             //    .Where(v => v.Sku != null && cartSkus.Contains(v.Sku))
             //    .ToList();
+
             var model = new CheckoutViewModel
             {
+
                 BillId = Guid.NewGuid(),
                 CartItems =data,
                 CustomerInfo = new CustomerInfoModel()
@@ -95,6 +107,13 @@ namespace Project.MVC.Controllers
                 SubTotal = data.Sum(x => x.Total),
                 Total = data.Sum(x => x.Total),
             };
+            if (applidvoucher!=null)
+            {
+                model.DiscountAmount = applidvoucher.DiscountAmount;
+                model.FinalAmount = data.Sum(x => x.Total) - applidvoucher.DiscountAmount;
+                model.Total = data.Sum(x => x.Total) - applidvoucher.DiscountAmount;
+                model.SubTotal =data.Sum(x => x.Total) - applidvoucher.DiscountAmount;
+            }
 
             return View(model);
         }
@@ -108,13 +127,19 @@ namespace Project.MVC.Controllers
                 {
                     return Json(new { success = false, message = "Vui lòng kiểm tra lại thông tin" });
                 }
-
+                var applidvoucher = new AppliedVoucher();
                 var cartSession = HttpContext.Session.GetString(CartSessionKey);
+
+                var appliedVoucherJson = HttpContext.Session.GetString(AppliedVoucher);
                 if (string.IsNullOrEmpty(cartSession))
                 {
                     return Json(new { success = false, message = "Giỏ hàng trống" });
                 }
 
+                if (!string.IsNullOrEmpty(appliedVoucherJson))
+                {
+                    applidvoucher= JsonConvert.DeserializeObject<AppliedVoucher>(appliedVoucherJson);
+                }
                 var cartSessions = JsonConvert.DeserializeObject<List<CartItem>>(cartSession);
                 var cartItemsResult = await _cartBusiness.GetCartItems(cartSessions);
                 if (!cartItemsResult.IsSuccess || cartItemsResult.Data == null || !cartItemsResult.Data.Any())
@@ -146,6 +171,8 @@ namespace Project.MVC.Controllers
                     }).ToList(),
                     TotalAmount = cartItemsResult.Data.Sum(x => x.Total)
                 };
+
+             
 
                 var bill = await _billBusiness.CreateBill(billModel);
 
@@ -201,6 +228,10 @@ namespace Project.MVC.Controllers
             HttpContext.Session.Remove(CartSessionKey);
             return View(bill);
         }
+        public IActionResult VnPayCanceled()
+        {
+            return View();
+        }
 
 
         public async Task<IActionResult> CheckBillStatus(string billCode)
@@ -221,41 +252,6 @@ namespace Project.MVC.Controllers
                 return View("OrderNotFound");
             }
         }
-        //[HttpPost]
-        //public async Task<IActionResult> ApplyVoucher(string voucherCode)
-        //{
-
-        //    if (string.IsNullOrEmpty(voucherCode))
-        //    {
-        //        return Json(new { isSuccess = false, message = "Vui lòng nhập mã giảm giá" });
-        //    }
-
-        //    try
-        //    {
-
-        //        var voucher = await _voucherBusiness.FindByCodeAsync(voucherCode);
-        //        if (voucher ==null)
-        //            return Json(new { isSuccess = false, message = "Voucher không tìm thấy" });
-
-        //        var voucherType = voucher.VoucherType;
-
-        //        var cartSessionJson = HttpContext.Session.GetString(CartConstants.CartSessionKey);
-        //        var cartSessions = string.IsNullOrEmpty(cartSessionJson)
-        //            ? new List<CartItem>()
-        //            : JsonConvert.DeserializeObject<List<CartItem>>(cartSessionJson);
-
-        //        var OrderAmount = cartSessions.Sum(x => x.Total);
-
-        //        if (voucher.MinimumOrderAmount != null && OrderAmount<voucher.MinimumOrderAmount)
-        //        {
-        //            Json(new { isSuccess = false, message = "Voucher không đủ điều kiện để dùng" });
-        //        } 
-
-        //    }
-            //catch (Exception ex)
-            //{
-            //    return Json(new { isSuccess = false, message = ex.Message });
-            //}
         
 
         public async Task<IActionResult> PaymentCallbackVnpay()
@@ -350,7 +346,14 @@ namespace Project.MVC.Controllers
                     Status = BillConstants.Cancelled,
                 });
             }
-                return RedirectToAction("ThankYou", new { billId = paymentInformationModel.BillId });
+            if (!response.Success)
+            {
+                return RedirectToAction("VnPayCanceled");
+            }
+            return RedirectToAction("ThankYou", new { billId = paymentInformationModel.BillId });
+
+
+
         }
     }
 }

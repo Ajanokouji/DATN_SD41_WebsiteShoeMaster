@@ -21,6 +21,8 @@ namespace Project.Business.Interface
         /// <returns>The list of vouchers.</returns>
         Task<IEnumerable<VoucherUsers>> ListAllAsync(VoucherUsersQueryModel queryModel);
 
+        Task<IEnumerable<VoucherUsers>> ListAllByUserIdAsync(Guid userId);
+
         /// <summary>
         /// Count the number of vouchers by query model.
         /// </summary>

@@ -88,17 +88,11 @@
                                     <div class="checkout__order__total">
                                         <ul>
                                             <li>Tổng tiền <span id="totalAmount">@Model.Total.ToString("N0") VNĐ</span></li>
-                                            @* <li>Giảm giá <span id="discountAmount">@Model.DiscountAmount.ToString("N0") VNĐ</span></li>
-                                            <li>Thành tiền <span id="finalAmount">@Model.FinalAmount.ToString("N0") VNĐ</span></li> *@
+                                            <li>Giảm giá <span id="discountAmount">@Model.DiscountAmount.ToString("N0") VNĐ</span></li>
+                                            <li>Thành tiền <span id="finalAmount">@Model.FinalAmount.ToString("N0") VNĐ</span></li>
                                         </ul>
                                     </div>
                                     <div class="checkout__order__voucher">
-                                        <div class="input-group mb-3">
-                                            <input type="text" id="voucherCode" name="VoucherCode" class="form-control" placeholder="Mã giảm giá">
-                                            <div class="input-group-append">
-                                                <button class="btn btn-outline-secondary" type="button" id="applyVoucher">Áp dụng</button>
-                                            </div>
-                                        </div>
                                         <div id="voucherMessage"></div>
                                     </div>
                                     <button type="submit" class="primary-btn">Đặt hàng</button>

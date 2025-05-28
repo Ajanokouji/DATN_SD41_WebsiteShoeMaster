@@ -11,6 +11,7 @@ using Project.Business.Implement;
 using Project.DbManagement;
 using Project.DbManagement.Enum;
 using Project.DbManagement.Entity;
+using Project.MVC.Models;
 
 namespace Project.MVC.Controllers
 {
@@ -22,48 +23,46 @@ namespace Project.MVC.Controllers
         private readonly IUserBusiness _userBusiness;
         private readonly ICustomerBusiness _customerBusiness;
         private const string CartSessionKey = "CartSession";
+        private const string AppliedVoucher = "AppliedVoucher";
 
-        public PaymentMethodController(ICustomerBusiness customerBusiness,IVnPayService vnPayService, IBillBusiness billBusiness, ICartBusiness cartBusiness, IUserBusiness userBusiness)
+        public PaymentMethodController(ICustomerBusiness customerBusiness, IVnPayService vnPayService, IBillBusiness billBusiness, ICartBusiness cartBusiness, IUserBusiness userBusiness)
         {
-            _customerBusiness= customerBusiness;
-            _vnPayService =vnPayService;
-            _billBusiness=billBusiness;
-            _cartBusiness=cartBusiness;
-            _userBusiness=userBusiness;
+            _customerBusiness = customerBusiness;
+            _vnPayService = vnPayService;
+            _billBusiness = billBusiness;
+            _cartBusiness = cartBusiness;
+            _userBusiness = userBusiness;
         }
 
         [HttpPost]
-        public async Task<IActionResult> Index(CheckoutViewModel  model)
+        public async Task<IActionResult> Index(CheckoutViewModel model)
         {
             var data = new List<CartItemModel>();
-            var user = JsonConvert.DeserializeObject<UserEntity>(HttpContext.Session.GetString("UserSession")??string.Empty);
+            var user = JsonConvert.DeserializeObject<UserEntity>(HttpContext.Session.GetString("UserSession") ?? string.Empty);
+            var applidvoucher = new AppliedVoucher();
+            var appliedVoucherJson = HttpContext.Session.GetString(AppliedVoucher);
+
+            if (!string.IsNullOrEmpty(appliedVoucherJson))
+            {
+                applidvoucher = JsonConvert.DeserializeObject<AppliedVoucher>(appliedVoucherJson);
+            }
 
             var paymentMethods = new List<PaymentMethodModel>
-            {
-                new PaymentMethodModel { Code = "COD", Name = "Thanh toán khi nhận hàng" },
-                new PaymentMethodModel { Code = "Banking", Name = "Chuyển khoản ngân hàng" },
-                new PaymentMethodModel { Code = "VNPay", Name = "VNPay" }
-            };
+    {
+        new PaymentMethodModel { Code = "COD", Name = "Thanh toán khi nhận hàng" },
+        new PaymentMethodModel { Code = "Banking", Name = "Chuyển khoản ngân hàng" },
+        new PaymentMethodModel { Code = "VNPay", Name = "VNPay" }
+    };
 
             ViewData["PaymentMethods"] = paymentMethods;
 
-            var viewModel = new PaymentViewModel()
-            {
-                TotalAmount = model.Total,
-                PaymentInformationModel= new PaymentInformationModel()
-                {
-                    Amount = (double?)model.Total,
-                    CustomerName=model.CustomerInfo.FullName,
-                    OrderDescription = model.Description??string.Empty,
-                    BillId = model.BillId,
-                },
-            };
             var cartItemData = new List<CartItem>();
 
-            if (user !=null)
+            if (user != null)
             {
                 var res = await _cartBusiness.GetCartItemsByUserId(user.Id);
-                if(res!=null &&res.Any()) {
+                if (res != null && res.Any())
+                {
                     foreach (var item in res)
                     {
                         cartItemData.Add(new CartItem()
@@ -81,7 +80,6 @@ namespace Project.MVC.Controllers
                         });
                     }
                 }
-
             }
             else
             {
@@ -90,7 +88,7 @@ namespace Project.MVC.Controllers
                 {
                     return Json(new { success = false, message = "Giỏ hàng trống" });
                 }
-                 cartItemData = JsonConvert.DeserializeObject<List<CartItem>>(cartSession);
+                cartItemData = JsonConvert.DeserializeObject<List<CartItem>>(cartSession);
             }
 
             var cartItemsResult = await _cartBusiness.GetCartItems(cartItemData);
@@ -100,18 +98,19 @@ namespace Project.MVC.Controllers
                 return Json(new { success = false, message = "Giỏ hàng trống" });
             }
 
-            // Tạo đơn hàng
+            var createdByUserId = user?.Id ?? Guid.NewGuid();
+
             var billModel = new BillModel
             {
                 Id = model.BillId.Value,
-                CustomerId = model.CustomerInfo.UserId??Guid.NewGuid(),
-                CreatedByUserId = user.Id,
+                CustomerId = model.CustomerInfo.UserId ?? Guid.NewGuid(),
+                CreatedByUserId = createdByUserId,
                 CustomerName = model.CustomerInfo.FullName,
                 CustomerPhone = model.CustomerInfo.PhoneNumber,
                 CustomerEmail = model.CustomerInfo.Email,
                 CustomerAddress = $"{model.CustomerInfo.Address}, {model.CustomerInfo.District}, {model.CustomerInfo.City}",
                 Note = model.CustomerInfo.Notes,
-                Source= Source.Website,
+                Source = Source.Website,
                 Status = BillConstants.PendingConfirmation,
                 PaymentStatus = BillConstants.PaymentStatusUnpaid,
                 BillDetails = cartItemsResult.Data.Select(item => new BillDetailModel
@@ -129,6 +128,19 @@ namespace Project.MVC.Controllers
                 TotalAmount = cartItemsResult.Data.Sum(x => x.Total)
             };
 
+            if (applidvoucher != null)
+            {
+                billModel.AmountAfterDiscount = billModel.TotalAmount - applidvoucher.DiscountAmount;
+                billModel.VoucherCode = applidvoucher.VoucherCode;
+                billModel.VoucherId = applidvoucher.VoucherId;
+                billModel.AmountToPay = billModel.TotalAmount - applidvoucher.DiscountAmount;
+                billModel.DiscountAmount = applidvoucher.DiscountAmount;
+            }
+            else
+            {
+                billModel.AmountToPay = billModel.TotalAmount;
+            }
+
             var bill = await _billBusiness.CreateBill(billModel);
 
             var existCustomer = await _customerBusiness.FindAsync(model.CustomerInfo.UserId ?? billModel.CustomerId.Value);
@@ -136,16 +148,35 @@ namespace Project.MVC.Controllers
             {
                 await _customerBusiness.SaveAsync(new CustomersEntity()
                 {
-                    Id=  billModel.CustomerId.Value,
-                    Name =  model.CustomerInfo.FullName,
-                    PhoneNumber =  model.CustomerInfo.PhoneNumber,
+                    Id = billModel.CustomerId.Value,
+                    Name = model.CustomerInfo.FullName,
+                    PhoneNumber = model.CustomerInfo.PhoneNumber,
                     Email = model.CustomerInfo.Email,
-                    Address=  $"{model.CustomerInfo.Address}, {model.CustomerInfo.District}, {model.CustomerInfo.City}",
+                    Address = $"{model.CustomerInfo.Address}, {model.CustomerInfo.District}, {model.CustomerInfo.City}",
                 });
-
-                await _userBusiness.CreateUserFromCustomerInfo(model.CustomerInfo);
             }
 
+
+                if (user==null) {
+                    await _userBusiness.CreateUserFromCustomerInfo(model.CustomerInfo);
+                }
+
+      
+            }
+
+            var viewModel = new PaymentViewModel()
+            {
+                TotalAmount = model.Total,
+                PaymentInformationModel = new PaymentInformationModel()
+                {
+                    Amount = (double)billModel.AmountToPay,
+                    CustomerName = model.CustomerInfo.FullName,
+                    OrderDescription = model.Description ?? string.Empty,
+                    BillId = billModel.Id,
+                },
+            };
+
+            HttpContext.Session.Remove(AppliedVoucher);
 
             return View(viewModel);
         }

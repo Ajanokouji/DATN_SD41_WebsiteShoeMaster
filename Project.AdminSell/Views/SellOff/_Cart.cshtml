@@ -37,7 +37,7 @@
             </div>
         </div>
     </div>
-    <!--Model Thêm nhanh khách hàng-->
+    <!--Model Thêm khách hàng-->
     <div class="modal" id="themkhachhang" tabindex="-1">
         <div class="modal-dialog">
             <div class="modal-content" style="margin-top: 200px;">
@@ -63,12 +63,12 @@
                             <label for="inputAddress5">Địa chỉ</label>
                             <input type="text" class="form-control" id="inputDiaChi" placeholder="">
                         </div>
-                        <div class="col-6">
+                        <div style="display: none;" class="col-6">
                             <label for="inputCity">Ngày sinh</label>
                             <input type="date" class="form-control" id="inputNgaySinh">
                         </div>
-                        <div class="col-6">
-                            <label for="inputState">Ẩn danh</label>
+                        <div style="display: none;" class="col-6">
+                            <label for="inputState">Vãng lai</label>
                             <fieldset class="d-flex flex-row mb-3 p-2">
 
                                 <div class="form-check">
@@ -173,7 +173,6 @@
 </div>
 <script>
     $(document).ready(function () {
-        console.log($(".plus").length, $(".minus").length, $(".changesl").length);
         $.ajaxSetup({cache: false});
         $('#search').keyup(function () {
             $('#result').html('');
@@ -249,6 +248,7 @@
         $("#thanhtoanbody").load("/SellOff/ViewPayment/" + elementValue, function () {
             // Gọi sau khi load xong _pay.cshtml
             if (selectedCustomer) {
+                $("#idkh").text(selectedCustomer.id);
                 $("#tenkh").text(selectedCustomer.name);
                 $("#sdtkh").text(selectedCustomer.phonenumber);
             }
@@ -259,7 +259,7 @@
     });
 
 
-    //Thêm nhanh khách hàng
+    //Thêm khách hàng
     $("#btn-saveKH").on("click", function () {
         var tenkh = $("#inputTenKhachHang").val();
         var sdt = $("#inputSDT").val();
@@ -268,6 +268,26 @@
         var dob = $("#inputNgaySinh").val();
         var adanh = $('input[name="andanh"]:checked').val();
         var idhd = $("#IDHD").val();
+
+        if (tenkh === "") {
+            toastr.error("Tên khách hàng không được để trống!", "Lỗi", { timeOut: 300 });
+            $("#inputTenKhachHang").focus();
+            return;
+        }
+        var phoneRegex = /^0\d{8,11}$/;
+        if (sdt === "" && !phoneRegex.test(sdt)) {
+            toastr.error("Số điện thoại không hợp lệ! (Bắt đầu bằng 0, chỉ chứa số, độ dài tối thiểu 9)", "Lỗi", { timeOut: 300 });
+            $("#inputSDT").focus();
+            return;
+        }
+        if (email !== "") {
+            var emailRegex = /^[^\s@@]+@@[^\s@@]+\.[^\s@@]+$/;
+            if (!emailRegex.test(email)) {
+                toastr.error("Định dạng email không hợp lệ!", "Lỗi", { timeOut: 300 });
+                $("#inputEmail").focus();
+                return;
+            }
+        }
         var khachHang = {
             Id: idhd,
             Name: tenkh,
@@ -285,57 +305,19 @@
             dataType: 'json',
             data: khachHang,
             success: function (response) {
-                gethdct(idhd);
-                $("#themkhachhang").modal("hide");
-                toastr.success('Thêm khách hàng thành công', "Success Alert", {timeOut: 300});
+                if (response.success) {
+                    gethdct(idhd);
+                    $("#themkhachhang").modal("hide");
+                    toastr.success('Thêm khách hàng thành công', "Success Alert", { timeOut: 300 });
+                } else {
+                    toastr.error('Thêm khách hàng thất bại: ' + (response.message), 'Error Alert', { timeOut: 300 });
+                }
             },
             error: function (response) {
                 toastr.error('Thêm khách hàng thất bại', 'Error Alert', {timeOut: 300});
             }
         });
     })
-
-    //Sửa khách hàng
-    function suaKhachHang(IDKH) {
-        {
-            var IDHD = $("#IDHD").val();
-            $.ajax({
-                url: "/BanHangTaiQuay/UpdateKHinHD",
-                type: 'GET',
-                data: {
-                    idkh: IDKH,
-                    idhd: IDHD,
-                },
-                dataType: "json",
-                success: function (response) {
-                    gethdct(IDHD);
-                },
-                error: function (response) {
-                    toastr.error('Sửa thất bại', "Error Alert", {timeOut: 300});
-                },
-            })
-        }
-    }
-
-    //Xóa khách hàng
-    var khinput = document.getElementById("search");
-    khinput.addEventListener("blur", function (event) {
-        var inputValue = event.target.value;
-        var idhd = $("#IDHD").val();
-        if (inputValue === '') {
-            $.ajax({
-                url: "/BanHangTaiQuay/DeleteKHinHD/" + idhd,
-                async: false,
-                type: 'GET',
-                success: function (response) {
-                    gethdct('@Model.Id');
-                },
-                error: function (response) {
-                    //toastr.error('Xóa khách hàng thất bại', 'Error Alert', {timeOut: 300});
-                }
-            });
-        }
-    });
 
     //Update số lượng
     function UpdateSL(idbilldeltails, quantity) {
@@ -367,6 +349,11 @@
         var idbilldetails = $(this).data('value');
         var $input = $(this).parent().find('input');
         var count = parseInt($input.val()) - 1;
+        if (count <= 1) {
+            toastr.warning('Số lượng không thể nhỏ hơn 1!', 'Cảnh báo', { timeOut: 300 });
+            $input.val(1);
+            return false;
+        }
         count = count < 1 ? 1 : count;
         $input.val(count);
         $input.change();
@@ -383,29 +370,28 @@
         return false;
     });
     //Thay đổi số lượng
-    $('.changesl').on('input', function () {
-        var idbilldetails = $(this).parent().find('span').data('value');
-        let count = $(this).val();
-        UpdateSL(idbilldetails, count);
+    $('.changesl').on('focus', function () {
+        $(this).data('currentCount', $(this).val());
     });
-
-    //Lưu ghi chú
-    var inputElement = document.getElementById("ghichu");
-    inputElement.addEventListener("blur", function (event) {
-        var inputValue = event.target.value;
-        if (inputValue === '') {
-            inputValue = null;
+    $('.changesl').on('blur', function () {
+        var idbilldetails = $(this).parent().find('span').data('value');
+        let currentCount = $(this).data('currentCount');
+        let count = $(this).val().trim();
+        
+        // Nếu input rỗng hoặc không phải số hợp lệ thì không làm gì cả
+        if (count === '' || isNaN(count)) {
+            // Tùy bạn muốn reset về giá trị cũ hay thông báo lỗi
+            toastr.error('Số lượng không hợp lệ!', 'Lỗi', { timeOut: 300 });
+            $(this).val(currentCount); // hoặc giá trị trước đó nếu bạn lưu lại
+            return;
         }
-        $.ajax({
-            url: "https://localhost:7095/api/HoaDon/UpdateGhichu?idhd=@Model.Id&ghichu=" + inputValue,
-            type: "PUT",
-            dataType: "json",
-            success: function () {
-                gethdct('@Model.Id');
-            },
-            error: function (response) {
-                toastr.error('Lưu ghi chú thất bại', 'Error Alert', {timeOut: 300});
-            }
-        });
+        if (parseInt(count) <= 0) {
+            // Tùy bạn muốn reset về giá trị cũ hay thông báo lỗi
+            toastr.warning('Số lượng phải lớn hơn 0!', 'Cảnh báo', { timeOut: 300 });
+            $(this).val(currentCount); // hoặc giá trị trước đó nếu bạn lưu lại
+            return;
+        }
+
+        UpdateSL(idbilldetails, parseInt(count));
     });
 </script>

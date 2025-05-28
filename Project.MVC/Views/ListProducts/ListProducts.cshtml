@@ -25,23 +25,7 @@
                         </div>
                         <div class="categories__accordion">
                             <div class="accordion" id="accordionExample">
-                                <div class="card">
-                                    <div class="card-heading active">
-                                        <a data-toggle="collapse" data-target="#collapseOne">Theo Kiểu Dáng</a>
-                                    </div>
-                                    <div id="collapseOne" class="collapse show" data-parent="#accordionExample">
-                                        <div class="card-body">
-                                            <ul>
-                                                <li><a href="#">Giày Thể Thao</a></li>
-                                                <li><a href="#">Giày Tây</a></li>
-                                                <li><a href="#">Giày Sneaker</a></li>
-                                                <li><a href="#">Giày Lười</a></li>
-                                                <li><a href="#">Giày Sandal</a></li>
-                                                <li><a href="#">Giày Boots</a></li>
-                                            </ul>
-                                        </div>
-                                    </div>
-                                </div>
+                                
                                 <div class="card">
                                     <div class="card-heading">
                                         <a data-toggle="collapse" data-target="#collapseTwo">Theo Thương Hiệu</a>
@@ -49,36 +33,35 @@
                                     <div id="collapseTwo" class="collapse" data-parent="#accordionExample">
                                         <div class="card-body">
                                             <ul>
-                                                <li><a href="#">Nike</a></li>
-                                                <li><a href="#">Adidas</a></li>
-                                                <li><a href="#">Puma</a></li>
-                                                <li><a href="#">Converse</a></li>
-                                                <li><a href="#">Vans</a></li>
-                                                <li><a href="#">New Balance</a></li>
+                                                @foreach (var product in ViewBag.Categories)
+                                                {
+                                                    <li><a href="@Url.Action("ListProducts", new {categoryId = product.Id})">@product.Name</a></li>
+                                                    @* <li><a href="#">Nike</a></li>
+                                                    <li><a href="#">Dunk</a></li>
+                                                    <li><a href="#">Asics</a></li>
+                                                    <li><a href="#">Crocs</a></li>
+                                                    <li><a href="#">Adidas</a></li>
+                                                    <li><a href="#">Nike SB</a></li>
+                                                    <li><a href="#">Air Max</a></li>
+                                                    <li><a href="#">Air Jordan</a></li>
+                                                    <li><a href="#">Air Force</a></li>
+                                                    <li><a href="#">Nike Other</a></li>
+                                                    <li><a href="#">Reebok</a></li>
+                                                    <li><a href="#">New Balance</a></li>
+                                                    <li><a href="#">Nike Apparels</a></li>
+                                                    <li><a href="#">Luxury Brands</a></li>
+                                                    <li><a href="#">Nike Basketball</a></li> *@
+                                                }
+                                                
                                             </ul>
                                         </div>
                                     </div>
                                 </div>
-                                <div class="card">
-                                    <div class="card-heading">
-                                        <a data-toggle="collapse" data-target="#collapseThree">Theo Dịp</a>
-                                    </div>
-                                    <div id="collapseThree" class="collapse" data-parent="#accordionExample">
-                                        <div class="card-body">
-                                            <ul>
-                                                <li><a href="#">Đi Làm</a></li>
-                                                <li><a href="#">Đi Chơi</a></li>
-                                                <li><a href="#">Thể Thao</a></li>
-                                                <li><a href="#">Tiệc Tùng</a></li>
-                                                <li><a href="#">Đi Biển</a></li>
-                                            </ul>
-                                        </div>
-                                    </div>
-                                </div>
+                                
                             </div>
                         </div>
                     </div>
-                    <div class="sidebar__filter">
+                    @* <div class="sidebar__filter">
                         <div class="section-title">
                             <h4>Lọc Theo Giá</h4>
                         </div>
@@ -94,8 +77,8 @@
                             </div>
                         </div>
                         <a href="#" class="filter-btn">Lọc</a>
-                    </div>
-                    <div class="sidebar__sizes">
+                    </div> *@
+                    @* <div class="sidebar__sizes">
                         <div class="section-title">
                             <h4>Kích Cỡ Giày</h4>
                         </div>
@@ -136,8 +119,8 @@
                                 <span class="checkmark"></span>
                             </label>
                         </div>
-                    </div>
-                    <div class="sidebar__color">
+                    </div> *@
+                    @* <div class="sidebar__color">
                         <div class="section-title">
                             <h4>Màu Sắc</h4>
                         </div>
@@ -173,7 +156,7 @@
                                 <span class="checkmark"></span>
                             </label>
                         </div>
-                    </div>
+                    </div> *@
                 </div>
             </div>
             <div class="col-lg-9 col-md-9">

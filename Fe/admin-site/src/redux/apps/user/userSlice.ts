@@ -1,91 +1,90 @@
-import { createSlice, createAsyncThunk } from "@reduxjs/toolkit";
+import { createSlice, PayloadAction } from "@reduxjs/toolkit";
+import { addLoadingCases } from "@/utils/redux.utils";
+import { createAppThunk } from "@/utils/createThunk";
 import userService from "@/redux/api/userService";
-import { UserResDto, UserFilterParams, UserReqDto } from "@/types/user/user";
-import { handleAxiosError } from "@/utils/error.utils";
+import UserReqDto, { UserResDto, UserFilterParams } from "@/types/user/user";
 
 interface UserState {
-  users: UserResDto[];
-  user: UserResDto | null;
   loading: boolean;
   error: string | null;
+  user: UserResDto | null;
+  users: UserResDto[];
   pagination: {
-    totalRecords: number;
-    totalPages: number;
     currentPage: number;
+    totalPages: number;
     pageSize: number;
+    totalRecords: number;
   };
 }
 
 const initialState: UserState = {
-  users: [],
-  user: null,
   loading: false,
   error: null,
+  user: null,
+  users: [],
   pagination: {
-    totalRecords: 0,
-    totalPages: 0,
     currentPage: 1,
-    pageSize: 10,
+    totalPages: 0,
+    pageSize: 20,
+    totalRecords: 0,
   },
 };
 
-export const fetchUsers = createAsyncThunk(
+export const fetchUsers = createAppThunk(
   "user/fetchUsers",
-  async (params: UserFilterParams | undefined, { rejectWithValue }) => {
-    try {
-      const response = await userService.getUsers(params);
-      return response;
-    } catch (error) {
-      return rejectWithValue(handleAxiosError(error));
-    }
+  async (params: UserFilterParams) => {
+    const response = await userService.getUsers(params);
+    return response;
   }
 );
 
-export const fetchUserById = createAsyncThunk(
+export const fetchUserById = createAppThunk(
   "user/fetchUserById",
-  async (id: string, { rejectWithValue }) => {
-    try {
-      const response = await userService.getUserById(id);
-      return response;
-    } catch (error) {
-      return rejectWithValue(handleAxiosError(error));
-    }
+  async (id: string) => {
+    const response = await userService.getUserById(id);
+    return response;
   }
 );
 
-export const createUser = createAsyncThunk(
+export const createUser = createAppThunk(
   "user/createUser",
-  async (userData: UserReqDto, { rejectWithValue }) => {
-    try {
-      const response = await userService.createUser(userData);
-      return response;
-    } catch (error) {
-      return rejectWithValue(handleAxiosError(error));
-    }
+  userService.createUserReq,
+  {
+    successMessage: "Tạo tài khoản thành công!",
+    errorMessage: "Tạo tài khoản thất bại!",
   }
 );
 
-export const updateUser = createAsyncThunk(
+export const updateUser = createAppThunk(
   "user/updateUser",
-  async ({ id, userData }: { id: string; userData: UserReqDto }, { rejectWithValue }) => {
-    try {
-      const response = await userService.updateUser(id, userData);
-      return response;
-    } catch (error) {
-      return rejectWithValue(handleAxiosError(error));
-    }
+  async ({ id, userData }: { id: string; userData: Partial<UserReqDto> }) => {
+    const response = await userService.updateUserReq(id, userData);
+    return response;
+  },
+  {
+    successMessage: "Cập nhật tài khoản thành công!",
+    errorMessage: "Cập nhật tài khoản thất bại!",
   }
 );
 
-export const deleteUser = createAsyncThunk(
+export const deleteUser = createAppThunk(
   "user/deleteUser",
-  async (id: string, { rejectWithValue }) => {
-    try {
-      await userService.deleteUser(id);
-      return id;
-    } catch (error) {
-      return rejectWithValue(handleAxiosError(error));
-    }
+  async (id: string) => {
+    await userService.deleteUserReq(id);
+    return id;
+  },
+  {
+    successMessage: "Xóa tài khoản thành công!",
+    errorMessage: "Xóa tài khoản thất bại!",
+  }
+);
+
+// Thunk kiểm tra trùng username
+export const checkTrungCodeUser = createAppThunk(
+  "user/checkTrungCodeUser",
+  async ({ username, id }: { username: string; id?: string }) => {
+    const response = await userService.checkTrungCodeUser(username, id);
+    return response;
   }
 );
 
@@ -93,83 +92,91 @@ const userSlice = createSlice({
   name: "user",
   initialState,
   reducers: {
-    setUserPage: (state, action) => {
+    setUserPage: (state, action: PayloadAction<number>) => {
       state.pagination.currentPage = action.payload;
     },
-    setUserPageSize: (state, action) => {
+    setUserPageSize: (state, action: PayloadAction<number>) => {
       state.pagination.pageSize = action.payload;
+    },
+    clearUserError: (state) => {
+      state.error = null;
     },
   },
   extraReducers: (builder) => {
-    builder
-      .addCase(fetchUsers.pending, (state) => {
-        state.loading = true;
-        state.error = null;
-      })
-      .addCase(fetchUsers.fulfilled, (state, action) => {
+    // Fetch users
+    addLoadingCases(builder, fetchUsers, {
+      onFulfilled: (state, action) => {
         state.loading = false;
-        state.users = action.payload.data;
-        state.pagination.totalRecords = action.payload.totalRecords;
-        state.pagination.totalPages = action.payload.totalPages;
-        state.pagination.currentPage = action.payload.currentPage;
-        state.pagination.pageSize = action.payload.pageSize;
-      })
-      .addCase(fetchUsers.rejected, (state, action) => {
-        state.loading = false;
-        state.error = action.payload as string;
-      })
-      .addCase(fetchUserById.pending, (state) => {
-        state.loading = true;
+        state.users = action.payload.data.content;
+        state.pagination = {
+          currentPage: action.payload.data.currentPage,
+          totalPages: action.payload.data.totalPages,
+          pageSize: action.payload.data.pageSize,
+          totalRecords: action.payload.data.totalRecords,
+        };
         state.error = null;
-        state.user = null;
-      })
-      .addCase(fetchUserById.fulfilled, (state, action) => {
+      },
+      onRejected: (state, action) => {
+        state.loading = false;
+        state.error = (action.payload as string) || "Lỗi lấy danh sách tài khoản";
+      },
+    });
+
+    // Fetch user by ID
+    addLoadingCases(builder, fetchUserById, {
+      onFulfilled: (state, action) => {
         state.loading = false;
         state.user = action.payload;
-      })
-      .addCase(fetchUserById.rejected, (state, action) => {
-        state.loading = false;
-        state.error = action.payload as string;
-      })
-      .addCase(createUser.pending, (state) => {
-        state.loading = true;
         state.error = null;
-      })
-      .addCase(createUser.fulfilled, (state) => {
+      },
+      onRejected: (state, action) => {
         state.loading = false;
-        // Optionally add the new user to the users array or refetch users
-      })
-      .addCase(createUser.rejected, (state, action) => {
+        state.error = (action.payload as string) || "Lỗi lấy thông tin tài khoản";
+      },
+    });
+
+    // Create user
+    addLoadingCases(builder, createUser, {
+      onFulfilled: (state, action) => {
         state.loading = false;
-        state.error = action.payload as string;
-      })
-      .addCase(updateUser.pending, (state) => {
-        state.loading = true;
+        state.users = [action.payload, ...state.users];
         state.error = null;
-      })
-      .addCase(updateUser.fulfilled, (state) => {
+      },
+      onRejected: (state, action) => {
         state.loading = false;
-        // Optionally update the user in the users array or refetch users
-      })
-      .addCase(updateUser.rejected, (state, action) => {
+        state.error = (action.payload as string) || "Lỗi tạo tài khoản";
+      },
+    });
+
+    // Update user
+    addLoadingCases(builder, updateUser, {
+      onFulfilled: (state, action) => {
         state.loading = false;
-        state.error = action.payload as string;
-      })
-      .addCase(deleteUser.pending, (state) => {
-        state.loading = true;
+        state.users = state.users.map((user) =>
+          user.id === action.payload.id ? action.payload : user
+        );
         state.error = null;
-      })
-      .addCase(deleteUser.fulfilled, (state, action) => {
+      },
+      onRejected: (state, action) => {
         state.loading = false;
-        state.users = state.users.filter((user) => user.id !== (action.payload as string));
-      })
-      .addCase(deleteUser.rejected, (state, action) => {
+        state.error = (action.payload as string) || "Lỗi cập nhật tài khoản";
+      },
+    });
+
+    // Delete user
+    addLoadingCases(builder, deleteUser, {
+      onFulfilled: (state, action) => {
         state.loading = false;
-        state.error = action.payload as string;
-      });
+        state.users = state.users.filter((user) => user.id !== action.payload);
+        state.error = null;
+      },
+      onRejected: (state, action) => {
+        state.loading = false;
+        state.error = (action.payload as string) || "Lỗi xóa tài khoản";
+      },
+    });
   },
 });
 
-export const { setUserPage, setUserPageSize } = userSlice.actions;
-
-export default userSlice.reducer; 
+export const { setUserPage, setUserPageSize, clearUserError } = userSlice.actions;
+export default userSlice.reducer;
