@@ -161,9 +161,6 @@ namespace Project.MVC.Controllers
                     await _userBusiness.CreateUserFromCustomerInfo(model.CustomerInfo);
                 }
 
-      
-            }
-
             var viewModel = new PaymentViewModel()
             {
                 TotalAmount = model.Total,
