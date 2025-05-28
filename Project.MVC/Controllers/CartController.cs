@@ -83,6 +83,7 @@ namespace Project.MVC.Controllers
                             {
                                 ProductId = x.IdProduct,
                                 Quantity = x.Quantity.Value,
+                                Size= x.Size,
                                 Color = x.Color,
                                 SKU= x.SKU,
                                 CartId= x.IdCart,
