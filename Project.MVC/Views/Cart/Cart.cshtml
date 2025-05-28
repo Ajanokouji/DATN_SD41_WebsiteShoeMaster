@@ -288,7 +288,10 @@
                 var price = parseInt($row.data('discount-price') || $row.data('original-price') || 0);
                 var total = price * qty;
                 $row.find('.cart__total').text(formatCurrency(total) + ' VNĐ');
+                console.log(qty);
+                console.log(price);
 
+                console.log(total);
                 updateTotals();
             });
 

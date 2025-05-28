@@ -344,11 +344,13 @@ namespace Project.MVC.Controllers
                     Status = BillConstants.Cancelled,
                 });
             }
-            if (!response.Success)
+            if (response.Success)
             {
-                return RedirectToAction("VnPayCanceled");
+                return RedirectToAction("ThankYou", new { billId = paymentInformationModel.BillId });
+
             }
-            return RedirectToAction("ThankYou", new { billId = paymentInformationModel.BillId });
+            return RedirectToAction("VnPayCanceled");
+
 
 
 
