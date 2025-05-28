@@ -1,4 +1,5 @@
 using Microsoft.Extensions.Caching.Memory;
+using NetTopologySuite.Index.HPRtree;
 using Project.Business.Interface;
 using Project.Business.Interface.Repositories;
 using Project.Business.Model;
@@ -518,12 +519,26 @@ namespace Project.Business.Implement
                 // Kiểm tra xem sản phẩm đã có trong giỏ hàng chưa
                 var existingItem = currentCart.FirstOrDefault(x => 
                     x.ProductId == cartItem.ProductId && x.SKU ==cartItem.SKU
-            );
+                );
+
+
+                var variantStock = (await _productRepository.FindAsync(cartItem.ProductId)).VariantObjs.FirstOrDefault(x => x.Sku==cartItem.SKU).Stock;
 
                 if (existingItem != null)
                 {
                     // Nếu đã có, tăng số lượng
+                    var beforeQuantity = existingItem.Quantity;
                     existingItem.Quantity += cartItem.Quantity;
+
+                    if (existingItem.Quantity > variantStock)
+                    {
+                        return new ServiceResult<bool>
+                        {
+                            IsSuccess = false,
+                            Message = $@"Bạn đã có {beforeQuantity} sản phẩm trong giỏ hàng. Không thể thêm số lượng đã chọn vào giỏ hàng vì sẽ vượt quá giới hạn mua hàng của bạn",
+                            Data = false
+                        };
+                    }
                     existingItem.Total = existingItem.Price * existingItem.Quantity;
                 }
                 else
@@ -857,7 +872,7 @@ namespace Project.Business.Implement
 
                 foreach (var item in newItems)
                 {
-                    if (existingDetails.Any(x => x.IdProduct == item.IdProduct))
+                    if (existingDetails.Any(x => x.IdProduct == item.IdProduct&&x.SKU==item.SKU))
                     {
                         var variantStock = (await _productRepository.FindAsync(item.IdProduct)).VariantObjs.FirstOrDefault(x => x.Sku==item.SKU).Stock;
                         var existingDetail = existingDetails.Where(x => x.IdProduct == item.IdProduct);
@@ -867,22 +882,20 @@ namespace Project.Business.Implement
 
                             if (updateDetail != null)
                             {
+                                var beforeQuantity = updateDetail.Quantity;
                                 updateDetail.Quantity += item.Quantity;
                                 if (updateDetail.Quantity>=variantStock)
                                 {
-                                    updateDetail.Quantity=variantStock;
-                                    await _cartDetailsRepository.SaveAsync(updateDetail);
+                                    //updateDetail.Quantity=variantStock;
+                                    //await _cartDetailsRepository.SaveAsync(updateDetail);
                                     return new ServiceResult<bool>
                                     {
                                         IsSuccess = false,
                                         Data = true,
-                                        Message = $@"Bạn đã có {variantStock} sản phẩm trong giỏ hàng. Không thể thêm số lượng đã chọn vào giỏ hàng vì sẽ vượt quá giới hạn mua hàng của bạn"
+                                        Message = $@"Bạn đã có {beforeQuantity} sản phẩm trong giỏ hàng. Không thể thêm số lượng đã chọn vào giỏ hàng vì sẽ vượt quá giới hạn mua hàng của bạn"
                                     };
                                 }
-                                else
-                                {
-                                    await _cartDetailsRepository.SaveAsync(updateDetail);
-                                }
+                                await _cartDetailsRepository.SaveAsync(updateDetail);
 
                             }
                         }
@@ -900,9 +913,7 @@ namespace Project.Business.Implement
                             IdProduct = item.IdProduct,
                             Quantity = item.Quantity,
                             CreatedByUserId = userId,
-                            CreatedOnDate = DateTime.Now,
-                            LastModifiedByUserId = userId,
-                            LastModifiedOnDate = DateTime.Now,
+                            LastModifiedByUserId = userId
                         };
                         await _cartDetailsRepository.SaveAsync(newCartItem);
                     }

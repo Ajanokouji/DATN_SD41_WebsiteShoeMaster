@@ -100,6 +100,15 @@ export const deleteBill = createAppThunk(
   }
 );
 
+// Kiểm tra số lượng trong kho
+export const checkInventory = createAppThunk(
+  "bill/checkInventory",
+  async (id: string) => {
+    const response = await billService.checkInventory(id);
+    return response;
+  }
+);
+
 // Slice quản lý trạng thái của bill
 const billSlice = createSlice({
   name: "bill",
