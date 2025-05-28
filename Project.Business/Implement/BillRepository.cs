@@ -3,7 +3,9 @@ using Microsoft.EntityFrameworkCore;
 using Project.Business.Interface.Repositories;
 using Project.Business.Model;
 using Project.Common;
+using Project.Common.Constants;
 using Project.DbManagement;
+using Project.DbManagement.Entity;
 using Project.DbManagement.ViewModels;
 using SERP.Framework.Business;
 using SERP.Framework.Common;
@@ -287,7 +289,7 @@ public class BillRepository : IBillRepository
 
     public List<BillEntity> GetAllPendingBill()
     {
-        return _context.Bills.Where(hd => hd.Status == "Pending").OrderBy(hd => hd.CreatedOnDate).ToList();
+        return _context.Bills.Where(hd => hd.Status == BillConstants.PendingConfirmation).OrderBy(hd => hd.CreatedOnDate).ToList();
     }
 
     public bool CreatePendingBill(Guid idEmployee)
@@ -300,7 +302,11 @@ public class BillRepository : IBillRepository
             bill.EmployeeId = idEmployee;
             bill.CreatedByUserId = idEmployee;
             bill.CreatedOnDate = DateTime.Now;
-            bill.Status = "Pending";
+            bill.DiscountAmount = 0;
+            bill.AmountAfterDiscount = 0;
+            bill.AmountToPay = 0;
+            bill.Source = Source.OffLine;
+            bill.Status = BillConstants.PendingConfirmation;
             _context.Bills.Add(bill);
             _context.SaveChanges();
             return true;
@@ -419,6 +425,7 @@ public class BillRepository : IBillRepository
 
     public bool PaymentBill(PaymentBillRequest bill)
     {
+        var customer = _context.Customers.FirstOrDefault(c => c.Id == bill.IdCustomer);
         var update = _context.Bills.FirstOrDefault(p => p.Id == bill.Id);
         //Lưu tiền vào HDCT
         var lstBillDetails = _context.BillDetails.Where(c => c.BillId == bill.Id).ToList();
@@ -443,6 +450,12 @@ public class BillRepository : IBillRepository
         update.TotalAmount = bill.TotalPrice;
         update.PaymentMethod = bill.PaymentMethod;
         update.CustomerId = bill.IdCustomer;
+        update.RecipientName = customer.Name;
+        update.RecipientEmail = customer.Email;
+        update.RecipientPhone = customer.PhoneNumber;
+        update.RecipientAddress = customer.Address;
+        update.AmountAfterDiscount = bill.TotalPrice;
+        update.AmountToPay = bill.TotalPrice;
         _context.Bills.Update(update);
         _context.SaveChanges();
         return true;

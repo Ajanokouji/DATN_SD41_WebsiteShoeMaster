@@ -461,7 +461,7 @@
                 if (response.success == true) {
                     toastr.success('Thêm thành công', "Success Alert", {timeOut: 300});
                     gethdct(request.IdBill);
-                    loadCTSPByID();
+                    FilterPL();
                 } else {
                     toastr.error('Thêm thất bại', 'Error Alert', {timeOut: 300});
                 }
