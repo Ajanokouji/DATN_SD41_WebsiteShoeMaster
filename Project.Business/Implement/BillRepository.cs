@@ -301,7 +301,7 @@ public class BillRepository : IBillRepository
             bill.BillCode = "BILL" + (bill.Id).ToString().Substring(0, 8).ToUpper();
             bill.EmployeeId = idEmployee;
             bill.CreatedByUserId = idEmployee;
-            bill.CreatedOnDate = DateTime.Now;
+            bill.CreatedOnDate = DateTime.UtcNow;
             bill.DiscountAmount = 0;
             bill.AmountAfterDiscount = 0;
             bill.AmountToPay = 0;

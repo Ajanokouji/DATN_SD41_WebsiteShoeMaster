@@ -18,6 +18,7 @@ namespace Project.Business.Implement
     public class CartBusiness : ICartBusiness
     {
         private readonly ICartRepository _cartRepository;
+        private readonly IProductRepository _productRepository;
         private readonly ICartDetailsRepository _cartDetailsRepository;
         private readonly IContactRepository _contactRepository;
         private readonly ICartDetailFactory _cartDetailFactory;
@@ -27,8 +28,10 @@ namespace Project.Business.Implement
         private readonly MemoryCacheEntryOptions _cacheOptions;
 
         public CartBusiness(ICartRepository cartRepository, ICartDetailFactory cartDetailFactory,
+            IProductRepository productRepository,
             ICartDetailsRepository cartDetailsRepository, IContactRepository contactRepository, IMemoryCache cache)
         {
+            _productRepository= productRepository;
             _cartRepository = cartRepository ?? throw new ArgumentNullException(nameof(cartRepository));
             _cartDetailsRepository = cartDetailsRepository ?? throw new ArgumentNullException(nameof(cartDetailsRepository));
             _contactRepository = contactRepository ?? throw new ArgumentNullException(nameof(contactRepository));
@@ -856,6 +859,7 @@ namespace Project.Business.Implement
                 {
                     if (existingDetails.Any(x => x.IdProduct == item.IdProduct))
                     {
+                        var variantStock = (await _productRepository.FindAsync(item.IdProduct)).VariantObjs.FirstOrDefault(x => x.Sku==item.SKU).Stock;
                         var existingDetail = existingDetails.Where(x => x.IdProduct == item.IdProduct);
                         if (!string.IsNullOrEmpty(item.SKU))
                         {
@@ -864,7 +868,22 @@ namespace Project.Business.Implement
                             if (updateDetail != null)
                             {
                                 updateDetail.Quantity += item.Quantity;
-                                await _cartDetailsRepository.SaveAsync(updateDetail);
+                                if (updateDetail.Quantity>=variantStock)
+                                {
+                                    updateDetail.Quantity=variantStock;
+                                    await _cartDetailsRepository.SaveAsync(updateDetail);
+                                    return new ServiceResult<bool>
+                                    {
+                                        IsSuccess = false,
+                                        Data = true,
+                                        Message = $@"Bạn đã có {variantStock} sản phẩm trong giỏ hàng. Không thể thêm số lượng đã chọn vào giỏ hàng vì sẽ vượt quá giới hạn mua hàng của bạn"
+                                    };
+                                }
+                                else
+                                {
+                                    await _cartDetailsRepository.SaveAsync(updateDetail);
+                                }
+
                             }
                         }
                     }
