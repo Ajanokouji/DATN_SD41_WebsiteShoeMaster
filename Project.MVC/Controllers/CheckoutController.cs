@@ -109,6 +109,8 @@ namespace Project.MVC.Controllers
             };
             if (applidvoucher!=null)
             {
+                model.DiscountAmount = applidvoucher.DiscountAmount;
+                model.FinalAmount = data.Sum(x => x.Total) - applidvoucher.DiscountAmount;
                 model.Total = data.Sum(x => x.Total) - applidvoucher.DiscountAmount;
                 model.SubTotal =data.Sum(x => x.Total) - applidvoucher.DiscountAmount;
             }
