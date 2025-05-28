@@ -10,7 +10,7 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 using Project.Business.Model;
-using System.Data.Entity;
+using Microsoft.EntityFrameworkCore;
 
 namespace Project.Business.Implement
 {
@@ -25,7 +25,7 @@ namespace Project.Business.Implement
 
         public virtual async Task<CommentsEntity> FindAsync(Guid id)
         {
-            return await _context.Comments.AsNoTracking().FirstOrDefaultAsync(x => x.Id == id);
+            return await _context.Comments.FindAsync(id);
         }
 
         public virtual async Task<IEnumerable<CommentsEntity>> ListAllAsync(CommentsModel queryModel)
@@ -129,7 +129,7 @@ namespace Project.Business.Implement
 
             foreach (var comment in comments)
             {
-                var exist = await _context.Comments.AsNoTracking().FirstOrDefaultAsync(x => x.Id == comment.Id);
+                var exist = await _context.Comments.FirstOrDefaultAsync(x => x.Id == comment.Id);
 
                 if (exist == null)
                 {
@@ -140,10 +140,6 @@ namespace Project.Business.Implement
                 }
                 else
                 {
-                    // Detach entity to avoid tracking conflict
-                    _context.Entry(exist).State = Microsoft.EntityFrameworkCore.EntityState.Detached;
-
-
                     // Update fields (chỉ giữ những field có thật trong CommentsEntity)
                     exist.Message = comment.Message;
                     exist.Status = comment.Status;
@@ -154,6 +150,7 @@ namespace Project.Business.Implement
                     exist.Ref = comment.Ref;
                     exist.IsPublish = comment.IsPublish;
                     exist.ParentId = comment.ParentId;
+                    exist.Status = comment.Status;
 
                     exist.UpdateTracking(comment.LastModifiedByUserId ?? Guid.Empty); // Sửa chỗ này
 

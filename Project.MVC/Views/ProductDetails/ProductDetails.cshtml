@@ -205,7 +205,7 @@
                             <a class="nav-link" data-toggle="tab" href="#tabs-2" role="tab">Thông số kỹ thuật</a>
                         </li>
                         <li class="nav-item">
-                            <a class="nav-link" data-toggle="tab" href="#tabs-3" role="tab">Đánh giá ( 2 )</a>
+                            <a class="nav-link" data-toggle="tab" href="#tabs-3" role="tab">Đánh giá</a>
                         </li>
                     </ul>
                     <div class="tab-content">
@@ -223,11 +223,7 @@
                             </p>
                         </div>
                         <div class="tab-pane" id="tabs-3" role="tabpanel">
-                            <h6>Đánh giá ( 2 )</h6>
-                            <p>
-                                Nemo enim ipsam voluptatem quia voluptas sit aspernatur aut odit aut loret fugit, sed
-                                quia consequuntur magni dolores eos qui ratione voluptatem sequi nesciunt loret.
-                            </p>
+                            @await Component.InvokeAsync("CommentList", new { productId = Model.Product.Id })
                         </div>
                     </div>
                 </div>
