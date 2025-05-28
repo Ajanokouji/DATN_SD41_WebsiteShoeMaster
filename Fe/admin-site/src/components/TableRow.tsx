@@ -16,6 +16,7 @@ type TableRowProps<T> = {
     deleteAction?: (id: string) => void;
     updateAction?: (id: string) => void;
     detailAction?: (id: string) => void;
+    starAction?: (id: string) => void; // <-- Thêm dòng này
   }[];
 };
 
@@ -29,6 +30,7 @@ const TableRowComponent = <
     billCode?: string;
     varientProductId?: string;
     userId?: string;
+    message?: string;
   }
 >({
   data,
@@ -53,6 +55,7 @@ const TableRowComponent = <
     if (data.billCode) return data.billCode;
     if (data.varientProductId) return data.varientProductId;
     if (data.userId) return "this item";
+    if (data.message) return data.message.slice(0, 20) + "...";
     return data.id;
   };
 
@@ -69,6 +72,26 @@ const TableRowComponent = <
             {column.isActionColumn ? (
               data ? (
                 <div className="flex flex-grow gap-2">
+                  {/* Nút ngôi sao */}
+                  {column.starAction && (
+                    <button
+                      onClick={() =>
+                        column.starAction && column.starAction(data.id)
+                      }
+                      title="Xem đánh giá sản phẩm"
+                    >
+                      <svg
+                        width="25"
+                        height="25"
+                        fill="currentColor"
+                        viewBox="0 0 24 24"
+                        color="yellow"
+                      >
+                        <path d="M12 17.75L6.16 21l1.12-6.54L2 9.75l6.58-.96L12 3.5l3.42 5.29 6.58.96-4.76 4.71L17.84 21z" />
+                      </svg>
+                    </button>
+                  )}
+                  {/* Các nút khác */}
                   {column.updateAction && (
                     <button
                       onClick={() =>

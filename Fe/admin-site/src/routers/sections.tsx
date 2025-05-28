@@ -23,6 +23,9 @@ export const CustomerPage = lazy(() => import("@/pages/customer"));
 export const VoucherProductPage = lazy(() => import("@/pages/voucherProduct"));
 export const VoucherUserPage = lazy(() => import("@/pages/voucherUser"));
 export const ContentBasePage = lazy(() => import("@/pages/contentBase"));
+export const CommentPage = lazy(() => import("@/pages/comment"));
+// export const LoginPage = lazy(() => import("../pages/auth/Login"));
+// export const RegisterPage = lazy(() => import("../pages/auth/Register"));
 export const UserPage = lazy(() => import("@/pages/user"));
 export const Page404 = lazy(() => import("../pages/shared/NotFoundPage"));
 
@@ -57,24 +60,32 @@ export default function Router() {
     {
       path: "/dashboard",
       element: (
-        <PrivateRoute> {/* Chỉ cho phép truy cập nếu đã đăng nhập */}
-          <Layout> {/* Bọc trong Layout chính */}
-            <Suspense fallback={<LoadingPage />}>
-              <DashboardPage />
-            </Suspense>
-          </Layout>
+        <PrivateRoute>
+          {
+            <>
+              {/* Chỉ cho phép truy cập nếu đã đăng nhập */}
+              <Layout> {/* Bọc trong Layout chính */}
+                <Suspense fallback={<LoadingPage />}>
+                  <DashboardPage />
+                </Suspense>
+              </Layout>
+            </>
+          }
         </PrivateRoute>
       ),
     },
     // Các route chức năng khác: BỌC TRONG LAYOUT VÀ PRIVATE ROUTE
     {
       element: (
-        <PrivateRoute> {/* Chỉ cho phép truy cập nếu đã đăng nhập */}
-          <Layout> {/* Bọc trong Layout chính */}
-            <Suspense fallback={<LoadingPage />}>
-              <Outlet /> {/* Outlet để render các children routes */}
-            </Suspense>
-          </Layout>
+        <PrivateRoute>
+          <>
+            {/* Chỉ cho phép truy cập nếu đã đăng nhập */}
+            <Layout> {/* Bọc trong Layout chính */}
+              <Suspense fallback={<LoadingPage />}>
+                <Outlet /> {/* Outlet để render các children routes */}
+              </Suspense>
+            </Layout>
+          </>
         </PrivateRoute>
       ),
       children: [
@@ -124,12 +135,23 @@ export default function Router() {
           element: <ContentBasePage />,
         },
         {
+          path: "comment/:objectId",
+          element: <CommentPage />,
+        },
+        {
           path: "user",
           element: <UserPage />,
-        }
+        },
       ],
     },
-
+    // {
+    //   path: "login",
+    //   element: isAuthenticated ? <Navigate to="/" /> : <LoginPage />,
+    // },
+    // {
+    //   path: "register",
+    //   element: isAuthenticated ? <Navigate to="/" /> : <RegisterPage />,
+    // },
     // Route 404 cho các path không khớp
     {
       path: "*",
