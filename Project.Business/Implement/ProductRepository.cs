@@ -396,7 +396,7 @@ namespace Project.Business.Implement
                 Color = v.Group1,
                 Size = v.Group2,
                 Quantity = v.Stock?.ToString() ?? "0",
-                Image = product.ImageUrl,
+                Image = !string.IsNullOrEmpty(v.ImgUrl) ? v.ImgUrl : product.ImageUrl,
                 Price = v.Price
             }).ToList();
             return result;

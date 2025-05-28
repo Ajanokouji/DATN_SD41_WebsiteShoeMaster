@@ -248,7 +248,7 @@ public class BillDetailsRepository : IBillDetailsRepository
                     Quantity = request.Quantity,
                     Size = request.Size,
                     Color = request.Color,
-                    ProductImage = product.ImageUrl,
+                    ProductImage = !string.IsNullOrEmpty(variant.ImgUrl) ? variant.ImgUrl : product.ImageUrl,
                     ProductName = product.Name,
                     Price = Convert.ToDecimal(variant.Price),
                     TotalPrice = Convert.ToDecimal(variant.Price) * request.Quantity,
