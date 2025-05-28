@@ -34,22 +34,25 @@ const ProductTable = <T extends { id: string }>({
       <TableHeaderComponent headers={headers} />
     </Table> */}
     <div className="max-h-[58vh] max-w-full overflow-x-auto overflow-y-auto">
-      <Table className="w-full">
-        <TableHeaderComponent headers={headers} className="text-center" />
-        <TableBody>
-          {data.length ? (
-            data.map((row, index) => (
-              <TableRowComponent key={index} data={row} columns={columns} />
-            ))
-          ) : (
-            <TableRowComponent
-              key="empty-row"
-              columns={columns}
-              data={undefined}
-            />
-          )}
-        </TableBody>
-      </Table>
+    <div className="w-full overflow-auto max-w-[1400px] mx-auto">
+  <Table className="min-w-full">
+    <TableHeaderComponent headers={headers} className="text-center" />
+    <TableBody>
+      {data.length ? (
+        data.map((row, index) => (
+          <TableRowComponent key={index} data={row} columns={columns} />
+        ))
+      ) : (
+        <TableRowComponent
+          key="empty-row"
+          columns={columns}
+          data={undefined}
+        />
+      )}
+    </TableBody>
+  </Table>
+</div>
+
     </div>
   </div>
 );

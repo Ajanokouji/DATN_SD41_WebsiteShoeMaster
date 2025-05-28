@@ -19,16 +19,24 @@ const Product: React.FC = () => {
         <title>Sản Phẩm</title>
       </Helmet>
 
-      <section className="flex min-h-screen">
-        {/* Sidebar bên trái */}
-        <SideCategoryFilter onCategorySelect={handleCategorySelect} />
+      <section className="min-h-screen bg-white">
+  <div className="mx-auto flex w-full max-w-[1500px]">
+    {/* Sidebar bên trái */}
+    <aside className="w-64 shrink-0 border-r px-0.1 py-6">
+      <SideCategoryFilter onCategorySelect={handleCategorySelect} />
+    </aside>
 
-        {/* Nội dung chính bên phải */}
-        <div className="flex-1 px-8 py-6">
-          <ActionHeader />
-          <CategoriesTable selectedCategoryId={selectedCategoryId} /> {/* Truyền id danh mục */}
-        </div>
-      </section>
+    {/* Nội dung chính bên phải */}
+    <main className="flex-1 px-0.1 py-6 overflow-auto">
+      <ActionHeader />
+      <CategoriesTable selectedCategoryId={selectedCategoryId} />
+    </main>
+  </div>
+</section>
+
+
+
+
     </>
   );
 };

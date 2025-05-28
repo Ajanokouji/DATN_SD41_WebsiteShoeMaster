@@ -15,6 +15,7 @@
         </div>
         <hr/>
         <div class="d-flex flex-row lh-1">
+            <div style="display: none;" class="flex-fill text-end"><span id="idkh"></span></div>
             <div class="flex-fill"><label for="inputName5" class="form-label">Tên khách hàng</label></div>
             <div class="flex-fill text-end"><span id="tenkh"></span></div>
         </div>
@@ -32,7 +33,13 @@
             {
                 <div class="d-flex flex-row lh-1" style="margin-top: 5px;">
                     <div class="flex-fill">
-                        <label class="form-label" style="width: 300px;">@item.Name x @item.Quantity</label>
+                        <label class="form-label" style="width: 300px;">@item.Name</label>
+                    </div>
+                    <div class="flex-fill">
+                        <label class="form-label" style="width: 40px;">- @item.Color</label>
+                    </div>
+                    <div class="flex-fill">
+                        <label class="form-label" style="width: 40px;">x @item.Quantity</label>
                     </div>
                     <div class="flex-fill text-end">
                         <span>@String.Format("{0:N0} đ", item.Price)</span>
@@ -49,7 +56,7 @@
         <div class="d-flex flex-row lh-1">
             <div class="flex-fill"><label for="inputEmail5" class="form-label">Tổng tiền</label></div>
             <div class="flex-fill text-end"><input id="tongTienHang" value="@Model.TotalPrice"
-                                                   hidden/><span>@Model.TotalPrice?.ToString("n0")</span></div>
+                                                   hidden/><span id="tongTien">@Model.TotalPrice?.ToString("n0")</span></div>
         </div>
         <hr/>
         @* <div class="d-flex flex-row lh-1"> *@
@@ -85,7 +92,7 @@
             <div class="d-flex flex-row lh-1">
                 <div class="flex-fill"><label class="form-label">Tiền khách đưa</label></div>
                 <div class="flex-fill text-end">
-                    <input type="number" id="tienKhachDua" style="margin-left: 250px; width: 150px; text-align: right;"
+                    <input type="text" id="tienKhachDua" min="0" step="1" style="margin-left: 267px; width: 150px; text-align: right;"
                            class="form-control"/>
                 </div>
             </div>
@@ -150,14 +157,63 @@
             }
         }
 
-        // Tính tiền trả lại mỗi khi nhập tiền khách đưa
+        // Check âm
         $("#tienKhachDua").on("input", function () {
+            let val = $(this).val();
+
+            // Chỉ giữ lại số, dấu cộng và khoảng trắng
+            let cleaned = val.replace(/[^0-9+\s]/g, '');
+
+            // Nếu có ký tự bị xóa thì báo lỗi
+            if (val !== cleaned) {
+                toastr.error("Chỉ được nhập số tiền và phép cộng!", "Lỗi", { timeOut: 1000 });
+                $(this).val(cleaned);
+                return;
+            }
+        });
+
+        function parseAdditionExpression(expr) {
+            // Loại bỏ khoảng trắng và tách theo dấu +
+            let parts = expr.replace(/\s+/g, '').split('+');
+
+            let sum = 0;
+            for (let part of parts) {
+                let number = parseFloat(part);
+                if (isNaN(number) || number < 0) {
+                    return NaN; // Nếu có phần nào không hợp lệ => lỗi
+                }
+                sum += number;
+            }
+            return sum;
+        }
+
+        // Khi người dùng nhập xong (blur) hoặc nhấn Enter
+        $("#tienKhachDua").on("blur", function () {
+            let expr = $(this).val();
+            let total = parseAdditionExpression(expr);
+
+            if (isNaN(total)) {
+                toastr.error("Biểu thức không hợp lệ!", "Lỗi", { timeOut: 1000 });
+                $(this).val('');
+            } else {
+                $(this).val(total); // Gán kết quả tổng lại vào ô input
+                // Tính tiền trả lại khi nhập tiền khách đưa
+                var tienKhachDua = parseInt($(this).val()) || 0;
+                var tienTraLai = tienKhachDua - tongtien;
+                $("#tienTraLai").text(tienTraLai.toLocaleString());
+
+                $("#tienTraLai").css("color", tienTraLai < 0 ? "red" : "green");
+            }
+        });
+
+        // Tính tiền trả lại mỗi khi nhập tiền khách đưa
+        @*$("#tienKhachDua").on("input", function () {
             var tienKhachDua = parseInt($(this).val()) || 0;
             var tienTraLai = tienKhachDua - tongtien;
             $("#tienTraLai").text(tienTraLai.toLocaleString());
 
             $("#tienTraLai").css("color", tienTraLai < 0 ? "red" : "green");
-        });
+        });*@
 
         function redirect() {
             var totalprice = $("#khachCanTra").text().replaceAll(",", "").trim();
