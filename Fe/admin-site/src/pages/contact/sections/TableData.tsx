@@ -69,16 +69,14 @@ const ContactsTable: React.FC = () => {
   };
 
   const headers = [
-    { label: "Name", className: "text-center" },
-    { label: "Full name" },
-    { label: "Address" },
-    { label: "DOB" },
-    { label: "Image" },
+    { label: "Mã Nhân viên", className: "text-center" },
+    { label: "Họ tên" },
+    { label: "Địa chỉ" },
+    { label: "Năm sinh" },
     { label: "Email" },
-    { label: "Phone" },
-    { label: "Content" },
-    { label: "Create At" },
-    { label: " " },
+    { label: "SĐT" },
+    { label: "Ngày tạo" },
+    { label: "Thao tác" },
   ];
 
   const columns: {
@@ -98,10 +96,8 @@ const ContactsTable: React.FC = () => {
       key: "dateOfBirth",
       render: renderDate,
     },
-    { key: "imageUrl" },
     { key: "email" },
     { key: "phoneNumber" },
-    { key: "content" },
     {
       key: "createdOnDate",
       render: renderDate,

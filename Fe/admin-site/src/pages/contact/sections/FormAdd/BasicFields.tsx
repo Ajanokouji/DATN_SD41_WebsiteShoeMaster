@@ -9,6 +9,7 @@ import {
 } from "@/components/ui/form";
 import { Input } from "@/components/ui/input";
 import { ContactFormSchema } from "./FormSchema";
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 
 interface BasicInfoFieldsProps {
   control: Control<ContactFormSchema>;
@@ -25,9 +26,9 @@ export const BasicInfoFields: React.FC<BasicInfoFieldsProps> = ({
           name="name"
           render={({ field }) => (
             <FormItem>
-              <FormLabel>Name</FormLabel>
+              <FormLabel>Mã nhân viên</FormLabel>
               <FormControl>
-                <Input placeholder="Name" {...field} />
+                <Input placeholder="Mã nhân viên" {...field} />
               </FormControl>
               <FormMessage />
             </FormItem>
@@ -38,9 +39,9 @@ export const BasicInfoFields: React.FC<BasicInfoFieldsProps> = ({
           name="fullName"
           render={({ field }) => (
             <FormItem>
-              <FormLabel>Full name</FormLabel>
+              <FormLabel>Họ tên</FormLabel>
               <FormControl>
-                <Input placeholder="Full name" {...field} />
+                <Input placeholder="Họ tên" {...field} />
               </FormControl>
               <FormMessage />
             </FormItem>
@@ -53,11 +54,11 @@ export const BasicInfoFields: React.FC<BasicInfoFieldsProps> = ({
           name="dateOfBirth"
           render={({ field: { onChange, value, ...fieldProps } }) => (
             <FormItem>
-              <FormLabel>Date of birth</FormLabel>
+              <FormLabel>Năm sinh</FormLabel>
               <FormControl>
                 <Input
                   type="date"
-                  placeholder="Date of birth"
+                  placeholder="Năm sinh"
                   value={
                     value ? new Date(value).toISOString().split("T")[0] : ""
                   }
@@ -90,9 +91,9 @@ export const BasicInfoFields: React.FC<BasicInfoFieldsProps> = ({
           name="phoneNumber"
           render={({ field }) => (
             <FormItem>
-              <FormLabel>Phone</FormLabel>
+              <FormLabel>Số điện thoại</FormLabel>
               <FormControl>
-                <Input placeholder="Phone" {...field} />
+                <Input placeholder="Số điện thoại" {...field} />
               </FormControl>
               <FormMessage />
             </FormItem>
@@ -105,22 +106,9 @@ export const BasicInfoFields: React.FC<BasicInfoFieldsProps> = ({
           name="address"
           render={({ field }) => (
             <FormItem>
-              <FormLabel>Address</FormLabel>
+              <FormLabel>Địa chỉ</FormLabel>
               <FormControl>
-                <Input placeholder="Address" {...field} />
-              </FormControl>
-              <FormMessage />
-            </FormItem>
-          )}
-        />
-        <FormField
-          control={control}
-          name="content"
-          render={({ field }) => (
-            <FormItem>
-              <FormLabel>Content</FormLabel>
-              <FormControl>
-                <Input placeholder="Content" {...field} />
+                <Input placeholder="Địa chỉ" {...field} />
               </FormControl>
               <FormMessage />
             </FormItem>

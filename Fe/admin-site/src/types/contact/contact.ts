@@ -3,17 +3,16 @@ import { PaginationParams } from "../common/pagination";
 export default interface ContactReqDto {
   name: string;
   fullName: string;
-  address: string;
+  address?: string;
   dateOfBirth: string;
   imageUrl: string;
-  email: string;
-  phoneNumber: string;
-  content: string;
+  email?: string;
+  phoneNumber?: string;
+  content?: string;
   createdByUserId: string;
   lastModifiedByUserId: string;
   lastModifiedOnDate: string;
   createdOnDate: string;
-  status: number;
   isdeleted: boolean;
 }
 
@@ -21,12 +20,12 @@ export interface ContactResDto {
   id: string;
   name: string;
   fullName: string;
-  address: string;
+  address?: string;
   dateOfBirth: string;
   imageUrl: string;
-  email: string;
-  phoneNumber: string;
-  content: string;
+  email?: string;
+  phoneNumber?: string;
+  content?: string;
   createdOnDate: string;
   lastModifiedOnDate: string;
   createdByUserId: string;
