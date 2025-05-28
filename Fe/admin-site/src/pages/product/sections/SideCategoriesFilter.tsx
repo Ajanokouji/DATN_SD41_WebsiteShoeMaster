@@ -49,21 +49,22 @@ const SideCategoryFilter: React.FC<SideCategoryFilterProps> = ({
         onChange={(e) => setSearchTerm(e.target.value)}
       />
 
-      <div className="space-y-2">
-        <div className="font-medium text-sm">Danh mục</div>
-        {filteredCategories.map((category) => (
-          <div
-            key={category.id}
-            className={`flex items-center space-x-2 p-2 rounded cursor-pointer ${
-              selectedFolder === category.id ? "bg-accent" : "hover:bg-accent/50"
-            }`}
-            onClick={() => handleCategoryClick(category.id)}
-          >
-            <FolderOpen size={20} />
-            <span className="truncate">{category.name}</span>
-          </div>
-        ))}
-      </div>
+<div className="space-y-2 max-w-[170px]">
+  <div className="font-medium text-sm">Danh mục</div>
+  {filteredCategories.map((category) => (
+    <div
+      key={category.id}
+      className={`flex items-center space-x-2 p-2 rounded cursor-pointer ${
+        selectedFolder === category.id ? "bg-accent" : "hover:bg-accent/50"
+      }`}
+      onClick={() => handleCategoryClick(category.id)}
+    >
+      <FolderOpen size={20} />
+      <span className="truncate">{category.name}</span>
+    </div>
+  ))}
+</div>
+
     </div>
   );
 };

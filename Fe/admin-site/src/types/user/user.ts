@@ -1,6 +1,6 @@
 import { PaginationParams } from "../common/pagination";
 
-export interface UserReqDto {
+export default interface UserReqDto {
   username?: string;
   password?: string;
   name?: string;
@@ -12,13 +12,14 @@ export interface UserReqDto {
 
 export interface UserResDto {
   id: string;
-  userName: string | null;
+  username: string | null;
   name: string | null;
-  type: string;
+  type: number;
+  password: string | null;
   phoneNumber: string | null;
   email: string | null;
   address: string | null;
-  avatar: string | null;
+  avartarUrl: string | null;
   userDetailJson: string | null;
   isActive: boolean;
   createdByUserId: string;
@@ -29,6 +30,7 @@ export interface UserResDto {
 }
 
 export interface UserFilterParams extends PaginationParams {
-  userName?: string;
+  username?: string;
   password?: string;
+  type?: number;
 }
