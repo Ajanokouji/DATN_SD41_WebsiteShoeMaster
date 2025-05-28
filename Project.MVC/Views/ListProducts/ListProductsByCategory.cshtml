@@ -1,5 +1,5 @@
-﻿@model Project.MVC.Models.ListProductViewModel;
-
+﻿@* @model Project.MVC.Models.ListProductViewModel; *@
+@model List<Project.DbManagement.Entity.ProductEntity>
 <!-- Breadcrumb Begin -->
 <<div class="breadcrumb-option">
     <div class="container">
@@ -26,7 +26,7 @@
                         </div>
                         <div class="categories__accordion">
                             <div class="accordion" id="accordionExample">
-                                
+
                                 <div class="card">
                                     <div class="card-heading">
                                         <a data-toggle="collapse" data-target="#collapseTwo">Theo Thương Hiệu</a>
@@ -54,12 +54,12 @@
                                                     <li><a href="#">Luxury Brands</a></li>
                                                     <li><a href="#">Nike Basketball</a></li> *@
                                                 }
-                                                
+
                                             </ul>
                                         </div>
                                     </div>
                                 </div>
-                                
+
                             </div>
                         </div>
                     </div>
@@ -163,7 +163,7 @@
             </div>
             <div class="col-lg-9 col-md-9">
                 <div class="row">
-                    @foreach(var product in Model.ProductContent.Content)
+                    @foreach (var product in Model)
                     {
                         <div class="col-lg-4 col-md-6">
                             @await Component.InvokeAsync("BlockProductDetail", product)
