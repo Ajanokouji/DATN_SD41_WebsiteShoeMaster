@@ -280,7 +280,7 @@
             });
 
             // Giảm số lượng
-                   $(document).on('click', '.btn-decrease', function () {
+       $(document).on('click', '.btn-decrease', function () {
 
             const $row = $(this).closest('tr');
             const $input = $row.find('.quantity-input');
@@ -292,6 +292,10 @@
             if (oldVal > 1) {           // Giảm ngay cho “mượt”
                 $input.val(oldVal - 1).trigger('change');
             }
+           if(oldVal===1){
+                        $row.remove();
+                       $('#subtotal, #discount, #total').text('0 VNĐ');
+           }
             // Vô hiệu hoá nút trong lúc chờ
             $(this).prop('disabled', true);
 
