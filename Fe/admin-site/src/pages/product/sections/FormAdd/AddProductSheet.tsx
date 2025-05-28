@@ -134,7 +134,7 @@ const AddProductSheet: React.FC<AddProductSheetProps> = ({
             <ImageField control={form.control} />
             <MultipleImageField control={form.control} />
             <MetadataSection form={form} />
-            <LabelsSection form={form} />
+            {/* <LabelsSection form={form} /> */}
             <VariantForm form={form} />
 
             {/* Debug lỗi toàn bộ form */}
