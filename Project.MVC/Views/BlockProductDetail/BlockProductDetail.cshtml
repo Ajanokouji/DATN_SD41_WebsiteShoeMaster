@@ -3,22 +3,36 @@
 @model Project.DbManagement.Entity.ProductEntity;
 <div class="product__item sale">
     <div class="product__item__pic set-bg" data-setbg="@Model.ImageUrl" style="background-size: contain; background-repeat: no-repeat;">
-        <div class="label">Giảm giá</div>
+        @* <div class="label">Giảm giá</div> *@
         <ul class="product__hover">
-            <li><a href="/assets/images/shop/shop-5.jpg" class="image-popup"><span class="arrow_expand"></span></a></li>
-            <li><a href="#"><span class="icon_heart_alt"></span></a></li>
-            <li><a href="#"><span class="icon_bag_alt"></span></a></li>
+            <li><a href="@Model.ImageUrl" class="image-popup"><span class="arrow_expand"></span></a></li>
+            @* <li><a href="#"><span class="icon_heart_alt"></span></a></li> *@
+            <li><a asp-controller="ProductDetails" asp-action="ProductDetails" asp-route-id="@Model.Id"><span class="icon_bag_alt"></span></a></li>
         </ul>
     </div>
     <div class="product__item__text">
         <h6><a asp-controller="ProductDetails" asp-action="ProductDetails" asp-route-id="@Model.Id">@Model.Name</a></h6>
-        <div class="rating">
-            <i class="fa fa-star"></i>
-            <i class="fa fa-star"></i>
-            <i class="fa fa-star"></i>
-            <i class="fa fa-star"></i>
-            <i class="fa fa-star"></i>
+        @{
+            decimal ConvertToDecimal(string priceStr)
+            {
+                decimal.TryParse(priceStr, out var result);
+                return result;
+            }
+
+            var variants = Model.VariantObjs ?? new List<Variant>();
+
+            var minPriceVariant = variants
+            .OrderBy(v => ConvertToDecimal(v.Price))
+            .FirstOrDefault();
+
+            var maxPriceVariant = variants
+            .OrderByDescending(v => ConvertToDecimal(v.Price))
+            .FirstOrDefault();
+        }
+        <div class="cart__price" style="font-size: 14px; color: red;">
+            @(minPriceVariant != null ? minPriceVariant.Price + " VNĐ -" : "Hết hàng")
+            @(maxPriceVariant != null ? maxPriceVariant.Price + " VNĐ" : "")
+
         </div>
-        @* <div class="product__price"> <span>@Model.MetadataObj.GetMetadatavalue("MaxPrice")??</span></div> *@
     </div>
 </div>
