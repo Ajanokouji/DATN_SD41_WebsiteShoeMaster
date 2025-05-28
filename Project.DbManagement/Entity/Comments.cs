@@ -15,10 +15,6 @@ namespace Project.DbManagement.Entity
             public int Status { get; set; }
             public Guid? UserId { get; set; }
             public string? Username { get; set; }
-            public Guid? CreatedByUserId { get; set; }
-            public Guid? LastModifiedByUserId { get; set; }
-            public DateTime? LastModifiedOnDate { get; set; }
-            public DateTime? CreatedOnDate { get; set; }
             public bool IsPublish { get; set; }
             public Guid? ParentId { get; set; }
             public int TolalReply { get; set; }

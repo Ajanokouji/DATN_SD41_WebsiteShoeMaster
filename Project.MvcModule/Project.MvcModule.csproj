@@ -24,6 +24,19 @@
 		<Copy SourceFiles="@(MySourceFiles)" DestinationFolder="../Project.MVC/Views/%(RecursiveDir)" SkipUnchangedFiles="true" />
 	</Target>
 
+
+	<ItemGroup>
+	  <None Remove="Views\CommentList\_CommentItemsPartial.cshtml" />
+	</ItemGroup>
+
+
+	<ItemGroup>
+	  <Content Include="Views\CommentList\_CommentItemsPartial.cshtml">
+	    <ExcludeFromSingleFile>true</ExcludeFromSingleFile>
+	    <CopyToPublishDirectory>PreserveNewest</CopyToPublishDirectory>
+	  </Content>
+	</ItemGroup>
+
 	<ItemGroup>
     <PackageReference Include="Microsoft.AspNetCore.Mvc.ViewFeatures" Version="2.3.0" />
   </ItemGroup>

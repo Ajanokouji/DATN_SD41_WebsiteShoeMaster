@@ -4,25 +4,28 @@ using Project.Business.Interface;
 using Project.Business.Interface.Repositories;
 using Project.Business.Model;
 using Project.Common;
+using Project.DbManagement;
 using Project.DbManagement.Entity;
 using Serilog;
 using SERP.Framework.Common;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Threading.Tasks;
 
 namespace Project.Business.Implement
 {
     public class CommentsBusiness : ICommentsBusiness
     {
         private readonly ICommentsRepository _commentsRepository;
+        private readonly IMemoryCache _cache;
         private readonly ILogger _logger;
+        private readonly MemoryCacheEntryOptions _cacheOptions;
 
-        public CommentsBusiness(ICommentsRepository commentsRepository, ILogger logger)
+        public CommentsBusiness(ICommentsRepository commentsRepository, IMemoryCache cache)
         {
-            _commentsRepository=commentsRepository;
-            _logger=logger;
+            _commentsRepository = commentsRepository;
+            _cache = cache;
+            _logger = Log.ForContext<CommentsBusiness>();
+            _cacheOptions = new MemoryCacheEntryOptions()
+                .SetSlidingExpiration(TimeSpan.FromMinutes(15))
+                .SetAbsoluteExpiration(TimeSpan.FromHours(1));
         }
 
         public async Task<CommentsEntity> DeleteAsync(Guid id)

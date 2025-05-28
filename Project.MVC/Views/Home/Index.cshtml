@@ -292,11 +292,21 @@
                     data: { id: voucherId },
                     success: function (response) {
                         button.text('Đã lưu').prop('disabled', true).removeClass('btn-danger').addClass('btn-secondary');
-                        alert(response); // Thông báo khi thành công
+                        Swal.fire({
+                            icon: 'success',
+                            title: 'Lưu Voucher thành công!',
+                            text: response.message,
+                            confirmButtonText: 'OK'
+                        }); // Thông báo khi thành công
                     },
                     error: function (xhr) {
                         button.text('Lưu').prop('disabled', false).removeClass('btn-secondary').addClass('btn-danger');
-                        alert(xhr.responseText); // Thông báo khi thất bại
+                        Swal.fire({
+                            icon: 'error',
+                            title: 'Lưu Voucher thất bại!',
+                            text: xhr.responseJSON?.message || 'Đã xảy ra lỗi không xác định!',
+                            confirmButtonText: 'Đóng'
+                        }); // Thông báo khi thất bại
                     }
                 });
             });

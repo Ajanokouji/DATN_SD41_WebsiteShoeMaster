@@ -49,6 +49,7 @@ namespace Project.Business
             services.AddScoped<IVoucherProductsRepository, VoucherProductRepository>();
             services.AddScoped<IVoucherUsersRepository, VoucherUsersRepository>();
             services.AddScoped<IStatisticsRepository, StatisticsRepository>();
+            services.AddScoped<ICommentsRepository, CommentsRepository>();
 
 
             // Register Business Services
@@ -71,6 +72,7 @@ namespace Project.Business
             services.AddScoped<IVoucherProductsBusiness, VoucherProductsBusiness>();
             services.AddScoped<IVoucherUsersBusiness, VoucherUsersBusiness>();
             services.AddScoped<IStatisticsBusiness, StatisticsBusiness>();
+            services.AddScoped<ICommentsBusiness, CommentsBusiness>();
 
             services.AddScoped<IBillModelFactory, BillModelFactory>();
             services.AddScoped<IBillDetailModelFactory, BillDetailModelFactory>();
