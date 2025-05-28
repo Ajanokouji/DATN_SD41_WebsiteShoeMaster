@@ -99,7 +99,7 @@ const VoucherUsers: React.FC = () => {
     );
   }
 
-  if ((!voucher) || (voucher && voucher.isdeleted)) {
+  if ((!voucher) || (voucher && voucher.isDeleted)) {
     return (
       <div className="text-center text-red-500">
         Không tìm thấy Voucher! Vui lòng kiểm tra lại!
@@ -131,7 +131,6 @@ const VoucherUsers: React.FC = () => {
         <div className="flex text-sm text-gray-500">
           <div className="w-1/2">
             - Mã Voucher: {voucher.code} <br/> 
-            - Loại Voucher: {voucher.voucherType === 1 ? "Voucher toàn shop" : "Voucher sản phẩm"} <br/>
             - Giảm giá: {voucher.discountAmount? formatCurrency(voucher.discountAmount) + " VNĐ" : formatCurrency(voucher.discountPercentage?voucher.discountPercentage:0) + "%" + " (Tối đa: " + formatCurrency(voucher.maxDiscountAmount?voucher.maxDiscountAmount:0) + " VNĐ)" } <br/>
             - Giá trị đơn hàng tối thiểu: {voucher.minimumOrderAmount? formatCurrency(voucher.minimumOrderAmount) + " VNĐ" : "Không yêu cầu"}
           </div>

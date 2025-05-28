@@ -374,21 +374,6 @@ export const BasicInfoFields: React.FC<BasicInfoFieldsProps> = ({ control, vouch
       <div>
         <h2 className="text-lg font-semibold">Thông tin cơ bản</h2>
         <div className="mt-10 ml-5">
-          <div className="flex items-center mb-5 gap-4">
-            <FormLabel className="w-32">Loại Voucher</FormLabel>
-            {voucherType === 1 && (
-              <span className="flex items-center rounded border p-4 shadow hover:bg-gray-200">
-                <FaStore className="mr-3 text-xl"/>Voucher toàn shop
-              </span>
-              )
-            }
-            {voucherType === 2 && (
-              <span className="flex items-center rounded border p-4 shadow hover:bg-gray-200">
-                <FaCartShopping className="mr-3 text-xl"/>Voucher sản phẩm
-              </span>
-              )
-            }
-          </div>
           <div className="mb-5">
             <FormField
               control={control}
@@ -735,7 +720,7 @@ export const BasicInfoFields: React.FC<BasicInfoFieldsProps> = ({ control, vouch
         </div>
       </div>
 
-      <hr className="border border-gray-300"/>
+      {/* <hr className="border border-gray-300"/>
 
       <div className="mt-10 pb-5">
         <div className="mt-10">
@@ -760,7 +745,6 @@ export const BasicInfoFields: React.FC<BasicInfoFieldsProps> = ({ control, vouch
         </div>
         { isOpenFormAddVoucherProduct && (
           <div className="p-5 m-5 border border-gray-300 rounded">
-            {/* Tìm kiếm sản phẩm */}
             <div className="flex items-center">
               <Input
                 placeholder="Tìm kiếm sản phẩm cần thêm dựa trên tên sản phẩm, mã sản phẩm hoặc mô tả"
@@ -786,7 +770,6 @@ export const BasicInfoFields: React.FC<BasicInfoFieldsProps> = ({ control, vouch
               </button>
             </div>
           
-            {/* Danh sách sản phẩm */}
             <div className="flex">
               <div className="mt-4 border rounded p-2 w-[35%] mr-2 h-[60vh]">
                 <div className="text-center font-semibold mb-4 bg-gray-200 rounded p-1">Sản phẩm</div>
@@ -820,7 +803,6 @@ export const BasicInfoFields: React.FC<BasicInfoFieldsProps> = ({ control, vouch
                 Biến thể
               </div>
               <div className="mb-2">
-                {/* Nút thêm hết */}
                 {variantProduct !== null && variantProduct.variantObjs.length > 0 ? (
                   <button
                     onClick={() => AddAllVariants(variantProduct)}
@@ -881,7 +863,6 @@ export const BasicInfoFields: React.FC<BasicInfoFieldsProps> = ({ control, vouch
                 Đã chọn
               </div>
               <div className="mb-2">
-                {/* Nút xóa tất cả */}
                 {productsIsSelected !== null && productsIsSelected.length > 0 ? (
                   <button
                     onClick={() => removeAllProducts()}
@@ -969,7 +950,7 @@ export const BasicInfoFields: React.FC<BasicInfoFieldsProps> = ({ control, vouch
             )}
         </div>
         )}
-      </div>
+      </div> */}
 
       <hr className="border border-gray-300"/>
 
