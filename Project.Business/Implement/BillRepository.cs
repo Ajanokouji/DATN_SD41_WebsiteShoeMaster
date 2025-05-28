@@ -289,7 +289,7 @@ public class BillRepository : IBillRepository
 
     public List<BillEntity> GetAllPendingBill()
     {
-        return _context.Bills.Where(hd => hd.Status == BillConstants.PendingConfirmation).OrderBy(hd => hd.CreatedOnDate).ToList();
+        return _context.Bills.Where(hd => hd.Status == BillConstants.PendingConfirmation && hd.Source == Source.OffLine).OrderBy(hd => hd.CreatedOnDate).ToList();
     }
 
     public bool CreatePendingBill(Guid idEmployee)
@@ -301,7 +301,7 @@ public class BillRepository : IBillRepository
             bill.BillCode = "BILL" + (bill.Id).ToString().Substring(0, 8).ToUpper();
             bill.EmployeeId = idEmployee;
             bill.CreatedByUserId = idEmployee;
-            bill.CreatedOnDate = DateTime.Now;
+            bill.CreatedOnDate = DateTime.UtcNow;
             bill.DiscountAmount = 0;
             bill.AmountAfterDiscount = 0;
             bill.AmountToPay = 0;
@@ -427,6 +427,7 @@ public class BillRepository : IBillRepository
     {
         var customer = _context.Customers.FirstOrDefault(c => c.Id == bill.IdCustomer);
         var update = _context.Bills.FirstOrDefault(p => p.Id == bill.Id);
+        // if (update.Source == Source.Website) return false;
         //Lưu tiền vào HDCT
         var lstBillDetails = _context.BillDetails.Where(c => c.BillId == bill.Id).ToList();
         //Xóa lsthdct có số lượng = 0

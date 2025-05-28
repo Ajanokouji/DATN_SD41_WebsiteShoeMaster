@@ -255,30 +255,33 @@
 <!-- Instagram End -->
 @section Scripts {
     <script>
-          let selectedColor = document.querySelector("#color-options .option.selected");
-          let selectedSize = document.querySelector("#size-options .option.selected");
-          var variants = @Html.Raw(Json.Serialize(Model.Product.VariantObjs
+        let selectedColor = '';
+        let selectedSize = '';
+
+        const variants = @Html.Raw(Json.Serialize(
+        Model.Product.VariantObjs
         .Where(x => x.Stock != 0)
         .Select(v => new
         {
-        Color = v.Group1,
-        Size = v.Group2,
-        Price = v.Price,
-        Stock = v.Stock,
-        Sku = v.Sku
-        })));
-          function updatePrice() {
-            const variant = variants.find(v => v.color === selectedColor && selectedSize === v.size);
-             const quantity = parseInt(document.getElementById('quantity').value) || 1;
+            color = v.Group1,
+            size = v.Group2,
+            price = v.Price,
+            stock = v.Stock,
+            sku = v.Sku
+        })
+    ));
+
+        function updatePrice() {
+            const quantity = parseInt(document.getElementById('quantity').value) || 1;
+            const variant = variants.find(v => v.color === selectedColor && v.size === selectedSize);
+
             if (variant) {
-                
-                  const totalPrice = variant.price * quantity;
-                 document.getElementById('price').textContent = totalPrice.toLocaleString('vi-VN') + ' đ';
-
-
-                 document.getElementById('stock-value').textContent = variant.stock;
+                const totalPrice = variant.price * quantity;
+                document.getElementById('price').textContent = totalPrice.toLocaleString('vi-VN') + ' đ';
+                document.getElementById('stock-value').textContent = variant.stock;
             } else {
-               document.getElementById('price').textContent = '';
+                document.getElementById('price').textContent = 'Không khả dụng';
+                document.getElementById('stock-value').textContent = '0';
             }
         }
 
@@ -300,59 +303,52 @@
             });
         });
 
-
         document.getElementById("increase").addEventListener("click", () => {
             const input = document.getElementById("quantity");
             let val = parseInt(input.value);
-            if (!isNaN(val)) input.value = val + 1;
-            updatePrice();
+            const variant = variants.find(v => v.color === selectedColor && v.size === selectedSize);
+            if (!isNaN(val) && variant && val < variant.stock) {
+                input.value = val + 1;
+                updatePrice();
+            }
         });
 
         document.getElementById("decrease").addEventListener("click", () => {
             const input = document.getElementById("quantity");
             let val = parseInt(input.value);
-            if (!isNaN(val) && val > 1) input.value = val - 1;
-            updatePrice();
+            if (!isNaN(val) && val > 1) {
+                input.value = val - 1;
+                updatePrice();
+            }
         });
 
         function addToCart(productId) {
-            var quantity = $('#quantity').val();
-            var $cartBtn = $('.cart-btn');
+            const quantity = parseInt(document.getElementById('quantity').value) || 1;
+            const variant = variants.find(v => v.color === selectedColor && v.size === selectedSize);
+            const priceText = document.getElementById('price').textContent;
+            const priceValue = parseFloat(priceText.replace(/[^\d]/g, '')) || 0;
 
-          var priceText = document.getElementById('price').textContent;
-        var priceValue = parseFloat(priceText.replace(/\D/g, '')) || 0;
-
-         var productData = {
-            productId: $cartBtn.data('product-id'),
-            productName: $cartBtn.data('product-name'),
-            productImage: $cartBtn.data('product-image'),
-            price: priceValue ,
-            quantity: parseInt(quantity),
-            size: selectedSize ?? '',
-            color: selectedColor ?? '',
-            SKU: (() => {
-                
-                if (Array.isArray(variants)) {
-                    const variant = variants.find(v => v.color === selectedColor && v.size === selectedSize);
-                    return variant ? variant.sku || '' : '';
-                }
-                return '';
-            })()
-         };
-
-      
+            const $cartBtn = $('.cart-btn');
+            const productData = {
+                productId: $cartBtn.data('product-id'),
+                productName: $cartBtn.data('product-name'),
+                productImage: $cartBtn.data('product-image'),
+                price: priceValue,
+                quantity: quantity,
+                size: selectedSize || '',
+                color: selectedColor || '',
+                SKU: variant?.sku || ''
+            };
 
             $.ajax({
                 url: '/Cart/AddToCart',
                 method: 'POST',
                 contentType: 'application/json',
                 data: JSON.stringify(productData),
-                 success: function(response) {
-                    if(response.success) {
-                        // Cập nhật số lượng giỏ hàng trên header
+                success: function (response) {
+                    if (response.success) {
                         $('.cart-count').text(response.cartCount);
 
-                        // Hiển thị thông báo thành công
                         Swal.fire({
                             title: 'Thành công!',
                             text: response.message,
@@ -368,24 +364,14 @@
                             }
                         });
                     } else {
-                        // Hiển thị thông báo lỗi
-                        Swal.fire({
-                            title: 'Lỗi!',
-                            text: response.message,
-                            icon: 'error',
-                            confirmButtonText: 'Đóng'
-                        });
+                        Swal.fire("Lỗi", response.message, "error");
                     }
                 },
-                error: function() {
-                    Swal.fire({
-                        title: 'Lỗi!',
-                        text: 'Có lỗi xảy ra, vui lòng thử lại sau',
-                        icon: 'error',
-                        confirmButtonText: 'Đóng'
-                    });
+                error: function () {
+                    Swal.fire("Lỗi", "Không thể thêm vào giỏ hàng", "error");
                 }
             });
         }
     </script>
 }
+
