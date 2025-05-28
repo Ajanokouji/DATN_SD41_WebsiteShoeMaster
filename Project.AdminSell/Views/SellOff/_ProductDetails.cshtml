@@ -2,26 +2,6 @@
 
 @{
     ViewData["Title"] = @Model.Name;
-    <style>
-        .button-value {
-            border: 2px solid gray;
-            padding: 0.5em 1.5em;
-            border-radius: 2em;
-            background-color: transparent;
-            color: black;
-            cursor: pointer;
-        }
-
-        .button-value:hover {
-            border: 2px solid gray;
-            background: gray;
-        }
-
-        .button-value.active {
-            background-color: black;
-            color: white;
-        }
-    </style>
 }
 <div class="d-flex flex-column p-1 h-100">
     <h4><b>@Model.Name</b></h4>
@@ -45,7 +25,7 @@
                 <div id="buttons">
                     @foreach (var ms in @Model.lstColor)
                     {
-                        <button class="button-value mb-1" value="@Model.Id">
+                        <button class="button-value mb-1 btnms" value="@ms">
                             @ms
                         </button>
                     }
@@ -62,7 +42,7 @@
                 <div id="buttons">
                     @foreach (var kc in @Model.lstSize)
                     {
-                        <button class="button-value mb-1" value="@Model.Id">
+                        <button class="button-value mb-1 btnkc" value="@kc">
                             @kc
                         </button>
                     }
@@ -75,7 +55,7 @@
 
 <script>
     $(document).ready(function () {
-        loadCTSPByID();
+        FilterPL();
         var buttons = document.querySelectorAll(".button-value");
         buttons.forEach(function (button) {
             button.addEventListener("click", function () {
@@ -105,10 +85,10 @@
         let lstms = getSelectedValues(ms);
         let kc = document.querySelectorAll(".btnkc");
         let lstkc = getSelectedValues(kc);
-        let request = {IdSanPham: '@Model.Id', lstIdMS: lstms, lstIdKC: lstkc};
+        let request = {ProductId: '@Model.Id', lstColor: lstms, lstSize: lstkc};
         console.log(request);
         $.ajax({
-            url: "/BanHangTaiQuay/FilterCTSP",
+            url: "/SellOff/FilterProductDetails",
             type: "POST",
             dataType: "json",
             data: request,
