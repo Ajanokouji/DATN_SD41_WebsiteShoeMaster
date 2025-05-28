@@ -242,7 +242,7 @@ namespace Project.Business.Implement
         {
             var user = _context.Users
                 .AsNoTracking()
-                .FirstOrDefault(u => u.Username == username && u.Password == password && u.IsActive == true);
+                .FirstOrDefault(u => u.Username == username && u.Password == password);
             return user;
         }
     }

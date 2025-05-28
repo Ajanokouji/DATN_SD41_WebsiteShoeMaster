@@ -2135,3 +2135,22 @@ tbody td {
 .close-btn:hover {
     color: black;
 }
+
+.button-value {
+    border: 2px solid gray;
+    padding: 0.5em 1.5em;
+    border-radius: 1.5em;
+    background-color: transparent;
+    color: black;
+    cursor: pointer;
+}
+
+.button-value:hover {
+    border: 2px solid gray;
+    background: gray;
+}
+
+.button-value.active {
+    background-color: black;
+    color: white;
+}

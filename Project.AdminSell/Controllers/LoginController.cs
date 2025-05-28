@@ -1,6 +1,7 @@
 ﻿using Microsoft.AspNetCore.Mvc;
 using Newtonsoft.Json;
 using Project.Business.Interface;
+using Project.DbManagement;
 
 namespace Project.AdminSell.Controllers;
 
@@ -25,15 +26,25 @@ public class LoginController : Controller
     public ActionResult Login(string username, string password)
     {
         var user = _userBusiness.UserLogin(username, password);
-        if (user != null)
+        if (user == null)
         {
-            var response = JsonConvert.SerializeObject(user);
-            HttpContext.Session.SetString("LoginInfor", response);
-            return RedirectToAction("Sell", "SellOff");
+            ViewBag.Error = "Sai tên đăng nhập hoặc mật khẩu!";
+            return View();
+        }
+        if (user.IsActive != true)
+        {
+            ViewBag.Error = "Tài khoản đã bị khóa!";
+            return View();
+        }
+        if (user.Type == UserTypeEnum.Customer)
+        {
+            ViewBag.Error = "Tài khoản không có quyền truy cập!";
+            return View();
         }
 
-        ViewBag.Error = "Sai tên đăng nhập hoặc mật khẩu.";
-        return View();
+        var response = JsonConvert.SerializeObject(user);
+        HttpContext.Session.SetString("LoginInfor", response);
+        return RedirectToAction("Sell", "SellOff");
     }
 
     public ActionResult Logout()

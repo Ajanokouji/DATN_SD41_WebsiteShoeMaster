@@ -6,6 +6,7 @@ using Project.AdminSell.Models;
 using Project.Business.Interface;
 using Project.Business.Libraries;
 using Project.Business.Model;
+using Project.Common.Constants;
 using Project.DbManagement;
 using Project.DbManagement.Entity;
 using Project.DbManagement.ViewModels;
@@ -99,6 +100,23 @@ public class SellOffController : Controller
         var product = await _productBusiness.ListProductDetailsById(idprd);
         return Json(new { data = product });
     }
+    
+    [HttpPost]
+    public async Task<IActionResult> FilterProductDetails(FilterProductDetailsViewModel filter)
+    {
+        var lstProductDetails = await _productBusiness.ListProductDetailsById(filter.ProductId);
+        //Lọc màu
+        if(filter.lstColor != null)
+        {
+            lstProductDetails = lstProductDetails.Where(c => filter.lstColor.Contains(c.Color)).ToList();
+        }
+        //Lọc kích thước
+        if(filter.lstSize != null)
+        {
+            lstProductDetails = lstProductDetails.Where(c => filter.lstSize.Contains(c.Size)).ToList();
+        }
+        return Json(new { data = lstProductDetails });
+    }
 
     [HttpGet("/SellOff/GetPDBill/{id}")]
     public IActionResult GetPDBill(Guid id)
@@ -118,6 +136,7 @@ public class SellOffController : Controller
                 IdProduct = request.IdProduct,
                 IdBill = request.IdBill,
                 Quantity = request.Quantity,
+                // createbyid, lasmodifiedbyid, createdondate, lastmodifiedondate, productimg, productname, 
                 Color = request.Color,
                 Size = request.Size,
                 //DonGia = request.DonGia,//Thanh toán rồi mới lưu
@@ -214,7 +233,7 @@ public class SellOffController : Controller
             PaymentDate = DateTime.Now,
             PaymentMethod = request.PaymentMethod,
             TotalPrice = request.TotalPrice,
-            status = "Complete",
+            status = BillConstants.Completed,
         };
         var response = _billBusiness.PaymentBill(billrequest);
         if (response == true)
