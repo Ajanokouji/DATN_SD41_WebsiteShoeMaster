@@ -74,7 +74,9 @@
                                                 }
                                             </div>
                                         </td>
-                                        <td class="cart__price">
+                                        <td class="cart__price"
+                                            data-original-price="@(item.OriginalPrice > 0 ? item.OriginalPrice : item.Price)"
+                                            data-discount-price="@(item.DiscountPrice > 0 ? item.DiscountPrice : 0)">
                                             @if (item.DiscountPrice > 0)
                                             {
                                                 <span class="original-price">@item.OriginalPrice.ToString("N0") VNĐ</span>
@@ -82,7 +84,7 @@
                                             }
                                             else
                                             {
-                                                <span>@item.Price.ToString("N0") VNĐ</span>
+                                                <span class="original-price">@item.Price.ToString("N0") VNĐ</span>
                                             }
                                         </td>
                                         <td class="cart__quantity">
@@ -111,11 +113,6 @@
                         <div class="col-lg-6 col-md-6 col-sm-6">
                             <div class="cart__btn">
                                 <a asp-controller="Home" asp-action="Index">Tiếp tục mua sắm</a>
-                            </div>
-                        </div>
-                        <div class="col-lg-6 col-md-6 col-sm-6">
-                            <div class="cart__btn update__btn">
-                                <a href="#" id="updateCart"><span class="icon_loading"></span> Cập nhật giỏ hàng</a>
                             </div>
                         </div>
                     </div>
@@ -179,7 +176,20 @@
 
 @section Scripts {
     <script>
+       var cartItems = [];
+
         $(document).ready(function () {
+
+                $('tbody tr').each(function () {
+        const $row = $(this);
+        cartItems.push({
+            productId: $row.data('id'),
+            sku: $row.data('sku'),
+            quantity: parseInt($row.find('.quantity-input').val()) || 1
+        });
+    });
+
+
             // Mở modal & nạp danh sách voucher
             $('#chooseVoucherBtn').on('click', function () {
                 const $modal = $('#voucherModal');
@@ -238,6 +248,7 @@
 
             // Tăng số lượng
             $(document).on('click', '.btn-increase', function () {
+                
                 var $row = $(this).closest('tr');
                 var $input = $row.find('.quantity-input');
                 var val = parseInt($input.val()) || 0;
@@ -245,16 +256,46 @@
                 if (val < max) {
                     $input.val(val + 1).trigger('change');
                 }
+                const productId = $row.data('id');
+                const sku = $row.data('sku');
+                     $.post('/Cart/IncreaseQuantity', { productId: productId, sku: sku })
+                 .done(function(res) {
+                if (res.success) {
+                    // Cập nhật lại số lượng hiển thị
+                    $row.find('.quantity-input').val(res.quantity);
+                    // Cập nhật tổng số lượng & tổng tiền ở UI
+                } else {
+                    alert(res.message);
+                }
+            });
             });
 
             // Giảm số lượng
             $(document).on('click', '.btn-decrease', function () {
+                debugger
                 var $row = $(this).closest('tr');
                 var $input = $row.find('.quantity-input');
                 var val = parseInt($input.val()) || 0;
                 if (val > 1) {
                     $input.val(val - 1).trigger('change');
                 }
+                 const productId = $row.data('id');
+                 const sku = $row.data('sku');
+                $.post('/Cart/DecreaseQuantity', { productId: productId, sku: sku })
+                .done(function(res) {
+                    if (res.success) {
+                        $row.find('.quantity-input').val(res.quantity);
+                        $('#cartCount').text(res.cartCount);
+                        $('#cartTotal').text(res.cartTotal);
+
+                        if (res.quantity === 0) {
+                            // Nếu số lượng về 0 thì xóa dòng sản phẩm khỏi bảng
+                            $row.remove();
+                        }
+                    } else {
+                        alert(res.message);
+                    }
+            });
             });
 
             // Xóa sản phẩm
@@ -278,6 +319,7 @@
 
             // Cập nhật số lượng input, tính lại tổng tiền dòng và tổng giỏ hàng
             $(document).on('change', '.quantity-input', function () {
+                
                 var $row = $(this).closest('tr');
                 var qty = parseInt($(this).val()) || 1;
                 var max = parseInt($(this).attr('max')) || 10000;
@@ -285,7 +327,10 @@
                 if (qty > max) qty = max;
                 $(this).val(qty);
 
-                var price = parseInt($row.data('discount-price') || $row.data('original-price') || 0);
+
+                var discountPrice = parseInt($row.find('.cart__price').data('discount-price'));
+                var originalPrice = parseInt($row.find('.cart__price').data('original-price'));
+                var price = discountPrice > 0 ? discountPrice : originalPrice;
                 var total = price * qty;
                 $row.find('.cart__total').text(formatCurrency(total) + ' VNĐ');
                 console.log(qty);
@@ -297,16 +342,30 @@
 
             // Cập nhật tổng tiền tạm tính, tổng tiền đơn
             function updateTotals() {
+                debugger
                 var subtotal = 0;
+                var cartItems = [];
+
                 $('tbody tr').each(function () {
                     var qty = parseInt($(this).find('.quantity-input').val()) || 0;
-                    var price = parseInt($(this).data('discount-price') || $(this).data('original-price') || 0);
+                    var discountPrice = parseInt($(this).find('.cart__price').data('discount-price'));
+                    var originalPrice = parseInt($(this).find('.cart__price').data('original-price'));
+                    var price = discountPrice > 0 ? discountPrice : originalPrice;
+
                     subtotal += qty * price;
                 });
                 $('#subtotal').text(formatCurrency(subtotal) + ' VNĐ');
 
-                // Nếu có voucher áp dụng, lấy lại tổng tiền sau giảm
-                // Tạm thời giữ discount và total hiện tại, hoặc gọi lại server nếu cần
+                // Lấy giá trị discount hiện tại, loại bỏ ký tự không phải số
+                var discountText = $('#discount').text() || '0 VNĐ';
+                var discount = parseInt(discountText.replace(/[^\d]/g, '')) || 0;
+
+                // Tính tổng tiền sau khi trừ giảm giá
+                var totalAfterDiscount = subtotal - discount;
+                if (totalAfterDiscount < 0) totalAfterDiscount = 0;
+
+                // Cập nhật phần tử #total
+                $('#total').text(formatCurrency(totalAfterDiscount) + ' VNĐ');
             }
 
             // Format tiền chuẩn Việt Nam (thousands separator)
@@ -314,37 +373,20 @@
                 return number.toLocaleString('vi-VN');
             }
 
-            // Cập nhật giỏ hàng server khi click "Cập nhật giỏ hàng"
-            $('#updateCart').on('click', function (e) {
-                e.preventDefault();
-                var cartItems = [];
-                $('tbody tr').each(function () {
-                    var $row = $(this);
-                    cartItems.push({
-                        productId: $row.data('id'),
-                        sku: $row.data('sku'),
-                        quantity: parseInt($row.find('.quantity-input').val()) || 1
-                    });
-                });
-
-                $.ajax({
-                    url: '@Url.Action("UpdateCart", "Cart")',
-                    method: 'POST',
-                    contentType: 'application/json',
-                    data: JSON.stringify(cartItems),
-                    success: function (res) {
-                        if (res.success) {
-                            alert('Cập nhật giỏ hàng thành công');
-                            location.reload();
-                        } else {
-                            alert(res.message || 'Cập nhật giỏ hàng thất bại');
-                        }
-                    },
-                    error: function () {
-                        alert('Lỗi khi cập nhật giỏ hàng');
-                    }
-                });
-            });
+                 $.ajax({
+            url: '@Url.Action("UpdateCart", "Cart")',
+            method: 'POST',
+            contentType: 'application/json',
+            data: JSON.stringify(cartItems),
+            success: function (res) {
+                if (!res.success) {
+                    console.error('Cập nhật Session thất bại:', res.message);
+                }
+            },
+            error: function () {
+                console.error('Lỗi khi gửi dữ liệu lên server');
+            }
+        });
         });
     </script>
 }

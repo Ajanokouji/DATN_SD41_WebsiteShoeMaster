@@ -86,6 +86,7 @@ namespace Project.Business
             services.AddScoped<IProvinceBusiness, ProvinceBusiness>();
             services.AddScoped<ICartDetailFactory, CartDetailFactory>();
 
+            services.AddScoped<IBillIntercepterAfterSave, UpdateVariantAfterSaveBill>();
 
 
             // Configure CORS

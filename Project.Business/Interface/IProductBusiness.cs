@@ -37,7 +37,7 @@ namespace Project.Business.Interface
         /// <param name="applicationId">The application id.</param>
         /// <param name="ids">The list of ids.</param>
         /// <returns>The list of contents.</returns>
-        Task<IEnumerable<ProductEntity>> ListByIdsAsync(IEnumerable<Guid> ids);
+        Task<IEnumerable<ProductEntity>> ListByIdsAsync(List<Guid> ids);
 
         /// <summary>
         /// Gets a content.
