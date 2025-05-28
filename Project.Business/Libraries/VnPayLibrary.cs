@@ -30,19 +30,24 @@ namespace Project.Business.Libraries
             var orderId = Convert.ToInt64(vnPay.GetResponseData("vnp_TxnRef"));
             var vnPayTranId = Convert.ToInt64(vnPay.GetResponseData("vnp_TransactionNo"));
             var vnpResponseCode = vnPay.GetResponseData("vnp_ResponseCode");
+            var vnpTransactionStatus = vnPay.GetResponseData("vnp_TransactionStatus");
             var vnpSecureHash =
                 collection.FirstOrDefault(k => k.Key == "vnp_SecureHash").Value; //hash của dữ liệu trả về
             var orderInfo = vnPay.GetResponseData("vnp_OrderInfo");
             var checkSignature =
                 vnPay.ValidateSignature(vnpSecureHash, hashSecret); //check Signature
-            if (!checkSignature)
-                return new PaymentResponseModel()
-                {
-                    Success = false
-                };
+            var isSuccess = checkSignature
+                    && vnpResponseCode == "00"
+                    && vnpTransactionStatus == "00";
+            //Them cho toi
+            //if (!checkSignature)
+            //    return new PaymentResponseModel()
+            //    {
+            //        Success = false
+            //    };
             return new PaymentResponseModel()
             {
-                Success = true,
+                Success = isSuccess,
                 PaymentMethod = "VnPay",
                 OrderDescription = orderInfo,
                 OrderId = orderId.ToString(),
