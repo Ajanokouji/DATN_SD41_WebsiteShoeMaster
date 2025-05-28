@@ -56,7 +56,7 @@ const AddVoucherSheet: React.FC<AddVoucherSheetProps> = ({
       endDate: "",
       status: 0,
       voucherType: voucherType,
-      isdeleted: false,
+      isDeleted: false,
       createdByUserId: "3fa85f64-5717-4562-b3fc-2c963f66afa6",
       lastModifiedByUserId: "3fa85f64-5717-4562-b3fc-2c963f66afa6",
       lastModifiedOnDate: new Date().toISOString(),
@@ -72,6 +72,7 @@ const AddVoucherSheet: React.FC<AddVoucherSheetProps> = ({
       redeemCount: undefined,
       productsIsSelected: null,
       usersIsSelected: null,
+      imageUrl: null, // Thêm trường imageUrl vào defaultValues
     },
   });
 
