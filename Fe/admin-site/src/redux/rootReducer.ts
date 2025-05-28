@@ -14,6 +14,7 @@ import VoucherProductReducer from "../redux/apps/voucherProduct/voucherProductSl
 import VoucherUserReducer from "../redux/apps/voucherUser/voucherUserSlice";
 import contentBaseReducer from "./apps/contentBase/contentBaseSlice";
 import loginReducer from "./apps/login/loginSlice";
+import commentReducer from "./apps/comment/commentSlice";
 
 const rootReducer = combineReducers({
 //   auth: authReducer,
@@ -30,6 +31,7 @@ const rootReducer = combineReducers({
   voucherUser: VoucherUserReducer,
   contentBase: contentBaseReducer,
   login: loginReducer,
+  comment: commentReducer,
   user: userReducer
 });
 

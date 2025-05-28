@@ -11,7 +11,7 @@ class UserService {
 
   /** Tất cả endpoint gói trong 1 object để dễ đổi */
   private readonly endpoints = {
-    user: "/Users",       // => POST /Users/filter, GET /Users/:id, ...
+    user: "/User",       // => POST /Users/filter, GET /Users/:id, ...
   };
 
   /* ----- Singleton pattern ----- */
@@ -21,6 +21,7 @@ class UserService {
     this.createUserReq = this.createUserReq.bind(this);
     this.updateUserReq = this.updateUserReq.bind(this);
     this.deleteUserReq = this.deleteUserReq.bind(this);
+    this.checkTrungCodeUser = this.checkTrungCodeUser.bind(this);
   }
   static getInstance(): UserService {
     if (!UserService.instance) UserService.instance = new UserService();
@@ -97,6 +98,24 @@ class UserService {
     } catch (error) {
       console.log("Delete user error:", error);
       throw new Error(`Delete user failed: ${error}`);
+    }
+  }
+
+  /** Kiểm tra trùng username (code user) */
+  async checkTrungCodeUser(username: string, id?: string): Promise<boolean> {
+    try {
+      const response = await httpClient.post<boolean>(
+        `${this.endpoints.user}/CheckTrungCodeUser`,
+        JSON.stringify(username), // gửi raw string, nhớ stringify để backend nhận đúng
+        {
+          params: { id },
+          headers: { "Content-Type": "application/json" }
+        }
+      );
+      return response; // response là true/false
+    } catch (error) {
+      console.log("Check trung code user error:", error);
+      throw new Error(`Check trung code user failed: ${error}`);
     }
   }
 }
