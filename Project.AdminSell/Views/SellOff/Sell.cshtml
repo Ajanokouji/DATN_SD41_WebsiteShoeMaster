@@ -183,6 +183,7 @@
 <script>
     var pageSizesp = 8;// Tối đa 10sp 1 trang
     var pageIndexsp = 1;//Trang ban đầu
+    var idempl = '@loginInfor.Id';
     $(document).ready(function () {
         LoadProduct();
         // Sự kiện input khi người dùng nhập vào ô tìm kiếm
@@ -450,7 +451,7 @@
     function addCTSP(idprd, price, color, size) {
         var activeTab = $(".tabs-box .tab").filter(".active");
         var elementValue = activeTab.find("span").attr("value");
-        var request = {IdBill: elementValue, IdProduct: idprd, Price: price, Quantity: 1, Color: color, size: size}
+        var request = {IdBill: elementValue, IdProduct: idprd, IdEmployee: idempl, Price: price, Quantity: 1, Color: color, size: size}
         $.ajax({
             url: "/SellOff/AddProductToCart/",
             async: false,

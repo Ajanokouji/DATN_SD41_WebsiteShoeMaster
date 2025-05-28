@@ -438,6 +438,7 @@ public class BillRepository : IBillRepository
         {
             var totalPrice = item.Quantity * item.Price;
             item.TotalPrice = totalPrice;
+            item.LastModifiedByUserId = bill.IdEmployee;
 
             _context.BillDetails.Update(item);
             _context.SaveChanges();

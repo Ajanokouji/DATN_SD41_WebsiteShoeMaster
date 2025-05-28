@@ -197,6 +197,7 @@
     });
     var selectedCustomer = null;
 
+    // Khi tìm kiếm mỗi khi nhập
     $("#searchClientInput").on("input", function () {
         var q = $(this).val().trim();
         if (q.length < 2) {
@@ -213,6 +214,10 @@
                 }).join('');
                 $("#customer-suggestions").html(html).show();
             });
+    });
+    // Khi click vào input, cũng thực hiện tìm kiếm (gọi lại event input)
+    $("#searchClientInput").on("click", function () {
+        $(this).trigger("input");
     });
 
     // Khi chọn 1 khách hàng
