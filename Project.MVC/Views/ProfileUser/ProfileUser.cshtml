@@ -30,17 +30,9 @@ else
                 <div class="row">
                     <!-- Avatar -->
                     <div class="col-md-4 text-center d-flex flex-column justify-content-center align-items-center">
-                        <div class="d-flex mb-2">
-                            <!--Đơn hàng của tôi-->
-                            <a asp-action="BillUser" asp-controller="BillUser" target="_blank" class="animation-icon">
-                                <i class="fa fa-shopping-bag fa-2x mr-4" style="color:#ca1515;" title="Đơn hàng của tôi"></i>
-                            </a>
-
-                            <!--Voucher của tôi-->
-                            <a asp-action="profileuser" asp-controller="profileuser" target="_blank" class="animation-icon">
-                                <i class="fa fa-ticket fa-2x" style="color:#ca1515;" title="Voucher của tôi"></i>
-                            </a>
-                        </div>
+                        <a asp-action="BillUser" asp-controller="BillUser" target="_blank" class="animation-icon">
+                            <i class="fa fa-shopping-bag fa-2x mb-2" style="color:#ca1515;" title="Đơn hàng của tôi"></i>
+                        </a>
 
                         <img id="avatarPreview" src="@(!String.IsNullOrWhiteSpace(Model.AvartarUrl)?Model.AvartarUrl:"https://static.vecteezy.com/system/resources/previews/009/292/244/non_2x/default-avatar-icon-of-social-media-user-vector.jpg")" alt="Profile Picture"
                              class="img-thumbnail rounded-circle mb-3"

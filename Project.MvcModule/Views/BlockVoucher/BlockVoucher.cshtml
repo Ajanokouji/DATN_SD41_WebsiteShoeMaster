@@ -59,24 +59,6 @@
                                 var vnTime = TimeZoneInfo.ConvertTimeFromUtc(voucher.EndDate.Value, TimeZoneInfo.FindSystemTimeZoneById("SE Asia Standard Time"));
                             }
                             <p class="mb-2 small">Hết hạn vào @vnTime.ToString("dd:MM:yyyy HH:mm")</p>
-
-                            <div class="progress mb-2" style="height: 20px; position: relative;">
-                                <div class="progress-bar bg-danger"
-                                     style="width: @((((double)voucher.RedeemCount / voucher.TotalMaxUsage) * 100).Value.ToString("#,##0.#"))%">
-                                </div>
-                                <div style="
-                                    position: absolute;
-                                    top: 50%;
-                                    left: 50%;
-                                    transform: translate(-50%, -50%);
-                                    width: 100%;
-                                    text-align: center;
-                                    font-weight: bold;
-                                    color: black;
-                                    pointer-events: none;">
-                                    Đã sử dụng: @((((double)voucher.RedeemCount / voucher.TotalMaxUsage) * 100).Value.ToString("#,##0.#"))%
-                                </div>
-                            </div>
                         </div>
                         <button class="btn btn-sm btn-danger mt-2 w-100 save-voucher-btn" data-voucher-id="@voucher.Id">Lưu</button>
                     </div>
