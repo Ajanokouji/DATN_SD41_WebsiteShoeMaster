@@ -151,6 +151,7 @@ const AddVoucherSheet: React.FC<AddVoucherSheetProps> = ({
             lastModifiedByUserId: "3fa85f64-5717-4562-b3fc-2c963f66afa6", // GUID hợp lệ
             lastModifiedOnDate: new Date().toISOString(), // Giá trị hợp lệ
             createdOnDate: new Date().toISOString(), // Giá trị hợp lệ
+            isUsed: false, // Mặc định là chưa sử dụng
           }));
 
           // Gửi danh sách voucherUsers lên API

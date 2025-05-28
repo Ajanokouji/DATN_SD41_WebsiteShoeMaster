@@ -1,15 +1,15 @@
 export const CONTACT_MESSAGES = {
     CREATE_CONTACT: {
-      SUCCESS: "Create contact success!",
-      ERROR: "Create contact fail. Please try again.",
+      SUCCESS: "Tạo nhân viên thành công!",
+      ERROR: "Tạo nhân viên thất bại. Vui lòng thử lại.",
     },
     UPDATE_CONTACT: {
-      SUCCESS: "Update contact success!",
-      ERROR: "Update contact fail. Please try again.",
+      SUCCESS: "Cập nhật nhân viên thành công!",
+      ERROR: "Cập nhật nhân viên thất bại. Vui lòng thử lại.",
     },
     DELETE_CONTACT: {
-      SUCCESS: "Delete contact success!",
-      ERROR: "Delete contact fail. Please try again.",
+      SUCCESS: "Xoa nhân viên thành công!",
+      ERROR: "Xóa nhân viên thất bại. Vui lòng thử lại.",
     },
     
   } as const;
