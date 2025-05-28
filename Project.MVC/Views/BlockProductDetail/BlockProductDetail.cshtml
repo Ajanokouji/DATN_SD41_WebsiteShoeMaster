@@ -12,13 +12,27 @@
     </div>
     <div class="product__item__text">
         <h6><a asp-controller="ProductDetails" asp-action="ProductDetails" asp-route-id="@Model.Id">@Model.Name</a></h6>
-        <div class="rating">
-            <i class="fa fa-star"></i>
-            <i class="fa fa-star"></i>
-            <i class="fa fa-star"></i>
-            <i class="fa fa-star"></i>
-            <i class="fa fa-star"></i>
+        @{
+            decimal ConvertToDecimal(string priceStr)
+            {
+                decimal.TryParse(priceStr, out var result);
+                return result;
+            }
+
+            var variants = Model.VariantObjs ?? new List<Variant>();
+
+            var minPriceVariant = variants
+            .OrderBy(v => ConvertToDecimal(v.Price))
+            .FirstOrDefault();
+
+            var maxPriceVariant = variants
+            .OrderByDescending(v => ConvertToDecimal(v.Price))
+            .FirstOrDefault();
+        }
+        <div class="cart__price" style="font-size: 14px; color: red;">
+            @(minPriceVariant != null ? minPriceVariant.Price + " VNĐ -" : "Hết hàng")
+            @(maxPriceVariant != null ? maxPriceVariant.Price + " VNĐ" : "")
+
         </div>
-        @* <div class="product__price"> <span>@Model.MetadataObj.GetMetadatavalue("MaxPrice")??</span></div> *@
     </div>
 </div>
