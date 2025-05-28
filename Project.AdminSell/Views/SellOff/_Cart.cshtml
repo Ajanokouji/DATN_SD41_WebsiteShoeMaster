@@ -263,7 +263,8 @@
         });
     });
 
-
+    var sdtcus;
+    $("#searchClientInput").val(sdtcus);
     //Thêm khách hàng
     $("#btn-saveKH").on("click", function () {
         var tenkh = $("#inputTenKhachHang").val();
@@ -320,10 +321,10 @@
             data: khachHang,
             success: function (response) {
                 if (response.success) {
-                    //gethdct(idhd);
+                    gethdct(idhd);
                     $("#themkhachhang").modal("hide");
                     toastr.success('Thêm khách hàng thành công', "Thông báo", { timeOut: 1000 });
-                    $("#searchClientInput").val(sdt);
+                    sdtcus = sdt;
                 } else {
                     toastr.error('Thêm khách hàng thất bại: ' + (response.message), 'Thông báo', { timeOut: 1000 });
                 }
