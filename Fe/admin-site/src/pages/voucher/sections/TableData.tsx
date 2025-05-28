@@ -97,13 +97,13 @@ const VouchersTable: React.FC = () => {
 
   const headers = [
     { label: "Tên Voucher | Mã voucher" },
-    { label: "Loại mã" },
     { label: "Giảm giá" },
     { label: "Giá trị đơn hàng tối thiểu" },
     { label: "Tổng lượt sử dụng tối đa" },
     { label: "Đã dùng" },
     { label: "Thời gian lưu Mã Voucher" },
-    { label: "Trạng thái" },
+    { label: "Trạng thái hoạt động" },
+    { label: "Khách hàng lưu trữ" },
     { label: "Thao tác" },
   ];
 
@@ -165,48 +165,6 @@ const VouchersTable: React.FC = () => {
           </div>
         );
       },
-    },    
-    {
-      key: "voucherType",
-      render: (value, row) => {
-        if (value === 1) {
-          return (
-            <div>
-              <div className="font-semibold">Voucher toàn shop</div>
-
-              <div>Khách hàng lưu trữ</div>
-              <Link to={`/voucher-user/${row?.id}`} target="_blank" rel="noopener noreferrer"
-                className="flex items-center justify-center text-blue-500 hover:text-blue-700">
-                <FaEye/>
-              </Link>
-            </div>
-          );
-        }
-        if (value === 2) {
-          return (
-            <div>
-              <div className="font-semibold">Voucher sản phẩm</div>
-              <Link to={`/voucher-product/${row?.id}`} target="_blank" rel="noopener noreferrer"
-                className="flex items-center justify-center text-blue-500 hover:text-blue-700">
-                <FaEye/>
-              </Link>
-
-              <div>Khách hàng lưu trữ</div>
-              <Link to={`/voucher-user/${row?.id}`} target="_blank" rel="noopener noreferrer"
-                className="flex items-center justify-center text-blue-500 hover:text-blue-700">
-                <FaEye/>
-              </Link>
-            </div>
-          );
-        }
-        else{
-          return (
-            <div>
-              <div>Voucher không xác định</div>
-            </div>
-          );
-        }
-      }
     },
     {
       render: (_, row) => {
@@ -335,6 +293,20 @@ const VouchersTable: React.FC = () => {
     {
       key: "status",
       render: (value) => renderStatus(value),
+    },
+    {
+      key: "voucherType",
+      render: (value, row) => {
+        return (
+        <div>
+          <div>Xem chi tiết</div>
+          <Link to={`/voucher-user/${row?.id}`} target="_blank" rel="noopener noreferrer"
+            className="flex items-center justify-center text-blue-500 hover:text-blue-700">
+            <FaEye/>
+          </Link>
+        </div>
+        );
+      }
     },
     {
       isActionColumn: true,

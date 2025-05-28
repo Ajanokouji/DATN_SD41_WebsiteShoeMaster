@@ -99,16 +99,17 @@ const ProductsTable: React.FC<ProductsTableProps> = ({ selectedCategoryId }) => 
   ];
 
   const columns: {
-    key?: keyof ProductResDto;
-    className?: string;
-    isActionColumn?: boolean;
-    // eslint-disable-next-line @typescript-eslint/no-explicit-any
-    render?: (value: any) => React.ReactNode;
-    action?: (data: ProductResDto) => void;
-    deleteAction?: (id: string) => void;
-    updateAction?: (id: string) => void;
-    detailAction?: (id: string) => void;
-  }[] = [
+      key?: keyof ProductResDto;
+      className?: string;
+      isActionColumn?: boolean;
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
+      render?: (value: any, row?: any) => React.ReactNode;
+      action?: (data: ProductResDto) => void;
+      deleteAction?: (id: string) => void;
+      updateAction?: (id: string) => void;
+      detailAction?: (id: string) => void;
+      starAction?: (id: string) => void; // Thêm action cho sao
+    }[] = [
     { key: "code", className: "text-center" },
     { key: "name" },
     { key: "imageUrl" },
@@ -132,6 +133,9 @@ const ProductsTable: React.FC<ProductsTableProps> = ({ selectedCategoryId }) => 
       },
       detailAction: (id: string) => {
         handleOpenDetail(id);
+      },
+        starAction: (id: string) => {
+        window.open(`/comment/${id}`, "_blank");
       },
     },
   ];

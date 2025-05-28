@@ -1,0 +1,68 @@
+﻿@model List<Project.MvcModule.Models.CommentsViewModel>
+
+@foreach (var item in Model)
+{
+    var isLong = item.Message?.Length > 150;
+
+    <div class="review">
+        <div class="review-header">
+            <span class="review-author">@item.Username</span> • @(TimeZoneInfo.ConvertTimeFromUtc(item.CreatedOnDate.Value, TimeZoneInfo.FindSystemTimeZoneById("SE Asia Standard Time")).ToString("yyyy-MM-dd HH:mm"))
+        </div>
+        <div class="review-content-wrapper">
+            <div class="review-content @(isLong ? "collapsed" : "")">@item.Message</div>
+            @if (isLong)
+            {
+                <button class="toggle-button" onclick="toggleReview(this)">Xem thêm</button>
+            }
+        </div>
+    </div>
+}
+
+<style>
+    .review-content-wrapper {
+        position: relative;
+        margin-bottom: 10px;
+    }
+
+    .review-content {
+        font-size: 15px;
+        margin: 6px 0;
+        overflow: hidden;
+        display: -webkit-box;
+        -webkit-line-clamp: 2;
+        -webkit-box-orient: vertical;
+    }
+
+        .review-content.expanded {
+            -webkit-line-clamp: unset;
+            overflow: visible;
+        }
+
+    .toggle-button {
+        background: none;
+        color: #007bff;
+        border: none;
+        padding: 0;
+        font-size: 14px;
+        cursor: pointer;
+    }
+
+        .toggle-button:hover {
+            text-decoration: underline;
+        }
+</style>
+
+<script>
+    function toggleReview(button) {
+        const content = button.previousElementSibling;
+        const isExpanded = content.classList.contains("expanded");
+
+        if (isExpanded) {
+            content.classList.remove("expanded");
+            button.textContent = "Xem thêm";
+        } else {
+            content.classList.add("expanded");
+            button.textContent = "Thu gọn";
+        }
+    }
+</script>

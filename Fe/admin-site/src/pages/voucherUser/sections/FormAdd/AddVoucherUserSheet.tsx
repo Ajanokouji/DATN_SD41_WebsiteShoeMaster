@@ -27,6 +27,7 @@ import VoucherUserReqDto from "@/types/voucherUser/voucherUser";
 import { Button } from "@/components/ui/button";
 import { FaAddressCard, FaEnvelope, FaPhone } from "react-icons/fa6";
 import { FaHome } from "react-icons/fa";
+import { fetchVoucherById } from "@/redux/apps/voucher/voucherSlice";
 
 interface AddVoucherUserSheetProps {
   isOpen: boolean;
@@ -173,6 +174,17 @@ const AddVoucherUserSheet: React.FC<AddVoucherUserSheetProps> = ({
         setErrMs("Vui lòng chọn ít nhất một khách hàng.");
         return;
       }
+
+      //Check voucher tồn tại
+      const voucherResponse = await dispatch(fetchVoucherById(voucherId)).unwrap();
+      if ((!voucherResponse) || (voucherResponse && voucherResponse.isDeleted)) {
+        setErrMs(""); // Đặt lại về rỗng để kích hoạt useEffect
+        setTimeout(() => {
+          setErrMs("Không tìm thấy Voucher! Vui lòng kiểm tra lại!");
+        }, 0); // Đặt lỗi mới sau một khoảng thời gian ngắn
+        return;
+      }
+      setErrMs("");
 
       const voucherUsers: VoucherUserReqDto[] = selectedUsers.map((user) => ({
         voucherId,

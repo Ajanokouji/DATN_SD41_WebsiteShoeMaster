@@ -74,23 +74,6 @@ export const VoucherForm: React.FC<VoucherFormProps> = ({
 
           <h2 className="pb-5 text-lg font-semibold">Thông tin cơ bản</h2>
           <div className="mb-5 mt-5">
-            <div className="flex items-center gap-4 mb-5">
-              <FormLabel className="w-32">Loại Voucher</FormLabel>
-                {methods.getValues("voucherType") === 1 && (
-                  <span className="flex items-center rounded border p-4 shadow hover:bg-gray-200">
-                    <FaStore className="mr-3 text-xl"/>Voucher toàn shop
-                    <br/>
-                  </span>
-                  )
-                }
-                {methods.getValues("voucherType") === 2 && (
-                  <span className="flex items-center rounded border p-4 shadow hover:bg-gray-200">
-                    <FaCartShopping className="mr-3 text-xl"/>Voucher sản phẩm
-                  </span>
-                  )
-                }
-            </div>
-              
             <FormField
               control={control}
               name="voucherName"
