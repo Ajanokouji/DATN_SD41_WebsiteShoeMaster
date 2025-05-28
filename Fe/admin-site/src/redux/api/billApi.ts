@@ -1,12 +1,13 @@
 import httpClient from "./agent";
 import { PaginatedResponse } from "@/types/common/pagination";
-import { BillDetailResDto, BillFilterParams, BillReqDto, BillResDto } from "@/types/bill/bill";
+import { BillDetailResDto, BillFilterParams, BillReqDto, BillResDto, InventoryCheckResponse } from "@/types/bill/bill";
 
 class BillService {
   private static instance: BillService;
 
   private readonly endpoints = {
     bills: "/Bill",
+    checkInventory: "/Bill/check-inventory"
   };
 
   private constructor() {
@@ -108,6 +109,19 @@ class BillService {
     } catch (error) {
       console.error("Delete bill error:", error);
       throw new Error(`Delete bill failed: ${error}`);
+    }
+  }
+
+  // Kiểm tra số lượng trong kho
+  async checkInventory(id: string): Promise<InventoryCheckResponse> {
+    try {
+      const response = await httpClient.get<{ data: InventoryCheckResponse }>(
+        `${this.endpoints.checkInventory}/${id}`
+      );
+      return response.data;
+    } catch (error) {
+      console.error("Check inventory error:", error);
+      throw new Error(`Check inventory failed: ${error}`);
     }
   }
 }
