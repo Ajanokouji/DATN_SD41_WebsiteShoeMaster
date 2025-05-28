@@ -6,6 +6,7 @@ import { Table, TableBody } from "@/components/ui/table";
 import TableProps from "@/types/common/table";
 import { useAppDispatch } from "@/hooks/use-app-dispatch";
 import { useAppSelector } from "@/hooks/use-app-selector";
+import { useLocation } from "react-router-dom";
 import {
   fetchContentBases,
   deleteContentBase,
@@ -66,6 +67,7 @@ const ContentBasesTable: React.FC = () => {
   const headers = [
     { label: "Tiêu đề" },
     { label: "SEO Title" },
+    { label: "SEO Uri" },
     { label: "Ngày bắt đầu xuất bản" },
     { label: "Ngày kết thúc xuất bản" },
     { label: "Trạng thái xuất bản" },
@@ -85,6 +87,9 @@ const ContentBasesTable: React.FC = () => {
     },
     {
       key: "seoTitle",
+    },
+    {
+      key: "seoUri",
     },
     {
       key: "publishStartDate",
@@ -109,15 +114,24 @@ const ContentBasesTable: React.FC = () => {
     },
   ];
 
-  useEffect(() => {
-    dispatch(
-      fetchContentBases({
-        CurrentPage: pagination.currentPage,
-        PageSize: pagination.pageSize,
-      })
-    );
-  }, [dispatch, pagination.currentPage, pagination.pageSize]);
+  const location = useLocation();
 
+  useEffect(() => {
+  const params = new URLSearchParams(location.search);
+  const title = params.get("title") || "";
+  const seoUri = params.get("seoUri") || "";
+  const isDeleted = params.get("isDeleted") || "false";
+
+  dispatch(
+    fetchContentBases({
+      CurrentPage: pagination.currentPage,
+      PageSize: pagination.pageSize,
+      title,
+      seoUri,
+      isDeleted: isDeleted === "1" || isDeleted === "true", // Chuyển đổi thành boolean
+    })
+  );
+}, [dispatch, pagination.currentPage, pagination.pageSize, location.search]);
   const handlePageChange = (newPage: number) => {
     dispatch(setPage(newPage));
   };

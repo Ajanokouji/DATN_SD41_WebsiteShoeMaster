@@ -1,3 +1,4 @@
+// CustomersTable.tsx
 import React, { useEffect } from "react";
 import Pagination from "@/components/Pagination";
 import TableHeaderComponent from "@/components/TableHeader";
@@ -6,6 +7,7 @@ import { Table, TableBody } from "@/components/ui/table";
 import TableProps from "@/types/common/table";
 import { useAppDispatch } from "@/hooks/use-app-dispatch";
 import { useAppSelector } from "@/hooks/use-app-selector";
+import { useLocation } from "react-router-dom"; // <--- thêm import này (nếu bạn muốn)
 
 import { formatVietnamTime } from "@/utils/format";
 import {
@@ -20,15 +22,10 @@ import {
   setPageSize,
 } from "@/redux/apps/customer/customerSlice";
 
-const CustomerTable = <T extends { id: string }>({
-  headers,
-  data,
-  columns,
-}: TableProps<T>) => (
+const CustomerTable = <T extends { id: string }>(
+  { headers, data, columns }: TableProps<T>
+) => (
   <div className="border border-gray-300 rounded-t-xl overflow-hidden">
-    {/* <Table className="w-full">
-      <TableHeaderComponent headers={headers} />
-    </Table> */}
     <div className="max-h-[58vh] max-w-full overflow-x-auto overflow-y-auto">
       <Table className="w-full">
         <TableHeaderComponent headers={headers} className="text-center" />
@@ -52,6 +49,7 @@ const CustomerTable = <T extends { id: string }>({
 
 const CustomersTable: React.FC = () => {
   const dispatch = useAppDispatch();
+  const location = useLocation(); // <--- thêm nếu bạn muốn fix lỗi filter
   const customers = useAppSelector(selectCustomers);
   const pagination = useAppSelector(selectPagination);
 
@@ -64,7 +62,6 @@ const CustomersTable: React.FC = () => {
     { label: "Customer name" },
     { label: "Email" },
     { label: "Phone" },
-    { label: "Address" },
     { label: "Description" },
     { label: "Create At" },
     { label: " " },
@@ -83,7 +80,6 @@ const CustomersTable: React.FC = () => {
     { key: "name" },
     { key: "email" },
     { key: "phoneNumber" },
-    { key: "address" },
     { key: "description" },
     {
       key: "createdOnDate",
@@ -100,15 +96,19 @@ const CustomersTable: React.FC = () => {
       },
     },
   ];
-
   useEffect(() => {
-    dispatch(
-      fetchCustomers({
-        CurrentPage: pagination.currentPage,
-        PageSize: pagination.pageSize,
-      })
-    );
-  }, [dispatch, pagination.currentPage, pagination.pageSize]);
+    const params = new URLSearchParams(location.search);
+    const filters = {
+      CurrentPage: pagination.currentPage,
+      PageSize: pagination.pageSize,
+      Ten: params.get("name") || "", // Đổi "name" thành "Ten"
+      email: params.get("email") || "",
+      phoneNumber: params.get("phoneNumber") || "",
+    };
+  
+    console.log("Filters sent to API:", filters); // Log để kiểm tra
+    dispatch(fetchCustomers(filters));
+  }, [dispatch, location.search, pagination.currentPage, pagination.pageSize]);
 
   // Xử lý khi thay đổi trang
   const handlePageChange = (newPage: number) => {

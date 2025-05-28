@@ -1,6 +1,6 @@
+import React, { useState } from "react";
 import { Button } from "@/components/ui/button";
 import { Form } from "@/components/ui/form";
-import React, { useState } from "react";
 import { useAppDispatch } from "@/hooks/use-app-dispatch";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
@@ -66,14 +66,6 @@ const AddContentBaseSheet: React.FC<AddContentBaseSheetProps> = ({
         content: values.content || "",
       };
 
-      // Chuyển thành giờ UTC
-      if (values.publishStartDate) {
-        contentBaseData.publishStartDate = new Date(values.publishStartDate).toISOString();
-      }
-      if (values.publishEndDate) {
-        contentBaseData.publishEndDate = new Date(values.publishEndDate).toISOString();
-      }
-
       const createRs = await dispatch(createContentBase(contentBaseData));
       if (createContentBase.fulfilled.match(createRs)) {
         onClose();
@@ -102,6 +94,34 @@ const AddContentBaseSheet: React.FC<AddContentBaseSheetProps> = ({
             onSubmit={form.handleSubmit(handleSubmit)}
             className="space-y-6 overflow-auto"
           >
+            {/* <div className="mb-4">
+              <label htmlFor="title" className="block text-sm font-medium mb-1">
+                Tiêu đề <span className="text-red-500">*</span>
+              </label>
+              <input
+                id="title"
+                type="text"
+                value={form.watch("title")}
+                onChange={handleTitleChange}
+                className="border p-2 rounded w-full"
+                placeholder="Nhập tiêu đề bài viết"
+              />
+            </div>
+
+            <div className="mb-4">
+              <label htmlFor="seoUri" className="block text-sm font-medium mb-1">
+                SEO URI (Tự động tạo)
+              </label>
+              <input
+                id="seoUri"
+                type="text"
+                value={form.watch("seoUri")}
+                readOnly
+                className="border p-2 rounded w-full bg-gray-100"
+                placeholder="SEO URI sẽ tự động tạo từ tiêu đề"
+              />
+            </div> */}
+
             <BasicInfoFields control={form.control} />
 
             <div className="flex justify-end gap-2 pt-4">

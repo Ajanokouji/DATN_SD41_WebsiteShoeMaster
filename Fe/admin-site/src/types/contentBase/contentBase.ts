@@ -38,6 +38,8 @@ export interface ContentBaseResDto {
 }
 
 export interface ContentBaseFilterParams extends PaginationParams {
-  title?: string; // Lọc theo tiêu đề
-  seoUri?: string; // Lọc theo đường dẫn SEO
+  title?: string;
+  seoUri?: string;
+  isDeleted?: boolean; // Added the missing property
+
 }
