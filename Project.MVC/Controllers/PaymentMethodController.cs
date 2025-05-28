@@ -156,9 +156,12 @@ namespace Project.MVC.Controllers
                 });
             }
 
-            if (user == null)
-            {
-                await _userBusiness.CreateUserFromCustomerInfo(model.CustomerInfo);
+
+                if (user==null) {
+                    await _userBusiness.CreateUserFromCustomerInfo(model.CustomerInfo);
+                }
+
+      
             }
 
             var viewModel = new PaymentViewModel()
@@ -172,6 +175,8 @@ namespace Project.MVC.Controllers
                     BillId = billModel.Id,
                 },
             };
+
+            HttpContext.Session.Remove(AppliedVoucher);
 
             return View(viewModel);
         }

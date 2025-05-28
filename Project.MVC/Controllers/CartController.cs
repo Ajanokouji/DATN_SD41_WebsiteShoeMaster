@@ -29,6 +29,7 @@ namespace Project.MVC.Controllers
         private readonly ICartBusiness _cartBusiness;
         private readonly ICartDetailsBusiness _cartDetailsBusiness;
         private readonly IProductBusiness _productBusiness;
+        private readonly string AppliedVoucher = "AppliedVoucher";
 
         public CartController(IVoucherProductsBusiness voucherProductsBusiness, IVoucherUsersBusiness voucherUsersBusiness, IVoucherBusiness voucherBusiness, IUserBusiness userBusiness,ICartBusiness cartBusiness, ICartDetailsBusiness cartDetailsBusiness, IProductBusiness productBusiness)
         { 
@@ -44,6 +45,7 @@ namespace Project.MVC.Controllers
         [HttpGet]
         public async Task<IActionResult> Cart()
         {
+            HttpContext.Session.Remove(AppliedVoucher);
             //Kiểm tra đã có user đăng nhập chưa
             var userSessionJson = HttpContext.Session.GetString(UserConstants.UserSessionKey);
             if (!string.IsNullOrEmpty(userSessionJson))

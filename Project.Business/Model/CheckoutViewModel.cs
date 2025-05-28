@@ -10,7 +10,11 @@ namespace Project.Business.Model
         public CustomerInfoModel? CustomerInfo { get; set; }
         public List<CartItemModel>? CartItems { get; set; }
         public Guid? VoucherId { get; set; }
-        
+
+        public decimal DiscountAmount { get; set; } = 0;
+
+        public decimal FinalAmount { get; set; } = 0;
+
         //public PaymentViewModel?  PaymentViewModel { get; set; }
 
         public PaymentMethodModel paymentMethodModel { get; set; }
