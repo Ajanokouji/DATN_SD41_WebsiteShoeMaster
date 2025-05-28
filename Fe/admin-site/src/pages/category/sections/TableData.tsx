@@ -108,14 +108,19 @@ const CategoriesTable: React.FC = () => {
   ];
 
   useEffect(() => {
-    dispatch(
-      fetchCategories({
-        CurrentPage: pagination.currentPage,
-        PageSize: pagination.pageSize,
-      })
-    );
-  }, [dispatch, pagination.currentPage, pagination.pageSize]);
-
+    const params = new URLSearchParams(location.search);
+    const filters = {
+      CurrentPage: pagination.currentPage,
+      PageSize: pagination.pageSize,
+      name: params.get("name") || "",
+      code: params.get("code") || "",
+      isDeleted: params.get("status") || "", // Truyền trạng thái isDeleted
+      description: params.get("description") || "",
+    };
+  
+    console.log("Filters sent to API:", filters); // Log để kiểm tra
+    dispatch(fetchCategories(filters));
+  }, [dispatch, location.search, pagination.currentPage, pagination.pageSize]);
   // Xử lý khi thay đổi trang
   const handlePageChange = (newPage: number) => {
     dispatch(setPage(newPage));
