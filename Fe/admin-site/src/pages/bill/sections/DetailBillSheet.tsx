@@ -7,7 +7,7 @@ import {
 import { useAppSelector } from "@/hooks/use-app-selector";
 import { selectBill } from "@/redux/apps/bill/billSelector";
 import { useAppDispatch } from "@/hooks/use-app-dispatch";
-import { fetchBillById, updateBill } from "@/redux/apps/bill/billSlice";
+import { fetchBillById, updateBill, checkInventory } from "@/redux/apps/bill/billSlice";
 import { Badge } from "@/components/ui/badge";
 import { Separator } from "@/components/ui/separator";
 import { Button } from "@/components/ui/button";
@@ -21,6 +21,8 @@ import {
   SelectValue,
 } from "@/components/ui/select";
 import { ORDER_STATUS, ORDER_STATUS_LABELS, STATUS_TRANSITIONS } from "@/constants/orderStatus.constants";
+import { toast } from "sonner";
+import { InventoryCheckDetail } from "@/types/bill/bill";
 
 interface DetailBillSheetProps {
   billId: string;
@@ -36,6 +38,7 @@ const DetailBillSheet: React.FC<DetailBillSheetProps> = ({
   const dispatch = useAppDispatch();
   const bill = useAppSelector(selectBill);
   const [selectedStatus, setSelectedStatus] = useState<string>("");
+  const [inventoryCheck, setInventoryCheck] = useState<InventoryCheckDetail[]>([]);
 
   useEffect(() => {
     if (bill?.status) {
@@ -43,28 +46,74 @@ const DetailBillSheet: React.FC<DetailBillSheetProps> = ({
     }
   }, [bill]);
 
+  // Xử lý khi load chi tiết hóa đơn
   useEffect(() => {
-    
-    dispatch(fetchBillById(billId));
-  }, [dispatch, billId]);
+    const loadBillDetails = async () => {
+      try {
+        const result = await dispatch(fetchBillById(billId)).unwrap();
+        
+        // Nếu trạng thái là PendingConfirmation, kiểm tra kho
+        if (result.status === ORDER_STATUS.PendingConfirmation) {
+          const inventoryResult = await dispatch(checkInventory(billId)).unwrap();
+
+          
+          setInventoryCheck(inventoryResult || []);
+          
+          // Kiểm tra nếu có sản phẩm không đủ hàng
+          const outOfStockProducts = inventoryResult.data?.filter(detail => !detail.isAvailable) || [];
+          
+          if (outOfStockProducts.length > 0) {
+            // Hiển thị chi tiết sản phẩm không đủ hàng
+            const outOfStockMessage = outOfStockProducts
+              .map(detail => `${detail.productName} (SKU: ${detail.sku}, Cần: ${detail.requestedQuantity}, Có: ${detail.availableQuantity})`)
+              .join('\n');
+              
+            toast.error(`Không đủ số lượng trong kho:\n${outOfStockMessage}\n\nVui lòng cập nhật trạng thái sang "Không đủ hàng"`);
+          }
+        }
+      } catch (error) {
+        console.error('Error loading bill details:', error);
+        toast.error('Có lỗi xảy ra khi tải chi tiết hóa đơn');
+      }
+    };
+
+    if (isOpen) {
+      loadBillDetails();
+    }
+  }, [dispatch, billId, isOpen]);
+
+  // Cập nhật trạng thái hóa đơn
+  const updateBillStatus = async (newStatus: string) => {
+    try {
+      await dispatch(updateBill({
+        id: bill!.id,
+        data: {
+          id: bill!.id,
+          status: newStatus
+        }
+      }));
+      // Refresh lại dữ liệu
+      dispatch(fetchBillById(billId));
+      toast.success('Cập nhật trạng thái thành công');
+    } catch (error) {
+      console.error("Failed to update status:", error);
+      toast.error('Cập nhật trạng thái thất bại');
+    }
+  };
 
   // Lấy danh sách trạng thái có thể chuyển đổi
   const getAvailableStatuses = (currentStatus: string) => {
+    // Nếu có sản phẩm không đủ hàng, chỉ cho phép chọn OutOfStock
+    if (inventoryCheck?.some(item => !item.isAvailable)) {
+      return [ORDER_STATUS.OutOfStock];
+    }
     return STATUS_TRANSITIONS[currentStatus] || [];
   };
 
   const handleUpdateStatus = async (newStatus: string) => {
     if (bill && newStatus) {
       try {
-        await dispatch(updateBill({
-          id: bill.id,
-          data: {
-            id: bill.id,
-            status: newStatus
-          }
-        }));
-        // Refresh lại dữ liệu
-        dispatch(fetchBillById(billId));
+        await updateBillStatus(newStatus);
       } catch (error) {
         console.error("Failed to update status:", error);
       }
@@ -74,17 +123,18 @@ const DetailBillSheet: React.FC<DetailBillSheetProps> = ({
   const getStatusBadgeVariant = (status: string) => {
     switch (status) {
       case ORDER_STATUS.Completed:
-        return "success";
+        return "default";
       case ORDER_STATUS.Cancelled:
       case ORDER_STATUS.Rejected:
       case ORDER_STATUS.DeliveryFailed:
+      case ORDER_STATUS.OutOfStock:
         return "destructive";
       case ORDER_STATUS.Shipping:
       case ORDER_STATUS.Delivered:
-        return "info";
+        return "secondary";
       case ORDER_STATUS.ReturnProcessing:
       case ORDER_STATUS.Returned:
-        return "warning";
+        return "outline";
       default:
         return "secondary";
     }
@@ -121,7 +171,6 @@ const DetailBillSheet: React.FC<DetailBillSheetProps> = ({
                 <h1 className="text-2xl font-bold mb-2">Hóa đơn</h1>
                 <p className="text-sm opacity-90">Mã hóa đơn: {bill.billCode}</p>
                 <div className="flex gap-2 mt-1">
-
                   <Badge 
                     variant={getStatusBadgeVariant(bill.status)} 
                     className="text-white border-white"
@@ -140,9 +189,7 @@ const DetailBillSheet: React.FC<DetailBillSheetProps> = ({
                   className="flex items-center gap-1"
                 >
                   <Printer className="h-4 w-4" />
-
                   <span>In</span>
-
                 </Button>
                 <Button
                   variant="secondary"
@@ -247,33 +294,53 @@ const DetailBillSheet: React.FC<DetailBillSheetProps> = ({
                   <thead className="bg-gray-50">
                     <tr>
                       <th className="py-3 px-4 text-left text-sm font-semibold text-gray-700 border-b">Sản Phẩm</th>
+                      <th className="py-3 px-4 text-left text-sm font-semibold text-gray-700 border-b">SKU</th>
                       <th className="py-3 px-4 text-left text-sm font-semibold text-gray-700 border-b">Kích cỡ</th>
                       <th className="py-3 px-4 text-left text-sm font-semibold text-gray-700 border-b">Màu sắc</th>
                       <th className="py-3 px-4 text-right text-sm font-semibold text-gray-700 border-b">Số lượng</th>
                       <th className="py-3 px-4 text-right text-sm font-semibold text-gray-700 border-b">Đơn giá</th>
                       <th className="py-3 px-4 text-right text-sm font-semibold text-gray-700 border-b">Tổng</th>
+                      <th className="py-3 px-4 text-center text-sm font-semibold text-gray-700 border-b">Trạng thái</th>
                     </tr>
                   </thead>
                   <tbody>
-                    {bill.billDetails?.map((detail, index) => (
-                      <tr key={index}>
-                        <td className="py-3 px-4 text-left border-b text-gray-800">
-                          <div className="flex items-center gap-2">
-                            <img 
-                              src={detail.productImage} 
-                              alt={detail.productName}
-                              className="w-10 h-10 object-cover rounded"
-                            />
-                            <span>{detail.productName}</span>
-                          </div>
-                        </td>
-                        <td className="py-3 px-4 text-left border-b text-gray-800">{detail.size}</td>
-                        <td className="py-3 px-4 text-left border-b text-gray-800">{detail.color}</td>
-                        <td className="py-3 px-4 text-right border-b text-gray-800">{detail.quantity}</td>
-                        <td className="py-3 px-4 text-right border-b text-gray-800">{formatCurrency(detail.price)}</td>
-                        <td className="py-3 px-4 text-right border-b text-gray-800">{formatCurrency(detail.totalPrice)}</td>
-                      </tr>
-                    ))}
+                    {bill.billDetails?.map((detail, index) => {
+                      const inventoryItem = inventoryCheck.find(item => item.productId === detail.productId&&item.sku===detail.sku);
+                      console.log(inventoryItem)
+                      return (
+                        <tr key={index}>
+                          <td className="py-3 px-4 text-left border-b text-gray-800">
+                            <div className="flex items-center gap-2">
+                              <img 
+                                src={detail.productImage} 
+                                alt={detail.productName}
+                                className="w-10 h-10 object-cover rounded"
+                              />
+                              <span>{detail.productName}</span>
+                            </div>
+                          </td>
+                          <td className="py-3 px-4 text-left border-b text-gray-800">
+                            {detail?.sku || '-'}
+                          </td>
+                          <td className="py-3 px-4 text-left border-b text-gray-800">{detail.size}</td>
+                          <td className="py-3 px-4 text-left border-b text-gray-800">{detail.color}</td>
+                          <td className="py-3 px-4 text-right border-b text-gray-800">{detail.quantity}</td>
+                          <td className="py-3 px-4 text-right border-b text-gray-800">{formatCurrency(detail.price)}</td>
+                          <td className="py-3 px-4 text-right border-b text-gray-800">{formatCurrency(detail.totalPrice)}</td>
+                          <td className="py-3 px-4 text-center border-b">
+                            {inventoryItem ? (
+                              <Badge
+                                variant={inventoryItem.isAvailable ? "default" : "destructive"}
+                              >
+                                {inventoryItem.isAvailable ? "Đủ hàng" : "Không đủ hàng"}
+                              </Badge>
+                            ) : (
+                              '-'
+                            )}
+                          </td>
+                        </tr>
+                      );
+                    })}
                   </tbody>
                 </table>
               </div>

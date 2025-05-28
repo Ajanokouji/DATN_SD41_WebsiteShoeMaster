@@ -59,7 +59,7 @@
                                         data-discount-price="@item.DiscountPrice"
                                         data-discount-percent="@item.DiscountPercent"
                                         data-is-in-stock="@item.IsInStock"
-                                        data-stock-quantity="@item.StockQuantity"
+                                        data-stock-quantity="@item.IsMax"
                                         data-sku="@item.SKU">
                                         <td class="cart__product__item">
                                             <img src="@item.ProductImage" alt="@item.ProductName" style="max-width: 90px;">
@@ -89,13 +89,13 @@
                                         </td>
                                         <td class="cart__quantity">
                                             <div class="input-group input-group-sm quantity-selector" style="max-width:150px">
-                                                <button class="btn btn-outline-secondary btn-decrease" type="button">−</button>
+                                                <button id="button-decrease" class="btn btn-outline-secondary btn-decrease" type="button">−</button>
                                                 <input type="text"
                                                        class="form-control text-center quantity-input"
                                                        value="@item.Quantity"
                                                        data-productprice="@item.Price"
-                                                       max="@item.StockQuantity" />
-                                                <button class="btn btn-outline-secondary btn-increase" type="button">+</button>
+                                                     />
+                                                <button id="button-increase" class="btn btn-outline-secondary btn-increase" type="button" disabled="@(item.IsMax)">+</button>
                                             </div>
                                         </td>
                                         <td class="cart__total">@item.Total.ToString("N0") VNĐ</td>
@@ -192,6 +192,8 @@
 
             // Mở modal & nạp danh sách voucher
             $('#chooseVoucherBtn').on('click', function () {
+
+                debugger
                 const $modal = $('#voucherModal');
                 $modal.find('.modal-body').html(
                     '<div class="py-5 text-center"><div class="spinner-border"></div></div>'
@@ -211,6 +213,7 @@
 
             // Xác nhận chọn voucher
             $('#confirmVoucherBtn').on('click', function () {
+                debugger
                 const $checked = $('#voucherModal input[name="SelectedVoucherId"]:checked');
                 if (!$checked.length) {
                     alert('Vui lòng chọn một voucher.');
@@ -248,7 +251,7 @@
 
             // Tăng số lượng
             $(document).on('click', '.btn-increase', function () {
-                
+                    debugger
                 var $row = $(this).closest('tr');
                 var $input = $row.find('.quantity-input');
                 var val = parseInt($input.val()) || 0;
@@ -258,11 +261,18 @@
                 }
                 const productId = $row.data('id');
                 const sku = $row.data('sku');
-                     $.post('/Cart/IncreaseQuantity', { productId: productId, sku: sku })
+                $.post('/Cart/IncreaseQuantity', { productId: productId, sku: sku })
                  .done(function(res) {
+                    debugger
                 if (res.success) {
                     // Cập nhật lại số lượng hiển thị
                     $row.find('.quantity-input').val(res.quantity);
+                    if (res.isMax) {          
+                        
+                            $('#button-increase').prop('disabled', true);      // disable nút tăng
+                    }else{
+                            $('#button-increase').prop('disabled', false);
+                    }
                     // Cập nhật tổng số lượng & tổng tiền ở UI
                 } else {
                     alert(res.message);
@@ -272,7 +282,6 @@
 
             // Giảm số lượng
             $(document).on('click', '.btn-decrease', function () {
-                debugger
                 var $row = $(this).closest('tr');
                 var $input = $row.find('.quantity-input');
                 var val = parseInt($input.val()) || 0;
@@ -291,6 +300,13 @@
                         if (res.quantity === 0) {
                             // Nếu số lượng về 0 thì xóa dòng sản phẩm khỏi bảng
                             $row.remove();
+                        }
+
+                        if (res.isMax) {
+
+                                $('#button-increase').prop('disabled', true);      // disable nút tăng
+                        }else{
+                                $('#button-increase').prop('disabled', false);
                         }
                     } else {
                         alert(res.message);
@@ -333,16 +349,11 @@
                 var price = discountPrice > 0 ? discountPrice : originalPrice;
                 var total = price * qty;
                 $row.find('.cart__total').text(formatCurrency(total) + ' VNĐ');
-                console.log(qty);
-                console.log(price);
-
-                console.log(total);
                 updateTotals();
             });
 
             // Cập nhật tổng tiền tạm tính, tổng tiền đơn
             function updateTotals() {
-                debugger
                 var subtotal = 0;
                 var cartItems = [];
 

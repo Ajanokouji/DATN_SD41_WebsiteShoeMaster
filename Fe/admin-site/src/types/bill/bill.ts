@@ -93,6 +93,7 @@ export interface BillDetailItem {
   size: number;
   color: string;
   quantity: number;
+  sku:string;
   price: number;
   totalPrice: number;
 }
@@ -123,4 +124,21 @@ export interface BillFilterParams extends PaginationParams {
   tong_tien_decimal?: number;
   StartDate?: string;
   EndDate?: string;
+}
+
+export interface InventoryCheckDetail {
+  productId: string;
+  productName: string;
+  requestedQuantity: number;
+  availableQuantity: number;
+  isAvailable: boolean;
+  sku: string;
+}
+
+export interface InventoryCheckResponse {
+  data: InventoryCheckDetail[];
+  code: number;
+  message: string;
+  licenseInfo: string;
+  totalTime: number;
 }

@@ -1,4 +1,5 @@
 using Microsoft.AspNetCore.Mvc;
+using Project.Business.Implement;
 using Project.Business.Interface;
 using Project.Business.Model;
 using Project.Business.Model.PatchModel;
@@ -14,9 +15,13 @@ namespace Project.Api.Controllers
     public class BillController : BaseControllerApi
     {
         private readonly IBillBusiness _billBusiness;
+        private readonly IProductBusiness _productBusiness;
+        private readonly IBillDetailsBusiness _billDetailsBusiness;
 
-        public BillController(IHttpRequestHelper httpRequestHelper, ILogger<BaseControllerApi> logger, IBillBusiness billBusiness) : base(httpRequestHelper, logger)
+        public BillController(IProductBusiness productBusiness, IBillDetailsBusiness billDetailsBusiness, IHttpRequestHelper httpRequestHelper, ILogger<BaseControllerApi> logger, IBillBusiness billBusiness) : base(httpRequestHelper, logger)
         {
+            _billDetailsBusiness = billDetailsBusiness;
+            _productBusiness = productBusiness;
             _billBusiness = billBusiness;
         }
 
@@ -43,6 +48,33 @@ namespace Project.Api.Controllers
             {
                 var bills = await _billBusiness.GetAllAsync(queryModel);
                 return bills;
+            });
+        }
+
+        [HttpGet("check-inventory/{Id}")]
+        [ProducesResponseType(typeof(ResponseList<CheckProductStockDetail>), StatusCodes.Status200OK)]
+        public async Task<IActionResult> CheckInventory(Guid Id)
+        {
+            return await ExecuteFunction(async () =>
+            {
+                var res = new List<CheckProductStockDetail>();
+                var billDetails = await _billDetailsBusiness.GetBillDetailsByIdBill(Id);
+                var products = await _productBusiness.ListByIdsAsync(billDetails.Select(x => x.IdProduct.Value).ToList());
+                foreach (var item in billDetails)
+                {
+                    var productCurrentStock = (products.FirstOrDefault(x => x.Id == item.IdProduct.Value)).VariantObjs.FirstOrDefault(x => x.Sku == item.Sku).Stock;
+                    res.Add(new CheckProductStockDetail
+                   {
+                       ProductId = item.IdProduct.Value,
+                       ProductName = item.Name,
+                       Sku =item.Sku,
+                       AvailableQuantity = productCurrentStock.Value,
+                       RequestedQuantity = item.Quantity,
+                       IsAvailable =(item.Quantity>productCurrentStock.Value)? false : true
+                    });
+
+                }
+                return res;
             });
         }
 
