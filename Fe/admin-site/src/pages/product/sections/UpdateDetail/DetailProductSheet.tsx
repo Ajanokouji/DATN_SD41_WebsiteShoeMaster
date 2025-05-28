@@ -13,7 +13,7 @@ import { ProductForm } from "./ProductForm";
 import { useProductForm } from "./use-product-form";
 import { selectProduct } from "@/redux/apps/product/productSelector";
 import { MediaList } from "./MediaList";
-import { VariantForm } from "../FormAdd/VariantForm";
+import { VariantForm } from "./VariantForm";
 interface UpdateProductSheetProps {
   productId: string;
   isOpen: boolean;
