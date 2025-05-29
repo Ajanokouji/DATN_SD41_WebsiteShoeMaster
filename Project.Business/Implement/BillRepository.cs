@@ -405,7 +405,7 @@ public class BillRepository : IBillRepository
                 Id = bdt.Id,
                 IdBill = bdt.BillId,
                 IdProduct = prd.Id,
-                Image = prd.ImageUrl,
+                Image = bdt.ProductImage,
                 Name = prd.Name,
                 Color = bdt.Color,
                 Size = bdt.Size,

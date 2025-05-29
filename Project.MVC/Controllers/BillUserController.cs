@@ -5,6 +5,7 @@ using Project.Business.Interface;
 using Project.Business.Interface.Repositories;
 using Project.Business.Model;
 using Project.Common;
+using Project.Common.Constants;
 using Project.DbManagement;
 using Project.DbManagement.Entity;
 using SERP.Framework.Common;
@@ -48,6 +49,80 @@ namespace Project.MVC.Controllers
 
             var billsPaged = await _billBusiness.GetAllAsync(queryModel);
 
+            if (billsPaged == null || billsPaged.Content == null || !billsPaged.Content.Any())
+            {
+                return Json(new { success = false, message = "Không có hóa đơn nào." });
+            }
+
+            foreach (var bill in billsPaged.Content)
+            {
+                switch (bill.Status)
+                {
+                    case BillConstants.PendingConfirmation:
+                        bill.Status = "Chờ xác nhận";
+                        break;
+                    case BillConstants.Confirmed:
+                        bill.Status = "Đã xác nhận";
+                        break;
+                    case BillConstants.Rejected:
+                        bill.Status = "Bị từ chối";
+                        break;
+                    case BillConstants.OutOfStock:
+                        bill.Status = "Hết hàng";
+                        break;
+                    case BillConstants.Paid:
+                        bill.Status = "Đã thanh toán";
+                        break;
+                    case BillConstants.Packed:
+                        bill.Status = "Đã đóng gói";
+                        break;
+                    case BillConstants.Shipping:
+                        bill.Status = "Đang vận chuyển";
+                        break;
+                    case BillConstants.Delivered:
+                        bill.Status = "Đã giao hàng";
+                        break;
+                    case BillConstants.Completed:
+                        bill.Status = "Hoàn thành";
+                        break;
+                    case BillConstants.Cancelled:
+                        bill.Status = "Đã hủy";
+                        break;
+                    case BillConstants.DeliveryFailed:
+                        bill.Status = "Giao hàng thất bại";
+                        break;
+                    case BillConstants.ReturnProcessing:
+                        bill.Status = "Đang xử lý hoàn trả";
+                        break;
+                    case BillConstants.Returned:
+                        bill.Status = "Đã hoàn trả";
+                        break;
+                    default:
+                        bill.Status = "Không xác định";
+                        break;
+                }
+
+                // Nếu muốn xử lý cả PaymentStatus thì làm thêm switch tương tự:
+                switch (bill.PaymentStatus)
+                {
+                    case BillConstants.PaymentStatusUnpaid:
+                        bill.PaymentStatus = "Chưa thanh toán";
+                        break;
+                    case BillConstants.PaymentStatusPaid:
+                        bill.PaymentStatus = "Đã thanh toán";
+                        break;
+                    case BillConstants.PaymentStatusRefunded:
+                        bill.PaymentStatus = "Đã hoàn tiền";
+                        break;
+                    default:
+                        bill.PaymentStatus = "Không xác định";
+                        break;
+                }
+
+                //xử lý giờ
+                bill.CreatedOnDate = bill.CreatedOnDate?.ToLocalTime();
+            }
+
             return View(billsPaged);
         }
 
@@ -72,6 +147,81 @@ namespace Project.MVC.Controllers
             };
 
             var billsPaged = await _billBusiness.GetAllAsync(queryModel);
+
+            if (billsPaged == null || billsPaged.Content == null || !billsPaged.Content.Any())
+            {
+                return Json(new { success = false, message = "Không có hóa đơn nào." });
+            }
+
+            foreach (var bill in billsPaged.Content)
+            {
+                switch (bill.Status)
+                {
+                    case BillConstants.PendingConfirmation:
+                        bill.Status = "Chờ xác nhận";
+                        break;
+                    case BillConstants.Confirmed:
+                        bill.Status = "Đã xác nhận";
+                        break;
+                    case BillConstants.Rejected:
+                        bill.Status = "Bị từ chối";
+                        break;
+                    case BillConstants.OutOfStock:
+                        bill.Status = "Hết hàng";
+                        break;
+                    case BillConstants.Paid:
+                        bill.Status = "Đã thanh toán";
+                        break;
+                    case BillConstants.Packed:
+                        bill.Status = "Đã đóng gói";
+                        break;
+                    case BillConstants.Shipping:
+                        bill.Status = "Đang vận chuyển";
+                        break;
+                    case BillConstants.Delivered:
+                        bill.Status = "Đã giao hàng";
+                        break;
+                    case BillConstants.Completed:
+                        bill.Status = "Hoàn thành";
+                        break;
+                    case BillConstants.Cancelled:
+                        bill.Status = "Đã hủy";
+                        break;
+                    case BillConstants.DeliveryFailed:
+                        bill.Status = "Giao hàng thất bại";
+                        break;
+                    case BillConstants.ReturnProcessing:
+                        bill.Status = "Đang xử lý hoàn trả";
+                        break;
+                    case BillConstants.Returned:
+                        bill.Status = "Đã hoàn trả";
+                        break;
+                    default:
+                        bill.Status = "Không xác định";
+                        break;
+                }
+
+                // Nếu muốn xử lý cả PaymentStatus thì làm thêm switch tương tự:
+                switch (bill.PaymentStatus)
+                {
+                    case BillConstants.PaymentStatusUnpaid:
+                        bill.PaymentStatus = "Chưa thanh toán";
+                        break;
+                    case BillConstants.PaymentStatusPaid:
+                        bill.PaymentStatus = "Đã thanh toán";
+                        break;
+                    case BillConstants.PaymentStatusRefunded:
+                        bill.PaymentStatus = "Đã hoàn tiền";
+                        break;
+                    default:
+                        bill.PaymentStatus = "Không xác định";
+                        break;
+                }
+
+                //xử lý giờ
+                bill.CreatedOnDate = bill.CreatedOnDate?.ToLocalTime();
+            }
+
             var partialHtml = await RenderPartialViewToString("_BillListPartial", billsPaged);
 
             return Json(new
@@ -98,6 +248,77 @@ namespace Project.MVC.Controllers
             {
                 var bill = await _billBusiness.FindAsync(billId);
                 var billDetails = await _billDetailsBusiness.ListAllByIdBill(billId);
+                if (bill == null || billDetails == null)
+                {
+                    return Json(new { success = false, message = "Không tìm thấy hóa đơn hoặc chi tiết hóa đơn." });
+                }
+                // Chuyển đổi trạng thái và PaymentStatus sang chuỗi dễ đọc
+                switch (bill.Status)
+                {
+                    case BillConstants.PendingConfirmation:
+                        bill.Status = "Chờ xác nhận";
+                        break;
+                    case BillConstants.Confirmed:
+                        bill.Status = "Đã xác nhận";
+                        break;
+                    case BillConstants.Rejected:
+                        bill.Status = "Bị từ chối";
+                        break;
+                    case BillConstants.OutOfStock:
+                        bill.Status = "Hết hàng";
+                        break;
+                    case BillConstants.Paid:
+                        bill.Status = "Đã thanh toán";
+                        break;
+                    case BillConstants.Packed:
+                        bill.Status = "Đã đóng gói";
+                        break;
+                    case BillConstants.Shipping:
+                        bill.Status = "Đang vận chuyển";
+                        break;
+                    case BillConstants.Delivered:
+                        bill.Status = "Đã giao hàng";
+                        break;
+                    case BillConstants.Completed:
+                        bill.Status = "Hoàn thành";
+                        break;
+                    case BillConstants.Cancelled:
+                        bill.Status = "Đã hủy";
+                        break;
+                    case BillConstants.DeliveryFailed:
+                        bill.Status = "Giao hàng thất bại";
+                        break;
+                    case BillConstants.ReturnProcessing:
+                        bill.Status = "Đang xử lý hoàn trả";
+                        break;
+                    case BillConstants.Returned:
+                        bill.Status = "Đã hoàn trả";
+                        break;
+                    default:
+                        bill.Status = "Không xác định";
+                        break;
+                }
+
+                // Nếu muốn xử lý cả PaymentStatus thì làm thêm switch tương tự:
+                switch (bill.PaymentStatus)
+                {
+                    case BillConstants.PaymentStatusUnpaid:
+                        bill.PaymentStatus = "Chưa thanh toán";
+                        break;
+                    case BillConstants.PaymentStatusPaid:
+                        bill.PaymentStatus = "Đã thanh toán";
+                        break;
+                    case BillConstants.PaymentStatusRefunded:
+                        bill.PaymentStatus = "Đã hoàn tiền";
+                        break;
+                    default:
+                        bill.PaymentStatus = "Không xác định";
+                        break;
+                }
+
+                //xử lý giờ
+                bill.CreatedOnDate = bill.CreatedOnDate?.ToLocalTime();
+
                 return Json(new
                 {
                     billInfo = bill,
